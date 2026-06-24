@@ -1,0 +1,1449 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>嗶啵</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+:root{--bg:#B8CEBC;--card:#fff;--card2:#EAF3EC;--accent:#4A7A58;--lt:#C8E4D0;--txt:#1A2E20;--sub:#5A8A68;--bdr:#A0C0A8;--shd:rgba(20,44,26,0.10);}
+html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;background:var(--bg);}
+.page{display:none;width:100vw;height:100vh;flex-direction:column;background:var(--bg);overflow:hidden;position:absolute;top:0;left:0;}
+.page.active{display:flex;}
+.sc{flex:1;overflow-y:auto;padding:10px 13px;display:flex;flex-direction:column;gap:8px;}
+.sc::-webkit-scrollbar{display:none;}
+.pt{font-size:18px;font-weight:700;color:var(--txt);padding:14px 13px 2px;flex-shrink:0;display:flex;align-items:center;gap:8px;}
+.bnav{flex-shrink:0;height:60px;background:var(--card);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-around;padding:0 4px 6px;box-shadow:0 -2px 8px var(--shd);}
+.nb{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;border:none;background:transparent;padding:6px 0;cursor:pointer;}
+.nl{font-size:9px;color:var(--sub);font-family:"Noto Sans TC",sans-serif;}
+.nl.on{color:var(--accent);font-weight:700;}
+.ndot{width:4px;height:4px;border-radius:50%;background:var(--accent);margin-top:1px;}
+.card{background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);}
+.c14{border-radius:14px;padding:11px 13px;}
+.ch2{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.cl2{font-size:10px;color:var(--sub);font-weight:600;}
+.slbl{font-size:11px;font-weight:700;color:var(--sub);padding:4px 2px 2px;letter-spacing:.5px;}
+.hdr{background:var(--card);border-radius:18px;padding:10px 14px;display:flex;align-items:center;box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);flex-shrink:0;}
+.avb{display:flex;flex-direction:column;align-items:center;gap:2px;width:58px;cursor:pointer;}
+.avc{width:48px;height:48px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.avc img{width:100%;height:100%;object-fit:cover;}
+.avn{font-size:11px;color:var(--txt);font-weight:600;}
+.avt{font-size:9px;color:var(--sub);}
+.dm{flex:1;text-align:center;}
+.dl{font-size:9px;color:var(--sub);}
+.dn{font-size:42px;font-weight:700;color:var(--txt);line-height:1;}
+.du{font-size:10px;color:var(--sub);}
+.dpill{display:inline-block;margin-top:3px;font-size:9px;color:var(--accent);background:var(--lt);padding:2px 10px;border-radius:20px;font-weight:600;}
+.mt{font-size:14px;color:var(--txt);margin-bottom:8px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.hdiv{height:1px;background:var(--bdr);margin-bottom:8px;}
+.ir{display:flex;gap:7px;align-items:center;}
+.mi{flex:1;font-size:12px;color:var(--txt);background:var(--card2);border:1px solid var(--bdr);border-radius:12px;padding:7px 12px;font-family:"Noto Sans TC",sans-serif;outline:none;-webkit-appearance:none;}
+.mi::placeholder{color:var(--sub);}
+.sb{width:30px;height:30px;border-radius:50%;background:var(--accent);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.cc{background:var(--card);border-radius:16px;padding:12px 14px;box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.ci{flex:1;min-width:0;}
+.ctop{display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.clbl{font-size:9px;color:var(--sub);font-weight:600;}
+.ccnt{font-size:9px;color:var(--accent);background:var(--lt);padding:1px 6px;border-radius:8px;font-weight:600;cursor:pointer;}
+.cn{font-size:15px;font-weight:700;color:var(--txt);}
+.cs{font-size:10px;color:var(--sub);margin-top:2px;}
+.pb{height:3px;background:var(--bdr);border-radius:2px;margin-top:6px;}
+.pf{height:3px;background:var(--accent);border-radius:2px;transition:width .4s;}
+.db{flex-shrink:0;display:flex;align-items:center;gap:4px;padding:8px 13px;border-radius:18px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:"Noto Sans TC",sans-serif;white-space:nowrap;}
+.decbtn{background:var(--accent);border-radius:16px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;border:none;width:100%;font-family:"Noto Sans TC",sans-serif;box-shadow:0 3px 10px var(--shd);flex-shrink:0;}
+.quad{display:grid;grid-template-columns:1fr 1fr;gap:7px;flex-shrink:0;}
+.qc{background:var(--card);border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:4px;cursor:pointer;border:1px solid var(--bdr);box-shadow:0 3px 10px var(--shd);}
+.qt{font-size:13px;font-weight:700;color:var(--txt);}
+.qn{font-size:17px;font-weight:500;color:var(--sub);}
+.qs{font-size:10px;color:var(--sub);}
+.tabs{display:flex;gap:6px;padding:4px 0;flex-shrink:0;overflow-x:auto;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--card);color:var(--sub);white-space:nowrap;flex-shrink:0;}
+.tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.li{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border-radius:14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);}
+.li.swiped{transform:translateX(-70px);}
+.lck{width:22px;height:22px;border-radius:50%;border:2px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;}
+.lck.done{background:var(--accent);border-color:var(--accent);}
+.lt{flex:1;min-width:0;}
+.ln{font-size:14px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ln.done{text-decoration:line-through;color:var(--sub);}
+.lcat{font-size:10px;color:var(--sub);}
+.lby{font-size:10px;color:var(--sub);}
+.del-bg{position:absolute;right:0;top:0;bottom:0;width:70px;background:#c0392b;display:flex;align-items:center;justify-content:center;border-radius:0 14px 14px 0;z-index:1;}
+.fab{position:fixed;right:18px;bottom:76px;width:50px;height:50px;border-radius:50%;background:var(--accent);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px var(--shd);z-index:20;}
+.mem-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.mc{border-radius:14px;overflow:hidden;background:var(--card);box-shadow:0 3px 10px var(--shd);border:1px solid var(--bdr);cursor:pointer;aspect-ratio:1;position:relative;}
+.mci{width:100%;height:100%;background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.mca{position:absolute;bottom:0;left:0;right:0;background:rgba(26,46,32,.65);padding:5px 8px;}
+.mcat{font-size:10px;color:#fff;font-weight:600;}
+.madd{background:var(--card2);border:1.5px dashed var(--bdr);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;cursor:pointer;border-radius:14px;aspect-ratio:1;}
+.ni{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;background:var(--card);border-radius:14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);}
+.nd{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px;}
+.nd.read{background:var(--bdr);}
+.ntit{font-size:13px;font-weight:600;color:var(--txt);}
+.nsub{font-size:11px;color:var(--sub);margin-top:2px;}
+.ntime{font-size:9px;color:var(--sub);margin-top:3px;}
+.ci2{background:var(--card);border-radius:14px;padding:13px 14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);}
+.ci2-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;}
+.ci2-name{font-size:14px;font-weight:700;color:var(--txt);}
+.cst{font-size:10px;padding:2px 8px;border-radius:10px;font-weight:600;}
+.sta{background:var(--lt);color:var(--accent);}
+.std{background:#e8f5e9;color:#388e3c;}
+.stf{background:#fce4ec;color:#c62828;}
+.ci2-meta{font-size:10px;color:var(--sub);margin-bottom:6px;}
+.cprog{display:flex;align-items:center;gap:8px;}
+.cpb{flex:1;height:4px;background:var(--bdr);border-radius:2px;}
+.cpf{height:4px;background:var(--accent);border-radius:2px;}
+.cpt{font-size:10px;color:var(--sub);white-space:nowrap;}
+.ag{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.ach{background:var(--card);border-radius:14px;padding:12px;border:1px solid var(--bdr);box-shadow:0 2px 8px var(--shd);display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;}
+.ach.locked{opacity:.4;}
+.achi{width:44px;height:44px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;}
+.achn{font-size:11px;font-weight:700;color:var(--txt);}
+.achd{font-size:9px;color:var(--sub);}
+.ri{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);}
+.ri-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;}
+.ri-name{font-size:14px;font-weight:700;color:var(--txt);}
+.ri-meta{font-size:10px;color:var(--sub);}
+.ri-city{display:inline-block;font-size:9px;background:var(--lt);color:var(--accent);padding:2px 7px;border-radius:8px;font-weight:600;margin-top:4px;}
+.stg{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.stc{background:var(--card);border-radius:14px;padding:12px 13px;border:1px solid var(--bdr);box-shadow:0 2px 8px var(--shd);}
+.stn{font-size:24px;font-weight:700;color:var(--txt);}
+.stl{font-size:10px;color:var(--sub);margin-top:2px;}
+.cdow{font-size:10px;color:var(--sub);text-align:center;padding:4px 0;font-weight:600;}
+.cday{font-size:12px;color:var(--txt);text-align:center;padding:6px 2px;cursor:pointer;border-radius:50%;}
+.cday.has{background:var(--lt);color:var(--accent);font-weight:700;}
+.cday.today{background:var(--accent);color:#fff;font-weight:700;}
+.cday.om{color:var(--bdr);}
+.ev{background:var(--card);border-radius:12px;padding:10px 13px;border:1px solid var(--bdr);box-shadow:0 2px 6px var(--shd);display:flex;gap:10px;align-items:flex-start;}
+.evd{width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:3px;}
+.evn{font-size:13px;font-weight:600;color:var(--txt);}
+.evm{font-size:10px;color:var(--sub);margin-top:2px;}
+.sr{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;background:var(--card);border-radius:14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
+.sl{display:flex;align-items:center;gap:10px;}
+.si{width:32px;height:32px;border-radius:9px;background:var(--card2);display:flex;align-items:center;justify-content:center;}
+.slb{font-size:14px;font-weight:600;color:var(--txt);}
+.sv{font-size:12px;color:var(--sub);}
+.danger{color:#c62828;}
+.toggle{width:40px;height:22px;border-radius:11px;background:var(--bdr);position:relative;cursor:pointer;flex-shrink:0;transition:background .2s;}
+.toggle.on{background:var(--accent);}
+.toggle::after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;}
+.toggle.on::after{left:21px;}
+.abadge{font-size:9px;background:#D4A870;color:#3C2810;padding:2px 7px;border-radius:8px;font-weight:700;}
+.tdot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;}
+.tdot.on{border-color:var(--txt);}
+
+/* ── TOAST ── */
+
+
+/* ── FIREWORK ── */
+.fw-overlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;flex-direction:column;}
+.fw-overlay.open{display:flex;}
+.fw-card{background:var(--card);border-radius:24px;padding:28px 32px;text-align:center;position:relative;z-index:2;}
+.fw-title{font-size:22px;font-weight:700;color:var(--txt);margin:12px 0 6px;}
+.fw-sub{font-size:13px;color:var(--sub);margin-bottom:18px;}
+.particle{position:fixed;width:8px;height:8px;border-radius:50%;pointer-events:none;animation:boom 1.2s ease-out forwards;}
+@keyframes boom{0%{transform:translate(0,0) scale(1);opacity:1;}100%{transform:translate(var(--tx),var(--ty)) scale(0.2);opacity:0;}}
+.li-flag{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--accent);cursor:pointer;padding:2px 6px;border-radius:8px;background:var(--lt);flex-shrink:0;}
+.li-flag.done{color:#B8860B;background:#FFF8DC;}
+.unread-dot{position:absolute;top:10px;right:12px;width:8px;height:8px;border-radius:50%;background:#e53935;}
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(30,50,36,0.92);color:#fff;font-size:12px;font-weight:600;padding:8px 18px;border-radius:20px;z-index:9999;transition:transform 0.3s ease;pointer-events:none;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:80;align-items:center;justify-content:center;}
+.mo.open{display:flex;}
+.mob{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;align-items:flex-end;}
+.mob.open{display:flex;}
+.mbox{background:var(--card);border-radius:20px;padding:20px;width:88vw;max-width:340px;max-height:82vh;overflow-y:auto;}
+.mbox::-webkit-scrollbar{display:none;}
+.msh{background:var(--card);border-radius:20px 20px 0 0;padding:18px;width:100%;max-height:80vh;overflow-y:auto;}
+.msh::-webkit-scrollbar{display:none;}
+.mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.mtit{font-size:15px;font-weight:700;color:var(--txt);}
+.mcl{background:none;border:none;color:var(--sub);font-size:24px;cursor:pointer;line-height:1;padding:0;}
+.msgrow{padding:9px 0;border-bottom:1px solid var(--bdr);}
+.msgrow:last-child{border-bottom:none;}
+.mrw{font-size:10px;color:var(--accent);font-weight:600;margin-bottom:2px;}
+.mrt{font-size:13px;color:var(--txt);line-height:1.4;}
+.mrtime{font-size:9px;color:var(--sub);margin-top:2px;}
+.rcard{background:var(--card2);border-radius:14px;padding:18px;margin:10px 0;text-align:center;border:1px solid var(--bdr);}
+.rname{font-size:20px;font-weight:700;color:var(--txt);margin-bottom:4px;}
+.rcat2{font-size:11px;color:var(--accent);}
+.rbtns{display:flex;gap:8px;margin-top:12px;}
+.btn2{flex:1;padding:11px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;font-family:"Noto Sans TC",sans-serif;border:none;}
+.bsec{background:var(--card2);border:1px solid var(--bdr)!important;color:var(--txt);}
+.bpri{background:var(--accent);color:#fff;}
+.pfull{background:rgba(0,0,0,.92);width:100vw;height:100vh;max-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;}
+.pcl{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:24px;width:40px;height:40px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.pph2{width:72vw;height:72vw;max-width:280px;max-height:280px;border-radius:50%;background:rgba(255,255,255,.1);border:2px dashed rgba(255,255,255,.3);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;}
+.pimg2{width:72vw;height:72vw;max-width:280px;max-height:280px;border-radius:50%;object-fit:cover;border:3px solid rgba(255,255,255,.3);display:none;}
+.pubtn{margin-top:14px;padding:9px 22px;border-radius:20px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:"Noto Sans TC",sans-serif;}
+.cel{display:none;position:fixed;inset:0;z-index:100;align-items:center;justify-content:center;overflow:hidden;}
+.cel.open{display:flex;}
+.celb{position:absolute;inset:0;background:rgba(0,0,0,.5);}
+.celc{position:relative;background:var(--card);border-radius:24px;padding:28px 24px;text-align:center;width:76vw;max-width:300px;z-index:2;}
+.celtit{font-size:22px;font-weight:700;color:var(--txt);margin:10px 0 4px;}
+.celsub2{font-size:13px;color:var(--sub);margin-bottom:20px;}
+.celbtn{width:100%;padding:13px;border-radius:12px;background:var(--accent);border:none;font-size:15px;font-weight:600;color:#fff;cursor:pointer;font-family:"Noto Sans TC",sans-serif;}
+.hf{position:fixed;pointer-events:none;animation:fu 2s ease-out forwards;z-index:99;}
+@keyframes fu{0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-90vh) scale(.15) rotate(30deg);opacity:0;}}
+.lock{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:20px;}
+.lock.open{display:flex;}
+.locktit{font-size:18px;font-weight:700;color:var(--txt);}
+.pdots{display:flex;gap:14px;margin:8px 0;}
+.pdot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent);background:transparent;transition:background .1s;}
+.pdot.fill{background:var(--accent);}
+.ppad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:220px;}
+.pkey{height:56px;border-radius:14px;border:1px solid var(--bdr);background:var(--card);font-size:20px;font-weight:600;color:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:"Noto Sans TC",sans-serif;box-shadow:0 2px 6px var(--shd);}
+.perr{font-size:12px;color:#c62828;min-height:18px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-size:12px;font-weight:600;color:var(--sub);}
+.fi{font-size:14px;color:var(--txt);background:var(--card2);border:1px solid var(--bdr);border-radius:12px;padding:10px 13px;font-family:"Noto Sans TC",sans-serif;outline:none;-webkit-appearance:none;width:100%;}
+.fi::placeholder{color:var(--bdr);}
+.fsel{font-size:14px;color:var(--txt);background:var(--card2);border:1px solid var(--bdr);border-radius:12px;padding:10px 13px;font-family:"Noto Sans TC",sans-serif;outline:none;width:100%;}
+.strbtn{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--bdr);background:var(--card2);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.strbtn.on{background:#FFF8DC;border-color:#E6A800;}.strbtn.on svg path{fill:#F4C430;stroke:#E6A800;}
+.cbox{background:var(--card);border-radius:20px;padding:22px;width:82vw;max-width:310px;text-align:center;}
+.ctit{font-size:16px;font-weight:700;color:var(--txt);margin-bottom:8px;}
+.csub{font-size:13px;color:var(--sub);line-height:1.5;margin-bottom:18px;}
+.cbtns{display:flex;gap:8px;}
+input[type=file]{display:none;}
+</style>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB7ItJLps_FErzeQ-1s9WtS7XfercGt4i4",
+    authDomain: "beebo-2026.firebaseapp.com",
+    projectId: "beebo-2026",
+    storageBucket: "beebo-2026.firebasestorage.app",
+    messagingSenderId: "1026830273237",
+    appId: "1:1026830273237:web:1af2c3ed13aaec784cf05c"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+
+  // ── 登入狀態監聽 ──
+  onAuthStateChanged(auth, async (user) => {
+    if (user) {
+      // 已登入
+      window.currentUser = user;
+      document.getElementById('loginScreen').style.display = 'none';
+
+      // 取得或建立用戶資料
+      const userRef = doc(db, 'users', user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        // 第一次登入 → 建立用戶文件
+        await setDoc(userRef, {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || '我',
+          photo: user.photoURL || '',
+          createdAt: new Date(),
+          isAdmin: false,
+          partnerId: null
+        });
+      }
+
+      const userData = userSnap.exists() ? userSnap.data() : { name: user.displayName, partnerId: null };
+      window.userData = userData;
+
+      // 更新主頁頭像和名稱
+      updateHomeUI(user, userData);
+
+      // 檢查是否已配對
+      if (userData.partnerId) {
+        // 已配對 → 進入主頁
+        document.getElementById('pairingScreen').style.display = 'none';
+        if (typeof buildNavs === 'function') buildNavs();
+      } else {
+        // 未配對 → 顯示配對畫面
+        document.getElementById('pairingScreen').style.display = 'flex';
+      }
+    } else {
+      // 未登入 → 顯示登入畫面
+      window.currentUser = null;
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('pairingScreen').style.display = 'none';
+    }
+  });
+
+  function updateHomeUI(user, userData) {
+    // 更新右側頭像（我）
+    const myPhoto = user.photoURL;
+    const myAvc = document.getElementById('avc-me');
+    if (myAvc && myPhoto) {
+      myAvc.innerHTML = '<img src="' + myPhoto + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    }
+    // 更新名稱
+    const myName = document.querySelector('.aname-me');
+    if (myName) myName.textContent = userData.name || user.displayName || '我';
+  }
+
+  // ── Google 登入 ──
+  window.googleLogin = async function() {
+    const btn = document.getElementById('googleLoginBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '登入中...'; }
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error(err);
+      if (btn) { btn.disabled = false; btn.textContent = '使用 Google 帳號登入'; }
+      if (err.code !== 'auth/popup-closed-by-user') {
+        alert('登入失敗：' + err.message);
+      }
+    }
+  };
+
+  // ── 登出 ──
+  window.firebaseSignOut = async function() {
+    if (confirm('確定要登出嗎？')) {
+      await signOut(auth);
+    }
+  };
+
+  // ── 產生邀請碼 ──
+  window.genInvite = async function() {
+    if (!window.currentUser) return;
+    const code = 'BPO-' + Math.floor(1000 + Math.random() * 9000);
+    const expiry = new Date(Date.now() + 2 * 60 * 60 * 1000); // 2小時後
+    await setDoc(doc(db, 'invites', code), {
+      createdBy: window.currentUser.uid,
+      createdAt: new Date(),
+      expiresAt: expiry,
+      used: false
+    });
+    const inp = document.getElementById('inviteCodeInput');
+    if (inp) inp.textContent = code;
+    // 開始倒數
+    startInviteCountdown(expiry);
+    showToast('邀請碼已產生，2小時內有效');
+  };
+
+  function startInviteCountdown(expiry) {
+    const timer = document.getElementById('inviteTimer');
+    if (!timer) return;
+    const update = () => {
+      const diff = expiry - Date.now();
+      if (diff <= 0) { timer.textContent = '已過期'; return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      timer.textContent = '剩餘 ' + h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0') + ' 失效';
+      setTimeout(update, 1000);
+    };
+    update();
+  }
+
+  // ── 輸入邀請碼配對 ──
+  window.submitInviteCode = async function() {
+    const code = document.getElementById('inviteInputField').value.trim().toUpperCase();
+    if (!code) { alert('請輸入邀請碼'); return; }
+    if (!window.currentUser) return;
+
+    const inviteRef = doc(db, 'invites', code);
+    const inviteSnap = await getDoc(inviteRef);
+
+    if (!inviteSnap.exists()) { alert('邀請碼不存在'); return; }
+    const invite = inviteSnap.data();
+    if (invite.used) { alert('此邀請碼已使用'); return; }
+    if (invite.expiresAt.toDate() < new Date()) { alert('邀請碼已過期'); return; }
+    if (invite.createdBy === window.currentUser.uid) { alert('不能使用自己的邀請碼'); return; }
+
+    // 配對成功
+    const myRef = doc(db, 'users', window.currentUser.uid);
+    const partnerRef = doc(db, 'users', invite.createdBy);
+
+    await setDoc(myRef, { partnerId: invite.createdBy, isAdmin: false }, { merge: true });
+    await setDoc(partnerRef, { partnerId: window.currentUser.uid, isAdmin: true }, { merge: true });
+    await setDoc(inviteRef, { used: true }, { merge: true });
+
+    alert('配對成功！歡迎使用嗶啵');
+    document.getElementById('pairingScreen').style.display = 'none';
+    if (typeof buildNavs === 'function') buildNavs();
+  };
+
+  window._db = db;
+  window._auth = auth;
+</script>
+</head>
+<body>
+
+<!-- 登入畫面 -->
+<div id="loginScreen" style="display:none;position:fixed;inset:0;z-index:9999;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:24px;">
+  <div style="text-align:center;">
+    <div style="font-size:48px;font-weight:700;color:var(--accent);letter-spacing:2px;margin-bottom:4px;">嗶啵</div>
+    <div style="font-size:13px;color:var(--sub);">屬於你們的小天地</div>
+  </div>
+  <div style="background:var(--card);border-radius:20px;padding:28px 24px;width:88vw;max-width:320px;box-shadow:0 4px 20px var(--shd);text-align:center;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" style="margin-bottom:16px;"><path d="M12 21C12 21 3 13.5 3 8a5 5 0 019-3 5 5 0 019 3c0 5.5-9 13-9 13z" fill="#C8E4D0" stroke="#4A7A58" stroke-width="1.5"/></svg>
+    <div style="font-size:14px;color:var(--sub);margin-bottom:20px;line-height:1.6;">登入後與另一半<br>一起記錄你們的故事</div>
+    <button id="googleLoginBtn" onclick="googleLogin()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--bdr);background:var(--card);font-size:14px;font-weight:600;color:var(--txt);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Noto Sans TC',sans-serif;">
+      <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+      使用 Google 帳號登入
+    </button>
+  </div>
+  <div style="font-size:10px;color:var(--sub);opacity:0.6;">嗶啵 v1.2.0</div>
+</div>
+
+<!-- 配對畫面 -->
+<div id="pairingScreen" style="display:none;position:fixed;inset:0;z-index:9998;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;">
+  <div style="text-align:center;">
+    <div style="font-size:28px;font-weight:700;color:var(--accent);">嗶啵</div>
+    <div style="font-size:13px;color:var(--sub);margin-top:4px;">配對你的另一半</div>
+  </div>
+  <div style="background:var(--card);border-radius:20px;padding:24px;width:100%;max-width:320px;box-shadow:0 4px 20px var(--shd);">
+    <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:12px;">你有邀請碼嗎？</div>
+    <input id="inviteInputField" class="fi" placeholder="輸入邀請碼 e.g. BPO-1234" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:2px;">
+    <button onclick="submitInviteCode()" class="btn2 bpri" style="width:100%;">確認配對</button>
+  </div>
+  <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:320px;box-shadow:0 4px 20px var(--shd);text-align:center;">
+    <div style="font-size:12px;color:var(--sub);margin-bottom:12px;">或產生邀請碼，讓另一半掃描</div>
+    <button onclick="genInvite()" class="btn2 bsec" style="width:100%;">產生我的邀請碼</button>
+    <div id="pairingCode" style="margin-top:12px;font-size:22px;font-weight:700;color:var(--accent);letter-spacing:4px;display:none;"></div>
+  </div>
+  <button onclick="firebaseSignOut()" style="all:unset;font-size:12px;color:var(--sub);cursor:pointer;text-decoration:underline;">登出</button>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+  <div class="sc" style="padding-top:12px;">
+    <div class="hdr">
+      <div class="avb" onclick="openPhoto('partner')">
+        <div class="avc" id="avc-partner"><svg width="26" height="26" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="avn">小柔</div><div class="avt">剛剛</div>
+      </div>
+      <div class="dm" style="cursor:pointer;" onclick="openMo('annivMo')"><div class="dl">在一起</div><div class="dn">387</div><div class="du">天</div><div class="dpill">下個紀念日 13 天後</div></div>
+      <div class="avb" onclick="openPhoto('me')">
+        <div class="avc" id="avc-me"><svg width="26" height="26" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+        <div class="avn">我</div><div class="avt">2 分鐘前</div>
+      </div>
+    </div>
+    <div class="card" style="flex-shrink:0;">
+      <div class="ch2"><span class="cl2" style="display:flex;align-items:center;gap:5px;">今日留言<span id="msgUnreadDot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#e53935;flex-shrink:0;"></span></span><span style="font-size:10px;color:var(--accent);">小柔・12:34</span></div>
+      <div class="mt" onclick="openMo('msgMo')">「今天吃了好好吃的拉麵，下次一定要帶你去，你會超喜歡的！」</div>
+      <div class="hdiv"></div>
+      <div class="ir"><input class="mi" placeholder="留言給對方..."><button class="sb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    </div>
+    <div class="cc">
+      <div class="ci" onclick="goPage('challenges')" style="cursor:pointer;">
+        <div class="ctop"><span class="clbl">當前挑戰</span><span class="ccnt" onclick="goPage('challenges')">共 3 個</span></div>
+        <div class="cn" id="challName">一起騎腳踏車環湖</div>
+        <div class="cs" id="challSub">還剩 5 天・1/2 已完成</div>
+        <div class="pb"><div class="pf" id="progFill" style="width:50%"></div></div>
+      </div>
+      <button class="db" onclick="markDone()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>完成</button>
+    </div>
+    <button class="decbtn" onclick="openDecide()">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/><circle cx="7.5" cy="7.5" r="1.6" fill="#fff"/><circle cx="16.5" cy="7.5" r="1.6" fill="#fff"/><circle cx="12" cy="12" r="1.6" fill="#fff"/><circle cx="7.5" cy="16.5" r="1.6" fill="#fff"/><circle cx="16.5" cy="16.5" r="1.6" fill="#fff"/></svg></div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;">幫我決定</div><div style="font-size:9px;color:rgba(255,255,255,.8);margin-top:1px;">從清單隨機抽一個</div></div>
+      </div>
+      <div style="color:rgba(255,255,255,.6);font-size:20px;line-height:1;">›</div>
+    </button>
+    <div class="quad">
+      <div class="qc" onclick="goPageX('achievements')"><div class="qt">我們的成就</div><div class="qn">7 個</div><div class="qs">完成挑戰數</div></div>
+      <div class="qc" onclick="goPageX('review')"><div class="qt">我們的回顧</div><div class="qn">387 天</div><div class="qs">在一起天數</div></div>
+      <div class="qc" onclick="goPageX('calendar')"><div class="qt">行事曆</div><div class="qn">週六</div><div class="qs">下次約會・3天後</div></div>
+      <div class="qc" onclick="goPageX('restaurants')"><div class="qt">餐廳記錄</div><div class="qn">23 家</div><div class="qs">去過的餐廳</div></div>
+    </div>
+  </div>
+  <div class="bnav" id="bnav-home"></div>
+</div>
+
+<!-- MEMORY -->
+<div class="page" id="page-memory">
+  <div class="pt">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="#4A7A58" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 6l1.5-2.5h5L16 6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>回憶錄
+    <div style="margin-left:auto;display:flex;gap:6px;">
+      <select id="memYear" onchange="renderMemory()" style="font-size:11px;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option>2025</option><option>2024</option><option>2023</option></select>
+      <select id="memMonth" onchange="renderMemory()" style="font-size:11px;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    </div>
+  </div>
+  <div style="display:flex;gap:0;flex-shrink:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0;">
+  <button id="memTab-photo" onclick="switchMemTab('photo')" style="flex:1;padding:9px;font-size:13px;font-weight:700;color:var(--accent);border:none;background:none;border-bottom:2px solid var(--accent);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">照片牆</button>
+  <button id="memTab-quote" onclick="switchMemTab('quote')" style="flex:1;padding:9px;font-size:13px;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">語錄</button>
+</div>
+<div class="sc" id="memBody"></div>
+<div class="sc" id="quoteBody" style="display:none;"></div>
+  <button class="fab" onclick="openMo('addMemMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+  <div class="bnav" id="bnav-memory"></div>
+</div>
+
+<!-- LIST -->
+<div class="page" id="page-list">
+  <div class="pt">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>我們的清單
+    <div style="margin-left:auto;"><button onclick="openMo('inspireMo')" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button></div>
+  </div>
+  <div style="padding:0 13px;flex-shrink:0;">
+    <div class="tabs"><div class="tab on" onclick="setListTab('pending',this)">未完成</div><div class="tab" onclick="setListTab('done',this)">已完成</div></div>
+    <div class="tabs" id="catTabs" style="margin-top:2px;"><div class="tab on" onclick="setListCat('全部',this)">全部</div><div class="tab" onclick="setListCat('想去哪',this)">想去哪</div><div class="tab" onclick="setListCat('想吃什麼',this)">想吃什麼</div><div class="tab" onclick="setListCat('想做什麼',this)">想做什麼</div><div class="tab" onclick="setListCat('想看什麼',this)">想看什麼</div></div>
+  </div>
+  <div class="sc" id="listBody" style="padding-top:6px;"></div>
+  <button class="fab" onclick="openMo('addListMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+  <div class="bnav" id="bnav-list"></div>
+</div>
+
+<!-- CHALLENGES -->
+<div class="page" id="page-challenges">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰
+  </div>
+  <div style="padding:0 13px;flex-shrink:0;"><div class="tabs"><div class="tab on" onclick="setChalTab('active',this)">進行中</div><div class="tab" onclick="setChalTab('done',this)">已完成</div><div class="tab" onclick="setChalTab('failed',this)">已失敗</div></div></div>
+  <div class="sc" id="chalBody" style="padding-top:6px;"></div>
+  <div class="bnav" id="bnav-challenges"></div>
+</div>
+
+<!-- NOTIFY -->
+<div class="page" id="page-notify">
+  <div class="pt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.7 3 6 5.7 6 9v5l-2 2h16l-2-2V9c0-3.3-2.7-6-6-6z" stroke="#4A7A58" stroke-width="1.5"/><path d="M10 19a2 2 0 004 0" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>通知<button onclick="openMo('clearNotifyMo')" style="margin-left:auto;font-size:11px;color:var(--sub);background:none;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">清除</button></div>
+  <div class="sc">
+    <div class="ni"><div class="nd"></div><div style="flex:1;"><div class="ntit">小柔 留下了今日留言</div><div class="nsub">「今天吃了好好吃的拉麵...」</div><div class="ntime">剛剛</div></div></div>
+    <div class="ni"><div class="nd"></div><div style="flex:1;"><div class="ntit">挑戰快到期了</div><div class="nsub">「去看一場電影」還剩 3 天</div><div class="ntime">2 小時前</div></div></div>
+    <div class="ni"><div class="nd read"></div><div style="flex:1;"><div class="ntit">小柔 完成了挑戰打勾</div><div class="nsub">「一起騎腳踏車環湖」1/2</div><div class="ntime">昨天・14:20</div></div></div>
+    <div class="ni"><div class="nd read"></div><div style="flex:1;"><div class="ntit">小柔 新增了回憶錄</div><div class="nsub">九份老街の一天</div><div class="ntime">3 天前</div></div></div>
+    <div class="ni"><div class="nd read"></div><div style="flex:1;"><div class="ntit">紀念日提醒</div><div class="nsub">13 天後是 400 天紀念日</div><div class="ntime">5 天前</div></div></div>
+  </div>
+  <div class="bnav" id="bnav-notify"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="page" id="page-settings">
+  <div class="pt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>設定</div>
+  <div class="sc" style="padding-top:4px;">
+    <div class="slbl">個人資料</div>
+    <div class="sr" onclick="openMo('profileMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">我的個人資料</div></div><div class="sv">›</div></div>
+    <div class="slbl">外觀</div>
+    <div class="card c14"><div class="cl2" style="margin-bottom:8px;">主題色系（各自設定）</div><div style="display:flex;gap:8px;"><div class="tdot on" style="background:#B8CEBC;" onclick="setTheme('green',this)"></div><div class="tdot" style="background:#D4C0BC;" onclick="setTheme('rose',this)"></div><div class="tdot" style="background:#AABCCC;" onclick="setTheme('blue',this)"></div><div class="tdot" style="background:#D0B898;" onclick="setTheme('clay',this)"></div><div class="tdot" style="background:#BCBCB4;" onclick="setTheme('mist',this)"></div></div></div>
+    <div class="slbl">通知</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="sr" onclick="openMo('lineTokenMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">LINE Notify Token</div></div><div class="sv">已設定 ›</div></div>
+      <div class="card c14" style="display:flex;flex-direction:column;gap:10px;">
+      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">留言通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">對方留言</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">留言紅點</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div></details>
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
+      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">挑戰通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">挑戰進度更新</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">挑戰到期提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div></details>
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
+      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">紀念日通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">紀念日提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">生日提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div></details>
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
+      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">系統通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">系統公告</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">備份提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+      </div></details>
+    </div>
+    </div>
+    <div class="slbl">安全</div>
+    <div class="sr" onclick="openMo('pinSetMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">隱私鎖</div></div><div class="sv" id="pinStatus">未設定 ›</div></div>
+    <div class="slbl">其他</div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="sr" onclick="openMo('exportMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('changelogMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.2.0 ›</div></div>
+      <div class="sr" onclick="openMo('logoutConfirm')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
+    </div>
+    <div class="slbl" style="display:flex;align-items:center;gap:6px;">管理員專區 <span class="abadge">管理員</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="sr" onclick="openMo('storageMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="9" ry="3" stroke="#A87848" stroke-width="1.5"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12" stroke="#A87848" stroke-width="1.5"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">儲存空間管理</div></div><div class="sv">18.2/25 GB ›</div></div>
+      <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv">30 天 ›</div></div>
+      <div class="sr" onclick="openMo('customNameMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">自訂名稱</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('inspireMgMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#A87848" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">靈感題庫管理</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('bindMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="if(confirm('確定要關閉對方陰私鎖？'))showToast('已關閉對方隱私鎖')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#A87848" stroke-width="1.5"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">關閉對方隱私鎖</div></div><div class="sv">›</div></div>
+
+      <div class="sr" onclick="openMo('transferMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">轉移管理員帳號</div></div><div></div></div>
+    </div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="openMo('changelogMo')">嗶啵 v1.2.0</div>
+  </div>
+  <div class="bnav" id="bnav-settings"></div>
+</div>
+
+<!-- ACHIEVEMENTS -->
+<div class="page" id="page-achievements">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>我們的成就
+  </div>
+  <div class="sc">
+    <div class="slbl">挑戰成就</div>
+    <div class="ag">
+      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">一起騎腳踏車環湖</div><div class="achd">2025.05.12</div></div>
+      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">吃吃看鼎泰豐</div><div class="achd">2025.04.03</div></div>
+    </div>
+    <div class="slbl" style="margin-top:8px;">系統成就</div>
+    <div class="ag">
+      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">在一起 100 天</div><div class="achd">2024.09.10</div></div>
+      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">上傳第1張照片</div><div class="achd">2024.06.04</div></div>
+      <div class="ach locked"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">在一起 365 天</div><div class="achd">未解鎖</div></div>
+      <div class="ach locked"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">探索 5 個縣市</div><div class="achd">未解鎖</div></div>
+    </div>
+  </div>
+  <button class="fab" onclick="goPageX('challenges')" style="bottom:76px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+</div>
+
+<!-- REVIEW -->
+<div class="page" id="page-review">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="9" rx="1" fill="#4A7A58" opacity=".7"/><rect x="10" y="6" width="4" height="15" rx="1" fill="#4A7A58"/><rect x="17" y="9" width="4" height="12" rx="1" fill="#4A7A58" opacity=".7"/></svg>我們的回顧
+  </div>
+  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="2026">2026 年</option><option value="2025">2025 年</option><option value="2024">2024 年</option><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn">387</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn">142</div><div class="stl">上傳照片</div></div><div class="stc" onclick="showToast('完成清單')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">18</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">7</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="showToast('看縣市記錄')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">5</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">23</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn">89</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn">45</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn">6</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div style="display:flex;align-items:flex-end;gap:3px;height:70px;"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">1月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">2月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">3月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:40px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">4月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">4</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">5月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">6月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">7月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">8月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">9月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">10月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">11月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">12月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div></div></div></div>
+</div>
+
+<!-- CALENDAR -->
+<div class="page" id="page-calendar">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>行事曆
+  </div>
+  <div class="sc">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">‹</button><div style="font-size:14px;font-weight:700;color:var(--txt);">2025年 6月</div><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">›</button></div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">
+        <div class="cdow">日</div><div class="cdow">一</div><div class="cdow">二</div><div class="cdow">三</div><div class="cdow">四</div><div class="cdow">五</div><div class="cdow">六</div>
+        <div class="cday om">1</div><div class="cday om">2</div><div class="cday om">3</div><div class="cday om">4</div><div class="cday om">5</div><div class="cday om">6</div><div class="cday om">7</div>
+        <div class="cday om">8</div><div class="cday om">9</div><div class="cday om">10</div><div class="cday om">11</div><div class="cday om">12</div><div class="cday om">13</div><div class="cday om">14</div>
+        <div class="cday om">15</div><div class="cday om">16</div><div class="cday om">17</div><div class="cday om">18</div><div class="cday om">19</div><div class="cday om">20</div><div class="cday om">21</div>
+        <div class="cday om">22</div><div class="cday today">23</div><div class="cday">24</div><div class="cday">25</div><div class="cday">26</div><div class="cday">27</div><div class="cday has" onclick="openMo('calDayMo')" style="cursor:pointer;">28</div>
+        <div class="cday">29</div><div class="cday">30</div>
+      </div>
+    </div>
+    <div class="slbl">即將到來</div>
+    <div class="ev"><div class="evd"></div><div><div class="evn">一起看電影</div><div class="evm">6月28日（週六）・台北信義</div></div></div>
+    <div class="ev"><div class="evd" style="background:var(--bdr);"></div><div><div class="evn">小柔生日</div><div class="evm">7月15日・還有 22 天</div></div></div>
+    <div class="ev"><div class="evd" style="background:var(--bdr);"></div><div><div class="evn">400 天紀念日</div><div class="evm">7月7日・還有 14 天</div></div></div>
+  </div>
+  <button class="fab" onclick="openMo('addEventMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+</div>
+
+<!-- RESTAURANTS -->
+<div class="page" id="page-restaurants">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8c0 3.3-2.7 6-6 6S6 11.3 6 8V3h12v5z" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 14v7M8 21h8" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>餐廳記錄
+  </div>
+  <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;"><div style="display:flex;gap:6px;"><select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option><option>台北市</option><option>新北市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>桃園市</option><option>新竹市</option><option>台南市</option><option>花蓮縣</option><option>台東縣</option><option>國外</option></select></div><div id="foreignFilterRow" style="display:none;gap:6px;"><select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select><select id="restTypeFilter" onchange="setRT(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部類型</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>其他</option></select></div>
+  <div class="sc" id="restBody" style="padding-top:6px;"></div>
+  <button class="fab" onclick="openMo('addRestMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+</div>
+
+<!-- MODALS -->
+
+<div class="toast" id="toast"></div>
+<div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value="台南一日遊"></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" value="2025-06-28" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" value="10:00" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" value="20:00" style="flex:1;"></div></div><div class="fg"><label class="fl">地點</label><input class="fi" id="editEvPlace" value="台南市"></div><div class="fg"><label class="fl">重複</label><select class="fi" style="padding:8px 10px;"><option>不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註</label><textarea class="fi" rows="2" style="resize:none;"></textarea></div><div style="display:flex;gap:8px;"><button onclick="showToast('已儲存');closeMo('editEventMo')" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(confirm('刪除這個約會？'))showToast('已刪除');closeMo('editEventMo')" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
+<div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:var(--accent);">太郎拉麵・台南市・5★4</label><label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:var(--accent);">鼎泰豐豐・台北市・4★4</label><label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:var(--accent);">星巴克・台北市・3★4</label></div><button onclick="closeMo('linkRestMo')" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
+<div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit" id="editChalName">挑戰名稱</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="showToast('截止日期已更新');closeMo('editChalMo')" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(confirm('放棄這個挑戰？'))showToast('已移至已失敗');closeMo('editChalMo')" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
+<div class="mo" id="calDayMo"><div class="mbox"><div class="mh"><span class="mtit">6月28日 週六</span><button class="mcl" onclick="closeMo('calDayMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:8px;">
+  <div style="background:var(--lt);border-radius:12px;padding:12px;">
+    <div style="font-size:14px;font-weight:700;color:var(--txt);">台南一日遊</div>
+    <div style="font-size:12px;color:var(--sub);margin-top:3px;">10:00 - 20:00・台南市</div>
+    <div style="display:flex;gap:6px;margin-top:8px;">
+      <button onclick="closeMo('calDayMo');openMo('editEventMo')" class="btn2 bsec" style="flex:1;font-size:12px;">編輯</button>
+      <button onclick="if(confirm('刪除這個約會？'))showToast('已刪除');closeMo('calDayMo')" style="all:unset;flex:1;text-align:center;font-size:12px;color:#c62828;cursor:pointer;padding:6px;border-radius:10px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button>
+    </div>
+  </div>
+  <button onclick="closeMo('calDayMo');openMo('addEventMo')" class="btn2 bpri" style="width:100%;">新增這天的約會</button>
+</div></div></div>
+<div class="mo" id="chalDetailMo"><div class="mbox"><div class="mh"><span class="mtit">挑戰詳細</span><button class="mcl" onclick="closeMo('chalDetailMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+  <div style="background:var(--lt);border-radius:12px;padding:12px;">
+    <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:4px;">一起騎腳踏車環湖</div>
+    <div style="font-size:12px;color:var(--sub);">探索類・截止 6/30</div>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+      <div style="flex:1;height:6px;background:var(--bdr);border-radius:3px;"><div style="width:50%;height:100%;background:var(--accent);border-radius:3px;"></div></div>
+      <span style="font-size:11px;color:var(--sub);">1/2 已完成</span>
+    </div>
+  </div>
+  <div class="fg"><label class="fl">修改截止日期</label><input class="fi" type="date" id="chalNewDate" value="2025-06-30"></div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="showToast('截止日期已更新');closeMo('chalDetailMo')" class="btn2 bsec" style="flex:1;">更新日期</button>
+    <button onclick="if(confirm('確定要放棄這個挑戰嗎？'))showToast('挑戰已放棄，移至已失敗');closeMo('chalDetailMo')" class="btn2" style="flex:1;background:#fdecea;color:#c62828;border:1px solid #f5c6cb;">放棄挑戰</button>
+  </div>
+  <button onclick="closeMo('chalDetailMo');goPage('challenges')" class="btn2 bsec" style="width:100%;">查看所有挑戰</button>
+</div></div></div>
+<div class="mo" id="annivMo"><div class="mbox"><div class="mh"><span class="mtit">紀念日倒數</span><button class="mcl" onclick="closeMo('annivMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:8px;max-height:65vh;overflow-y:auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--lt);border-radius:12px;">
+    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">在一起紀念日</div><div style="font-size:11px;color:var(--sub);">每年 6/2</div></div>
+    <div style="font-size:20px;font-weight:700;color:var(--accent);">13天後</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
+    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">西洋情人節</div><div style="font-size:11px;color:var(--sub);">每年 2/14</div></div>
+    <div style="font-size:16px;font-weight:700;color:var(--sub);">235天後</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
+    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">小柔生日</div><div style="font-size:11px;color:var(--sub);">每年 9/15</div></div>
+    <div style="font-size:16px;font-weight:700;color:var(--sub);">83天後</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
+    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">聖誕節</div><div style="font-size:11px;color:var(--sub);">每年 12/25</div></div>
+    <div style="font-size:16px;font-weight:700;color:var(--sub);">184天後</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
+    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">七夕情人節</div><div style="font-size:11px;color:var(--sub);">農曆 7/7</div></div>
+    <div style="font-size:16px;font-weight:700;color:var(--sub);">48天後</div>
+  </div>
+</div></div></div>
+<div class="mo" id="msgMo"><div class="mbox"><div class="mh"><span class="mtit">留言紀錄</span><button class="mcl" onclick="closeMo('msgMo')">×</button></div><div class="msgrow"><div class="mrw">小柔</div><div class="mrt">今天吃了好好吃的拉麵，下次一定要帶你去！</div><div class="mrtime">今天・12:34</div></div><div class="msgrow"><div class="mrw">我</div><div class="mrt">晚安，今天工作好累但想到你就好了</div><div class="mrtime">昨天・23:11</div></div><div class="msgrow"><div class="mrw">小柔</div><div class="mrt">你要好好休息喔！我在等你</div><div class="mrtime">昨天・22:48</div></div><div class="msgrow"><div class="mrw">我</div><div class="mrt">今天下雨，想到那天我們一起淋雨的事</div><div class="mrtime">2天前・20:15</div></div></div></div>
+<div class="mob" id="decideMo"><div class="msh"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('decideMo')">×</button></div><select onchange="setDC(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;margin-bottom:8px;"><option value="全部">全部分類</option><option value="想去哪" id="dc-opt-1">想去哪</option><option value="想吃什麼" id="dc-opt-2">想吃什麼</option><option value="想做什麼" id="dc-opt-3">想做什麼</option><option value="想看什麼" id="dc-opt-4">想看什麼</option></select><div class="rcard"><div class="rname" id="rname">去九份老街</div><div class="rcat2" id="rcat">想去哪</div></div><div class="rbtns"><button class="btn2 bsec" onclick="reroll()">再抽一次</button><button class="btn2 bpri" onclick="closeMo('decideMo')">就這個！</button></div></div></div>
+<div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt="" onclick="triggerUpload()"><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2">小柔</div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;">點擊更換照片</div><button class="pubtn" onclick="triggerUpload()">更換照片</button><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
+<div class="mo" id="profileMo"><div class="mbox"><div class="mh"><span class="mtit">我的個人資料</span><button class="mcl" onclick="closeMo('profileMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:center;"><div style="position:relative;cursor:pointer;" onclick="openPhoto('me')"><div style="width:68px;height:68px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);overflow:hidden;display:flex;align-items:center;justify-content:center;" id="profileAv"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H2v-5L16 3z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">暱稱</label><input class="fi" value="我" placeholder="輸入暱稱"></div><div class="fg"><label class="fl">生日</label><input class="fi" type="date" value="1998-07-20"></div><div class="fg"><label class="fl">性別</label><select class="fsel"><option>男</option><option>女</option><option>不公開</option></select></div><div class="fg"><label class="fl">帳號（Gmail）</label><input class="fi" value="myemail@gmail.com" readonly style="color:var(--sub);"></div><div class="fg"><label class="fl">在一起日期</label><input class="fi" type="date" value="2024-06-02" onchange="confirmDateChange(this)"><div style="font-size:10px;color:var(--sub);margin-top:3px;">修改後天數將重新計算</div></div><button class="btn2 bpri" onclick="closeMo('profileMo')">儲存</button></div></div></div>
+<div class="mo" id="lineTokenMo"><div class="mbox"><div class="mh"><span class="mtit">LINE Notify Token</span><button class="mcl" onclick="closeMo('lineTokenMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);line-height:1.6;">前往 LINE Notify 官網取得 Token，貼上後即可接收通知。</div><div class="fg"><label class="fl">Token</label><input class="fi" placeholder="貼上 Token..."></div><button class="btn2 bpri" onclick="closeMo('lineTokenMo')">儲存</button></div></div></div>
+<div class="mo" id="pinSetMo"><div class="mbox"><div class="mh"><span class="mtit">設定隱私鎖</span><button class="mcl" onclick="closeMo('pinSetMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">閒置 10 分鐘後自動鎖定。</div><div class="fg"><label class="fl">設定 4 位數 PIN</label><input class="fi" type="password" maxlength="4" placeholder="輸入 PIN" id="pi1"></div><div class="fg"><label class="fl">確認 PIN</label><input class="fi" type="password" maxlength="4" placeholder="再輸入一次" id="pi2"></div><button class="btn2 bpri" onclick="savePin()">啟用隱私鎖</button></div></div></div>
+<div class="mo" id="exportMo"><div class="mbox"><div class="mh"><span class="mtit">匯出資料</span><button class="mcl" onclick="closeMo('exportMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">照片 ZIP 下載</div><div style="font-size:11px;color:var(--sub);">由管理員後台產生下載連結，需先在電腦端操作</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">回憶錄 PDF 匯出</div><div style="font-size:11px;color:var(--sub);">封面＋照片網格＋餐廳清單，可選單筆或全部</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">清單／餐廳／紀念日 Excel</div><div style="font-size:11px;color:var(--sub);">所有文字資料匯出為 Excel 試算表</div></div></div></div></div>
+<div class="mo" <div class="mo" id="changelogMo"><div class="mbox"><div class="mh"><span class="mtit">版本紀錄</span><button class="mcl" onclick="closeMo('changelogMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;" id="changelogList">
+  <div style="background:var(--lt);border-radius:12px;padding:10px 12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;font-weight:700;color:var(--txt);">v1.2.0 <span style="font-size:10px;color:var(--sub);font-weight:400;">2026/06/24</span></div>
+      <button onclick="editVersion(0)" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">編輯</button>
+    </div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7;">語錄功能、兩人打勾機制、挑戰失敗重啟、邀請碼2小時有效</div>
+  </div>
+  <div style="background:var(--card2);border-radius:12px;padding:10px 12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;font-weight:700;color:var(--txt);">v1.1.0 <span style="font-size:10px;color:var(--sub);font-weight:400;">2024/06/23</span></div>
+      <button onclick="editVersion(1)" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">編輯</button>
+    </div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7;">清單挑戰完整邏輯、照片壓縮系統、管理員後台、帳號配對流程</div>
+  </div>
+  <div style="background:var(--card2);border-radius:12px;padding:10px 12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;font-weight:700;color:var(--txt);">v1.0.0 <span style="font-size:10px;color:var(--sub);font-weight:400;">2024/06/15</span></div>
+      <button onclick="editVersion(2)" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">編輯</button>
+    </div>
+    <div style="font-size:12px;color:var(--sub);margin-top:4px;">初始版本</div>
+  </div>
+</div>
+<div id="addVersionForm" style="display:none;flex-direction:column;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);">
+  <div style="display:flex;gap:6px;">
+    <input class="fi" id="newVer" placeholder="版本號 e.g. v1.3.0" style="flex:1;">
+    <input class="fi" type="date" id="newVerDate" style="flex:1;">
+  </div>
+  <textarea class="fi" id="newVerDesc" rows="2" style="resize:none;" placeholder="更新說明..."></textarea>
+  <div style="display:flex;gap:6px;">
+    <button onclick="saveVersion()" class="btn2 bpri" style="flex:1;">儲存</button>
+    <button onclick="toggleAddVersion()" class="btn2 bsec" style="flex:1;">取消</button>
+  </div>
+</div>
+<button onclick="toggleAddVersion()" class="btn2 bsec" id="addVersionBtn" style="width:100%;margin-top:8px;">+ 新增版本</button>
+</div></div></div>
+<div class="mo" id="logoutConfirm"><div class="cbox"><div class="ctit">確定要登出嗎？</div><div class="csub">登出後需重新使用 Google 帳號登入</div><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('logoutConfirm')">取消</button><button class="btn2 bpri" onclick="closeMo('logoutConfirm')">登出</button></div></div></div>
+<div class="mo" id="notifyDelMo"><div class="mbox"><div class="mh"><span class="mtit">通知自動刪除</span><button class="mcl" onclick="closeMo('notifyDelMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">超過設定天數的通知將自動刪除，刪除後會通知管理員。</div><div class="fg"><label class="fl">保留天數</label><select class="fsel"><option>7 天</option><option selected>30 天</option><option>60 天</option><option>90 天</option><option>永久保留</option></select></div><button class="btn2 bpri" onclick="closeMo('notifyDelMo')">儲存</button></div></div></div>
+<div class="mo" <div class="mo" id="customNameMo"><div class="mbox"><div class="mh"><span class="mtit">自訂名稱</span><button class="mcl" onclick="closeMo('customNameMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="fg"><label class="fl">APP 名稱</label><input class="fi" value="嗶啵" placeholder="APP 名稱"></div>
+  <div class="slbl">清單分類名稱</div>
+  <div style="display:flex;flex-direction:column;gap:6px;">
+    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想去哪</label><input class="fi" value="想去哪" placeholder="自訂名稱"></div>
+    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想吃什麼</label><input class="fi" value="想吃什麼" placeholder="自訂名稱"></div>
+    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想做什麼</label><input class="fi" value="想做什麼" placeholder="自訂名稱"></div>
+    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想看什麼</label><input class="fi" value="想看什麼" placeholder="自訂名稱"></div>
+  </div>
+  <button onclick="showToast('已儲存');closeMo('customNameMo')" class="btn2 bpri" style="width:100%;">儲存</button>
+</div></div></div>
+<div class="mo" <div class="mo" id="storageMo"><div class="mbox"><div class="mh"><span class="mtit">儲存空間管理</span><button class="mcl" onclick="closeMo('storageMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:12px;">
+  <div class="card" style="border-radius:12px;">
+    <div class="cl2" style="margin-bottom:8px;">Cloudinary（照片）</div>
+    <div style="background:var(--card2);border-radius:8px;height:10px;overflow:hidden;margin-bottom:4px;">
+      <div style="width:73%;height:100%;background:var(--accent);border-radius:8px;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sub);">
+      <span>18.2 GB 已使用</span><span>25 GB 上限</span>
+    </div>
+  </div>
+  <div class="card" style="border-radius:12px;">
+    <div class="cl2" style="margin-bottom:8px;">Firebase（文字資料）</div>
+    <div style="background:var(--card2);border-radius:8px;height:10px;overflow:hidden;margin-bottom:4px;">
+      <div style="width:12%;height:100%;background:#F4A800;border-radius:8px;"></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sub);">
+      <span>124 MB 已使用</span><span>1 GB 上限</span>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="showToast('備份功能開發中')" class="btn2 bsec" style="flex:1;font-size:12px;">備份到本地</button>
+    <button onclick="showToast('壓縮任務開發中')" class="btn2 bsec" style="flex:1;font-size:12px;">壓縮照片</button>
+  </div>
+</div></div></div>
+<div class="mo" <div class="mo" id="inspireMgMo"><div class="mbox"><div class="mh"><span class="mtit">靈感題庫管理</span><button class="mcl" onclick="closeMo('inspireMgMo')">×</button></div>
+<div style="display:flex;gap:0;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:10px;">
+  <button onclick="switchInspireTab('list',this)" style="flex:1;padding:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-list">清單靈感</button>
+  <button onclick="switchInspireTab('chal',this)" style="flex:1;padding:7px;border:none;background:var(--card2);color:var(--sub);font-size:12px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-chal">挑戰靈感</button>
+</div>
+<div id="inspireListMg" style="display:flex;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--card2);border-radius:10px;font-size:12px;">
+    <span>去看夜市・想去哪</span>
+    <button onclick="showToast('已刪除')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">刪除</button>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--card2);border-radius:10px;font-size:12px;">
+    <span>海邊看日落・想去哪</span>
+    <button onclick="showToast('已刪除')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">刪除</button>
+  </div>
+</div>
+<div id="inspireChalMg" style="display:none;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--card2);border-radius:10px;font-size:12px;">
+    <span>一起騎腳踏車環湖</span>
+    <button onclick="showToast('已刪除')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">刪除</button>
+  </div>
+</div>
+<div style="display:flex;gap:6px;margin-top:8px;">
+  <input class="fi" placeholder="新增靈感..." style="flex:1;font-size:12px;padding:7px 10px;">
+  <button onclick="showToast('已新增')" class="btn2 bpri" style="padding:7px 14px;font-size:12px;">加入</button>
+</div>
+<button onclick="showToast('JSON 匯入開發中')" class="btn2 bsec" style="width:100%;margin-top:6px;font-size:12px;">匯入 JSON</button>
+</div></div></div>
+<div class="mo" <div class="mo" id="bindMo"><div class="mbox"><div class="mh"><span class="mtit">帳號綁定管理</span><button class="mcl" onclick="closeMo('bindMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:12px;">
+  <div class="card" style="border-radius:12px;">
+    <div class="cl2" style="margin-bottom:8px;">邀請碼</div>
+    <div id="inviteCodeInput" style="font-size:22px;font-weight:700;color:var(--accent);letter-spacing:4px;text-align:center;padding:8px;background:var(--lt);border-radius:10px;margin-bottom:6px;">BPO-1234</div>
+    <div style="font-size:11px;color:var(--sub);text-align:center;margin-bottom:8px;" id="inviteTimer">剩餘 1:47:23 失效</div>
+    <button onclick="genInvite()" class="btn2 bpri" style="width:100%;font-size:13px;">重新產生邀請碼</button>
+    <div style="font-size:10px;color:var(--sub);text-align:center;margin-top:4px;">產生後 2 小時有效・舊碼立即失效</div>
+  </div>
+  <div class="card" style="border-radius:12px;">
+    <div class="cl2" style="margin-bottom:8px;">備用帳號（最多 1 個）</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">備用帳號擁有管理員權限，可直接登入</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--card2);border-radius:10px;margin-bottom:8px;">
+      <span style="font-size:12px;color:var(--txt);">backup@gmail.com</span>
+      <button onclick="showToast('已移除備用帳號')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">移除</button>
+    </div>
+    <button onclick="showToast('綁定功能開發中')" class="btn2 bsec" style="width:100%;font-size:12px;">+ 綁定備用帳號</button>
+  </div>
+  <div class="card" style="border-radius:12px;">
+    <div class="cl2" style="margin-bottom:8px;">重新綁定對方帳號</div>
+    <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">更換對方的 Google 帳號，資料保留</div>
+    <button onclick="showToast('開發中')" class="btn2 bsec" style="width:100%;font-size:12px;">重新綁定</button>
+  </div>
+</div></div></div>
+<div class="mo" id="transferMo"><div class="cbox"><div class="ctit" style="color:#c62828;">轉移管理員帳號</div><div class="csub">此操作不可逆。轉移後您將失去管理員權限。<br>請輸入「confirm」確認。</div><input class="fi" placeholder='輸入 "confirm"' style="margin-bottom:12px;"><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('transferMo')">取消</button><button class="btn2" style="background:#c62828;color:#fff;" onclick="closeMo('transferMo')">確認轉移</button></div></div></div>
+<div class="mo" id="inspireMo"><div class="msh"><div class="mh"><span class="mtit">靈感</span><button class="mcl" onclick="closeMo('inspireMo')">×</button></div><div style="display:flex;flex-direction:column;gap:8px;" id="inspireList"></div></div></div>
+
+<div class="mo" id="clearNotifyMo"><div class="mbox"><div class="mh"><span class="mtit">清除通知</span><button class="mcl" onclick="closeMo('clearNotifyMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+  <div style="font-size:13px;color:var(--sub);">選擇要清除的範圍</div>
+  <button onclick="clearNotify(7)" style="all:unset;padding:10px 14px;border-radius:12px;border:1px solid var(--bdr);font-size:13px;color:var(--txt);cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">清除 7 天前的通知</button>
+  <button onclick="clearNotify(30)" style="all:unset;padding:10px 14px;border-radius:12px;border:1px solid var(--bdr);font-size:13px;color:var(--txt);cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">清除 30 天前的通知</button>
+  <button onclick="clearNotify(0)" style="all:unset;padding:10px 14px;border-radius:12px;background:#fdecea;border:1px solid #f5c6cb;font-size:13px;color:#c62828;font-weight:600;cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">徹底清除全部</button>
+</div></div></div>
+
+<div class="mo" id="addQuoteMo"><div class="mbox"><div class="mh"><span class="mtit">新增語錄</span><button class="mcl" onclick="closeMo('addQuoteMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" rows="4" placeholder="記下這句話..." style="resize:none;line-height:1.6;"></textarea></div>
+  <div class="fg"><label class="fl">日期</label><input class="fi" type="date" id="quoteDate"></div>
+  <button class="btn2 bpri" onclick="saveQuote()">儲存語錄</button>
+</div></div></div>
+<div class="mo" id="addListMo"><div class="mbox"><div class="mh"><span class="mtit">新增清單項目</span><button class="mcl" onclick="closeMo('addListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱</label><input class="fi" id="newLN" placeholder="想去哪裡？想吃什麼？"></div><div class="fg"><label class="fl">分類</label><select class="fsel" id="newLC"><option>想去哪</option><option>想吃什麼</option><option>想做什麼</option><option>想看什麼</option></select></div><button class="btn2 bpri" onclick="addListItem()">新增</button></div></div></div>
+<div class="mo" id="completeListMo"><div class="mbox"><div class="mh"><span class="mtit" id="compTitle">完成！</span><button class="mcl" onclick="closeMo('completeListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">評分（選填）</label><div style="display:flex;gap:6px;" id="compStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">心得（選填）</label><textarea class="fi" rows="2" placeholder="寫下感想..." style="resize:none;"></textarea></div><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);width:16px;height:16px;">想再去／做一次（自動新增一筆）</label><button class="btn2 bpri" id="compDoneBtn">完成</button></div></div></div>
+<div class="mo" id="addMemMo"><div class="mbox"><div class="mh"><span class="mtit">新增回憶錄</span><button class="mcl" onclick="closeMo('addMemMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱（必填）</label><input class="fi" placeholder="這次旅行的名字"></div><div class="fg"><label class="fl">日期區間</label><div style="display:flex;gap:6px;"><input class="fi" type="date" style="flex:1;"><input class="fi" type="date" style="flex:1;"></div></div><div class="fg"><label class="fl">縣市／地點</label><select class="fsel"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>桃園市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>基隆市</option><option>新竹市</option><option>嘉義市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>屏東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option><option>國外</option></select></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">縣市</label><select class="fi" id="newRC" style="padding:8px 10px;" onchange="toggleForeignInput(this.value)"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>桃園市</option><option>花蓮縣</option><option>台東縣</option><option>國外</option></select><input class="fi" id="foreignCityInput" placeholder="國家/城市名稱" style="display:none;margin-top:6px;"></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" placeholder="這次旅行的故事..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">餐廳記錄（選填）</label><button onclick="openMo('linkRestMo')" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M18 8c0 3.3-2.7 6-6 6S6 11.3 6 8V3h12v5z" stroke="var(--sub)" stroke-width="1.5"/><path d="M12 14v7M8 21h8" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>選擇關聯餐廳</button><div id="linkedRests" style="font-size:11px;color:var(--sub);margin-top:4px;"></div></div><div class="fg"><label class="fl">關聯清單 / 挑戰（選填）</label>
+  <div style="display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto;border:1px solid var(--bdr);border-radius:10px;padding:8px;">
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 清單：想去海邊看日落</label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 清單：去看夜市</label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 挑戰：一起騎腳踏車環湖</label>
+    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 挑戰：去看一場電影</label>
+  </div>
+  <div style="font-size:10px;color:var(--sub);margin-top:3px;">勾選後會自動標記為已完成</div>
+</div>
+<button class="btn2 bpri" onclick="closeMo('addMemMo')">建立回憶錄</button></div></div></div>
+<div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label><input class="fi" placeholder="在哪裡？"></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="showToast('約會計畫已新增');closeMo('addEventMo')">新增</button></div></div></div>
+<div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">縣市（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="toggleForeignInput(this.value)"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>國外</option></select><div id="foreignFields" style="display:none;flex-direction:column;gap:6px;margin-top:6px;"><select class="fi" id="newCountry" style="padding:8px 10px;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><input class="fi" id="newFCity" placeholder="城市名稱"></div></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><input class="fi" id="newDish" placeholder="招牌菜..."></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textar
+
+<script>
+function editVersion(idx){showToast('編輯功能開發中');}
+
+function switchInspireTab(tab,el){
+  var tabs=['list','chal'];
+  tabs.forEach(function(t){
+    var btn=document.getElementById('itab-'+t);
+    var body=document.getElementById('inspire'+t.charAt(0).toUpperCase()+t.slice(1)+'Mg');
+    if(btn){btn.style.background=t===tab?'var(--accent)':'var(--card2)';btn.style.color=t===tab?'#fff':'var(--sub)';}
+    if(body){body.style.display=t===tab?'flex':'none';}
+  });
+}
+
+const PAGES=['home','memory','list','notify','settings'];
+const NAVL=['主頁','回憶錄','清單','通知','設定'];
+const NAVSVG=[
+  (c,f)=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1V10z" stroke="${c}" stroke-width="1.5" fill="${f}"/><path d="M9 21V12h6v9" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="${c}" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="${c}" stroke-width="1.5"/><path d="M8 6l1.5-2.5h5L16 6" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="${c}" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.7 3 6 5.7 6 9v5l-2 2h16l-2-2V9c0-3.3-2.7-6-6-6z" stroke="${c}" stroke-width="1.5"/><path d="M10 19a2 2 0 004 0" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
+  c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="${c}" stroke-width="1.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`
+];
+let curPage='home', pageHist=[];
+function buildNavs(){
+  PAGES.forEach(p=>{
+    const el=document.getElementById('bnav-'+p);
+    if(!el)return;
+    el.innerHTML=PAGES.map((pg,i)=>{
+      const on=pg===p,c=on?'#4A7A58':'#A0C0A8',f=on?'#C8E4D0':'none';
+      const icon=i===0?NAVSVG[i](c,f):NAVSVG[i](c);
+      return `<button class="nb" onclick="goPage('${pg}')">${icon}<span class="nl ${on?'on':''}">${NAVL[i]}</span>${on?'<div class="ndot"></div>':''}</button>`;
+    }).join('');
+  });
+}
+function goPage(p){
+  const cur=document.getElementById('page-'+curPage);
+  if(cur)cur.classList.remove('active');
+  const next=document.getElementById('page-'+p);
+  if(next){next.classList.add('active');curPage=p;}
+}
+function goPageX(p){
+  pageHist.push(curPage);
+  goPage(p);
+}
+function goBack(){
+  const prev=pageHist.pop()||'home';
+  goPage(prev);
+}
+function openMo(id){document.getElementById(id).classList.add('open');}
+function closeMo(id){document.getElementById(id).classList.remove('open');}
+
+// PHOTO
+let photoTarget='me';
+const photoData={me:null,partner:null};
+const photoNames={me:'我',partner:'小柔'};
+function openPhoto(who){
+  photoTarget=who;
+  const img=document.getElementById('pimg2'),ph=document.getElementById('pph2');
+  document.getElementById('pname2').textContent=photoNames[who];
+  if(photoData[who]){img.src=photoData[who];img.style.display='block';ph.style.display='none';}
+  else{img.style.display='none';ph.style.display='flex';}
+  openMo('photoMo');
+}
+function triggerUpload(){document.getElementById('photoFile').click();}
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const url=ev.target.result;
+    photoData[photoTarget]=url;
+    const avcEl=document.getElementById('avc-'+photoTarget);
+    if(avcEl)avcEl.innerHTML=`<img src="${url}">`;
+    const profEl=document.getElementById('profileAv');
+    if(profEl&&photoTarget==='me')profEl.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    const img=document.getElementById('pimg2'),ph=document.getElementById('pph2');
+    img.src=url;img.style.display='block';ph.style.display='none';
+  };
+  r.readAsDataURL(file);e.target.value='';
+}
+
+// THEME
+const THEMES={
+  green:{bg:'#B8CEBC',card:'#fff',card2:'#EAF3EC',accent:'#4A7A58',lt:'#C8E4D0',txt:'#1A2E20',sub:'#5A8A68',bdr:'#A0C0A8',shd:'rgba(20,44,26,0.10)'},
+  rose:{bg:'#D4C0BC',card:'#fff',card2:'#F5EDEA',accent:'#9A6060',lt:'#EEDCD8',txt:'#3A1814',sub:'#906060',bdr:'#C8A8A4',shd:'rgba(58,24,20,0.10)'},
+  blue:{bg:'#AABCCC',card:'#fff',card2:'#E4EEF5',accent:'#486890',lt:'#C8D8EC',txt:'#141E2C',sub:'#587898',bdr:'#98B0C8',shd:'rgba(20,30,44,0.10)'},
+  clay:{bg:'#D0B898',card:'#fff',card2:'#F5EEE4',accent:'#906030',lt:'#ECD8BC',txt:'#2C1C08',sub:'#A07040',bdr:'#C4A888',shd:'rgba(44,28,8,0.10)'},
+  mist:{bg:'#BCBCB4',card:'#fff',card2:'#EEECEA',accent:'#686460',lt:'#DCDCD4',txt:'#1C1C1C',sub:'#787470',bdr:'#A8A8A0',shd:'rgba(28,28,28,0.10)'}
+};
+function setTheme(k,dotEl){
+  const t=THEMES[k],r=document.documentElement.style;
+  Object.entries(t).forEach(([k,v])=>r.setProperty('--'+k,v));
+  document.querySelectorAll('.tdot').forEach(d=>d.classList.remove('on'));
+  if(dotEl)dotEl.classList.add('on');
+  
+
+
+let memTab = 'photo';
+const QUOTES = [
+  {text:'今天你笑得好好看，我偷偷截圖了',by:'我',date:'2025/6/20'},
+  {text:'謝謝你今天陪我，即使你也很累',by:'小柔',date:'2025/6/18'},
+  {text:'想到你就覺得什麼都可以',by:'我',date:'2025/6/10'},
+];
+function switchMemTab(tab){
+  memTab = tab;
+  var pBtn=document.getElementById('memTab-photo');
+  var qBtn=document.getElementById('memTab-quote');
+  var pBody=document.getElementById('memBody');
+  var qBody=document.getElementById('quoteBody');
+  if(!pBtn||!qBtn||!pBody||!qBody) return;
+  // update tab button styles
+  pBtn.style.fontWeight = tab==='photo'?'700':'400';
+  pBtn.style.color = tab==='photo'?'var(--accent)':'var(--sub)';
+  pBtn.style.borderBottom = tab==='photo'?'2px solid var(--accent)':'2px solid transparent';
+  qBtn.style.fontWeight = tab==='quote'?'700':'400';
+  qBtn.style.color = tab==='quote'?'var(--accent)':'var(--sub)';
+  qBtn.style.borderBottom = tab==='quote'?'2px solid var(--accent)':'2px solid transparent';
+  // toggle bodies
+  pBody.style.display = tab==='photo' ? 'flex' : 'none';
+  qBody.style.display = tab==='quote' ? 'flex' : 'none';
+  if(tab==='quote') renderQuotes();
+  else if(tab==='photo') renderMemory();
+}
+function renderQuotes(){
+  const body = document.getElementById('quoteBody');
+  if(!body) return;
+  body.innerHTML = `
+    <button onclick="openMo('addQuoteMo')" style="all:unset;display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--card);border-radius:14px;border:1px solid var(--bdr);cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;box-shadow:0 2px 8px var(--shd);">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>新增語錄
+    </button>
+    ${QUOTES.map(q=>`
+      <div class="card" style="border-radius:14px;">
+        <div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「${q.text}」</div>
+        <div style="font-size:11px;color:var(--sub);">${q.by}・${q.date}</div>
+      </div>`).join('')}`;
+}
+
+
+function launchFw(){
+  document.getElementById('fwOverlay').classList.add('open');
+  const colors=['#4A7A58','#9A6060','#486890','#906030','#F4C430','#E53935'];
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const angle=Math.random()*Math.PI*2;
+    const dist=80+Math.random()*160;
+    p.style.cssText=`left:50%;top:50%;background:${colors[i%colors.length]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;animation-delay:${Math.random()*0.3}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1500);
+  }
+}
+function closeFw(){
+  document.getElementById('fwOverlay').classList.remove('open');
+  showToast('挑戰移到成就頁！');
+}
+
+
+function toggleAddVersion(){
+  var f=document.getElementById('addVersionForm');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'){
+    var today=new Date();
+    document.getElementById('newVerDate').value=today.toISOString().split('T')[0];
+  }
+}
+function saveVersion(){
+  var ver=document.getElementById('newVer').value.trim();
+  var date=document.getElementById('newVerDate').value;
+  var note=document.getElementById('newVerNote').value.trim();
+  if(!ver||!note){alert('請填寫版本號和說明');return;}
+  var fmt=date?date.replace(/-/g,'/'):'';
+  var newEntry=`<div><div style="font-size:13px;font-weight:700;color:var(--txt);">${ver} <span style="font-size:10px;color:var(--sub);font-weight:400;">${fmt}</span></div><div style="font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7;">${note}</div></div>`;
+  var list=document.getElementById('changelogList');
+  list.insertAdjacentHTML('afterbegin',newEntry);
+  document.getElementById('addVersionForm').style.display='none';
+  document.getElementById('newVer').value='';
+  document.getElementById('newVerNote').value='';
+  showToast('版本紀錄已新增');
+}
+
+function clearNotify(days){
+  var msg = days===0 ? '確定要清除全部通知嗎？' : '確定要清除'+days+'天前的通知嗎？';
+  if(!confirm(msg)) return;
+  closeMo('clearNotifyMo');
+  showToast('通知已清除');
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t)return;
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+buildNavs();
+}
+
+// LIST
+let LIST=[
+  {id:1,n:'去九份老街',c:'想去哪',done:false,by:'我',at:'6/20'},
+  {id:2,n:'吃吃看鼎泰豐',c:'想吃什麼',done:true,by:'小柔',at:'5/10',star:4},
+  {id:3,n:'一起看星星',c:'想做什麼',done:false,by:'我',at:'6/18'},
+  {id:4,n:'看完派對咖孔明',c:'想看什麼',done:false,by:'小柔',at:'6/15'},
+  {id:5,n:'去海邊撿石頭',c:'想去哪',done:false,by:'我',at:'6/10'},
+  {id:6,n:'一起做料理',c:'想做什麼',done:true,by:'小柔',at:'5/22',star:5},
+  {id:7,n:'去花蓮旅行',c:'想去哪',done:false,by:'我',at:'6/1'},
+  {id:8,n:'看灌籃高手電影版',c:'想看什麼',done:false,by:'小柔',at:'5/30'},
+];
+let listTab='pending',listCat='全部',pendingId=null;
+function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
+function setListCat(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
+const STAR_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+function renderList(){
+  var body=document.getElementById('listBody');
+  if(!body)return;
+  var items=LIST.filter(function(i){return (listTab==='pending'?!i.done:i.done)&&(listCat==='全部'||i.c===listCat);});
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">還沒有項目</div>';return;}
+  var EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
+  var FLAG_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="22" x2="4" y2="15" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  var DONE_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#B8860B" stroke-width="2.5" stroke-linecap="round"/></svg>';
+  var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+  var html='';
+  for(var idx=0;idx<items.length;idx++){
+    var item=items[idx];
+    var chk='<div class="lck '+(item.done?'done':'')+'" onclick="toggleItem('+item.id+')">'+(item.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>':'')+'</div>';
+    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+item.c+'</div><div class="lby">'+item.by+'・'+item.at+'</div></div>';
+    var flag='';
+    if(item.challenge){flag='<div class="li-flag '+(item.chalDone?'done':'')+'" onclick="jumpToChallenge()">'+(item.chalDone?DONE_I+'已完成':FLAG_I+'挑戰中')+'</div>';}
+    var stars='';
+    if(item.done&&item.star){for(var si=0;si<item.star;si++)stars+=STAR_I;}
+    if(stars)stars='<div style="display:flex;gap:1px;">'+stars+'</div>';
+    var act='<button onclick="editItem('+item.id+')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--card2);cursor:pointer;">'+EDIT_I+'</button><button onclick="deleteItem('+item.id+')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#fdecea;cursor:pointer;">'+DEL_I+'</button>';
+    html+='<div class="li" id="li-'+item.id+'">'+chk+lt+'<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">'+flag+stars+act+'</div></div>';
+  }
+  body.innerHTML=html;
+}
+function editItem(id){showToast("編輯功能開發中");}
+function jumpToChallenge(){showToast('跳到對應挑戰');}
+
+function toggleItem(id){
+  const item=LIST.find(i=>i.id===id);if(!item)return;
+  if(!item.done){
+    pendingId=id;
+    document.getElementById('compTitle').textContent=item.n;
+    document.getElementById('compDoneBtn').onclick=()=>{
+      const it=LIST.find(i=>i.id===pendingId);
+      if(it){it.done=true;it.star=currentStar||0;}
+      closeMo('completeListMo');spawnHearts();renderList();currentStar=0;
+      document.querySelectorAll('#compStars .strbtn').forEach(b=>b.classList.remove('on'));
+    };
+    openMo('completeListMo');
+  } else {
+    if(confirm('確定恢復為未完成嗎？')){item.done=false;delete item.star;renderList();}
+  }
+}
+function deleteItem(id){if(confirm('確定刪除？此操作無法復原。')){LIST=LIST.filter(i=>i.id!==id);renderList();}}
+function addListItem(){
+  const n=document.getElementById('newLN').value.trim();
+  const c=document.getElementById('newLC').value;
+  if(!n)return;
+  LIST.unshift({id:Date.now(),n,c,done:false,by:'我',at:new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})});
+  document.getElementById('newLN').value='';
+  closeMo('addListMo');renderList();
+}
+let currentStar=0;
+function setStar(n){
+  currentStar=n;
+  document.querySelectorAll('#restStars .strbtn').forEach(function(b,i){
+    var on=i<n;
+    b.classList.toggle('on',on);
+    var path=b.querySelector('path');
+    if(path){path.setAttribute('fill',on?'#F4C430':'none');path.setAttribute('stroke',on?'#E6A800':'#C8C8C8');}
+  });
+}
+
+// INSPIRE
+const INSPIRE=[
+  {n:'去看夜市',c:'想去哪',challenge:true,chalDone:false},{n:'海邊看日落',c:'想去哪'},{n:'登山健行',c:'想去哪',challenge:true,chalDone:true},
+  {n:'吃壽司',c:'想吃什麼'},{n:'自助早午餐',c:'想吃什麼'},{n:'吃甜點下午茶',c:'想吃什麼'},
+  {n:'一起畫畫',c:'想做什麼'},{n:'學做一道新菜',c:'想做什麼'},{n:'一起運動',c:'想做什麼'},
+  {n:'看恐怖片',c:'想看什麼'},{n:'看演唱會',c:'想看什麼'},{n:'看舞台劇',c:'想看什麼'},
+];
+function renderInspire(){
+  var q=(document.getElementById('inspireSearch')||{value:''}).value.trim().toLowerCase();
+  var items=INSPIRE.filter(i=>{
+    if(LIST.find(l=>l.n===i.n)) return false;
+    if(q && !i.n.toLowerCase().includes(q) && !i.c.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  var list=document.getElementById('inspireList');
+  if(!list) return;
+  if(!items.length){list.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">沒有符合的靈感</div>';return;}
+  list.innerHTML=items.map(i=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);">
+      <div><div style="font-size:13px;font-weight:600;color:var(--txt);">${i.n}</div><div style="font-size:10px;color:var(--sub);">${i.c}</div></div>
+      <button onclick="addFromInspire('${i.n}','${i.c}')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">加入</button>
+    </div>`).join('');
+}
+function addFromInspire(n,c){
+  LIST.unshift({id:Date.now(),n,c,done:false,by:'我',at:new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})});
+  renderInspire();renderList();
+}
+
+// CHALLENGES
+const CHALS=[
+  {name:'一起騎腳踏車環湖',cat:'探索類',deadline:'6/30',status:'active',prog:50,done:'1/2'},
+  {name:'連續留言 30 天',cat:'感情類',deadline:'7/20',status:'active',prog:40,done:'1/2'},
+  {name:'去看一場電影',cat:'娛樂類',deadline:'6/27',status:'active',prog:0,done:'0/2'},
+  {name:'吃吃看鼎泰豐',cat:'飲食類',deadline:'5/1',status:'done',prog:100,done:'2/2'},
+  {name:'一起做料理',cat:'感情類',deadline:'4/15',status:'done',prog:100,done:'2/2'},
+  {name:'爬象山',cat:'探索類',deadline:'3/1',status:'failed',prog:50,done:'1/2'},
+];
+let chalTab='active';
+function setChalTab(t,el){chalTab=t;document.querySelectorAll('#page-challenges .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderChal();}
+function renderChal(){
+  var body=document.getElementById('chalBody');
+  if(!body)return;
+  var items=CHALS.filter(function(c){return c.status===chalTab;});
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">\u6c92\u6709\u9805\u76ee</div>';return;}
+  var html='';
+  for(var i=0;i<items.length;i++){
+    var c=items[i];
+    var statusCls=c.status==='active'?'sta':c.status==='done'?'std':'stf';
+    var statusTxt=c.status==='active'?'\u9032\u884c\u4e2d':c.status==='done'?'\u5df2\u5b8c\u6210':'\u5df2\u5931\u6557';
+    var retryBtn=c.status==='failed'?'<button class="btn2 bsec" style="margin-top:8px;border:1px solid var(--bdr);width:100%;" onclick="retryChallenge()">\u91cd\u65b0\u6311\u6230</button>':'';
+    html+='<div class="ci2"'+(c.status==="active"?' onclick="openChalEdit('+i+')" style="cursor:pointer;"':'')+'><div class="ci2-top"><div class="ci2-name">'+c.name+'</div><div class="cst '+statusCls+'">'+statusTxt+'</div></div><div class="ci2-meta">'+c.cat+'\u30fb\u671f\u9650 '+c.deadline+'</div><div class="cprog"><div class="cpb"><div class="cpf" style="width:'+c.prog+'%"></div></div><div class="cpt">'+c.done+'</div></div>'+retryBtn+'</div>';
+  }
+  body.innerHTML=html;
+}
+
+function openChalEdit(idx){
+  var items=CHALS.filter(function(c){return c.status===chalTab;});
+  var c=items[idx];
+  if(!c)return;
+  document.getElementById('editChalName').textContent=c.name;
+  document.getElementById('editChalDeadline').value=c.deadline;
+  openMo('editChalMo');
+}
+
+function retryChallenge(){showToast('\u6311\u6230\u91cd\u65b0\u958b\u59cb\uff01');}
+
+function markDone(){
+  // 模擬：第一次點 1/2，再點 2/2
+  var sub = document.getElementById('challSub');
+  var current = sub ? sub.textContent : '';
+  if(current.includes('0/2')){
+    // 0/2 → 1/2：愛心飄散
+    if(sub) sub.textContent = current.replace('0/2','1/2');
+    var pf = document.getElementById('progFill');
+    if(pf) pf.style.width='50%';
+    spawnHearts();
+    showToast('已標記完成！等待對方確認');
+  } else if(current.includes('1/2')){
+    // 1/2 → 2/2：煙花
+    if(sub) sub.textContent = current.replace('1/2','2/2');
+    var pf = document.getElementById('progFill');
+    if(pf) pf.style.width='100%';
+    launchFw();
+  } else {
+    showToast('挑戰已完成');
+  }
+}
+function nextChallenge(){
+  document.getElementById('celebrateOverlay').classList.remove('open');
+  challIdx=(challIdx+1)%challList.length;
+  const n=challList[challIdx];
+  document.getElementById('challName').textContent=n.name;
+  document.getElementById('challSub').textContent=n.sub+'・'+n.done+' 已完成';
+  document.getElementById('progFill').style.width=n.prog;
+}
+
+// HEARTS
+const HC=[['#B07870','#904858'],['#5A8A68','#3A6A48'],['#5878A0','#385880'],['#A87848','#886028'],['#9878A0','#785880']];
+function makeHeart(f,s){return `<svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M10 16.5C10 16.5 1.5 11 1.5 5.5C1.5 3 3.5 1 6 1C7.8 1 9.3 2 10 3.2C10.7 2 12.2 1 14 1C16.5 1 18.5 3 18.5 5.5C18.5 11 10 16.5 10 16.5Z" fill="${f}" stroke="${s}" stroke-width="1"/></svg>`;}
+function spawnHearts(){
+  for(let i=0;i<26;i++){
+    setTimeout(()=>{
+      const h=document.createElement('div');h.className='hf';
+      const [f,s]=HC[Math.floor(Math.random()*HC.length)];
+      h.innerHTML=makeHeart(f,s);
+      const sz=14+Math.random()*14;
+      h.style.cssText=`left:${Math.random()*86+4}vw;bottom:${55+Math.random()*50}px;width:${sz}px;animation-duration:${1.5+Math.random()}s;animation-delay:${Math.random()*.55}s;`;
+      document.body.appendChild(h);setTimeout(()=>h.remove(),2800);
+    },i*60);
+  }
+}
+
+// DECIDE
+let dcCat='全部',drawn=[];
+function setDC(c){dcCat=c;drawn=[];reroll();}
+function openDecide(){drawn=[];reroll();openMo('decideMo');}
+function reroll(){
+  let pool=LIST.filter(i=>!i.done&&(dcCat==='全部'||i.c===dcCat)&&!drawn.includes(i.id));
+  if(!pool.length){drawn=[];pool=LIST.filter(i=>!i.done&&(dcCat==='全部'||i.c===dcCat));}
+  if(!pool.length){document.getElementById('rname').textContent='清單都完成了';document.getElementById('rcat').textContent='厲害';return;}
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  drawn.push(pick.id);
+  document.getElementById('rname').textContent=pick.n;
+  document.getElementById('rcat').textContent=pick.c;
+}
+
+// MEMORY
+const MEMS=[
+  {title:'九份老街の一天',year:2025,month:6,city:'新北市'},
+  {title:'週年紀念旅行',year:2025,month:5,city:'宜蘭縣'},
+  {title:'海邊午後',year:2025,month:4,city:'台東縣'},
+  {title:'生日驚喜',year:2024,month:12,city:'台北市'},
+  {title:'市集散步',year:2024,month:10,city:'台北市'},
+];
+function renderMemory(){
+  const yr=parseInt(document.getElementById('memYear').value);
+  const mo=parseInt(document.getElementById('memMonth').value);
+  const body=document.getElementById('memBody');
+  const filtered=MEMS.filter(m=>m.year===yr&&(mo===0||m.month===mo));
+  if(!filtered.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">這個時間沒有回憶錄</div>';return;}
+  const camSVG='<svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="#A0C0A8" stroke-width="1.5"/><circle cx="12" cy="13" r="4" fill="#C8E4D0"/><path d="M8 6l1.5-2.5h5L16 6" stroke="#A0C0A8" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  const addSVG='<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#A0C0A8" stroke-width="2" stroke-linecap="round"/></svg>';
+  body.innerHTML='<div class="mem-grid">'+filtered.map(m=>
+    '<div class="mc"><div class="mci" style="position:relative;">'+camSVG+'<button onclick="event.stopPropagation();toggleFav(this)" style="position:absolute;top:4px;right:4px;background:rgba(255,255,255,0.85);border:none;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 3 13.5 3 8a5 5 0 019-3 5 5 0 019 3c0 5.5-9 13-9 13z" stroke="#c62828" stroke-width="1.8"/></svg></button></div><div class="mca"><div class="mcat">'+m.title+'</div><div style="font-size:9px;color:rgba(255,255,255,.7);">'+m.year+'/'+m.month+'・'+m.city+'</div></div></div>'
+  ).join('')+'<div class="madd" onclick="openMo(`addMemMo`)">'+addSVG+'<div style="font-size:10px;color:var(--sub);">新增</div></div></div>';
+}
+
+function renderRests(){
+  const body=document.getElementById('restBody');
+  const items=RESTS.filter(r=>(restCity==='全部'||r.city===restCity)&&(restType==='全部'||r.type===restType));
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">這個縣市還沒有紀錄</div>';return;}
+  body.innerHTML=items.map(r=>`
+    <div class="ri">
+      <div class="ri-top"><div class="ri-name">${r.name}</div><div style="display:flex;gap:1px;">${STAR_SVG.repeat(r.star)}</div></div>
+      <div class="ri-meta">${r.type}・${r.date}${r.dish?'・'+r.dish:''}</div>
+      <span class="ri-city">${r.city}</span>
+    </div>`).join('');
+}
+let restStar=0;
+let restType="全部";
+function setRS(n){restStar=n;document.querySelectorAll('#restStars .strbtn').forEach((b,i)=>b.classList.toggle('on',i<n));}
+function addRest(){
+  const n=document.getElementById('newRN').value.trim();
+  if(!n||!restStar){alert('請填寫名稱和評分');return;}
+  RESTS.unshift({name:n,city:document.getElementById('newRCity').value,type:document.getElementById('newRT').value,star:restStar,dish:'',date:new Date().toLocaleDateString('zh-TW')});
+  closeMo('addRestMo');renderRests();restStar=0;
+  document.querySelectorAll('#restStars .strbtn').forEach(b=>b.classList.remove('on'));
+}
+
+// PIN
+let pinSet=null,pinInput='';
+function savePin(){
+  const p1=document.getElementById('pi1').value;
+  const p2=document.getElementById('pi2').value;
+  if(!/^\d{4}$/.test(p1)){alert('請輸入4位數字');return;}
+  if(p1!==p2){alert('PIN 不一致');return;}
+  pinSet=p1;
+  document.getElementById('pinStatus').textContent='已啟用 ›';
+  closeMo('pinSetMo');
+  startIdleTimer();
+  alert('隱私鎖已啟用！');
+}
+function pinKey(k){
+  if(pinInput.length>=4)return;
+  pinInput+=k;
+  for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('fill',i<pinInput.length);
+  if(pinInput.length===4)setTimeout(checkPin,100);
+}
+function pinDel(){pinInput=pinInput.slice(0,-1);for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('fill',i<pinInput.length);}
+function checkPin(){
+  if(pinInput===pinSet){
+    document.getElementById('lockScreen').classList.remove('open');
+    pinInput='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');
+    resetIdleTimer();
+  } else {
+    document.getElementById('pinErr').textContent='PIN 錯誤，請再試一次';
+    pinInput='';
+    setTimeout(()=>{document.getElementById('pinErr').textContent='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');},800);
+  }
+}
+function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？'))inp.value='2024-06-02';}
+// INIT
+try{buildNavs();}catch(err){console.error('buildNavs:',err);}
+try{renderList();}catch(err){console.error('renderList:',err);}
+try{renderChal();}catch(err){console.error('renderChal:',err);}
+try{renderMemory();}catch(err){console.error('renderMemory:',err);}
+try{renderRests();}catch(err){console.error('renderRests:',err);}
+try{renderInspire();}catch(err){console.error('renderInspire:',err);}
+
+function toggleFav(btn){
+  var path = btn.querySelector('path');
+  if(!path) return;
+  var isFav = path.getAttribute('fill')==='#c62828';
+  path.setAttribute('fill', isFav ? 'none' : '#c62828');
+  showToast(isFav ? '取消最愛' : '已標記最愛');
+}
+
+
+function genInvite(){
+  var code='BPO-'+Math.floor(1000+Math.random()*9000);
+  var inp=document.getElementById('inviteCodeInput');
+  if(inp) inp.value=code;
+  var timer=document.getElementById('inviteCountdown');
+  if(timer) timer.textContent='2:00:00';
+  showToast('已產生新邀請碼，2小時內有效');
+}
+function saveQuote(){
+  var txt=document.getElementById('newVerNote')? document.querySelector('#addQuoteMo textarea'):null;
+  var date=document.querySelector('#addQuoteMo input[type=date]');
+  if(!txt||!txt.value.trim()){showToast('請填寫語錄內容');return;}
+  QUOTES.unshift({text:txt.value.trim(),by:'我',date:date?date.value.replace(/-/g,'/'):'今天'});
+  txt.value='';
+  renderQuotes();
+  closeMo('addQuoteMo');
+  showToast('語錄已儲存');
+}
+function setRT(type){restType=type||'全部';if(typeof renderRests==='function')renderRests();}
+function setRC(city){
+  restCity=city||'全部';
+  var row=document.getElementById('foreignFilterRow');
+  if(row) row.style.display=city==='國外'?'flex':'none';
+  if(typeof renderRests==='function')renderRests();
+}
+function filterForeignCity(country){}
+function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
+
+
+function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
+function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？'))inp.value='2024-06-02';}
+// INIT
+try{buildNavs();}catch(err){console.error('buildNavs:',err);}
+try{renderList();}catch(err){console.error('renderList:',err);}
+try{renderChal();}catch(err){console.error('renderChal:',err);}
+try{renderMemory();}catch(err){console.error('renderMemory:',err);}
+try{renderRests();}catch(err){console.error('renderRests:',err);}
+try{renderInspire();}catch(err){console.error('renderInspire:',err);}
+
+function toggleFav(btn){
+  var path = btn.querySelector('path');
+  if(!path) return;
+  var isFav = path.getAttribute('fill')==='#c62828';
+  path.setAttribute('fill', isFav ? 'none' : '#c62828');
+  showToast(isFav ? '取消最愛' : '已標記最愛');
+}
+
+
+function genInvite(){
+  var code='BPO-'+Math.floor(1000+Math.random()*9000);
+  var inp=document.getElementById('inviteCodeInput');
+  if(inp) inp.value=code;
+  var timer=document.getElementById('inviteCountdown');
+  if(timer) timer.textContent='2:00:00';
+  showToast('已產生新邀請碼，2小時內有效');
+}
+function saveQuote(){
+  var txt=document.getElementById('newVerNote')? document.querySelector('#addQuoteMo textarea'):null;
+  var date=document.querySelector('#addQuoteMo input[type=date]');
+  if(!txt||!txt.value.trim()){showToast('請填寫語錄內容');return;}
+  QUOTES.unshift({text:txt.value.trim(),by:'我',date:date?date.value.replace(/-/g,'/'):'今天'});
+  txt.value='';
+  renderQuotes();
+  closeMo('addQuoteMo');
+  showToast('語錄已儲存');
+}
+function setRT(type){restType=type||'全部';if(typeof renderRests==='function')renderRests();}
+function setRC(city){restCity=city||'全部';if(typeof renderRests==='function')renderRests();}
+function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
+
+
+function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
+
+
+</script><div class="fw-overlay" id="fwOverlay">
+  <div class="fw-card">
+    <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="5" fill="#D4A870"/><circle cx="36" cy="36" r="2.5" fill="#fff" opacity=".9"/><line x1="36" y1="30" x2="36" y2="10" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="36" y1="42" x2="36" y2="62" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="33" x2="13" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="39" x2="59" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="39" x2="13" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="33" x2="59" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <div class="fw-title" style="font-size:22px;font-weight:700;color:var(--txt);margin:12px 0 6px;">挑戰完成！</div>
+    <div style="font-size:13px;color:var(--sub);margin-bottom:18px;">你們一起完成了這個挑戰</div>
+    <button class="btn2 bpri" onclick="closeFw()" style="width:100%;">太棒了！</button>
+  </div>
+</div>
+</body>
+</html>
