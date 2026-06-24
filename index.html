@@ -430,6 +430,7 @@ input[type=file]{display:none;}
 </head>
 <body>
 
+
   <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:320px;box-shadow:0 4px 16px var(--shd);">
     <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px;">你有邀請碼嗎？</div>
     <div style="font-size:11px;color:var(--sub);margin-bottom:12px;">請對方先產生邀請碼，再輸入這裡</div>
@@ -694,6 +695,18 @@ input[type=file]{display:none;}
   </div>
   <button onclick="closeMo('calDayMo');openMo('addEventMo')" class="btn2 bpri" style="width:100%;">新增這天的約會</button>
 </div></div></div>
+<div class="mo" id="addChalMo"><div class="mbox"><div class="mh"><span class="mtit">新增挑戰</span><button class="mcl" onclick="closeMo('addChalMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="fg"><label class="fl">挑戰名稱（必填）</label><input class="fi" id="newChalName" placeholder="e.g. 一起去看星星"></div>
+  <div class="fg"><label class="fl">分類</label>
+    <select class="fi" id="newChalCat" style="padding:8px 10px;">
+      <option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>其他</option>
+    </select>
+  </div>
+  <div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="newChalDeadline"></div>
+  <div class="fg"><label class="fl">說明（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="挑戰說明..."></textarea></div>
+  <button onclick="showToast('挑戰已新增');closeMo('addChalMo')" class="btn2 bpri" style="width:100%;">新增</button>
+</div></div></div>
 <div class="mo" id="chalDetailMo"><div class="mbox"><div class="mh"><span class="mtit">挑戰詳細</span><button class="mcl" onclick="closeMo('chalDetailMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
   <div style="background:var(--lt);border-radius:12px;padding:12px;">
@@ -909,23 +922,6 @@ input[type=file]{display:none;}
 <div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label><input class="fi" placeholder="在哪裡？"></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="showToast('約會計畫已新增');closeMo('addEventMo')">新增</button></div></div></div>
 <div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">縣市（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="toggleForeignInput(this.value)"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>國外</option></select><div id="foreignFields" style="display:none;flex-direction:column;gap:6px;margin-top:6px;"><select class="fi" id="newCountry" style="padding:8px 10px;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><input class="fi" id="newFCity" placeholder="城市名稱"></div></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><input class="fi" id="newDish" placeholder="招牌菜..."></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textar
 
-<script>
-function showConfirmMo(msg, onConfirm) {
-  var mo = document.getElementById('confirmMo');
-  var txt = document.getElementById('confirmMoText');
-  if (!mo) return onConfirm();
-  if (txt) txt.textContent = msg;
-  window._confirmCallback = onConfirm;
-  openMo('confirmMo');
-}
-function doConfirm() {
-  closeMo('confirmMo');
-  if (typeof window._confirmCallback === 'function') window._confirmCallback();
-  window._confirmCallback = null;
-}
-</script>
-</head>
-<body>
 
 <!-- 載入遮罩 -->
 <div id="loadingOverlay" style="display:flex;position:fixed;inset:0;z-index:99999;background:var(--bg);align-items:center;justify-content:center;flex-direction:column;gap:12px;">
@@ -1220,6 +1216,18 @@ function doConfirm() {
   </div>
   <button onclick="closeMo('calDayMo');openMo('addEventMo')" class="btn2 bpri" style="width:100%;">新增這天的約會</button>
 </div></div></div>
+<div class="mo" id="addChalMo"><div class="mbox"><div class="mh"><span class="mtit">新增挑戰</span><button class="mcl" onclick="closeMo('addChalMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="fg"><label class="fl">挑戰名稱（必填）</label><input class="fi" id="newChalName" placeholder="e.g. 一起去看星星"></div>
+  <div class="fg"><label class="fl">分類</label>
+    <select class="fi" id="newChalCat" style="padding:8px 10px;">
+      <option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>其他</option>
+    </select>
+  </div>
+  <div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="newChalDeadline"></div>
+  <div class="fg"><label class="fl">說明（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="挑戰說明..."></textarea></div>
+  <button onclick="showToast('挑戰已新增');closeMo('addChalMo')" class="btn2 bpri" style="width:100%;">新增</button>
+</div></div></div>
 <div class="mo" id="chalDetailMo"><div class="mbox"><div class="mh"><span class="mtit">挑戰詳細</span><button class="mcl" onclick="closeMo('chalDetailMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
   <div style="background:var(--lt);border-radius:12px;padding:12px;">
@@ -1237,38 +1245,8 @@ function doConfirm() {
   </div>
   <button onclick="closeMo('chalDetailMo');goPage('challenges')" class="btn2 bsec" style="width:100%;">查看所有挑戰</button>
 </div></div></div>
-<div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
-  <div style="text-align:center;padding:8px 0 16px;">
-    <div style="font-size:14px;color:var(--txt);font-weight:600;" id="confirmMoText">確定嗎？</div>
-  </div>
-  <div style="display:flex;gap:8px;">
-    <button onclick="closeMo('confirmMo')" class="btn2 bsec" style="flex:1;">取消</button>
-    <button onclick="doConfirm()" class="btn2 bpri" style="flex:1;">確定</button>
-  </div>
-</div></div>
-<div class="mo" id="annivMo"><div class="mbox"><div class="mh"><span class="mtit">紀念日倒數</span><button class="mcl" onclick="closeMo('annivMo')">×</button></div>
-<div style="display:flex;flex-direction:column;gap:8px;max-height:65vh;overflow-y:auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--lt);border-radius:12px;">
-    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">在一起紀念日</div><div style="font-size:11px;color:var(--sub);">每年 6/2</div></div>
-    <div style="font-size:20px;font-weight:700;color:var(--accent);">13天後</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
-    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">西洋情人節</div><div style="font-size:11px;color:var(--sub);">每年 2/14</div></div>
-    <div style="font-size:16px;font-weight:700;color:var(--sub);">235天後</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
-    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">小柔生日</div><div style="font-size:11px;color:var(--sub);">每年 9/15</div></div>
-    <div style="font-size:16px;font-weight:700;color:var(--sub);">83天後</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
-    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">聖誕節</div><div style="font-size:11px;color:var(--sub);">每年 12/25</div></div>
-    <div style="font-size:16px;font-weight:700;color:var(--sub);">184天後</div>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
-    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">七夕情人節</div><div style="font-size:11px;color:var(--sub);">農曆 7/7</div></div>
-    <div style="font-size:16px;font-weight:700;color:var(--sub);">48天後</div>
-  </div>
-</div></div></div>
+
+
 <div class="mo" id="msgMo"><div class="mbox"><div class="mh"><span class="mtit">留言紀錄</span><button class="mcl" onclick="closeMo('msgMo')">×</button></div><div class="msgrow"><div class="mrw">小柔</div><div class="mrt">今天吃了好好吃的拉麵，下次一定要帶你去！</div><div class="mrtime">今天・12:34</div></div><div class="msgrow"><div class="mrw">我</div><div class="mrt">晚安，今天工作好累但想到你就好了</div><div class="mrtime">昨天・23:11</div></div><div class="msgrow"><div class="mrw">小柔</div><div class="mrt">你要好好休息喔！我在等你</div><div class="mrtime">昨天・22:48</div></div><div class="msgrow"><div class="mrw">我</div><div class="mrt">今天下雨，想到那天我們一起淋雨的事</div><div class="mrtime">2天前・20:15</div></div></div></div>
 <div class="mob" id="decideMo"><div class="msh"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('decideMo')">×</button></div><select onchange="setDC(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;margin-bottom:8px;"><option value="全部">全部分類</option><option value="想去哪" id="dc-opt-1">想去哪</option><option value="想吃什麼" id="dc-opt-2">想吃什麼</option><option value="想做什麼" id="dc-opt-3">想做什麼</option><option value="想看什麼" id="dc-opt-4">想看什麼</option></select><div class="rcard"><div class="rname" id="rname">去九份老街</div><div class="rcat2" id="rcat">想去哪</div></div><div class="rbtns"><button class="btn2 bsec" onclick="reroll()">再抽一次</button><button class="btn2 bpri" onclick="closeMo('decideMo')">就這個！</button></div></div></div>
 <div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt="" onclick="triggerUpload()"><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2">小柔</div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;">點擊更換照片</div><button class="pubtn" onclick="triggerUpload()">更換照片</button><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
@@ -1435,7 +1413,30 @@ function doConfirm() {
 <div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label><input class="fi" placeholder="在哪裡？"></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="showToast('約會計畫已新增');closeMo('addEventMo')">新增</button></div></div></div>
 <div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">縣市（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="toggleForeignInput(this.value)"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>國外</option></select><div id="foreignFields" style="display:none;flex-direction:column;gap:6px;margin-top:6px;"><select class="fi" id="newCountry" style="padding:8px 10px;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><input class="fi" id="newFCity" placeholder="城市名稱"></div></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><input class="fi" id="newDish" placeholder="招牌菜..."></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textar
 
+<div class="fw-overlay" id="fwOverlay">
+  <div class="fw-card">
+    <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="5" fill="#D4A870"/><circle cx="36" cy="36" r="2.5" fill="#fff" opacity=".9"/><line x1="36" y1="30" x2="36" y2="10" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="36" y1="42" x2="36" y2="62" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="33" x2="13" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="39" x2="59" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="39" x2="13" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="33" x2="59" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/></svg>
+    <div class="fw-title" style="font-size:22px;font-weight:700;color:var(--txt);margin:12px 0 6px;">挑戰完成！</div>
+    <div style="font-size:13px;color:var(--sub);margin-bottom:18px;">你們一起完成了這個挑戰</div>
+    <button class="btn2 bpri" onclick="closeFw()" style="width:100%;">太棒了！</button>
+  </div>
+</div>
+
 <script>
+function showConfirmMo(msg, onConfirm) {
+  var mo = document.getElementById('confirmMo');
+  var txt = document.getElementById('confirmMoText');
+  if (!mo) return onConfirm();
+  if (txt) txt.textContent = msg;
+  window._confirmCallback = onConfirm;
+  openMo('confirmMo');
+}
+function doConfirm() {
+  closeMo('confirmMo');
+  if (typeof window._confirmCallback === 'function') window._confirmCallback();
+  window._confirmCallback = null;
+}
+
 function editVersion(idx){showToast('編輯功能開發中');}
 
 function switchInspireTab(tab,el){
@@ -2001,15 +2002,6 @@ function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 
 
 function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
-
-
-</script><div class="fw-overlay" id="fwOverlay">
-  <div class="fw-card">
-    <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="5" fill="#D4A870"/><circle cx="36" cy="36" r="2.5" fill="#fff" opacity=".9"/><line x1="36" y1="30" x2="36" y2="10" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="36" y1="42" x2="36" y2="62" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="33" x2="13" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="39" x2="59" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="39" x2="13" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="33" x2="59" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/></svg>
-    <div class="fw-title" style="font-size:22px;font-weight:700;color:var(--txt);margin:12px 0 6px;">挑戰完成！</div>
-    <div style="font-size:13px;color:var(--sub);margin-bottom:18px;">你們一起完成了這個挑戰</div>
-    <button class="btn2 bpri" onclick="closeFw()" style="width:100%;">太棒了！</button>
-  </div>
-</div>
+</script>
 </body>
 </html>
