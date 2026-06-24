@@ -1011,7 +1011,8 @@ input[type=file]{display:none;}
       <div class="qc" onclick="goPageX('restaurants')"><div class="qt">餐廳記錄</div><div class="qn">23 家</div><div class="qs">去過的餐廳</div></div>
     </div>
   </div>
-  <div class="bnav" id="bnav-home"></div>
+    <button class="fab" onclick="goPageX('challenges')" style="bottom:76px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+<div class="bnav" id="bnav-home"></div>
 </div>
 
 <!-- MEMORY -->
@@ -1423,6 +1424,17 @@ input[type=file]{display:none;}
 </div>
 
 <script>
+const RESTS=[
+  {name:'太郎拉麵',type:'日式',city:'台南市',star:5,date:'2025-06-10',dish:'拉麵'},
+  {name:'鼎泰豐豐',type:'中式',city:'台北市',star:4,date:'2025-05-20',dish:'小籐包'},
+  {name:'星巴克',type:'和食',city:'台北市',star:3,date:'2025-04-15',dish:'拿鐵'},
+  {name:'劵義燒烤',type:'燒烤',city:'新北市',star:5,date:'2025-02-14',dish:'海鮮盤'},
+  {name:'鼎泰豐豐高雄',type:'中式',city:'高雄市',star:4,date:'2025-01-20',dish:'小籐包'},
+  {name:'CJ吹爆皮',type:'千層',city:'台南市',star:5,date:'2024-12-25',dish:'袓糕'},
+  {name:'蘇山海鮮',type:'海鮮',city:'台南市',star:3,date:'2024-11-10',dish:'魚'},
+];
+let restCity='全部';
+
 function showConfirmMo(msg, onConfirm) {
   var mo = document.getElementById('confirmMo');
   var txt = document.getElementById('confirmMoText');
