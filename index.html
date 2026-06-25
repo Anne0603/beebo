@@ -311,7 +311,10 @@ input[type=file]{display:none;}
       } else {
         // 未配對 → 進主頁，顯示配對 modal（不再擋住主頁）
         if (typeof buildNavs === 'function') buildNavs();
-        setTimeout(function(){ openMo('pairingMo'); }, 300);
+        setTimeout(function(){
+          // 再次確認還沒配對才開 modal（onSnapshot 可能已先處理）
+          if (!window._coupleId) openMo('pairingMo');
+        }, 600);
       }
     } else {
       window.currentUser = null;
@@ -329,7 +332,9 @@ input[type=file]{display:none;}
       window._userDocUnsub = onSnapshot(doc(db, 'users', user.uid), async (snap) => {
         if (!snap.exists()) return;
         const fresh = snap.data();
-        if (fresh.partnerId && !window._coupleId) {
+        // 有 partnerId 且尚未初始化（_coupleId 空）才跑
+        const newCoupleId = fresh.partnerId ? [user.uid, fresh.partnerId].sort().join('_') : null;
+        if (fresh.partnerId && (!window._coupleId || window._coupleId !== newCoupleId)) {
           window.userData = fresh;
           const pRef = doc(db, 'users', fresh.partnerId);
           const pSnap = await getDoc(pRef);
@@ -342,7 +347,7 @@ input[type=file]{display:none;}
               pvAvc.innerHTML = '<img src="' + window.partnerData.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
             }
           }
-          const coupleId = [user.uid, fresh.partnerId].sort().join('_');
+          const coupleId = newCoupleId;
           window._coupleId = coupleId;
           await window._initCouple(db, coupleId, user.uid, fresh);
           window._initList(db, coupleId);
@@ -352,6 +357,7 @@ input[type=file]{display:none;}
           window._initMessages(db, coupleId, user.uid);
           var pm = document.getElementById('pairingMo');
           if (pm) pm.classList.remove('open');
+          if (typeof closeMo === 'function') closeMo('pairingMo');
           if (typeof buildNavs === 'function') buildNavs();
           if (typeof showToast === 'function') showToast('配對成功！歡迎使用嗶啵 💚');
         }
