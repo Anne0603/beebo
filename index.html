@@ -216,7 +216,7 @@ input[type=file]{display:none;}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB7ItJLps_FErzeQ-1s9WtS7XfercGt4i4",
@@ -275,7 +275,21 @@ input[type=file]{display:none;}
       if (myName) myName.textContent = userData.name || user.displayName || '我';
 
       if (userData.partnerId) {
-        // 已配對 → 進入主頁
+        // 已配對 → 載入夥伴資料 + 開始留言監聽
+        const partnerRef = doc(db, 'users', userData.partnerId);
+        const partnerSnap = await getDoc(partnerRef);
+        if (partnerSnap.exists()) {
+          window.partnerData = partnerSnap.data();
+          const pvAvc = document.getElementById('avc-partner');
+          if (pvAvc && window.partnerData.photo) {
+            pvAvc.innerHTML = '<img src="' + window.partnerData.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+          }
+          const pvName = document.querySelector('.aname-partner');
+          if (pvName) pvName.textContent = window.partnerData.name || '對方';
+        }
+        const coupleId = [user.uid, userData.partnerId].sort().join('_');
+        window._coupleId = coupleId;
+        window._initMessages(db, coupleId, user.uid);
         if (typeof buildNavs === 'function') buildNavs();
       } else {
         // 未配對 → 顯示配對畫面
@@ -426,6 +440,102 @@ input[type=file]{display:none;}
 
   window._db = db;
   window._auth = auth;
+
+  // ── 留言系統 ──
+  // Firestore 結構：couples/{coupleId}/messages/{msgId}
+  // { text, senderUid, senderName, createdAt, readBy: [uid,...] }
+
+  window._initMessages = function(db, coupleId, myUid) {
+    const msgsRef = collection(db, 'couples', coupleId, 'messages');
+    // 監聽最新50則（即時同步）
+    const q = query(msgsRef, orderBy('createdAt', 'desc'), limit(50));
+    window._msgUnsubscribe = onSnapshot(q, (snap) => {
+      const msgs = [];
+      snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
+      msgs.reverse(); // 舊 → 新
+      window._messages = msgs;
+      window._renderMsgList(msgs, myUid);
+      window._updateHomeMsgCard(msgs, myUid);
+    });
+  };
+
+  window._fmtTime = function(ts) {
+    if (!ts) return '';
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    const now = new Date();
+    const diff = Math.floor((now - d) / 1000);
+    if (diff < 60) return '剛剛';
+    if (diff < 3600) return Math.floor(diff/60) + '分鐘前';
+    const today = new Date(); today.setHours(0,0,0,0);
+    const yesterday = new Date(today); yesterday.setDate(today.getDate()-1);
+    if (d >= today) return '今天・' + d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+    if (d >= yesterday) return '昨天・' + d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+    return (d.getMonth()+1) + '/' + d.getDate() + '・' + d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
+  };
+
+  window._renderMsgList = function(msgs, myUid) {
+    const list = document.getElementById('msgList');
+    if (!list) return;
+    if (!msgs.length) {
+      list.innerHTML = '<div style="text-align:center;color:var(--sub);font-size:12px;padding:30px;">還沒有留言，先說句話吧 💬</div>';
+      return;
+    }
+    list.innerHTML = msgs.map(m => {
+      const isMine = m.senderUid === myUid;
+      const name = isMine ? '我' : (window.partnerData ? window.partnerData.name : '對方');
+      return '<div class="msgrow"><div class="mrw">' + name + '</div>' +
+             '<div class="mrt">' + (m.text || '').replace(/</g,'&lt;') + '</div>' +
+             '<div class="mrtime">' + window._fmtTime(m.createdAt) + '</div></div>';
+    }).join('');
+    // 捲到最底
+    list.scrollTop = list.scrollHeight;
+  };
+
+  window._updateHomeMsgCard = function(msgs, myUid) {
+    if (!msgs.length) {
+      const el = document.getElementById('msgLatestText');
+      if (el) { el.textContent = '還沒有留言，先說句話吧 💬'; el.style.color = 'var(--sub)'; }
+      return;
+    }
+    const latest = msgs[msgs.length - 1];
+    const isMine = latest.senderUid === myUid;
+    const senderName = isMine ? '我' : (window.partnerData ? window.partnerData.name : '對方');
+    const timeStr = window._fmtTime(latest.createdAt);
+    const senderEl = document.getElementById('msgLatestSender');
+    if (senderEl) senderEl.textContent = senderName + '・' + timeStr;
+    const textEl = document.getElementById('msgLatestText');
+    if (textEl) { textEl.textContent = '「' + (latest.text || '') + '」'; textEl.style.color = 'var(--txt)'; }
+    // 未讀紅點：最新留言不是自己發的
+    const dot = document.getElementById('msgUnreadDot');
+    if (dot) dot.style.display = isMine ? 'none' : 'inline-block';
+  };
+
+  window.sendMsg = async function() {
+    const inp = document.getElementById('msgInput');
+    if (!inp) return;
+    const text = inp.value.trim();
+    if (!text) return;
+    if (!window.currentUser || !window._coupleId) {
+      if (typeof showToast === 'function') showToast('請先登入並配對');
+      return;
+    }
+    inp.value = '';
+    try {
+      const msgsRef = collection(window._db, 'couples', window._coupleId, 'messages');
+      await addDoc(msgsRef, {
+        text: text,
+        senderUid: window.currentUser.uid,
+        senderName: window.userData ? window.userData.name : '我',
+        createdAt: serverTimestamp(),
+        readBy: [window.currentUser.uid]
+      });
+    } catch(e) {
+      console.error(e);
+      if (typeof showToast === 'function') showToast('傳送失敗，請再試');
+      inp.value = text;
+    }
+  };
+
 </script>
 </head>
 <body>
@@ -462,10 +572,10 @@ input[type=file]{display:none;}
       </div>
     </div>
     <div class="card" style="flex-shrink:0;">
-      <div class="ch2"><span class="cl2" style="display:flex;align-items:center;gap:5px;">今日留言<span id="msgUnreadDot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#e53935;flex-shrink:0;"></span></span><span style="font-size:10px;color:var(--accent);">小柔・12:34</span></div>
-      <div class="mt" onclick="openMo('msgMo')">「今天吃了好好吃的拉麵，下次一定要帶你去，你會超喜歡的！」</div>
+      <div class="ch2"><span class="cl2" style="display:flex;align-items:center;gap:5px;">今日留言<span id="msgUnreadDot" style="display:none;width:7px;height:7px;border-radius:50%;background:#e53935;flex-shrink:0;"></span></span><span style="font-size:10px;color:var(--accent);" id="msgLatestSender"></span></div>
+      <div class="mt" onclick="openMo('msgMo')" id="msgLatestText" style="color:var(--sub);">載入中...</div>
       <div class="hdiv"></div>
-      <div class="ir"><input class="mi" placeholder="留言給對方..."><button class="sb"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+      <div class="ir"><input class="mi" id="msgInput" placeholder="留言給對方..." onkeydown="if(event.key==='Enter')sendMsg()"><button class="sb" onclick="sendMsg()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     </div>
     <div class="cc">
       <div class="ci" onclick="goPage('challenges')" style="cursor:pointer;">
@@ -756,7 +866,7 @@ input[type=file]{display:none;}
     <div style="font-size:16px;font-weight:700;color:var(--sub);">48天後</div>
   </div>
 </div></div></div>
-<div class="mo" id="msgMo"><div class="mbox"><div class="mh"><span class="mtit">留言紀錄</span><button class="mcl" onclick="closeMo('msgMo')">×</button></div><div class="msgrow"><div class="mrw">小柔</div><div class="mrt">今天吃了好好吃的拉麵，下次一定要帶你去！</div><div class="mrtime">今天・12:34</div></div><div class="msgrow"><div class="mrw">我</div><div class="mrt">晚安，今天工作好累但想到你就好了</div><div class="mrtime">昨天・23:11</div></div><div class="msgrow"><div class="mrw">小柔</div><div class="mrt">你要好好休息喔！我在等你</div><div class="mrtime">昨天・22:48</div></div><div class="msgrow"><div class="mrw">我</div><div class="mrt">今天下雨，想到那天我們一起淋雨的事</div><div class="mrtime">2天前・20:15</div></div></div></div>
+<div class="mo" id="msgMo"><div class="mbox"><div class="mh"><span class="mtit">留言紀錄</span><button class="mcl" onclick="closeMo('msgMo')">×</button></div><div id="msgList" style="display:flex;flex-direction:column;gap:0;overflow-y:auto;max-height:55vh;"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">載入中...</div></div></div></div>
 <div class="mob" id="decideMo"><div class="msh"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('decideMo')">×</button></div><select onchange="setDC(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;margin-bottom:8px;"><option value="全部">全部分類</option><option value="想去哪" id="dc-opt-1">想去哪</option><option value="想吃什麼" id="dc-opt-2">想吃什麼</option><option value="想做什麼" id="dc-opt-3">想做什麼</option><option value="想看什麼" id="dc-opt-4">想看什麼</option></select><div class="rcard"><div class="rname" id="rname">去九份老街</div><div class="rcat2" id="rcat">想去哪</div></div><div class="rbtns"><button class="btn2 bsec" onclick="reroll()">再抽一次</button><button class="btn2 bpri" onclick="closeMo('decideMo')">就這個！</button></div></div></div>
 <div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt="" onclick="triggerUpload()"><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2">小柔</div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;">點擊更換照片</div><button class="pubtn" onclick="triggerUpload()">更換照片</button><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
 <div class="mo" id="profileMo"><div class="mbox"><div class="mh"><span class="mtit">我的個人資料</span><button class="mcl" onclick="closeMo('profileMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:center;"><div style="position:relative;cursor:pointer;" onclick="openPhoto('me')"><div style="width:68px;height:68px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);overflow:hidden;display:flex;align-items:center;justify-content:center;" id="profileAv"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H2v-5L16 3z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">暱稱</label><input class="fi" value="我" placeholder="輸入暱稱"></div><div class="fg"><label class="fl">生日</label><input class="fi" type="date" value="1998-07-20"></div><div class="fg"><label class="fl">性別</label><select class="fsel"><option>男</option><option>女</option><option>不公開</option></select></div><div class="fg"><label class="fl">帳號（Gmail）</label><input class="fi" value="myemail@gmail.com" readonly style="color:var(--sub);"></div><div class="fg"><label class="fl">在一起日期</label><input class="fi" type="date" value="2024-06-02" onchange="confirmDateChange(this)"><div style="font-size:10px;color:var(--sub);margin-top:3px;">修改後天數將重新計算</div></div><button class="btn2 bpri" onclick="closeMo('profileMo')">儲存</button></div></div></div>
@@ -1004,7 +1114,18 @@ function goBack(){
   const prev=pageHist.pop()||'home';
   goPage(prev);
 }
-function openMo(id){document.getElementById(id).classList.add('open');}
+function openMo(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='msgMo'){
+    // 重新渲染確保最新 + 捲到底
+    if(window._messages && window.currentUser){
+      window._renderMsgList(window._messages, window.currentUser.uid);
+    }
+    // 清除未讀紅點
+    var dot=document.getElementById('msgUnreadDot');
+    if(dot) dot.style.display='none';
+  }
+}
 function closeMo(id){document.getElementById(id).classList.remove('open');}
 
 // PHOTO
