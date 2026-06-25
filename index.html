@@ -296,6 +296,7 @@ input[type=file]{display:none;}
         window._coupleId = coupleId;
         await window._initCouple(db, coupleId, user.uid, userData);
         window._initList(db, coupleId);
+        window._initRests(db, coupleId);
         window._initMessages(db, coupleId, user.uid);
         if (typeof buildNavs === 'function') buildNavs();
       } else {
@@ -1541,13 +1542,19 @@ async function addListItem(){
   closeMo('addListMo');
 }
 let currentStar=0;
-function setStar(n){
+function setStar(n, containerId){
   currentStar=n;
-  document.querySelectorAll('#restStars .strbtn').forEach(function(b,i){
-    var on=i<n;
-    b.classList.toggle('on',on);
-    var path=b.querySelector('path');
-    if(path){path.setAttribute('fill',on?'#F4C430':'none');path.setAttribute('stroke',on?'#E6A800':'#C8C8C8');}
+  // 支援多個星星容器（新增餐廳 #restStars、完成清單 #compStars）
+  var containers = containerId ? [document.getElementById(containerId)] :
+    [document.getElementById('restStars'), document.getElementById('compStars')];
+  containers.forEach(function(container){
+    if(!container)return;
+    container.querySelectorAll('.strbtn').forEach(function(b,i){
+      var on=i<n;
+      b.classList.toggle('on',on);
+      var path=b.querySelector('path');
+      if(path){path.setAttribute('fill',on?'#F4C430':'none');path.setAttribute('stroke',on?'#E6A800':'#C8C8C8');}
+    });
   });
 }
 
@@ -1698,26 +1705,111 @@ function renderMemory(){
   ).join('')+'<div class="madd" onclick="openMo(`addMemMo`)">'+addSVG+'<div style="font-size:10px;color:var(--sub);">新增</div></div></div>';
 }
 
+// ── Firestore 餐廳監聽 ──
+window._initRests = function(db, coupleId) {
+  var {collection, query, orderBy, onSnapshot} = window._fsOps;
+  var restRef = collection(db, 'couples', coupleId, 'rests');
+  var q = query(restRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    RESTS = [];
+    snap.forEach(function(d){ RESTS.push(Object.assign({id: d.id}, d.data())); });
+    renderRests();
+    renderLinkRests();
+    if (typeof window._updateStats === 'function') window._updateStats();
+  });
+};
+
 function renderRests(){
-  const body=document.getElementById('restBody');
-  const items=RESTS.filter(r=>(restCity==='全部'||r.city===restCity)&&(restType==='全部'||r.type===restType));
-  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">這個縣市還沒有紀錄</div>';return;}
-  body.innerHTML=items.map(r=>`
-    <div class="ri">
-      <div class="ri-top"><div class="ri-name">${r.name}</div><div style="display:flex;gap:1px;">${STAR_SVG.repeat(r.star)}</div></div>
-      <div class="ri-meta">${r.type}・${r.date}${r.dish?'・'+r.dish:''}</div>
-      <span class="ri-city">${r.city}</span>
-    </div>`).join('');
+  var body=document.getElementById('restBody');
+  if(!body)return;
+  if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
+  var items=RESTS.filter(function(r){
+    return (restCity==='全部'||r.city===restCity||r.city==='國外')&&(restType==='全部'||r.type===restType);
+  });
+  // 國外細篩
+  if(restCity==='國外'){
+    var fc=document.getElementById('restForeignCountry');
+    var fct=fc?fc.value:'';
+    if(fct) items=items.filter(function(r){return r.country===fct;});
+  }
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">還沒有餐廳記錄，記錄第一家吧！</div>';return;}
+  body.innerHTML=items.map(function(r){
+    var stars='';for(var i=0;i<(r.star||0);i++)stars+=STAR_SVG;
+    var cityLabel=r.city==='國外'?(r.country||'')+(r.foreignCity?' '+r.foreignCity:''):r.city;
+    var delBtn='<button onclick="deleteRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:#c62828;cursor:pointer;border-radius:8px;background:#fdecea;">刪除</button>';
+    return '<div class="ri">'+
+      '<div class="ri-top"><div class="ri-name">'+(r.name||'')+'</div><div style="display:flex;gap:1px;">'+stars+'</div></div>'+
+      '<div class="ri-meta">'+(r.type||'')+'・'+(r.date||'')+(r.dish?'・'+r.dish:'')+'</div>'+
+      (r.note?'<div style="font-size:10px;color:var(--sub);margin-top:2px;">'+r.note+'</div>':'')+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">'+
+      '<span class="ri-city">'+(cityLabel||'')+'</span>'+delBtn+'</div></div>';
+  }).join('');
 }
+
+function renderLinkRests(){
+  var list=document.getElementById('linkRestList');
+  if(!list)return;
+  if(!RESTS.length){list.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div>';return;}
+  list.innerHTML=RESTS.map(function(r){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;">'+
+      '<input type="checkbox" value="'+r.id+'" style="accent-color:var(--accent);">'+
+      r.name+'・'+(r.city||'')+'・'+Array(r.star+1).join('★')+'</label>';
+  }).join('');
+}
+
+async function deleteRest(id){
+  if(!confirm('確定刪除？'))return;
+  var {doc,deleteDoc}=window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'rests',id));
+}
+
 let restStar=0;
-let restType="全部";
-function setRS(n){restStar=n;document.querySelectorAll('#restStars .strbtn').forEach((b,i)=>b.classList.toggle('on',i<n));}
-function addRest(){
-  const n=document.getElementById('newRN').value.trim();
-  if(!n||!restStar){alert('請填寫名稱和評分');return;}
-  RESTS.unshift({name:n,city:document.getElementById('newRCity').value,type:document.getElementById('newRT').value,star:restStar,dish:'',date:new Date().toLocaleDateString('zh-TW')});
-  closeMo('addRestMo');renderRests();restStar=0;
-  document.querySelectorAll('#restStars .strbtn').forEach(b=>b.classList.remove('on'));
+let restType='全部';
+function setRS(n){
+  restStar=n;
+  document.querySelectorAll('#restStars .strbtn').forEach(function(b,i){
+    b.classList.toggle('on',i<n);
+    var path=b.querySelector('path');
+    if(path){path.setAttribute('fill',i<n?'#F4C430':'none');path.setAttribute('stroke',i<n?'#E6A800':'#C8C8C8');}
+  });
+}
+async function addRest(){
+  var n=(document.getElementById('newRN')||{}).value;
+  if(n) n=n.trim(); else n='';
+  if(!n||!restStar){showToast('請填寫名稱和評分');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var city=(document.getElementById('newRC2')||{}).value||'';
+  var country='',foreignCity='';
+  if(city==='國外'){
+    country=(document.getElementById('newCountry')||{}).value||'';
+    foreignCity=(document.getElementById('newFCity')||{}).value||'';
+  }
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  await addDoc(collection(window._db,'couples',window._coupleId,'rests'),{
+    name: n,
+    type: (document.getElementById('newRT2')||{}).value||'',
+    city: city,
+    country: country,
+    foreignCity: foreignCity,
+    star: restStar,
+    date: (document.getElementById('newRD')||{}).value||new Date().toLocaleDateString('zh-TW'),
+    dish: (document.getElementById('newDish')||{}).value||'',
+    note: '',
+    createdAt: serverTimestamp()
+  });
+  // 清空表單
+  ['newRN','newDish','newFCity'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var rc2=document.getElementById('newRC2');if(rc2)rc2.value='';
+  var rd=document.getElementById('newRD');if(rd)rd.value='';
+  var ff=document.getElementById('foreignFields');if(ff)ff.style.display='none';
+  closeMo('addRestMo');
+  restStar=0;
+  document.querySelectorAll('#restStars .strbtn').forEach(function(b){
+    b.classList.remove('on');
+    var path=b.querySelector('path');
+    if(path){path.setAttribute('fill','none');path.setAttribute('stroke','#C8C8C8');}
+  });
+  showToast('餐廳記錄已新增 ✓');
 }
 
 // PIN
@@ -1834,12 +1926,11 @@ function saveQuote(){
   closeMo('addQuoteMo');
   showToast('語錄已儲存');
 }
-function setRT(type){restType=type||'全部';if(typeof renderRests==='function')renderRests();}
-function setRC(city){restCity=city||'全部';if(typeof renderRests==='function')renderRests();}
 function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
-
-
-function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
+function toggleForeignInput(v){
+  var ff=document.getElementById('foreignFields');
+  if(ff)ff.style.display=v==='國外'?'flex':'none';
+}
 </script>
 </body>
 </html>
