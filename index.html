@@ -874,6 +874,15 @@ input[type=file]{display:none;}
       <div class="sr" onclick="if(confirm('確定要關閉對方陰私鎖？'))showToast('已關閉對方隱私鎖')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#A87848" stroke-width="1.5"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">關閉對方隱私鎖</div></div><div class="sv">›</div></div>
 
       <div class="sr" onclick="openMo('transferMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">轉移管理員帳號</div></div><div></div></div>
+
+      <!-- ⚠️ 測試專用：正式上線前移除此區塊 -->
+      <div style="margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:12px;border:1.5px dashed #e6a800;">
+        <div style="font-size:10px;font-weight:700;color:#856404;margin-bottom:6px;">⚠️ 測試階段專用 — 正式上線前移除</div>
+        <div class="sr" onclick="devResetOpen()" style="background:transparent;padding:0;box-shadow:none;border:none;">
+          <div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg></div><div class="slb danger">清除所有測試資料</div></div>
+          <div style="font-size:10px;color:#c62828;">危險 ›</div>
+        </div>
+      </div>
     </div>
     <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="openMo('changelogMo')">嗶啵 v1.2.0</div>
   </div>
@@ -1158,6 +1167,41 @@ input[type=file]{display:none;}
     <button onclick="showToast('開發中')" class="btn2 bsec" style="width:100%;font-size:12px;">重新綁定</button>
   </div>
 </div></div></div>
+<div class="mo" id="devResetMo"><div class="mbox">
+  <div class="mh"><span class="mtit" style="color:#c62828;">⚠️ 清除測試資料</span><button class="mcl" onclick="closeMo('devResetMo')">×</button></div>
+  <div style="display:flex;flex-direction:column;gap:12px;">
+    <div style="background:#fdecea;border-radius:10px;padding:10px 12px;font-size:12px;color:#c62828;line-height:1.7;">
+      此操作將永久刪除：<br>
+      • 目前這對帳號的所有資料<br>
+      • 留言、清單、餐廳、挑戰、語錄、回憶錄<br>
+      • couples document（含所有子 collection）<br>
+      • 兩人的 users document<br><br>
+      <strong>刪除後無法復原。</strong>
+    </div>
+    <div class="fg">
+      <label class="fl">第一層確認：輸入「我確認清除」</label>
+      <input class="fi" id="resetConfirm1" placeholder="輸入確認文字">
+    </div>
+    <div class="fg">
+      <label class="fl">第二層確認：輸入目前的 coupleId 後8碼</label>
+      <input class="fi" id="resetConfirm2" placeholder="coupleId 後8碼" id="resetConfirm2">
+      <div style="font-size:10px;color:var(--sub);margin-top:3px;" id="resetCoupleHint"></div>
+    </div>
+    <button class="btn2" style="background:#c62828;color:#fff;width:100%;" onclick="devResetStep3()">繼續 → 最終確認</button>
+    <button class="btn2 bsec" onclick="closeMo('devResetMo')">取消</button>
+  </div>
+</div></div>
+
+<div class="mo" id="devResetFinalMo"><div class="cbox" style="border:2px solid #c62828;">
+  <div style="font-size:18px;margin-bottom:6px;">⚠️</div>
+  <div class="ctit" style="color:#c62828;">最終確認</div>
+  <div class="csub">即將清除所有資料，此操作<strong>無法復原</strong>。<br>確定要繼續嗎？</div>
+  <div class="cbtns" style="margin-top:16px;">
+    <button class="btn2 bsec" onclick="closeMo('devResetFinalMo')">取消</button>
+    <button class="btn2" style="background:#c62828;color:#fff;" onclick="devResetExecute()">確認清除</button>
+  </div>
+</div></div>
+
 <div class="mo" id="transferMo"><div class="cbox"><div class="ctit" style="color:#c62828;">轉移管理員帳號</div><div class="csub">此操作不可逆。轉移後您將失去管理員權限。<br>請輸入「confirm」確認。</div><input class="fi" placeholder='輸入 "confirm"' style="margin-bottom:12px;"><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('transferMo')">取消</button><button class="btn2" style="background:#c62828;color:#fff;" onclick="closeMo('transferMo')">確認轉移</button></div></div></div>
 <div class="mo" id="inspireMo"><div class="msh"><div class="mh"><span class="mtit">靈感</span><button class="mcl" onclick="closeMo('inspireMo')">×</button></div><div style="display:flex;flex-direction:column;gap:8px;" id="inspireList"></div></div></div>
 
@@ -1457,6 +1501,72 @@ function showToast(msg){
 buildNavs();
 
 // 留言數統計（留言監聽更新後呼叫）
+// ══════════════════════════════════════════
+// ⚠️  測試專用清除函數 — 正式上線前整段移除
+// ══════════════════════════════════════════
+function devResetOpen(){
+  // 開啟時顯示 coupleId 提示（後8碼）
+  var hint = document.getElementById('resetCoupleHint');
+  if(hint && window._coupleId){
+    hint.textContent = '你的 coupleId 後8碼：' + window._coupleId.slice(-8);
+  }
+  document.getElementById('resetConfirm1').value='';
+  document.getElementById('resetConfirm2').value='';
+  openMo('devResetMo');
+}
+function devResetStep3(){
+  var v1=(document.getElementById('resetConfirm1')||{}).value||'';
+  var v2=(document.getElementById('resetConfirm2')||{}).value||'';
+  if(v1.trim()!=='我確認清除'){
+    showToast('第一層確認文字不正確');return;
+  }
+  if(!window._coupleId||v2.trim()!==window._coupleId.slice(-8)){
+    showToast('coupleId 後8碼不正確');return;
+  }
+  closeMo('devResetMo');
+  openMo('devResetFinalMo');
+}
+async function devResetExecute(){
+  closeMo('devResetFinalMo');
+  if(!window._db||!window._coupleId||!window.currentUser){
+    showToast('資料不完整，無法清除');return;
+  }
+  showToast('清除中，請稍候...');
+  try {
+    var db=window._db;
+    var coupleId=window._coupleId;
+    var myUid=window.currentUser.uid;
+    var partnerId=window.userData&&window.userData.partnerId;
+    var {doc,deleteDoc,collection,getDocs} = window._fsOps;
+    // 取得 getDocs（需要額外暴露）
+    var fsModule = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    var getDocs2 = fsModule.getDocs;
+
+    // 刪除子 collections
+    var subCols=['messages','list','rests','challenges','quotes'];
+    for(var si=0;si<subCols.length;si++){
+      var colRef=collection(db,'couples',coupleId,subCols[si]);
+      var snap=await getDocs2(colRef);
+      var dels=[];
+      snap.forEach(function(d){dels.push(deleteDoc(d.ref));});
+      await Promise.all(dels);
+    }
+    // 刪除 couples doc
+    await deleteDoc(doc(db,'couples',coupleId));
+    // 刪除兩人 users doc
+    await deleteDoc(doc(db,'users',myUid));
+    if(partnerId) await deleteDoc(doc(db,'users',partnerId));
+    // 登出
+    if(window._auth) await window._auth.signOut();
+    showToast('清除完成，即將重新整理...');
+    setTimeout(function(){location.reload();},1500);
+  } catch(e) {
+    console.error(e);
+    showToast('清除失敗：'+e.message);
+  }
+}
+// ══════════════════════════════════════════
+
 function _achCard(name, date, locked){
   var svg='<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="'+(locked?'#ccc':'#FFF0B0')+'" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/></svg>';
   return '<div class="ach'+(locked?' locked':'')+'"><div class="achi">'+svg+'</div><div class="achn">'+name+'</div><div class="achd">'+(locked?'未解鎖':date)+'</div></div>';
