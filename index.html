@@ -302,8 +302,9 @@ input[type=file]{display:none;}
         window._initMessages(db, coupleId, user.uid);
         if (typeof buildNavs === 'function') buildNavs();
       } else {
-        // 未配對 → 顯示配對畫面
-        document.getElementById('pairingScreen').style.display = 'flex';
+        // 未配對 → 進主頁，顯示配對 modal（不再擋住主頁）
+        if (typeof buildNavs === 'function') buildNavs();
+        setTimeout(function(){ openMo('pairingMo'); }, 300);
       }
     } else {
       window.currentUser = null;
@@ -360,7 +361,25 @@ input[type=file]{display:none;}
     }
   };
 
-  function startPairingCountdown(expiry, el) {
+  function switchPairTab(tab) {
+  var joinPanel = document.getElementById('pairJoinPanel');
+  var genPanel  = document.getElementById('pairGenPanel');
+  var tab1 = document.getElementById('pairTab1');
+  var tab2 = document.getElementById('pairTab2');
+  if(tab === 'join') {
+    if(joinPanel) joinPanel.style.display = 'block';
+    if(genPanel)  genPanel.style.display  = 'none';
+    if(tab1){tab1.style.background='var(--accent)';tab1.style.color='#fff';tab1.style.fontWeight='700';}
+    if(tab2){tab2.style.background='var(--card2)'; tab2.style.color='var(--sub)';tab2.style.fontWeight='600';}
+  } else {
+    if(joinPanel) joinPanel.style.display = 'none';
+    if(genPanel)  genPanel.style.display  = 'block';
+    if(tab1){tab1.style.background='var(--card2)';tab1.style.color='var(--sub)';tab1.style.fontWeight='600';}
+    if(tab2){tab2.style.background='var(--accent)';tab2.style.color='#fff';tab2.style.fontWeight='700';}
+  }
+}
+
+function startPairingCountdown(expiry, el) {
     const update = () => {
       const diff = expiry - Date.now();
       if (diff <= 0) { el.textContent = '已過期'; return; }
@@ -416,8 +435,35 @@ input[type=file]{display:none;}
       await setDoc(partnerRef, { partnerId: window.currentUser.uid, isAdmin: true }, { merge: true });
       await setDoc(inviteRef, { used: true }, { merge: true });
 
-      document.getElementById('pairingScreen').style.display = 'none';
-      if (typeof showToast === 'function') showToast('配對成功！歡迎使用嗶啵');
+      // 更新本地 userData
+      window.userData = Object.assign(window.userData || {}, { partnerId: invite.createdBy, isAdmin: false });
+
+      // 載入夥伴資料
+      const partnerSnap2 = await getDoc(partnerRef);
+      if (partnerSnap2.exists()) {
+        window.partnerData = partnerSnap2.data();
+        const pvAvc = document.getElementById('avc-partner');
+        if (pvAvc && window.partnerData.photo) {
+          pvAvc.innerHTML = '<img src="' + window.partnerData.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        }
+        var avnP = document.getElementById('avn-partner');
+        if (avnP) avnP.textContent = window.partnerData.name || '對方';
+      }
+
+      // 建立 coupleId 並初始化所有功能
+      const coupleId = [window.currentUser.uid, invite.createdBy].sort().join('_');
+      window._coupleId = coupleId;
+      await window._initCouple(db, coupleId, window.currentUser.uid, window.userData);
+      window._initList(db, coupleId);
+      window._initRests(db, coupleId);
+      window._initChals(db, coupleId);
+      window._initQuotes(db, coupleId);
+      window._initMessages(db, coupleId, window.currentUser.uid);
+
+      var ps = document.getElementById('pairingScreen');
+      if (ps) ps.style.display = 'none';
+      closeMo('pairingMo');
+      if (typeof showToast === 'function') showToast('配對成功！歡迎使用嗶啵 💚');
       if (typeof buildNavs === 'function') buildNavs();
     } catch(e) {
       console.error(e);
@@ -722,24 +768,42 @@ input[type=file]{display:none;}
   </button>
 </div>
 
-<!-- Pairing screen -->
-<div id="pairingScreen" style="display:none;position:fixed;inset:0;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:100;padding:24px;">
-  <div style="font-size:20px;font-weight:700;color:var(--accent);">歡迎！先配對吧 💚</div>
-  <div style="font-size:12px;color:var(--sub);">和另一半連結，開始你們的專屬紀錄</div>
-  <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:320px;box-shadow:0 4px 16px var(--shd);">
-    <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px;">你有邀請碼嗎？</div>
-    <div style="font-size:11px;color:var(--sub);margin-bottom:12px;">請對方先產生邀請碼，再輸入這裡</div>
-    <input id="inviteInputField" class="fi" placeholder="BPO-1234" style="margin-bottom:8px;text-transform:uppercase;letter-spacing:3px;font-size:16px;text-align:center;">
-    <button id="submitInviteBtn" onclick="submitInviteCode()" class="btn2 bpri" style="width:100%;">確認配對</button>
+<!-- pairingScreen 保留為空（供舊程式碼呼叫不報錯）-->
+<div id="pairingScreen" style="display:none;"></div>
+
+<!-- Pairing Modal -->
+<div class="mo open" id="pairingMo" style="z-index:200;">
+  <div class="mbox" style="max-width:340px;">
+    <div style="text-align:center;padding:8px 0 16px;">
+      <div style="font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px;">歡迎來到嗶啵 💚</div>
+      <div style="font-size:12px;color:var(--sub);">先和另一半配對，才能共享所有功能</div>
+    </div>
+
+    <!-- Tab 切換 -->
+    <div style="display:flex;gap:0;margin-bottom:16px;border-radius:12px;overflow:hidden;border:1px solid var(--bdr);">
+      <button id="pairTab1" onclick="switchPairTab('join')" style="flex:1;padding:9px 0;font-size:13px;font-weight:700;background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">輸入邀請碼</button>
+      <button id="pairTab2" onclick="switchPairTab('gen')" style="flex:1;padding:9px 0;font-size:13px;font-weight:600;background:var(--card2);color:var(--sub);border:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">產生邀請碼</button>
+    </div>
+
+    <!-- 輸入邀請碼 -->
+    <div id="pairJoinPanel">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">請另一半先產生邀請碼，再輸入下方</div>
+      <input id="inviteInputField" class="fi" placeholder="BPO-1234" style="margin-bottom:10px;text-transform:uppercase;letter-spacing:3px;font-size:18px;text-align:center;font-weight:700;">
+      <button id="submitInviteBtn" onclick="submitInviteCode()" class="btn2 bpri" style="width:100%;">確認配對</button>
+    </div>
+
+    <!-- 產生邀請碼 -->
+    <div id="pairGenPanel" style="display:none;">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:12px;">產生邀請碼後，將它傳給另一半輸入</div>
+      <button onclick="genInvitePairing()" class="btn2 bsec" style="width:100%;margin-bottom:10px;">產生邀請碼</button>
+      <div id="pairingCodeDisplay" style="display:none;font-size:28px;font-weight:700;color:var(--accent);letter-spacing:6px;text-align:center;padding:12px;background:var(--lt);border-radius:12px;margin-bottom:6px;"></div>
+      <div id="pairingTimer" style="font-size:11px;color:var(--sub);text-align:center;"></div>
+    </div>
+
+    <div style="border-top:1px solid var(--bdr);margin-top:16px;padding-top:12px;text-align:center;">
+      <button onclick="firebaseSignOut()" style="all:unset;font-size:12px;color:var(--sub);cursor:pointer;">登出帳號</button>
+    </div>
   </div>
-  <div style="background:var(--card);border-radius:20px;padding:20px;width:100%;max-width:320px;box-shadow:0 4px 16px var(--shd);text-align:center;">
-    <div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:4px;">我先登入</div>
-    <div style="font-size:11px;color:var(--sub);margin-bottom:12px;">產生邀請碼給另一半</div>
-    <button onclick="genInvitePairing()" class="btn2 bsec" style="width:100%;">產生邀請碼</button>
-    <div id="pairingCodeDisplay" style="display:none;margin-top:12px;font-size:26px;font-weight:700;color:var(--accent);letter-spacing:5px;padding:10px;background:var(--lt);border-radius:10px;"></div>
-    <div id="pairingTimer" style="font-size:11px;color:var(--sub);margin-top:6px;"></div>
-  </div>
-  <button onclick="firebaseSignOut()" style="all:unset;font-size:12px;color:var(--sub);cursor:pointer;padding:8px;">登出</button>
 </div>
 
 <!-- HOME -->
