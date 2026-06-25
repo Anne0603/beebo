@@ -323,6 +323,40 @@ input[type=file]{display:none;}
     var lo = document.getElementById('loadingOverlay');
     if (lo) lo.style.display = 'none';
     authResolved = true;
+
+    // ── 監聽自己的 users doc（對方配對後寫入 partnerId，自動觸發初始化）──
+    if (user && !window._userDocUnsub) {
+      window._userDocUnsub = onSnapshot(doc(db, 'users', user.uid), async (snap) => {
+        if (!snap.exists()) return;
+        const fresh = snap.data();
+        if (fresh.partnerId && !window._coupleId) {
+          window.userData = fresh;
+          const pRef = doc(db, 'users', fresh.partnerId);
+          const pSnap = await getDoc(pRef);
+          if (pSnap.exists()) {
+            window.partnerData = pSnap.data();
+            var avnP = document.getElementById('avn-partner');
+            if (avnP) avnP.textContent = window.partnerData.name || '對方';
+            var pvAvc = document.getElementById('avc-partner');
+            if (pvAvc && window.partnerData.photo) {
+              pvAvc.innerHTML = '<img src="' + window.partnerData.photo + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+            }
+          }
+          const coupleId = [user.uid, fresh.partnerId].sort().join('_');
+          window._coupleId = coupleId;
+          await window._initCouple(db, coupleId, user.uid, fresh);
+          window._initList(db, coupleId);
+          window._initRests(db, coupleId);
+          window._initChals(db, coupleId);
+          window._initQuotes(db, coupleId);
+          window._initMessages(db, coupleId, user.uid);
+          var pm = document.getElementById('pairingMo');
+          if (pm) pm.classList.remove('open');
+          if (typeof buildNavs === 'function') buildNavs();
+          if (typeof showToast === 'function') showToast('配對成功！歡迎使用嗶啵 💚');
+        }
+      });
+    }
   });
 
   // ── Google 登入 ──
@@ -343,6 +377,10 @@ input[type=file]{display:none;}
   // ── 登出 ──
   window.firebaseSignOut = async function() {
     showConfirmMo('確定要登出嗎？', async function() {
+      // 取消所有監聽
+      if (window._userDocUnsub) { window._userDocUnsub(); window._userDocUnsub = null; }
+      if (window._msgUnsubscribe) { window._msgUnsubscribe(); window._msgUnsubscribe = null; }
+      window._coupleId = null;
       await signOut(auth);
     });
   };
@@ -955,6 +993,7 @@ function startPairingCountdown(expiry, el) {
     <div class="sr" onclick="openMo('pinSetMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">隱私鎖</div></div><div class="sv" id="pinStatus">未設定 ›</div></div>
     <div class="slbl">其他</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
+      <div class="sr" onclick="location.reload()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openMo('exportMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openMo('changelogMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.2.0 ›</div></div>
       <div class="sr" onclick="openMo('logoutConfirm')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
