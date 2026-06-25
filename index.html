@@ -297,6 +297,7 @@ input[type=file]{display:none;}
         await window._initCouple(db, coupleId, user.uid, userData);
         window._initList(db, coupleId);
         window._initRests(db, coupleId);
+        window._initChals(db, coupleId);
         window._initMessages(db, coupleId, user.uid);
         if (typeof buildNavs === 'function') buildNavs();
       } else {
@@ -951,7 +952,7 @@ input[type=file]{display:none;}
 <div class="toast" id="toast"></div>
 <div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value="台南一日遊"></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" value="2025-06-28" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" value="10:00" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" value="20:00" style="flex:1;"></div></div><div class="fg"><label class="fl">地點</label><input class="fi" id="editEvPlace" value="台南市"></div><div class="fg"><label class="fl">重複</label><select class="fi" style="padding:8px 10px;"><option>不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註</label><textarea class="fi" rows="2" style="resize:none;"></textarea></div><div style="display:flex;gap:8px;"><button onclick="showToast('已儲存');closeMo('editEventMo')" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(confirm('刪除這個約會？'))showToast('已刪除');closeMo('editEventMo')" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
 <div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="closeMo('linkRestMo')" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
-<div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit" id="editChalName">挑戰名稱</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="showToast('截止日期已更新');closeMo('editChalMo')" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(confirm('放棄這個挑戰？'))showToast('已移至已失敗');closeMo('editChalMo')" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
+<div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit" id="editChalName">挑戰名稱</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="saveChalEdit()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(_editChalId)abandonChal(_editChalId).then(()=>closeMo('editChalMo'))" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
 <div class="mo" id="calDayMo"><div class="mbox"><div class="mh"><span class="mtit">6月28日 週六</span><button class="mcl" onclick="closeMo('calDayMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:8px;">
   <div style="background:var(--lt);border-radius:12px;padding:12px;">
@@ -974,7 +975,7 @@ input[type=file]{display:none;}
   </div>
   <div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="newChalDeadline"></div>
   <div class="fg"><label class="fl">說明（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="挑戰說明..."></textarea></div>
-  <button onclick="showToast('挑戰已新增');closeMo('addChalMo')" class="btn2 bpri" style="width:100%;">新增</button>
+  <button onclick="addChal()" class="btn2 bpri" style="width:100%;">新增</button>
 </div></div></div>
 <div class="mo" id="chalDetailMo"><div class="mbox"><div class="mh"><span class="mtit">挑戰詳細</span><button class="mcl" onclick="closeMo('chalDetailMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
@@ -1448,7 +1449,7 @@ window._updateStats = function() {
   var listEl = document.getElementById('stat-listdone');
   if (listEl) listEl.textContent = LIST.filter(function(i){return i.done;}).length;
   var chalEl = document.getElementById('stat-chaldone');
-  if (chalEl) chalEl.textContent = CHALS.filter ? CHALS.filter(function(c){return c.status==='done';}).length : 0;
+  if (chalEl) chalEl.textContent = CHALS.filter(function(c){return c.status==='done';}).length;
 };
 }
 
@@ -1596,62 +1597,160 @@ async function addFromInspire(n,cat){
 // CHALLENGES
 let CHALS=[];
 let chalTab='active';
+let _editChalId=null;
+
+// ── Firestore 挑戰監聽 ──
+window._initChals = function(db, coupleId) {
+  var {collection, query, orderBy, onSnapshot} = window._fsOps;
+  var chalRef = collection(db, 'couples', coupleId, 'challenges');
+  var q = query(chalRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    CHALS = [];
+    snap.forEach(function(d){ CHALS.push(Object.assign({id: d.id}, d.data())); });
+    renderChal();
+    _updateHomeChal();
+    if (typeof window._updateStats === 'function') window._updateStats();
+  });
+};
+
+// 主頁挑戰卡更新
+function _updateHomeChal(){
+  var active = CHALS.filter(function(c){ return c.status==='active'; });
+  var nameEl = document.getElementById('challName');
+  var subEl  = document.getElementById('challSub');
+  var pfEl   = document.getElementById('progFill');
+  if(!active.length){
+    if(nameEl) nameEl.textContent='暫無進行中挑戰';
+    if(subEl)  subEl.textContent='';
+    if(pfEl)   pfEl.style.width='0%';
+    return;
+  }
+  var top = active[0];
+  var myUid = window.currentUser ? window.currentUser.uid : '';
+  var checked = (top.checkedBy||[]).length;
+  var iChecked = (top.checkedBy||[]).includes(myUid);
+  if(nameEl) nameEl.textContent = top.name;
+  if(subEl)  subEl.textContent = (top.deadline?'截止 '+top.deadline+'・':'') + checked+'/2 已完成';
+  if(pfEl)   pfEl.style.width = (checked*50)+'%';
+}
+
 function setChalTab(t,el){chalTab=t;document.querySelectorAll('#page-challenges .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderChal();}
+
 function renderChal(){
   var body=document.getElementById('chalBody');
   if(!body)return;
+  if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
+  var myUid = window.currentUser ? window.currentUser.uid : '';
+  var myName = (window.userData && window.userData.name) || '我';
+  var partnerName = (window.partnerData && window.partnerData.name) || '對方';
   var items=CHALS.filter(function(c){return c.status===chalTab;});
-  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">\u6c92\u6709\u9805\u76ee</div>';return;}
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">沒有項目</div>';return;}
   var html='';
   for(var i=0;i<items.length;i++){
-    var c=items[i];
-    var statusCls=c.status==='active'?'sta':c.status==='done'?'std':'stf';
-    var statusTxt=c.status==='active'?'\u9032\u884c\u4e2d':c.status==='done'?'\u5df2\u5b8c\u6210':'\u5df2\u5931\u6557';
-    var retryBtn=c.status==='failed'?'<button class="btn2 bsec" style="margin-top:8px;border:1px solid var(--bdr);width:100%;" onclick="retryChallenge()">\u91cd\u65b0\u6311\u6230</button>':'';
-    html+='<div class="ci2"'+(c.status==="active"?' onclick="openChalEdit('+i+')" style="cursor:pointer;"':'')+'><div class="ci2-top"><div class="ci2-name">'+c.name+'</div><div class="cst '+statusCls+'">'+statusTxt+'</div></div><div class="ci2-meta">'+c.cat+'\u30fb\u671f\u9650 '+c.deadline+'</div><div class="cprog"><div class="cpb"><div class="cpf" style="width:'+c.prog+'%"></div></div><div class="cpt">'+c.done+'</div></div>'+retryBtn+'</div>';
+    var ch=items[i];
+    var statusCls=ch.status==='active'?'sta':ch.status==='done'?'std':'stf';
+    var statusTxt=ch.status==='active'?'進行中':ch.status==='done'?'已完成':'已失敗';
+    var checked=(ch.checkedBy||[]).length;
+    var iChecked=(ch.checkedBy||[]).includes(myUid);
+    var progPct=checked*50;
+
+    // 兩人打勾狀態顯示
+    var meChecked=(ch.checkedBy||[]).includes(myUid);
+    var partnerUid=window.userData?window.userData.partnerId:'';
+    var partnerChecked=partnerUid&&(ch.checkedBy||[]).includes(partnerUid);
+    var checkRow='<div style="display:flex;gap:8px;margin-top:8px;">';
+    checkRow+='<div onclick="chalCheck(''+ch.id+'')" style="flex:1;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;background:'+(meChecked?'var(--lt)':'var(--card2)')+';border:1.5px solid '+(meChecked?'var(--accent)':'var(--bdr)')+';cursor:pointer;">';
+    checkRow+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="'+(meChecked?'var(--accent)':'var(--bdr)')+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    checkRow+='<span style="font-size:12px;font-weight:600;color:'+(meChecked?'var(--accent)':'var(--sub)')+';">'+myName+(meChecked?'✓':'')+'</span></div>';
+    checkRow+='<div style="flex:1;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;background:'+(partnerChecked?'var(--lt)':'var(--card2)')+';border:1.5px solid '+(partnerChecked?'var(--accent)':'var(--bdr)')+';">';
+    checkRow+='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="'+(partnerChecked?'var(--accent)':'var(--bdr)')+'" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    checkRow+='<span style="font-size:12px;font-weight:600;color:'+(partnerChecked?'var(--accent)':'var(--sub)')+';">'+partnerName+(partnerChecked?'✓':'')+'</span></div>';
+    checkRow+='</div>';
+
+    var retryBtn=ch.status==='failed'?'<button class="btn2 bsec" style="margin-top:8px;border:1px solid var(--bdr);width:100%;" onclick="retryChallenge(''+ch.id+'')">重新挑戰</button>':'';
+    var editBtn=ch.status==='active'?'<button onclick="openChalEdit(''+ch.id+'')" style="all:unset;font-size:11px;color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--card2);">編輯</button>':'';
+    var abandonBtn=ch.status==='active'?'<button onclick="abandonChal(''+ch.id+'')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;padding:4px 8px;border-radius:8px;background:#fdecea;">放棄</button>':'';
+
+    html+='<div class="ci2"><div class="ci2-top"><div class="ci2-name">'+ch.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="cst '+statusCls+'">'+statusTxt+'</div>'+editBtn+abandonBtn+'</div></div>';
+    html+='<div class="ci2-meta">'+(ch.cat||'')+(ch.deadline?'・截止 '+ch.deadline:'')+'</div>';
+    html+='<div class="cprog"><div class="cpb"><div class="cpf" style="width:'+progPct+'%"></div></div><div class="cpt">'+checked+'/2</div></div>';
+    if(ch.status==='active') html+=checkRow;
+    html+=retryBtn+'</div>';
   }
   body.innerHTML=html;
 }
 
-function openChalEdit(idx){
-  var items=CHALS.filter(function(c){return c.status===chalTab;});
-  var c=items[idx];
-  if(!c)return;
-  document.getElementById('editChalName').textContent=c.name;
-  document.getElementById('editChalDeadline').value=c.deadline;
+async function chalCheck(id){
+  if(!window._coupleId||!window._fsOps||!window.currentUser)return;
+  var {doc, updateDoc} = window._fsOps;
+  var ch = CHALS.find(function(c){return c.id===id;});
+  if(!ch||ch.status!=='active')return;
+  var myUid=window.currentUser.uid;
+  var checked=ch.checkedBy||[];
+  var alreadyDone=checked.includes(myUid);
+  if(alreadyDone){
+    // 取消打勾
+    checked=checked.filter(function(u){return u!==myUid;});
+    await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{checkedBy:checked,status:'active'});
+    showToast('已取消打勾');
+  } else {
+    checked=checked.concat([myUid]);
+    var newStatus=checked.length>=2?'done':'active';
+    await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{checkedBy:checked,status:newStatus});
+    if(newStatus==='done'){
+      spawnHearts();
+      setTimeout(function(){launchFw();},400);
+      showToast('🎉 挑戰完成！兩人都確認了！');
+    } else {
+      spawnHearts();
+      showToast('已打勾！等對方確認就完成了 ✓');
+    }
+  }
+}
+
+function openChalEdit(id){
+  _editChalId=id;
+  var ch=CHALS.find(function(c){return c.id===id;});
+  if(!ch)return;
+  document.getElementById('editChalName').textContent=ch.name;
+  document.getElementById('editChalDeadline').value=ch.deadline||'';
   openMo('editChalMo');
 }
 
-function retryChallenge(){showToast('\u6311\u6230\u91cd\u65b0\u958b\u59cb\uff01');}
-
-function markDone(){
-  // 模擬：第一次點 1/2，再點 2/2
-  var sub = document.getElementById('challSub');
-  var current = sub ? sub.textContent : '';
-  if(current.includes('0/2')){
-    // 0/2 → 1/2：愛心飄散
-    if(sub) sub.textContent = current.replace('0/2','1/2');
-    var pf = document.getElementById('progFill');
-    if(pf) pf.style.width='50%';
-    spawnHearts();
-    showToast('已標記完成！等待對方確認');
-  } else if(current.includes('1/2')){
-    // 1/2 → 2/2：煙花
-    if(sub) sub.textContent = current.replace('1/2','2/2');
-    var pf = document.getElementById('progFill');
-    if(pf) pf.style.width='100%';
-    launchFw();
-  } else {
-    showToast('挑戰已完成');
-  }
+async function saveChalEdit(){
+  if(!_editChalId||!window._fsOps)return;
+  var newDate=document.getElementById('editChalDeadline').value;
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_editChalId),{deadline:newDate});
+  closeMo('editChalMo');
+  showToast('截止日期已更新 ✓');
 }
+
+async function abandonChal(id){
+  if(!confirm('確定要放棄這個挑戰嗎？'))return;
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'failed'});
+  showToast('挑戰已移至已失敗');
+}
+
+async function retryChallenge(id){
+  if(!id||!window._fsOps)return;
+  if(!confirm('重新開始這個挑戰？'))return;
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[]});
+  showToast('挑戰重新開始！加油 💪');
+}
+
+// 主頁完成按鈕
+function markDone(){
+  var active=CHALS.filter(function(c){return c.status==='active';});
+  if(!active.length){showToast('目前沒有進行中的挑戰');return;}
+  chalCheck(active[0].id);
+}
+
 function nextChallenge(){
   document.getElementById('celebrateOverlay').classList.remove('open');
-  challIdx=(challIdx+1)%challList.length;
-  const n=challList[challIdx];
-  document.getElementById('challName').textContent=n.name;
-  document.getElementById('challSub').textContent=n.sub+'・'+n.done+' 已完成';
-  document.getElementById('progFill').style.width=n.prog;
+  _updateHomeChal();
 }
 
 // HEARTS
@@ -1668,6 +1767,24 @@ function spawnHearts(){
       document.body.appendChild(h);setTimeout(()=>h.remove(),2800);
     },i*60);
   }
+}
+
+async function addChal(){
+  var n=(document.getElementById('newChalName')||{}).value;
+  if(n) n=n.trim(); else n='';
+  if(!n){showToast('請填寫挑戰名稱');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var cat=(document.getElementById('newChalCat')||{}).value||'其他';
+  var deadline=(document.getElementById('newChalDeadline')||{}).value||'';
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  await addDoc(collection(window._db,'couples',window._coupleId,'challenges'),{
+    name:n, cat:cat, deadline:deadline, status:'active',
+    checkedBy:[], createdAt:serverTimestamp()
+  });
+  var el=document.getElementById('newChalName');if(el)el.value='';
+  var de=document.getElementById('newChalDeadline');if(de)de.value='';
+  closeMo('addChalMo');
+  showToast('挑戰已新增！加油 💪');
 }
 
 // DECIDE
