@@ -1023,7 +1023,7 @@ window.startPairingCountdown = function(expiry, el) {
     <!-- 管理員專區 -->
     <div class="slbl" style="display:flex;align-items:center;gap:6px;">管理員專區 <span class="abadge">管理員</span></div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <div class="sr" onclick="openStorageMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="9" ry="3" stroke="#A87848" stroke-width="1.5"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12" stroke="#A87848" stroke-width="1.5"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">Cloudinary 用量</div></div><div class="sv" id="storageSv">查詢中 ›</div></div>
+
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openMo('inspireMgMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#A87848" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">靈感題庫管理</div></div><div class="sv">›</div></div>
@@ -1197,7 +1197,7 @@ window.startPairingCountdown = function(expiry, el) {
 <div class="mo" id="logoutConfirm"><div class="cbox"><div class="ctit">確定要登出嗎？</div><div class="csub">登出後需重新使用 Google 帳號登入</div><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('logoutConfirm')">取消</button><button class="btn2 bpri" onclick="closeMo('logoutConfirm')">登出</button></div></div></div>
 <div class="mo" id="notifyDelMo"><div class="mbox"><div class="mh"><span class="mtit">通知自動刪除</span><button class="mcl" onclick="closeMo('notifyDelMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">超過設定天數的通知將自動刪除</div><div class="fg"><label class="fl">保留天數</label><select class="fsel" id="notifyDelDays"><option value="7">7 天</option><option value="30" selected>30 天</option><option value="60">60 天</option><option value="90">90 天</option><option value="0">永久保留</option></select></div><button class="btn2 bpri" onclick="saveNotifyDel()">儲存</button></div></div></div>
 <div class="mo" id="customNameMo"><div class="mbox"><div class="mh"><span class="mtit">自訂暱稱</span><button class="mcl" onclick="closeMo('customNameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">修改你在嗶啵裡顯示的暱稱（最多12字）</div><div class="fg"><label class="fl">暱稱</label><input class="fi" id="customNameInput" placeholder="輸入暱稱" maxlength="12"></div><button class="btn2 bpri" onclick="saveCustomName()">儲存</button></div></div></div>
-<div class="mo" id="storageMo"><div class="mbox"><div class="mh"><span class="mtit">Cloudinary 用量</span><button class="mcl" onclick="closeMo('storageMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div id="storageDetail" style="background:var(--card2);border-radius:12px;padding:14px;font-size:13px;line-height:2;">查詢中...</div><div style="font-size:11px;color:var(--sub);">Cloudinary 免費方案上限：25 GB 儲存 / 25,000 次轉換</div><button class="btn2 bsec" onclick="closeMo('storageMo')">關閉</button></div></div></div>
+
 <div class="mo" id="inspireMgMo"><div class="mbox"><div class="mh"><span class="mtit">靈感題庫管理</span><button class="mcl" onclick="closeMo('inspireMgMo')">×</button></div>
 <div style="display:flex;gap:0;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:10px;">
   <button onclick="switchInspireTab('list',this)" style="flex:1;padding:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-list">清單靈感</button>
@@ -2355,27 +2355,7 @@ function exportData(){
   showToast('資料已匯出 ✓');
 }
 
-// ── Cloudinary 用量查詢 ──
-async function openStorageMo(){
-  openMo('storageMo');
-  var el=document.getElementById('storageDetail');
-  if(!el)return;
-  try{
-    var res=await fetch('https://api.cloudinary.com/v1_1/dehesnrjp/usage?api_key=838264625399359');
-    if(!res.ok)throw new Error('API 錯誤');
-    var d=await res.json();
-    var used=(d.storage&&d.storage.usage)||0;
-    var usedGB=(used/1024/1024/1024).toFixed(2);
-    var trans=(d.transformations&&d.transformations.usage)||0;
-    el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px;">'+
-      '<div>📦 儲存空間：<b>'+usedGB+' GB</b> / 25 GB</div>'+
-      '<div style="height:8px;background:var(--bdr);border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+Math.min(100,(usedGB/25*100).toFixed(1))+'%;background:var(--accent);border-radius:4px;"></div></div>'+
-      '<div>🔄 本月轉換：<b>'+trans.toLocaleString()+'</b> / 25,000 次</div>'+
-      '</div>';
-  }catch(e){
-    el.textContent='無法查詢用量，請稍後再試';
-  }
-}
+
 
 // ── 通知自動刪除（存 Firestore）──
 async function saveNotifyDel(){
