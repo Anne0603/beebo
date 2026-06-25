@@ -985,56 +985,51 @@ window.startPairingCountdown = function(expiry, el) {
 <div class="page" id="page-settings">
   <div class="pt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>設定</div>
   <div class="sc" style="padding-top:4px;">
+
+    <!-- 個人資料 -->
     <div class="slbl">個人資料</div>
-    <div class="sr" onclick="window._openProfileMo ? window._openProfileMo() : openMo('profileMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">我的個人資料</div></div><div class="sv">›</div></div>
+    <div class="sr" onclick="window._openProfileMo?window._openProfileMo():openMo('profileMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">我的個人資料</div></div><div class="sv">›</div></div>
+    <div class="sr" onclick="openCustomName()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">自訂暱稱</div></div><div class="sv" id="customNameSv">›</div></div>
+
+    <!-- 外觀 -->
     <div class="slbl">外觀</div>
     <div class="card c14"><div class="cl2" style="margin-bottom:8px;">主題色系（各自設定）</div><div style="display:flex;gap:8px;"><div class="tdot on" style="background:#B8CEBC;" onclick="setTheme('green',this)"></div><div class="tdot" style="background:#D4C0BC;" onclick="setTheme('rose',this)"></div><div class="tdot" style="background:#AABCCC;" onclick="setTheme('blue',this)"></div><div class="tdot" style="background:#D0B898;" onclick="setTheme('clay',this)"></div><div class="tdot" style="background:#BCBCB4;" onclick="setTheme('mist',this)"></div></div></div>
-    <div class="slbl">通知</div>
-    <div style="display:flex;flex-direction:column;gap:6px;">
-      <div class="sr" onclick="openMo('lineTokenMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">LINE Notify Token</div></div><div class="sv">已設定 ›</div></div>
-      <div class="card c14" style="display:flex;flex-direction:column;gap:10px;">
-      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">留言通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">對方留言</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">留言紅點</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-      </div></details>
+
+    <!-- 通知偏好 -->
+    <div class="slbl">通知偏好</div>
+    <div class="card c14" style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">對方留言提醒</span><div class="toggle" id="notif-msg" onclick="toggleNotif('msg',this)"></div></div>
       <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
-      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">挑戰通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">挑戰進度更新</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">挑戰到期提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-      </div></details>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">挑戰進度更新</span><div class="toggle" id="notif-chal" onclick="toggleNotif('chal',this)"></div></div>
       <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
-      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">紀念日通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">紀念日提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">生日提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-      </div></details>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">紀念日提醒</span><div class="toggle" id="notif-anniv" onclick="toggleNotif('anniv',this)"></div></div>
       <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
-      <details style="margin:0;" open><summary style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;padding:4px 0;list-style:none;"><span style="font-size:12px;font-weight:700;color:var(--sub);">系統通知</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></summary><div style="display:flex;flex-direction:column;gap:8px;padding-top:8px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">系統公告</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">備份提醒</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
-      </div></details>
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">生日提醒</span><div class="toggle" id="notif-bday" onclick="toggleNotif('bday',this)"></div></div>
     </div>
-    </div>
+
+    <!-- 安全 -->
     <div class="slbl">安全</div>
-    <div class="sr" onclick="openMo('pinSetMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">隱私鎖</div></div><div class="sv" id="pinStatus">未設定 ›</div></div>
+    <div class="sr" onclick="openMo('pinSetMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">隱私鎖 PIN</div></div><div class="sv" id="pinStatus">未設定 ›</div></div>
+
+    <!-- 其他 -->
     <div class="slbl">其他</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="sr" onclick="location.reload()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openMo('exportMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openMo('changelogMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.2.0 ›</div></div>
-      <div class="sr" onclick="openMo('logoutConfirm')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
+      <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('changelogMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.0.0 ›</div></div>
+      <div class="sr" onclick="showConfirmMo('確定要登出嗎？',firebaseSignOut)"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
     </div>
+
+    <!-- 管理員專區 -->
     <div class="slbl" style="display:flex;align-items:center;gap:6px;">管理員專區 <span class="abadge">管理員</span></div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <div class="sr" onclick="openMo('storageMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="9" ry="3" stroke="#A87848" stroke-width="1.5"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12" stroke="#A87848" stroke-width="1.5"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">儲存空間管理</div></div><div class="sv">18.2/25 GB ›</div></div>
-      <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv">30 天 ›</div></div>
-      <div class="sr" onclick="openMo('customNameMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">自訂名稱</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openStorageMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><ellipse cx="12" cy="5" rx="9" ry="3" stroke="#A87848" stroke-width="1.5"/><path d="M21 12c0 1.66-4.03 3-9 3S3 13.66 3 12" stroke="#A87848" stroke-width="1.5"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">Cloudinary 用量</div></div><div class="sv" id="storageSv">查詢中 ›</div></div>
+      <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
+      <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openMo('inspireMgMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#A87848" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">靈感題庫管理</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openMo('bindMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="if(confirm('確定要關閉對方陰私鎖？'))showToast('已關閉對方隱私鎖')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="2" stroke="#A87848" stroke-width="1.5"/><path d="M7 11V7a5 5 0 0110 0v4" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">關閉對方隱私鎖</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('transferMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">轉移管理員</div></div><div></div></div>
 
-      <div class="sr" onclick="openMo('transferMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">轉移管理員帳號</div></div><div></div></div>
-
-      <!-- ⚠️ 測試專用：正式上線前移除此區塊 -->
+      <!-- 測試專用 -->
       <div style="margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:12px;border:1.5px dashed #e6a800;">
         <div style="font-size:10px;font-weight:700;color:#856404;margin-bottom:6px;">⚠️ 測試階段專用 — 正式上線前移除</div>
         <div class="sr" onclick="devResetOpen()" style="background:transparent;padding:0;box-shadow:none;border:none;">
@@ -1043,11 +1038,10 @@ window.startPairingCountdown = function(expiry, el) {
         </div>
       </div>
     </div>
-    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="openMo('changelogMo')">嗶啵 v1.2.0</div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);">嗶啵 v1.0.0</div>
   </div>
   <div class="bnav" id="bnav-settings"></div>
 </div>
-
 <!-- ACHIEVEMENTS -->
 <div class="page" id="page-achievements">
   <div class="pt" style="position:relative;justify-content:center;">
@@ -1199,82 +1193,11 @@ window.startPairingCountdown = function(expiry, el) {
 <div class="mo" id="lineTokenMo"><div class="mbox"><div class="mh"><span class="mtit">LINE Notify Token</span><button class="mcl" onclick="closeMo('lineTokenMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);line-height:1.6;">前往 LINE Notify 官網取得 Token，貼上後即可接收通知。</div><div class="fg"><label class="fl">Token</label><input class="fi" placeholder="貼上 Token..."></div><button class="btn2 bpri" onclick="closeMo('lineTokenMo')">儲存</button></div></div></div>
 <div class="mo" id="pinSetMo"><div class="mbox"><div class="mh"><span class="mtit">設定隱私鎖</span><button class="mcl" onclick="closeMo('pinSetMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">閒置 10 分鐘後自動鎖定。</div><div class="fg"><label class="fl">設定 4 位數 PIN</label><input class="fi" type="password" maxlength="4" placeholder="輸入 PIN" id="pi1"></div><div class="fg"><label class="fl">確認 PIN</label><input class="fi" type="password" maxlength="4" placeholder="再輸入一次" id="pi2"></div><button class="btn2 bpri" onclick="savePin()">啟用隱私鎖</button></div></div></div>
 <div class="mo" id="exportMo"><div class="mbox"><div class="mh"><span class="mtit">匯出資料</span><button class="mcl" onclick="closeMo('exportMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">照片 ZIP 下載</div><div style="font-size:11px;color:var(--sub);">由管理員後台產生下載連結，需先在電腦端操作</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">回憶錄 PDF 匯出</div><div style="font-size:11px;color:var(--sub);">封面＋照片網格＋餐廳清單，可選單筆或全部</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">清單／餐廳／紀念日 Excel</div><div style="font-size:11px;color:var(--sub);">所有文字資料匯出為 Excel 試算表</div></div></div></div></div>
-<div class="mo" id="changelogMo"><div class="mbox"><div class="mh"><span class="mtit">版本紀錄</span><button class="mcl" onclick="closeMo('changelogMo')">×</button></div>
-<div style="display:flex;flex-direction:column;gap:10px;max-height:60vh;overflow-y:auto;" id="changelogList">
-  <div style="background:var(--lt);border-radius:12px;padding:10px 12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-size:13px;font-weight:700;color:var(--txt);">v1.2.0 <span style="font-size:10px;color:var(--sub);font-weight:400;">2026/06/24</span></div>
-      <button onclick="editVersion(0)" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">編輯</button>
-    </div>
-    <div style="font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7;">語錄功能、兩人打勾機制、挑戰失敗重啟、邀請碼2小時有效</div>
-  </div>
-  <div style="background:var(--card2);border-radius:12px;padding:10px 12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-size:13px;font-weight:700;color:var(--txt);">v1.1.0 <span style="font-size:10px;color:var(--sub);font-weight:400;">2024/06/23</span></div>
-      <button onclick="editVersion(1)" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">編輯</button>
-    </div>
-    <div style="font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7;">清單挑戰完整邏輯、照片壓縮系統、管理員後台、帳號配對流程</div>
-  </div>
-  <div style="background:var(--card2);border-radius:12px;padding:10px 12px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <div style="font-size:13px;font-weight:700;color:var(--txt);">v1.0.0 <span style="font-size:10px;color:var(--sub);font-weight:400;">2024/06/15</span></div>
-      <button onclick="editVersion(2)" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">編輯</button>
-    </div>
-    <div style="font-size:12px;color:var(--sub);margin-top:4px;">初始版本</div>
-  </div>
-</div>
-<div id="addVersionForm" style="display:none;flex-direction:column;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--bdr);">
-  <div style="display:flex;gap:6px;">
-    <input class="fi" id="newVer" placeholder="版本號 e.g. v1.3.0" style="flex:1;">
-    <input class="fi" type="date" id="newVerDate" style="flex:1;">
-  </div>
-  <textarea class="fi" id="newVerDesc" rows="2" style="resize:none;" placeholder="更新說明..."></textarea>
-  <div style="display:flex;gap:6px;">
-    <button onclick="saveVersion()" class="btn2 bpri" style="flex:1;">儲存</button>
-    <button onclick="toggleAddVersion()" class="btn2 bsec" style="flex:1;">取消</button>
-  </div>
-</div>
-<button onclick="toggleAddVersion()" class="btn2 bsec" id="addVersionBtn" style="width:100%;margin-top:8px;">+ 新增版本</button>
-</div></div></div>
+<div class="mo" id="changelogMo"><div class="mbox"><div class="mh"><span class="mtit">版本紀錄</span><button class="mcl" onclick="closeMo('changelogMo')">×</button></div><div style="display:flex;flex-direction:column;gap:14px;max-height:60vh;overflow-y:auto;"><div style="border-radius:12px;background:var(--lt);padding:12px;"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">v1.0.0 — 2026</div><div style="font-size:12px;color:var(--txt);line-height:1.8;">• 留言板即時同步<br>• 清單兩人共享<br>• 餐廳記錄<br>• 挑戰兩人打勾<br>• 語錄收藏<br>• 成就系統<br>• 個人資料與頭像上傳<br>• 在一起天數計算<br>• 紀念日倒數</div></div></div></div></div></div>
 <div class="mo" id="logoutConfirm"><div class="cbox"><div class="ctit">確定要登出嗎？</div><div class="csub">登出後需重新使用 Google 帳號登入</div><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('logoutConfirm')">取消</button><button class="btn2 bpri" onclick="closeMo('logoutConfirm')">登出</button></div></div></div>
-<div class="mo" id="notifyDelMo"><div class="mbox"><div class="mh"><span class="mtit">通知自動刪除</span><button class="mcl" onclick="closeMo('notifyDelMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">超過設定天數的通知將自動刪除，刪除後會通知管理員。</div><div class="fg"><label class="fl">保留天數</label><select class="fsel"><option>7 天</option><option selected>30 天</option><option>60 天</option><option>90 天</option><option>永久保留</option></select></div><button class="btn2 bpri" onclick="closeMo('notifyDelMo')">儲存</button></div></div></div>
-<div class="mo" id="customNameMo"><div class="mbox"><div class="mh"><span class="mtit">自訂名稱</span><button class="mcl" onclick="closeMo('customNameMo')">×</button></div>
-<div style="display:flex;flex-direction:column;gap:10px;">
-  <div class="fg"><label class="fl">APP 名稱</label><input class="fi" value="嗶啵" placeholder="APP 名稱"></div>
-  <div class="slbl">清單分類名稱</div>
-  <div style="display:flex;flex-direction:column;gap:6px;">
-    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想去哪</label><input class="fi" value="想去哪" placeholder="自訂名稱"></div>
-    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想吃什麼</label><input class="fi" value="想吃什麼" placeholder="自訂名稱"></div>
-    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想做什麼</label><input class="fi" value="想做什麼" placeholder="自訂名稱"></div>
-    <div class="fg" style="margin:0;"><label style="font-size:10px;color:var(--sub);">原始：想看什麼</label><input class="fi" value="想看什麼" placeholder="自訂名稱"></div>
-  </div>
-  <button onclick="showToast('已儲存');closeMo('customNameMo')" class="btn2 bpri" style="width:100%;">儲存</button>
-</div></div></div>
-<div class="mo" id="storageMo"><div class="mbox"><div class="mh"><span class="mtit">儲存空間管理</span><button class="mcl" onclick="closeMo('storageMo')">×</button></div>
-<div style="display:flex;flex-direction:column;gap:12px;">
-  <div class="card" style="border-radius:12px;">
-    <div class="cl2" style="margin-bottom:8px;">Cloudinary（照片）</div>
-    <div style="background:var(--card2);border-radius:8px;height:10px;overflow:hidden;margin-bottom:4px;">
-      <div style="width:73%;height:100%;background:var(--accent);border-radius:8px;"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sub);">
-      <span>18.2 GB 已使用</span><span>25 GB 上限</span>
-    </div>
-  </div>
-  <div class="card" style="border-radius:12px;">
-    <div class="cl2" style="margin-bottom:8px;">Firebase（文字資料）</div>
-    <div style="background:var(--card2);border-radius:8px;height:10px;overflow:hidden;margin-bottom:4px;">
-      <div style="width:12%;height:100%;background:#F4A800;border-radius:8px;"></div>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sub);">
-      <span>124 MB 已使用</span><span>1 GB 上限</span>
-    </div>
-  </div>
-  <div style="display:flex;gap:8px;">
-    <button onclick="showToast('備份功能開發中')" class="btn2 bsec" style="flex:1;font-size:12px;">備份到本地</button>
-    <button onclick="showToast('壓縮任務開發中')" class="btn2 bsec" style="flex:1;font-size:12px;">壓縮照片</button>
-  </div>
-</div></div></div>
+<div class="mo" id="notifyDelMo"><div class="mbox"><div class="mh"><span class="mtit">通知自動刪除</span><button class="mcl" onclick="closeMo('notifyDelMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">超過設定天數的通知將自動刪除</div><div class="fg"><label class="fl">保留天數</label><select class="fsel" id="notifyDelDays"><option value="7">7 天</option><option value="30" selected>30 天</option><option value="60">60 天</option><option value="90">90 天</option><option value="0">永久保留</option></select></div><button class="btn2 bpri" onclick="saveNotifyDel()">儲存</button></div></div></div>
+<div class="mo" id="customNameMo"><div class="mbox"><div class="mh"><span class="mtit">自訂暱稱</span><button class="mcl" onclick="closeMo('customNameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">修改你在嗶啵裡顯示的暱稱（最多12字）</div><div class="fg"><label class="fl">暱稱</label><input class="fi" id="customNameInput" placeholder="輸入暱稱" maxlength="12"></div><button class="btn2 bpri" onclick="saveCustomName()">儲存</button></div></div></div>
+<div class="mo" id="storageMo"><div class="mbox"><div class="mh"><span class="mtit">Cloudinary 用量</span><button class="mcl" onclick="closeMo('storageMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div id="storageDetail" style="background:var(--card2);border-radius:12px;padding:14px;font-size:13px;line-height:2;">查詢中...</div><div style="font-size:11px;color:var(--sub);">Cloudinary 免費方案上限：25 GB 儲存 / 25,000 次轉換</div><button class="btn2 bsec" onclick="closeMo('storageMo')">關閉</button></div></div></div>
 <div class="mo" id="inspireMgMo"><div class="mbox"><div class="mh"><span class="mtit">靈感題庫管理</span><button class="mcl" onclick="closeMo('inspireMgMo')">×</button></div>
 <div style="display:flex;gap:0;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:10px;">
   <button onclick="switchInspireTab('list',this)" style="flex:1;padding:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-list">清單靈感</button>
@@ -1302,30 +1225,7 @@ window.startPairingCountdown = function(expiry, el) {
 </div>
 <button onclick="showToast('JSON 匯入開發中')" class="btn2 bsec" style="width:100%;margin-top:6px;font-size:12px;">匯入 JSON</button>
 </div></div></div>
-<div class="mo" id="bindMo"><div class="mbox"><div class="mh"><span class="mtit">帳號綁定管理</span><button class="mcl" onclick="closeMo('bindMo')">×</button></div>
-<div style="display:flex;flex-direction:column;gap:12px;">
-  <div class="card" style="border-radius:12px;">
-    <div class="cl2" style="margin-bottom:8px;">邀請碼</div>
-    <div id="inviteCodeInput" style="font-size:22px;font-weight:700;color:var(--accent);letter-spacing:4px;text-align:center;padding:8px;background:var(--lt);border-radius:10px;margin-bottom:6px;">—</div>
-    <div style="font-size:11px;color:var(--sub);text-align:center;margin-bottom:8px;" id="inviteTimer">剩餘 1:47:23 失效</div>
-    <button onclick="genInvite()" class="btn2 bpri" style="width:100%;font-size:13px;">重新產生邀請碼</button>
-    <div style="font-size:10px;color:var(--sub);text-align:center;margin-top:4px;">產生後 2 小時有效・舊碼立即失效</div>
-  </div>
-  <div class="card" style="border-radius:12px;">
-    <div class="cl2" style="margin-bottom:8px;">備用帳號（最多 1 個）</div>
-    <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">備用帳號擁有管理員權限，可直接登入</div>
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:var(--card2);border-radius:10px;margin-bottom:8px;">
-      <span style="font-size:12px;color:var(--txt);">backup@gmail.com</span>
-      <button onclick="showToast('已移除備用帳號')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">移除</button>
-    </div>
-    <button onclick="showToast('綁定功能開發中')" class="btn2 bsec" style="width:100%;font-size:12px;">+ 綁定備用帳號</button>
-  </div>
-  <div class="card" style="border-radius:12px;">
-    <div class="cl2" style="margin-bottom:8px;">重新綁定對方帳號</div>
-    <div style="font-size:12px;color:var(--sub);margin-bottom:8px;">更換對方的 Google 帳號，資料保留</div>
-    <button onclick="showToast('開發中')" class="btn2 bsec" style="width:100%;font-size:12px;">重新綁定</button>
-  </div>
-</div></div></div>
+<div class="mo" id="bindMo"><div class="mbox"><div class="mh"><span class="mtit">帳號綁定管理</span><button class="mcl" onclick="closeMo('bindMo')">×</button></div><div style="display:flex;flex-direction:column;gap:14px;"><div id="bindStatus" style="background:var(--lt);border-radius:12px;padding:14px;font-size:13px;line-height:1.8;">載入中...</div><button class="btn2" style="background:#c62828;color:#fff;width:100%;" onclick="unpairAccount()">解除配對</button><div style="font-size:11px;color:var(--sub);text-align:center;">解除後雙方資料保留，需重新配對才能共享功能</div><button class="btn2 bsec" onclick="closeMo('bindMo')">關閉</button></div></div></div>
 <div class="mo" id="devResetMo"><div class="mbox">
   <div class="mh"><span class="mtit" style="color:#c62828;">⚠️ 清除測試資料</span><button class="mcl" onclick="closeMo('devResetMo')">×</button></div>
   <div style="display:flex;flex-direction:column;gap:12px;">
@@ -1457,7 +1357,8 @@ function goPage(p){
   const cur=document.getElementById('page-'+curPage);
   if(cur)cur.classList.remove('active');
   const next=document.getElementById('page-'+p);
-  if(next){next.classList.add('active');curPage=p;}
+  if(next){next.classList.add('active');
+    if(p==='settings' && typeof initSettingsPage==='function') initSettingsPage();curPage=p;}
 }
 function goPageX(p){
   pageHist.push(curPage);
@@ -2271,7 +2172,7 @@ let pinSet=null,pinInput='';
 function savePin(){
   const p1=document.getElementById('pi1').value;
   const p2=document.getElementById('pi2').value;
-  if(!/^\d{4}$/.test(p1)){alert('請輸入4位數字');return;}
+  if(!/^[0-9]{4}$/.test(p1)){alert('請輸入4位數字');return;}
   if(p1!==p2){alert('PIN 不一致');return;}
   pinSet=p1;
   document.getElementById('pinStatus').textContent='已啟用 ›';
@@ -2358,6 +2259,191 @@ function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 
 
 function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
+
+// ══════════════════════════════
+// 設定頁功能
+// ══════════════════════════════
+
+// ── 自訂暱稱 ──
+function openCustomName(){
+  var el=document.getElementById('customNameInput');
+  if(el) el.value=(window.userData&&window.userData.name)||'';
+  openMo('customNameMo');
+}
+async function saveCustomName(){
+  var el=document.getElementById('customNameInput');
+  var name=el?el.value.trim():'';
+  if(!name){showToast('請輸入暱稱');return;}
+  if(!window.currentUser||!window._db){showToast('請先登入');return;}
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'users',window.currentUser.uid),{name:name});
+  if(!window.userData)window.userData={};
+  window.userData.name=name;
+  var avnMe=document.getElementById('avn-me');
+  if(avnMe)avnMe.textContent=name;
+  var sv=document.getElementById('customNameSv');
+  if(sv)sv.textContent=name+' ›';
+  closeMo('customNameMo');
+  showToast('暱稱已更新 ✓');
+}
+
+// ── 通知偏好（存 localStorage）──
+function loadNotifPrefs(){
+  var prefs=JSON.parse(localStorage.getItem('beebo_notif')||'{}');
+  ['msg','chal','anniv','bday'].forEach(function(k){
+    var el=document.getElementById('notif-'+k);
+    if(el){
+      var on=prefs[k]!==false; // 預設全開
+      el.classList.toggle('on',on);
+    }
+  });
+}
+function toggleNotif(key,el){
+  el.classList.toggle('on');
+  var prefs=JSON.parse(localStorage.getItem('beebo_notif')||'{}');
+  prefs[key]=el.classList.contains('on');
+  localStorage.setItem('beebo_notif',JSON.stringify(prefs));
+  showToast(el.classList.contains('on')?'已開啟通知':'已關閉通知');
+}
+
+// ── 隱私鎖 PIN ──
+function savePin(){
+  var p1=document.getElementById('pi1').value;
+  var p2=document.getElementById('pi2').value;
+  if(p1.length!==4||!/^[0-9]{4}$/.test(p1)){showToast('PIN 需為4位數字');return;}
+  if(p1!==p2){showToast('兩次輸入不一致');return;}
+  localStorage.setItem('beebo_pin',p1);
+  localStorage.setItem('beebo_pin_on','1');
+  var ps=document.getElementById('pinStatus');
+  if(ps)ps.textContent='已設定 ›';
+  document.getElementById('pi1').value='';
+  document.getElementById('pi2').value='';
+  closeMo('pinSetMo');
+  showToast('隱私鎖已啟用 ✓');
+}
+function checkPin(){
+  var pin=localStorage.getItem('beebo_pin');
+  var on=localStorage.getItem('beebo_pin_on');
+  var ps=document.getElementById('pinStatus');
+  if(ps)ps.textContent=on?'已設定 ›':'未設定 ›';
+}
+
+// ── 匯出資料（純前端 JSON 下載）──
+function exportData(){
+  if(!window._coupleId){showToast('請先配對');return;}
+  var data={
+    exportAt: new Date().toISOString(),
+    coupleId: window._coupleId,
+    userData: window.userData||{},
+    partnerData: window.partnerData||{},
+    coupleData: window._coupleData||{},
+    list: LIST||[],
+    rests: RESTS||[],
+    challenges: CHALS||[],
+    quotes: QUOTES||[],
+    messages: (window._messages||[]).map(function(m){
+      return {text:m.text,sender:m.senderName,time:m.createdAt&&m.createdAt.toDate?m.createdAt.toDate().toISOString():''};
+    })
+  };
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='beebo-export-'+new Date().toLocaleDateString('zh-TW').replace(/\//g,'-')+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('資料已匯出 ✓');
+}
+
+// ── Cloudinary 用量查詢 ──
+async function openStorageMo(){
+  openMo('storageMo');
+  var el=document.getElementById('storageDetail');
+  if(!el)return;
+  try{
+    var res=await fetch('https://api.cloudinary.com/v1_1/dehesnrjp/usage?api_key=838264625399359');
+    if(!res.ok)throw new Error('API 錯誤');
+    var d=await res.json();
+    var used=(d.storage&&d.storage.usage)||0;
+    var usedGB=(used/1024/1024/1024).toFixed(2);
+    var trans=(d.transformations&&d.transformations.usage)||0;
+    el.innerHTML='<div style="display:flex;flex-direction:column;gap:6px;">'+
+      '<div>📦 儲存空間：<b>'+usedGB+' GB</b> / 25 GB</div>'+
+      '<div style="height:8px;background:var(--bdr);border-radius:4px;overflow:hidden;"><div style="height:100%;width:'+Math.min(100,(usedGB/25*100).toFixed(1))+'%;background:var(--accent);border-radius:4px;"></div></div>'+
+      '<div>🔄 本月轉換：<b>'+trans.toLocaleString()+'</b> / 25,000 次</div>'+
+      '</div>';
+  }catch(e){
+    el.textContent='無法查詢用量，請稍後再試';
+  }
+}
+
+// ── 通知自動刪除（存 Firestore）──
+async function saveNotifyDel(){
+  var days=document.getElementById('notifyDelDays').value;
+  var sv=document.getElementById('notifyDelSv');
+  if(window._coupleRef&&window._fsOps){
+    var {updateDoc}=window._fsOps;
+    await updateDoc(window._coupleRef,{notifyDelDays:Number(days)});
+  }
+  localStorage.setItem('beebo_notifyDel',days);
+  if(sv)sv.textContent=(days==='0'?'永久':''+days+' 天')+' ›';
+  closeMo('notifyDelMo');
+  showToast('設定已儲存 ✓');
+}
+function loadNotifyDel(){
+  var days=localStorage.getItem('beebo_notifyDel')||(window._coupleData&&window._coupleData.notifyDelDays)||30;
+  var el=document.getElementById('notifyDelDays');
+  if(el)el.value=String(days);
+  var sv=document.getElementById('notifyDelSv');
+  if(sv)sv.textContent=(days==0?'永久':days+' 天')+' ›';
+}
+
+// ── 帳號綁定管理 ──
+function openBindMo(){
+  var el=document.getElementById('bindStatus');
+  if(el){
+    var myName=(window.userData&&window.userData.name)||'我';
+    var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
+    var myEmail=window.currentUser?window.currentUser.email:'';
+    if(window._coupleId){
+      el.innerHTML='<b>配對狀態：已配對 ✓</b><br>'+
+        '我：'+myName+'（'+myEmail+'）<br>'+
+        '對方：'+partnerName+'<br>'+
+        '配對 ID：'+window._coupleId.slice(-8);
+    }else{
+      el.innerHTML='<b>配對狀態：未配對</b><br>請先完成配對';
+    }
+  }
+  openMo('bindMo');
+}
+async function unpairAccount(){
+  if(!window._coupleId||!window.currentUser||!window._fsOps){showToast('尚未配對');return;}
+  if(!confirm('確定要解除配對？解除後需重新配對才能共享功能。'))return;
+  var {doc,updateDoc}=window._fsOps;
+  try{
+    await updateDoc(doc(window._db,'users',window.currentUser.uid),{partnerId:null,isAdmin:false});
+    if(window.userData&&window.userData.partnerId){
+      await updateDoc(doc(window._db,'users',window.userData.partnerId),{partnerId:null,isAdmin:false});
+    }
+    window._coupleId=null;
+    window._initializing=false;
+    window.partnerData=null;
+    closeMo('bindMo');
+    showToast('已解除配對');
+    setTimeout(function(){location.reload();},1200);
+  }catch(e){
+    showToast('解除失敗：'+e.message);
+  }
+}
+
+// ── 設定頁初始化（進入設定頁時呼叫）──
+function initSettingsPage(){
+  checkPin();
+  loadNotifPrefs();
+  loadNotifyDel();
+  var cn=document.getElementById('customNameSv');
+  if(cn&&window.userData&&window.userData.name) cn.textContent=window.userData.name+' ›';
+}
 
 function toggleForeignInput(v){
   var ff=document.getElementById('foreignFields');
