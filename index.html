@@ -8,7 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{--bg:#B8CEBC;--card:#fff;--card2:#EAF3EC;--accent:#4A7A58;--lt:#C8E4D0;--txt:#1A2E20;--sub:#5A8A68;--bdr:#A0C0A8;--shd:rgba(20,44,26,0.10);}
-html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;background:var(--bg);}
+html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans-serif;background:var(--bg);position:relative;}
 .page{display:none;width:100vw;height:100vh;flex-direction:column;background:var(--bg);overflow:hidden;position:absolute;top:0;left:0;}
 .page.active{display:flex;}
 .sc{flex:1;overflow-y:auto;padding:10px 13px;display:flex;flex-direction:column;gap:8px;}
@@ -315,6 +315,9 @@ input[type=file]{display:none;}
       document.getElementById('loginScreen').style.display = 'flex';
       document.getElementById('pairingScreen').style.display = 'none';
     }
+    // 確保 loading overlay 被隱藏
+    var lo = document.getElementById('loadingOverlay');
+    if (lo) lo.style.display = 'none';
     authResolved = true;
   });
 
@@ -775,7 +778,7 @@ function startPairingCountdown(expiry, el) {
 <div id="pairingScreen" style="display:none;"></div>
 
 <!-- Pairing Modal -->
-<div class="mo" id="pairingMo" style="z-index:200;">
+<div class="mo" id="pairingMo">
   <div class="mbox" style="max-width:340px;">
     <div style="text-align:center;padding:8px 0 16px;">
       <div style="font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px;">歡迎來到嗶啵 💚</div>
@@ -2282,32 +2285,7 @@ function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 
 
 function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
-// INIT
-try{buildNavs();}catch(err){console.error('buildNavs:',err);}
-try{renderList();}catch(err){console.error('renderList:',err);}
-try{renderChal();}catch(err){console.error('renderChal:',err);}
-try{renderMemory();}catch(err){console.error('renderMemory:',err);}
-try{renderRests();}catch(err){console.error('renderRests:',err);}
-try{renderInspire();}catch(err){console.error('renderInspire:',err);}
 
-function toggleFav(btn){
-  var path = btn.querySelector('path');
-  if(!path) return;
-  var isFav = path.getAttribute('fill')==='#c62828';
-  path.setAttribute('fill', isFav ? 'none' : '#c62828');
-  showToast(isFav ? '取消最愛' : '已標記最愛');
-}
-
-
-function genInvite(){
-  var code='BPO-'+Math.floor(1000+Math.random()*9000);
-  var inp=document.getElementById('inviteCodeInput');
-  if(inp) inp.value=code;
-  var timer=document.getElementById('inviteCountdown');
-  if(timer) timer.textContent='2:00:00';
-  showToast('已產生新邀請碼，2小時內有效');
-}
-function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 function toggleForeignInput(v){
   var ff=document.getElementById('foreignFields');
   if(ff)ff.style.display=v==='國外'?'flex':'none';
