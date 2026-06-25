@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── 工具函數 ──
+    function isLoggedIn() {
+      return request.auth != null;
+    }
+    function isUser(uid) {
+      return request.auth.uid == uid;
+    }
+    function getUserData(uid) {
+      return get(/databases/$(database)/documents/users/$(uid)).data;
+    }
+    function isCoupleOf(coupleId) {
+      // coupleId = 兩人 uid 排序後 _ 組合
+      return isLoggedIn() &&
+        (coupleId.matches('.*' + request.auth.uid + '.*'));
+    }
+
+    // ── users collection ──
+    match /users/{uid} {
+      // 本人可讀寫；已配對的夥伴可讀（查對方名字/頭像）
+      allow read: if isLoggedIn();
+      allow create: if isUser(uid);
+      allow update: if isUser(uid);
+      allow delete: if false;
+    }
+
+    // ── invites collection（邀請碼配對用）──
+    match /invites/{code} {
+      allow read: if isLoggedIn();
+      allow create: if isLoggedIn();
+      allow update: if isLoggedIn();
+      allow delete: if false;
+    }
+
+    // ── couples/{coupleId} 主文件 ──
+    match /couples/{coupleId} {
+      allow read, write: if isCoupleOf(coupleId);
+
+      // ── 子 collections：只有 couple 成員可存取 ──
+      match /messages/{msgId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
+      match /list/{itemId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
+      match /rests/{restId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
+      match /challenges/{chalId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
+      match /quotes/{quoteId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
+    }
+  }
+}
