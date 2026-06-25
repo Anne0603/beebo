@@ -273,6 +273,8 @@ input[type=file]{display:none;}
       }
       const myName = document.querySelector('.aname-me');
       if (myName) myName.textContent = userData.name || user.displayName || '我';
+      var avnMe = document.getElementById('avn-me');
+      if (avnMe) avnMe.textContent = userData.name || user.displayName || '我';
 
       if (userData.partnerId) {
         // 已配對 → 載入夥伴資料 + 開始留言監聽
@@ -286,9 +288,13 @@ input[type=file]{display:none;}
           }
           const pvName = document.querySelector('.aname-partner');
           if (pvName) pvName.textContent = window.partnerData.name || '對方';
+          // 更新主頁夥伴名稱顯示
+          var avnP = document.getElementById('avn-partner');
+          if (avnP) avnP.textContent = window.partnerData.name || '對方';
         }
         const coupleId = [user.uid, userData.partnerId].sort().join('_');
         window._coupleId = coupleId;
+        await window._initCouple(db, coupleId, user.uid, userData);
         window._initMessages(db, coupleId, user.uid);
         if (typeof buildNavs === 'function') buildNavs();
       } else {
@@ -445,6 +451,157 @@ input[type=file]{display:none;}
   // Firestore 結構：couples/{coupleId}/messages/{msgId}
   // { text, senderUid, senderName, createdAt, readBy: [uid,...] }
 
+  // ── couples document 初始化與載入 ──
+  window._initCouple = async function(db, coupleId, myUid, myUserData) {
+    const coupleRef = doc(db, 'couples', coupleId);
+    let coupleSnap = await getDoc(coupleRef);
+    if (!coupleSnap.exists()) {
+      // 第一次配對：建立 couple document（由 admin 那方建立）
+      if (myUserData.isAdmin) {
+        await setDoc(coupleRef, {
+          members: [myUid, myUserData.partnerId],
+          startDate: '',
+          createdAt: serverTimestamp()
+        });
+        coupleSnap = await getDoc(coupleRef);
+      }
+    }
+    window._coupleData = coupleSnap.exists() ? coupleSnap.data() : {};
+    window._coupleRef = coupleRef;
+    window._db = db;
+    window._applyStartDate(window._coupleData.startDate || '');
+  };
+
+  window._applyStartDate = function(dateStr) {
+    // 計算在一起天數
+    if (!dateStr) {
+      ['dayCount','dayCount2','stat-days'].forEach(id => {
+        var el = document.getElementById(id);
+        if (el) el.textContent = '—';
+      });
+      var pill = document.getElementById('nextAnnivPill');
+      if (pill) pill.textContent = '請設定日期';
+      var ad = document.getElementById('annivDate');
+      if (ad) ad.textContent = '未設定';
+      return;
+    }
+    var start = new Date(dateStr);
+    start.setHours(0,0,0,0);
+    var today = new Date(); today.setHours(0,0,0,0);
+    var days = Math.floor((today - start) / 86400000) + 1;
+    ['dayCount','dayCount2','stat-days'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.textContent = days;
+    });
+    // 下個紀念日
+    var m = start.getMonth(), d = start.getDate();
+    var anniv = new Date(today.getFullYear(), m, d);
+    if (anniv <= today) anniv.setFullYear(anniv.getFullYear()+1);
+    var daysTo = Math.floor((anniv - today) / 86400000);
+    var pill = document.getElementById('nextAnnivPill');
+    if (pill) pill.textContent = '下個紀念日 ' + daysTo + ' 天後';
+    var ad = document.getElementById('annivDate');
+    if (ad) ad.textContent = '每年 ' + (m+1) + '/' + d;
+    // 七夕 (農曆7/7 → 今年約8/8~9/2區間，用固定估算)
+    var qxi = new Date(today.getFullYear(), 7, 29); // 粗略：8/29
+    if (qxi <= today) qxi.setFullYear(qxi.getFullYear()+1);
+    var qxiEl = document.getElementById('annivQxiDays');
+    if (qxiEl) qxiEl.textContent = Math.floor((qxi-today)/86400000) + '天後';
+    // 聖誕
+    var xmas = new Date(today.getFullYear(), 11, 25);
+    if (xmas <= today) xmas.setFullYear(xmas.getFullYear()+1);
+    var xmasEl = document.getElementById('annivXmasDays');
+    if (xmasEl) xmasEl.textContent = Math.floor((xmas-today)/86400000) + '天後';
+  };
+
+  // ── 個人資料：開啟時填入真實資料 ──
+  window._openProfileMo = function() {
+    var u = window.userData || {};
+    var nameEl = document.getElementById('profileName');
+    var bdayEl = document.getElementById('profileBday');
+    var emailEl = document.getElementById('profileEmail');
+    var sdEl = document.getElementById('profileStartDate');
+    var profAv = document.getElementById('profileAv');
+    if (nameEl) nameEl.value = u.name || '';
+    if (bdayEl) bdayEl.value = u.birthday || '';
+    if (emailEl) emailEl.value = window.currentUser ? window.currentUser.email : '';
+    if (sdEl) sdEl.value = (window._coupleData && window._coupleData.startDate) || '';
+    // 填入頭像
+    if (profAv && u.photo) {
+      profAv.innerHTML = '<img src="'+u.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    }
+    // 夥伴生日顯示
+    if (window.partnerData) {
+      var pNameEl = document.getElementById('annivPartnerName');
+      var pBdayEl = document.getElementById('annivPartnerBday');
+      if (pNameEl) pNameEl.textContent = (window.partnerData.name||'對方') + '生日';
+      if (pBdayEl) {
+        var pb = window.partnerData.birthday;
+        if (pb) {
+          var pbDate = new Date(pb);
+          pBdayEl.textContent = '每年 '+(pbDate.getMonth()+1)+'/'+ pbDate.getDate();
+          var today = new Date(); today.setHours(0,0,0,0);
+          var bdayThis = new Date(today.getFullYear(), pbDate.getMonth(), pbDate.getDate());
+          if (bdayThis <= today) bdayThis.setFullYear(bdayThis.getFullYear()+1);
+          var dTo = Math.floor((bdayThis-today)/86400000);
+          // 找到夥伴生日倒數的那個 div（位置固定在 annivPartnerBday 之後的同層容器）
+          var parentDiv = pBdayEl.closest('div').parentElement;
+          var daysEl = parentDiv ? parentDiv.querySelector('div[style*="font-size:16px"]') : null;
+          if (daysEl) daysEl.textContent = dTo + '天後';
+        } else {
+          pBdayEl.textContent = '未設定';
+        }
+      }
+    }
+    openMo('profileMo');
+  };
+
+  // ── 個人資料：儲存 ──
+  window.saveProfile = async function() {
+    if (!window.currentUser) return;
+    var nameEl = document.getElementById('profileName');
+    var bdayEl = document.getElementById('profileBday');
+    var sdEl = document.getElementById('profileStartDate');
+    var name = nameEl ? nameEl.value.trim() : '';
+    var bday = bdayEl ? bdayEl.value : '';
+    var startDate = sdEl ? sdEl.value : '';
+    if (!name) { showToast('請輸入暱稱'); return; }
+    try {
+      // 更新 users doc
+      var userRef = doc(window._db, 'users', window.currentUser.uid);
+      await updateDoc(userRef, { name: name, birthday: bday });
+      if (!window.userData) window.userData = {};
+      window.userData.name = name;
+      window.userData.birthday = bday;
+      // 更新顯示名稱
+      var nameDisp = document.getElementById('avn-me');
+      if (nameDisp) nameDisp.textContent = name;
+      // 更新 couples startDate（任一方都可改）
+      if (startDate && window._coupleRef) {
+        await updateDoc(window._coupleRef, { startDate: startDate });
+        if (!window._coupleData) window._coupleData = {};
+        window._coupleData.startDate = startDate;
+        window._applyStartDate(startDate);
+      }
+      closeMo('profileMo');
+      showToast('已儲存 ✓');
+    } catch(e) {
+      console.error(e);
+      showToast('儲存失敗，請再試');
+    }
+  };
+
+  // ── Cloudinary 頭像上傳 ──
+  window._uploadToCloudinary = async function(file) {
+    var fd = new FormData();
+    fd.append('file', file);
+    fd.append('upload_preset', 'beebo_upload');
+    var res = await fetch('https://api.cloudinary.com/v1_1/dehesnrjp/image/upload', {method:'POST',body:fd});
+    var data = await res.json();
+    if (!data.secure_url) throw new Error('upload failed');
+    return data.secure_url;
+  };
+
   window._initMessages = function(db, coupleId, myUid) {
     const msgsRef = collection(db, 'couples', coupleId, 'messages');
     // 監聽最新50則（即時同步）
@@ -456,6 +613,7 @@ input[type=file]{display:none;}
       window._messages = msgs;
       window._renderMsgList(msgs, myUid);
       window._updateHomeMsgCard(msgs, myUid);
+      if (typeof window._updateStats === 'function') window._updateStats();
     });
   };
 
@@ -563,12 +721,12 @@ input[type=file]{display:none;}
     <div class="hdr">
       <div class="avb" onclick="openPhoto('partner')">
         <div class="avc" id="avc-partner"><svg width="26" height="26" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <div class="avn">小柔</div><div class="avt">剛剛</div>
+        <div class="avn" id="avn-partner">—</div><div class="avt" id="avt-partner"></div>
       </div>
-      <div class="dm" style="cursor:pointer;" onclick="openMo('annivMo')"><div class="dl">在一起</div><div class="dn">387</div><div class="du">天</div><div class="dpill">下個紀念日 13 天後</div></div>
+      <div class="dm" style="cursor:pointer;" onclick="openMo('annivMo')"><div class="dl">在一起</div><div class="dn" id="dayCount">—</div><div class="du">天</div><div class="dpill" id="nextAnnivPill"></div></div>
       <div class="avb" onclick="openPhoto('me')">
         <div class="avc" id="avc-me"><svg width="26" height="26" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div>
-        <div class="avn">我</div><div class="avt">2 分鐘前</div>
+        <div class="avn" id="avn-me">—</div><div class="avt" id="avt-me"></div>
       </div>
     </div>
     <div class="card" style="flex-shrink:0;">
@@ -580,8 +738,8 @@ input[type=file]{display:none;}
     <div class="cc">
       <div class="ci" onclick="goPage('challenges')" style="cursor:pointer;">
         <div class="ctop"><span class="clbl">當前挑戰</span><span class="ccnt" onclick="goPage('challenges')">共 3 個</span></div>
-        <div class="cn" id="challName">一起騎腳踏車環湖</div>
-        <div class="cs" id="challSub">還剩 5 天・1/2 已完成</div>
+        <div class="cn" id="challName">暫無挑戰</div>
+        <div class="cs" id="challSub"></div>
         <div class="pb"><div class="pf" id="progFill" style="width:50%"></div></div>
       </div>
       <button class="db" onclick="markDone()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>完成</button>
@@ -595,7 +753,7 @@ input[type=file]{display:none;}
     </button>
     <div class="quad">
       <div class="qc" onclick="goPageX('achievements')"><div class="qt">我們的成就</div><div class="qn">7 個</div><div class="qs">完成挑戰數</div></div>
-      <div class="qc" onclick="goPageX('review')"><div class="qt">我們的回顧</div><div class="qn">387 天</div><div class="qs">在一起天數</div></div>
+      <div class="qc" onclick="goPageX('review')"><div class="qt">我們的回顧</div><div class="qn" id="dayCount2">—</div><div class="qs">在一起天數</div></div>
       <div class="qc" onclick="goPageX('calendar')"><div class="qt">行事曆</div><div class="qn">週六</div><div class="qs">下次約會・3天後</div></div>
       <div class="qc" onclick="goPageX('restaurants')"><div class="qt">餐廳記錄</div><div class="qn">23 家</div><div class="qs">去過的餐廳</div></div>
     </div>
@@ -652,11 +810,9 @@ input[type=file]{display:none;}
 <div class="page" id="page-notify">
   <div class="pt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.7 3 6 5.7 6 9v5l-2 2h16l-2-2V9c0-3.3-2.7-6-6-6z" stroke="#4A7A58" stroke-width="1.5"/><path d="M10 19a2 2 0 004 0" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>通知<button onclick="openMo('clearNotifyMo')" style="margin-left:auto;font-size:11px;color:var(--sub);background:none;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">清除</button></div>
   <div class="sc">
-    <div class="ni"><div class="nd"></div><div style="flex:1;"><div class="ntit">小柔 留下了今日留言</div><div class="nsub">「今天吃了好好吃的拉麵...」</div><div class="ntime">剛剛</div></div></div>
+
     <div class="ni"><div class="nd"></div><div style="flex:1;"><div class="ntit">挑戰快到期了</div><div class="nsub">「去看一場電影」還剩 3 天</div><div class="ntime">2 小時前</div></div></div>
-    <div class="ni"><div class="nd read"></div><div style="flex:1;"><div class="ntit">小柔 完成了挑戰打勾</div><div class="nsub">「一起騎腳踏車環湖」1/2</div><div class="ntime">昨天・14:20</div></div></div>
-    <div class="ni"><div class="nd read"></div><div style="flex:1;"><div class="ntit">小柔 新增了回憶錄</div><div class="nsub">九份老街の一天</div><div class="ntime">3 天前</div></div></div>
-    <div class="ni"><div class="nd read"></div><div style="flex:1;"><div class="ntit">紀念日提醒</div><div class="nsub">13 天後是 400 天紀念日</div><div class="ntime">5 天前</div></div></div>
+
   </div>
   <div class="bnav" id="bnav-notify"></div>
 </div>
@@ -666,7 +822,7 @@ input[type=file]{display:none;}
   <div class="pt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>設定</div>
   <div class="sc" style="padding-top:4px;">
     <div class="slbl">個人資料</div>
-    <div class="sr" onclick="openMo('profileMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">我的個人資料</div></div><div class="sv">›</div></div>
+    <div class="sr" onclick="window._openProfileMo ? window._openProfileMo() : openMo('profileMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">我的個人資料</div></div><div class="sv">›</div></div>
     <div class="slbl">外觀</div>
     <div class="card c14"><div class="cl2" style="margin-bottom:8px;">主題色系（各自設定）</div><div style="display:flex;gap:8px;"><div class="tdot on" style="background:#B8CEBC;" onclick="setTheme('green',this)"></div><div class="tdot" style="background:#D4C0BC;" onclick="setTheme('rose',this)"></div><div class="tdot" style="background:#AABCCC;" onclick="setTheme('blue',this)"></div><div class="tdot" style="background:#D0B898;" onclick="setTheme('clay',this)"></div><div class="tdot" style="background:#BCBCB4;" onclick="setTheme('mist',this)"></div></div></div>
     <div class="slbl">通知</div>
@@ -727,8 +883,7 @@ input[type=file]{display:none;}
   <div class="sc">
     <div class="slbl">挑戰成就</div>
     <div class="ag">
-      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">一起騎腳踏車環湖</div><div class="achd">2025.05.12</div></div>
-      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">吃吃看鼎泰豐</div><div class="achd">2025.04.03</div></div>
+      <div id="achList" style="display:flex;flex-direction:column;gap:8px;"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">完成挑戰後會出現這裡 🏆</div></div>
     </div>
     <div class="slbl" style="margin-top:8px;">系統成就</div>
     <div class="ag">
@@ -747,7 +902,7 @@ input[type=file]{display:none;}
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="9" rx="1" fill="#4A7A58" opacity=".7"/><rect x="10" y="6" width="4" height="15" rx="1" fill="#4A7A58"/><rect x="17" y="9" width="4" height="12" rx="1" fill="#4A7A58" opacity=".7"/></svg>我們的回顧
   </div>
-  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="2026">2026 年</option><option value="2025">2025 年</option><option value="2024">2024 年</option><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn">387</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn">142</div><div class="stl">上傳照片</div></div><div class="stc" onclick="showToast('完成清單')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">18</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">7</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="showToast('看縣市記錄')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">5</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);">23</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn">89</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn">45</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn">6</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div style="display:flex;align-items:flex-end;gap:3px;height:70px;"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">1月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">2月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">3月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:40px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">4月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">4</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">5月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">6月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">7月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">8月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">9月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">10月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">11月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">12月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div></div></div></div>
+  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="2026">2026 年</option><option value="2025">2025 年</option><option value="2024">2024 年</option><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="showToast('完成清單')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="showToast('看縣市記錄')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div style="display:flex;align-items:flex-end;gap:3px;height:70px;"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">1月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">2月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">3月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:40px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">4月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">4</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">5月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">6月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">7月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">8月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">9月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">10月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">11月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">12月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div></div></div></div>
 </div>
 
 <!-- CALENDAR -->
@@ -770,7 +925,7 @@ input[type=file]{display:none;}
     </div>
     <div class="slbl">即將到來</div>
     <div class="ev"><div class="evd"></div><div><div class="evn">一起看電影</div><div class="evm">6月28日（週六）・台北信義</div></div></div>
-    <div class="ev"><div class="evd" style="background:var(--bdr);"></div><div><div class="evn">小柔生日</div><div class="evm">7月15日・還有 22 天</div></div></div>
+
     <div class="ev"><div class="evd" style="background:var(--bdr);"></div><div><div class="evn">400 天紀念日</div><div class="evm">7月7日・還有 14 天</div></div></div>
   </div>
   <button class="fab" onclick="openMo('addEventMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -791,7 +946,7 @@ input[type=file]{display:none;}
 
 <div class="toast" id="toast"></div>
 <div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value="台南一日遊"></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" value="2025-06-28" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" value="10:00" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" value="20:00" style="flex:1;"></div></div><div class="fg"><label class="fl">地點</label><input class="fi" id="editEvPlace" value="台南市"></div><div class="fg"><label class="fl">重複</label><select class="fi" style="padding:8px 10px;"><option>不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註</label><textarea class="fi" rows="2" style="resize:none;"></textarea></div><div style="display:flex;gap:8px;"><button onclick="showToast('已儲存');closeMo('editEventMo')" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(confirm('刪除這個約會？'))showToast('已刪除');closeMo('editEventMo')" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
-<div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:var(--accent);">太郎拉麵・台南市・5★4</label><label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:var(--accent);">鼎泰豐豐・台北市・4★4</label><label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;"><input type="checkbox" style="accent-color:var(--accent);">星巴克・台北市・3★4</label></div><button onclick="closeMo('linkRestMo')" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
+<div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="closeMo('linkRestMo')" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
 <div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit" id="editChalName">挑戰名稱</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="showToast('截止日期已更新');closeMo('editChalMo')" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(confirm('放棄這個挑戰？'))showToast('已移至已失敗');closeMo('editChalMo')" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
 <div class="mo" id="calDayMo"><div class="mbox"><div class="mh"><span class="mtit">6月28日 週六</span><button class="mcl" onclick="closeMo('calDayMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:8px;">
@@ -846,7 +1001,7 @@ input[type=file]{display:none;}
 <div class="mo" id="annivMo"><div class="mbox"><div class="mh"><span class="mtit">紀念日倒數</span><button class="mcl" onclick="closeMo('annivMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:8px;max-height:65vh;overflow-y:auto;">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--lt);border-radius:12px;">
-    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">在一起紀念日</div><div style="font-size:11px;color:var(--sub);">每年 6/2</div></div>
+    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">在一起紀念日</div><div style="font-size:11px;color:var(--sub);" id="annivDate">—</div></div>
     <div style="font-size:20px;font-weight:700;color:var(--accent);">13天後</div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
@@ -854,22 +1009,22 @@ input[type=file]{display:none;}
     <div style="font-size:16px;font-weight:700;color:var(--sub);">235天後</div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
-    <div><div style="font-size:13px;font-weight:700;color:var(--txt);">小柔生日</div><div style="font-size:11px;color:var(--sub);">每年 9/15</div></div>
+    <div><div style="font-size:13px;font-weight:700;color:var(--txt);" id="annivPartnerName">對方生日</div><div style="font-size:11px;color:var(--sub);" id="annivPartnerBday">—</div></div>
     <div style="font-size:16px;font-weight:700;color:var(--sub);">83天後</div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
     <div><div style="font-size:13px;font-weight:700;color:var(--txt);">聖誕節</div><div style="font-size:11px;color:var(--sub);">每年 12/25</div></div>
-    <div style="font-size:16px;font-weight:700;color:var(--sub);">184天後</div>
+    <div style="font-size:16px;font-weight:700;color:var(--sub);" id="annivXmasDays">—</div>
   </div>
   <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--card2);border-radius:12px;">
     <div><div style="font-size:13px;font-weight:700;color:var(--txt);">七夕情人節</div><div style="font-size:11px;color:var(--sub);">農曆 7/7</div></div>
-    <div style="font-size:16px;font-weight:700;color:var(--sub);">48天後</div>
+    <div style="font-size:16px;font-weight:700;color:var(--sub);" id="annivQxiDays">—</div>
   </div>
 </div></div></div>
 <div class="mo" id="msgMo"><div class="mbox"><div class="mh"><span class="mtit">留言紀錄</span><button class="mcl" onclick="closeMo('msgMo')">×</button></div><div id="msgList" style="display:flex;flex-direction:column;gap:0;overflow-y:auto;max-height:55vh;"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">載入中...</div></div></div></div>
 <div class="mob" id="decideMo"><div class="msh"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('decideMo')">×</button></div><select onchange="setDC(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;margin-bottom:8px;"><option value="全部">全部分類</option><option value="想去哪" id="dc-opt-1">想去哪</option><option value="想吃什麼" id="dc-opt-2">想吃什麼</option><option value="想做什麼" id="dc-opt-3">想做什麼</option><option value="想看什麼" id="dc-opt-4">想看什麼</option></select><div class="rcard"><div class="rname" id="rname">去九份老街</div><div class="rcat2" id="rcat">想去哪</div></div><div class="rbtns"><button class="btn2 bsec" onclick="reroll()">再抽一次</button><button class="btn2 bpri" onclick="closeMo('decideMo')">就這個！</button></div></div></div>
 <div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt="" onclick="triggerUpload()"><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2">小柔</div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;">點擊更換照片</div><button class="pubtn" onclick="triggerUpload()">更換照片</button><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
-<div class="mo" id="profileMo"><div class="mbox"><div class="mh"><span class="mtit">我的個人資料</span><button class="mcl" onclick="closeMo('profileMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:center;"><div style="position:relative;cursor:pointer;" onclick="openPhoto('me')"><div style="width:68px;height:68px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);overflow:hidden;display:flex;align-items:center;justify-content:center;" id="profileAv"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H2v-5L16 3z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">暱稱</label><input class="fi" value="我" placeholder="輸入暱稱"></div><div class="fg"><label class="fl">生日</label><input class="fi" type="date" value="1998-07-20"></div><div class="fg"><label class="fl">性別</label><select class="fsel"><option>男</option><option>女</option><option>不公開</option></select></div><div class="fg"><label class="fl">帳號（Gmail）</label><input class="fi" value="myemail@gmail.com" readonly style="color:var(--sub);"></div><div class="fg"><label class="fl">在一起日期</label><input class="fi" type="date" value="2024-06-02" onchange="confirmDateChange(this)"><div style="font-size:10px;color:var(--sub);margin-top:3px;">修改後天數將重新計算</div></div><button class="btn2 bpri" onclick="closeMo('profileMo')">儲存</button></div></div></div>
+<div class="mo" id="profileMo"><div class="mbox"><div class="mh"><span class="mtit">我的個人資料</span><button class="mcl" onclick="closeMo('profileMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:center;"><div style="position:relative;cursor:pointer;" onclick="openPhoto('me')"><div style="width:68px;height:68px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);overflow:hidden;display:flex;align-items:center;justify-content:center;" id="profileAv"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H2v-5L16 3z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">暱稱</label><input class="fi" id="profileName" value="" placeholder="輸入暱稱"></div><div class="fg"><label class="fl">生日</label><input class="fi" type="date" id="profileBday" value=""></div><div class="fg"><label class="fl">性別</label><select class="fsel"><option>男</option><option>女</option><option>不公開</option></select></div><div class="fg"><label class="fl">帳號（Gmail）</label><input class="fi" id="profileEmail" value="" readonly style="color:var(--sub);"></div><div class="fg"><label class="fl">在一起日期</label><input class="fi" type="date" id="profileStartDate" value="" onchange="confirmDateChange(this)"><div style="font-size:10px;color:var(--sub);margin-top:3px;">修改後天數將重新計算</div></div><button class="btn2 bpri" onclick="saveProfile()">儲存</button></div></div></div>
 <div class="mo" id="lineTokenMo"><div class="mbox"><div class="mh"><span class="mtit">LINE Notify Token</span><button class="mcl" onclick="closeMo('lineTokenMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);line-height:1.6;">前往 LINE Notify 官網取得 Token，貼上後即可接收通知。</div><div class="fg"><label class="fl">Token</label><input class="fi" placeholder="貼上 Token..."></div><button class="btn2 bpri" onclick="closeMo('lineTokenMo')">儲存</button></div></div></div>
 <div class="mo" id="pinSetMo"><div class="mbox"><div class="mh"><span class="mtit">設定隱私鎖</span><button class="mcl" onclick="closeMo('pinSetMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">閒置 10 分鐘後自動鎖定。</div><div class="fg"><label class="fl">設定 4 位數 PIN</label><input class="fi" type="password" maxlength="4" placeholder="輸入 PIN" id="pi1"></div><div class="fg"><label class="fl">確認 PIN</label><input class="fi" type="password" maxlength="4" placeholder="再輸入一次" id="pi2"></div><button class="btn2 bpri" onclick="savePin()">啟用隱私鎖</button></div></div></div>
 <div class="mo" id="exportMo"><div class="mbox"><div class="mh"><span class="mtit">匯出資料</span><button class="mcl" onclick="closeMo('exportMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">照片 ZIP 下載</div><div style="font-size:11px;color:var(--sub);">由管理員後台產生下載連結，需先在電腦端操作</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">回憶錄 PDF 匯出</div><div style="font-size:11px;color:var(--sub);">封面＋照片網格＋餐廳清單，可選單筆或全部</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">清單／餐廳／紀念日 Excel</div><div style="font-size:11px;color:var(--sub);">所有文字資料匯出為 Excel 試算表</div></div></div></div></div>
@@ -980,7 +1135,7 @@ input[type=file]{display:none;}
 <div style="display:flex;flex-direction:column;gap:12px;">
   <div class="card" style="border-radius:12px;">
     <div class="cl2" style="margin-bottom:8px;">邀請碼</div>
-    <div id="inviteCodeInput" style="font-size:22px;font-weight:700;color:var(--accent);letter-spacing:4px;text-align:center;padding:8px;background:var(--lt);border-radius:10px;margin-bottom:6px;">BPO-1234</div>
+    <div id="inviteCodeInput" style="font-size:22px;font-weight:700;color:var(--accent);letter-spacing:4px;text-align:center;padding:8px;background:var(--lt);border-radius:10px;margin-bottom:6px;">—</div>
     <div style="font-size:11px;color:var(--sub);text-align:center;margin-bottom:8px;" id="inviteTimer">剩餘 1:47:23 失效</div>
     <button onclick="genInvite()" class="btn2 bpri" style="width:100%;font-size:13px;">重新產生邀請碼</button>
     <div style="font-size:10px;color:var(--sub);text-align:center;margin-top:4px;">產生後 2 小時有效・舊碼立即失效</div>
@@ -1042,15 +1197,7 @@ input[type=file]{display:none;}
 </div>
 
 <script>
-const RESTS=[
-  {name:'太郎拉麵',type:'日式',city:'台南市',star:5,date:'2025-06-10',dish:'拉麵'},
-  {name:'鼎泰豐豐',type:'中式',city:'台北市',star:4,date:'2025-05-20',dish:'小籐包'},
-  {name:'星巴克',type:'和食',city:'台北市',star:3,date:'2025-04-15',dish:'拿鐵'},
-  {name:'劵義燒烤',type:'燒烤',city:'新北市',star:5,date:'2025-02-14',dish:'海鮮盤'},
-  {name:'鼎泰豐豐高雄',type:'中式',city:'高雄市',star:4,date:'2025-01-20',dish:'小籐包'},
-  {name:'CJ吹爆皮',type:'千層',city:'台南市',star:5,date:'2024-12-25',dish:'袓糕'},
-  {name:'蘇山海鮮',type:'海鮮',city:'台南市',star:3,date:'2024-11-10',dish:'魚'},
-];
+const RESTS=[];
 let restCity='全部';
 
 function showConfirmMo(msg, onConfirm) {
@@ -1131,7 +1278,7 @@ function closeMo(id){document.getElementById(id).classList.remove('open');}
 // PHOTO
 let photoTarget='me';
 const photoData={me:null,partner:null};
-const photoNames={me:'我',partner:'小柔'};
+const photoNames={me:'我',partner:'對方'};
 function openPhoto(who){
   photoTarget=who;
   const img=document.getElementById('pimg2'),ph=document.getElementById('pph2');
@@ -1143,18 +1290,37 @@ function openPhoto(who){
 function triggerUpload(){document.getElementById('photoFile').click();}
 function handlePhoto(e){
   const file=e.target.files[0];if(!file)return;
+  // 先顯示本地預覽
   const r=new FileReader();
   r.onload=ev=>{
     const url=ev.target.result;
-    photoData[photoTarget]=url;
-    const avcEl=document.getElementById('avc-'+photoTarget);
-    if(avcEl)avcEl.innerHTML=`<img src="${url}">`;
-    const profEl=document.getElementById('profileAv');
-    if(profEl&&photoTarget==='me')profEl.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
     const img=document.getElementById('pimg2'),ph=document.getElementById('pph2');
     img.src=url;img.style.display='block';ph.style.display='none';
   };
-  r.readAsDataURL(file);e.target.value='';
+  r.readAsDataURL(file);
+  e.target.value='';
+  // 只有自己才能改頭像
+  if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}
+  if(!window.currentUser){showToast('請先登入');return;}
+  showToast('上傳中...');
+  window._uploadToCloudinary(file).then(function(url){
+    photoData['me']=url;
+    const avcEl=document.getElementById('avc-me');
+    if(avcEl)avcEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    const profEl=document.getElementById('profileAv');
+    if(profEl)profEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    const img=document.getElementById('pimg2');
+    if(img){img.src=url;}
+    // 寫入 Firestore
+    var userRef=doc(window._db,'users',window.currentUser.uid);
+    updateDoc(userRef,{photo:url}).then(function(){
+      if(window.userData) window.userData.photo=url;
+      showToast('頭像已更新 ✓');
+    });
+  }).catch(function(err){
+    console.error(err);
+    showToast('上傳失敗，請再試');
+  });
 }
 
 // THEME
@@ -1174,11 +1340,7 @@ function setTheme(k,dotEl){
 
 
 let memTab = 'photo';
-const QUOTES = [
-  {text:'今天你笑得好好看，我偷偷截圖了',by:'我',date:'2025/6/20'},
-  {text:'謝謝你今天陪我，即使你也很累',by:'小柔',date:'2025/6/18'},
-  {text:'想到你就覺得什麼都可以',by:'我',date:'2025/6/10'},
-];
+const QUOTES = [];
 function switchMemTab(tab){
   memTab = tab;
   var pBtn=document.getElementById('memTab-photo');
@@ -1272,19 +1434,22 @@ function showToast(msg){
 }
 
 buildNavs();
+
+// 留言數統計（留言監聽更新後呼叫）
+window._updateStats = function() {
+  var msgEl = document.getElementById('stat-msgs');
+  if (msgEl && window._messages) msgEl.textContent = window._messages.length;
+  var restEl = document.getElementById('stat-rests');
+  if (restEl) restEl.textContent = RESTS.length;
+  var listEl = document.getElementById('stat-listdone');
+  if (listEl) listEl.textContent = LIST.filter(function(i){return i.done;}).length;
+  var chalEl = document.getElementById('stat-chaldone');
+  if (chalEl) chalEl.textContent = CHALS.filter ? CHALS.filter(function(c){return c.status==='done';}).length : 0;
+};
 }
 
 // LIST
-let LIST=[
-  {id:1,n:'去九份老街',c:'想去哪',done:false,by:'我',at:'6/20'},
-  {id:2,n:'吃吃看鼎泰豐',c:'想吃什麼',done:true,by:'小柔',at:'5/10',star:4},
-  {id:3,n:'一起看星星',c:'想做什麼',done:false,by:'我',at:'6/18'},
-  {id:4,n:'看完派對咖孔明',c:'想看什麼',done:false,by:'小柔',at:'6/15'},
-  {id:5,n:'去海邊撿石頭',c:'想去哪',done:false,by:'我',at:'6/10'},
-  {id:6,n:'一起做料理',c:'想做什麼',done:true,by:'小柔',at:'5/22',star:5},
-  {id:7,n:'去花蓮旅行',c:'想去哪',done:false,by:'我',at:'6/1'},
-  {id:8,n:'看灌籃高手電影版',c:'想看什麼',done:false,by:'小柔',at:'5/30'},
-];
+let LIST=[];
 let listTab='pending',listCat='全部',pendingId=null;
 function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
 function setListCat(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
@@ -1382,14 +1547,7 @@ function addFromInspire(n,c){
 }
 
 // CHALLENGES
-const CHALS=[
-  {name:'一起騎腳踏車環湖',cat:'探索類',deadline:'6/30',status:'active',prog:50,done:'1/2'},
-  {name:'連續留言 30 天',cat:'感情類',deadline:'7/20',status:'active',prog:40,done:'1/2'},
-  {name:'去看一場電影',cat:'娛樂類',deadline:'6/27',status:'active',prog:0,done:'0/2'},
-  {name:'吃吃看鼎泰豐',cat:'飲食類',deadline:'5/1',status:'done',prog:100,done:'2/2'},
-  {name:'一起做料理',cat:'感情類',deadline:'4/15',status:'done',prog:100,done:'2/2'},
-  {name:'爬象山',cat:'探索類',deadline:'3/1',status:'failed',prog:50,done:'1/2'},
-];
+let CHALS=[];
 let chalTab='active';
 function setChalTab(t,el){chalTab=t;document.querySelectorAll('#page-challenges .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderChal();}
 function renderChal(){
@@ -1553,7 +1711,7 @@ function checkPin(){
     setTimeout(()=>{document.getElementById('pinErr').textContent='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');},800);
   }
 }
-function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？'))inp.value='2024-06-02';}
+function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？')){inp.value=(window._coupleData&&window._coupleData.startDate)||'';}}
 // INIT
 try{buildNavs();}catch(err){console.error('buildNavs:',err);}
 try{renderList();}catch(err){console.error('renderList:',err);}
@@ -1601,7 +1759,6 @@ function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 
 
 function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
-function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？'))inp.value='2024-06-02';}
 // INIT
 try{buildNavs();}catch(err){console.error('buildNavs:',err);}
 try{renderList();}catch(err){console.error('renderList:',err);}
