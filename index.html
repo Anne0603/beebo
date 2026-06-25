@@ -298,6 +298,7 @@ input[type=file]{display:none;}
         window._initList(db, coupleId);
         window._initRests(db, coupleId);
         window._initChals(db, coupleId);
+        window._initQuotes(db, coupleId);
         window._initMessages(db, coupleId, user.uid);
         if (typeof buildNavs === 'function') buildNavs();
       } else {
@@ -757,7 +758,7 @@ input[type=file]{display:none;}
       <div style="color:rgba(255,255,255,.6);font-size:20px;line-height:1;">›</div>
     </button>
     <div class="quad">
-      <div class="qc" onclick="goPageX('achievements')"><div class="qt">我們的成就</div><div class="qn">7 個</div><div class="qs">完成挑戰數</div></div>
+      <div class="qc" onclick="goPageX('achievements')"><div class="qt">我們的成就</div><div class="qn" id="achCount">0</div><div class="qs">完成挑戰數</div></div>
       <div class="qc" onclick="goPageX('review')"><div class="qt">我們的回顧</div><div class="qn" id="dayCount2">—</div><div class="qs">在一起天數</div></div>
       <div class="qc" onclick="goPageX('calendar')"><div class="qt">行事曆</div><div class="qn">週六</div><div class="qs">下次約會・3天後</div></div>
       <div class="qc" onclick="goPageX('restaurants')"><div class="qt">餐廳記錄</div><div class="qn">23 家</div><div class="qs">去過的餐廳</div></div>
@@ -892,10 +893,7 @@ input[type=file]{display:none;}
     </div>
     <div class="slbl" style="margin-top:8px;">系統成就</div>
     <div class="ag">
-      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">在一起 100 天</div><div class="achd">2024.09.10</div></div>
-      <div class="ach"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">上傳第1張照片</div><div class="achd">2024.06.04</div></div>
-      <div class="ach locked"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">在一起 365 天</div><div class="achd">未解鎖</div></div>
-      <div class="ach locked"><div class="achi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="#FFF0B0" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="#E6A800" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="achn">探索 5 個縣市</div><div class="achd">未解鎖</div></div>
+      <div id="sysAchList" style="display:contents;"></div>
     </div>
   </div>
   <button class="fab" onclick="goPageX('challenges')" style="bottom:76px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -1173,7 +1171,7 @@ input[type=file]{display:none;}
 
 <div class="mo" id="addQuoteMo"><div class="mbox"><div class="mh"><span class="mtit">新增語錄</span><button class="mcl" onclick="closeMo('addQuoteMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
-  <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" rows="4" placeholder="記下這句話..." style="resize:none;line-height:1.6;"></textarea></div>
+  <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" id="quoteText" rows="4" placeholder="記下這句話..." style="resize:none;line-height:1.6;"></textarea></div>
   <div class="fg"><label class="fl">日期</label><input class="fi" type="date" id="quoteDate"></div>
   <button class="btn2 bpri" onclick="saveQuote()">儲存語錄</button>
 </div></div></div>
@@ -1345,7 +1343,20 @@ function setTheme(k,dotEl){
 
 
 let memTab = 'photo';
-const QUOTES = [];
+let QUOTES = [];
+
+// ── Firestore 語錄監聽 ──
+window._initQuotes = function(db, coupleId) {
+  var {collection, query, orderBy, onSnapshot} = window._fsOps;
+  var qRef = collection(db, 'couples', coupleId, 'quotes');
+  var q = query(qRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    QUOTES = [];
+    snap.forEach(function(d){ QUOTES.push(Object.assign({id: d.id}, d.data())); });
+    renderQuotes();
+  });
+};
+
 function switchMemTab(tab){
   memTab = tab;
   var pBtn=document.getElementById('memTab-photo');
@@ -1367,17 +1378,22 @@ function switchMemTab(tab){
   else if(tab==='photo') renderMemory();
 }
 function renderQuotes(){
-  const body = document.getElementById('quoteBody');
+  var body = document.getElementById('quoteBody');
   if(!body) return;
-  body.innerHTML = `
-    <button onclick="openMo('addQuoteMo')" style="all:unset;display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--card);border-radius:14px;border:1px solid var(--bdr);cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;box-shadow:0 2px 8px var(--shd);">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>新增語錄
-    </button>
-    ${QUOTES.map(q=>`
-      <div class="card" style="border-radius:14px;">
-        <div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「${q.text}」</div>
-        <div style="font-size:11px;color:var(--sub);">${q.by}・${q.date}</div>
-      </div>`).join('')}`;
+  var addBtn = '<button onclick="openMo(\'addQuoteMo\')" style="all:unset;display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--card);border-radius:14px;border:1px solid var(--bdr);cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;box-shadow:0 2px 8px var(--shd);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>新增語錄</button>';
+  if(!QUOTES.length){body.innerHTML=addBtn+'<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有語錄，記下第一句話吧 💬</div>';return;}
+  var myName=(window.userData&&window.userData.name)||'我';
+  var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
+  body.innerHTML = addBtn + QUOTES.map(function(q){
+    var by = q.senderUid===( window.currentUser&&window.currentUser.uid) ? myName : partnerName;
+    var dateStr = q.dateLabel || (q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'}) : '');
+    return '<div class="card" style="border-radius:14px;">'+
+      '<div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「'+(q.text||'')+'」</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-size:11px;color:var(--sub);">'+by+'・'+dateStr+'</div>'+
+      '<button onclick="deleteQuote(\''+q.id+'\')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;padding:3px 8px;border-radius:8px;background:#fdecea;">刪除</button>'+
+      '</div></div>';
+  }).join('');
 }
 
 
@@ -1441,15 +1457,58 @@ function showToast(msg){
 buildNavs();
 
 // 留言數統計（留言監聽更新後呼叫）
+function _achCard(name, date, locked){
+  var svg='<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="'+(locked?'#ccc':'#FFF0B0')+'" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  return '<div class="ach'+(locked?' locked':'')+'"><div class="achi">'+svg+'</div><div class="achn">'+name+'</div><div class="achd">'+(locked?'未解鎖':date)+'</div></div>';
+}
+function _renderSysAch(){
+  var el=document.getElementById('sysAchList');
+  if(!el)return;
+  var sd=window._coupleData&&window._coupleData.startDate;
+  if(!sd){el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--sub);font-size:12px;padding:12px;">設定在一起日期後解鎖成就</div>';return;}
+  var start=new Date(sd);start.setHours(0,0,0,0);
+  var today=new Date();today.setHours(0,0,0,0);
+  var days=Math.floor((today-start)/86400000)+1;
+  function fmtDate(d){return d.getFullYear()+'.'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'.'+(d.getDate()<10?'0':'')+d.getDate();}
+  var milestoneDays=[30,100,200,365,500,1000];
+  var html='';
+  milestoneDays.forEach(function(m){
+    var unlocked=days>=m;
+    var dateStr=unlocked?fmtDate(new Date(start.getTime()+(m-1)*86400000)):'';
+    html+=_achCard('在一起 '+m+' 天',dateStr,!unlocked);
+  });
+  el.innerHTML=html;
+  // 挑戰成就
+  var achList=document.getElementById('achList');
+  if(achList){
+    var done=CHALS.filter(function(ch){return ch.status==='done';});
+    if(!done.length){
+      achList.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">完成挑戰後會出現這裡 🏆</div>';
+    } else {
+      achList.innerHTML=done.map(function(ch){
+        var dateStr='';
+        if(ch.doneAt&&ch.doneAt.toDate){var d=ch.doneAt.toDate();dateStr=d.getFullYear()+'.'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'.'+(d.getDate()<10?'0':'')+d.getDate();}
+        return _achCard(ch.name,dateStr,false);
+      }).join('');
+    }
+    // 首頁成就數更新
+    var qcEl=document.querySelector('#page-home .qn');
+  }
+}
 window._updateStats = function() {
+  // 系統成就（根據在一起天數動態計算）
+  _renderSysAch();
   var msgEl = document.getElementById('stat-msgs');
   if (msgEl && window._messages) msgEl.textContent = window._messages.length;
   var restEl = document.getElementById('stat-rests');
   if (restEl) restEl.textContent = RESTS.length;
   var listEl = document.getElementById('stat-listdone');
   if (listEl) listEl.textContent = LIST.filter(function(i){return i.done;}).length;
+  var doneCnt = CHALS.filter(function(c){return c.status==='done';}).length;
   var chalEl = document.getElementById('stat-chaldone');
-  if (chalEl) chalEl.textContent = CHALS.filter(function(c){return c.status==='done';}).length;
+  if (chalEl) chalEl.textContent = doneCnt;
+  var achCountEl = document.getElementById('achCount');
+  if (achCountEl) achCountEl.textContent = doneCnt + ' 個';
 };
 }
 
@@ -1986,15 +2045,28 @@ function genInvite(){
   if(timer) timer.textContent='2:00:00';
   showToast('已產生新邀請碼，2小時內有效');
 }
-function saveQuote(){
-  var txt=document.getElementById('newVerNote')? document.querySelector('#addQuoteMo textarea'):null;
-  var date=document.querySelector('#addQuoteMo input[type=date]');
+async function saveQuote(){
+  var txt=document.getElementById('quoteText');
+  var dateEl=document.getElementById('quoteDate');
   if(!txt||!txt.value.trim()){showToast('請填寫語錄內容');return;}
-  QUOTES.unshift({text:txt.value.trim(),by:'我',date:date?date.value.replace(/-/g,'/'):'今天'});
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  var dateLabel=dateEl&&dateEl.value ? dateEl.value.replace(/-/g,'/') : new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'});
+  await addDoc(collection(window._db,'couples',window._coupleId,'quotes'),{
+    text: txt.value.trim(),
+    senderUid: window.currentUser ? window.currentUser.uid : '',
+    dateLabel: dateLabel,
+    createdAt: serverTimestamp()
+  });
   txt.value='';
-  renderQuotes();
+  if(dateEl) dateEl.value='';
   closeMo('addQuoteMo');
-  showToast('語錄已儲存');
+  showToast('語錄已儲存 ✓');
+}
+async function deleteQuote(id){
+  if(!confirm('刪除這則語錄？'))return;
+  var {doc,deleteDoc}=window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'quotes',id));
 }
 function setRT(type){restType=type||'全部';if(typeof renderRests==='function')renderRests();}
 function setRC(city){
@@ -2032,16 +2104,6 @@ function genInvite(){
   var timer=document.getElementById('inviteCountdown');
   if(timer) timer.textContent='2:00:00';
   showToast('已產生新邀請碼，2小時內有效');
-}
-function saveQuote(){
-  var txt=document.getElementById('newVerNote')? document.querySelector('#addQuoteMo textarea'):null;
-  var date=document.querySelector('#addQuoteMo input[type=date]');
-  if(!txt||!txt.value.trim()){showToast('請填寫語錄內容');return;}
-  QUOTES.unshift({text:txt.value.trim(),by:'我',date:date?date.value.replace(/-/g,'/'):'今天'});
-  txt.value='';
-  renderQuotes();
-  closeMo('addQuoteMo');
-  showToast('語錄已儲存');
 }
 function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 function toggleForeignInput(v){
