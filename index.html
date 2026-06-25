@@ -500,15 +500,36 @@ function startPairingCountdown(expiry, el) {
         return;
       }
 
-      // 配對成功
+      // 配對前：再次確認雙方都還沒配對
       const myRef = doc(db, 'users', window.currentUser.uid);
       const partnerRef = doc(db, 'users', invite.createdBy);
-      await setDoc(myRef, { partnerId: invite.createdBy, isAdmin: false }, { merge: true });
-      await setDoc(partnerRef, { partnerId: window.currentUser.uid, isAdmin: true }, { merge: true });
-      await setDoc(inviteRef, { used: true }, { merge: true });
 
-      // Firestore 寫入完成後，onSnapshot 會自動觸發 _initAllCoupleFeatures
-      // 這裡只需等待，不需要手動初始化
+      const [mySnap2, partnerSnap2] = await Promise.all([
+        getDoc(myRef), getDoc(partnerRef)
+      ]);
+
+      // 自己已有 partnerId → 不能重複配對
+      if (mySnap2.exists() && mySnap2.data().partnerId) {
+        if(typeof showToast==='function') showToast('你已有配對對象，請先解除配對');
+        if (btn) { btn.disabled = false; btn.textContent = '確認配對'; }
+        return;
+      }
+      // 對方已有 partnerId（且不是自己）→ 已被別人配對
+      if (partnerSnap2.exists() && partnerSnap2.data().partnerId &&
+          partnerSnap2.data().partnerId !== window.currentUser.uid) {
+        if(typeof showToast==='function') showToast('對方已有配對對象，邀請碼無效');
+        if (btn) { btn.disabled = false; btn.textContent = '確認配對'; }
+        return;
+      }
+
+      // 安全：原子寫入雙方 partnerId
+      await Promise.all([
+        setDoc(myRef, { partnerId: invite.createdBy, isAdmin: false }, { merge: true }),
+        setDoc(partnerRef, { partnerId: window.currentUser.uid, isAdmin: true }, { merge: true }),
+        setDoc(inviteRef, { used: true }, { merge: true })
+      ]);
+
+      // onSnapshot 偵測到 partnerId 變化後自動初始化
       if (typeof showToast === 'function') showToast('配對中，請稍候...');
     } catch(e) {
       console.error(e);
