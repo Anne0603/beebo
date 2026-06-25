@@ -248,12 +248,12 @@ input[type=file]{display:none;}
   // ════════════════════════════════════════════════════
 
   // 防止重複初始化的 flag
-  let _initializing = false;
+  window._initializing = false;
 
   // 初始化 couple 所有功能（只跑一次）
-  async function _initAllCoupleFeatures(uid, partnerId) {
-    if (_initializing) return;
-    _initializing = true;
+  window._initAllCoupleFeatures = async function(uid, partnerId) {
+    if (window._initializing) return;
+    window._initializing = true;
 
     const coupleId = [uid, partnerId].sort().join('_');
     window._coupleId = coupleId;
@@ -274,11 +274,14 @@ input[type=file]{display:none;}
 
     // 初始化 couple document + 所有功能
     try { await window._initCouple(db, coupleId, uid, window.userData); } catch(e) { console.warn(e); }
-    window._initList(db, coupleId);
-    window._initRests(db, coupleId);
-    window._initChals(db, coupleId);
-    window._initQuotes(db, coupleId);
-    window._initMessages(db, coupleId, uid);
+    // 等主 script 的 _init 函數載入後才呼叫（setTimeout 0 確保順序）
+    setTimeout(function() {
+      if (typeof window._initList === 'function') window._initList(db, coupleId);
+      if (typeof window._initRests === 'function') window._initRests(db, coupleId);
+      if (typeof window._initChals === 'function') window._initChals(db, coupleId);
+      if (typeof window._initQuotes === 'function') window._initQuotes(db, coupleId);
+      if (typeof window._initMessages === 'function') window._initMessages(db, coupleId, uid);
+    }, 0);
 
     // 關閉配對 modal，進入主頁
     var pm = document.getElementById('pairingMo');
@@ -311,7 +314,7 @@ input[type=file]{display:none;}
         // ── 已配對 ──
         if (!window._coupleId) {
           // 第一次配對：完整初始化
-          await _initAllCoupleFeatures(user.uid, data.partnerId);
+          await window._initAllCoupleFeatures(user.uid, data.partnerId);
           if (typeof showToast === 'function' && document.getElementById('pairingMo') && document.getElementById('pairingMo').classList.contains('open')) {
             showToast('配對成功！歡迎使用嗶啵 💚');
           }
@@ -322,7 +325,7 @@ input[type=file]{display:none;}
       } else {
         // ── 未配對 ──
         window._coupleId = null;
-        _initializing = false;
+        window._initializing = false;
         var pm = document.getElementById('pairingMo');
         if (pm && !pm.classList.contains('open')) pm.classList.add('open');
       }
@@ -574,13 +577,17 @@ window.startPairingCountdown = function(expiry, el) {
     const coupleRef = doc(db, 'couples', coupleId);
     let coupleSnap = await getDoc(coupleRef);
     if (!coupleSnap.exists()) {
-      // 第一次配對：建立 couple document（由 admin 那方建立）
-      if (myUserData.isAdmin) {
+      // 第一次：任何一方都可建立 couple document
+      try {
         await setDoc(coupleRef, {
           members: [myUid, myUserData.partnerId],
           startDate: '',
           createdAt: serverTimestamp()
         });
+        coupleSnap = await getDoc(coupleRef);
+      } catch(e) {
+        // 對方可能同時建立，忽略衝突
+        console.warn('couples doc 建立:', e.message);
         coupleSnap = await getDoc(coupleRef);
       }
     }
@@ -1396,7 +1403,7 @@ window.startPairingCountdown = function(expiry, el) {
 </div>
 
 <script>
-const RESTS=[];
+let RESTS=[];
 let restCity='全部';
 
 function showConfirmMo(msg, onConfirm) {
