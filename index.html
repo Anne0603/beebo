@@ -216,7 +216,7 @@ input[type=file]{display:none;}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB7ItJLps_FErzeQ-1s9WtS7XfercGt4i4",
@@ -295,6 +295,7 @@ input[type=file]{display:none;}
         const coupleId = [user.uid, userData.partnerId].sort().join('_');
         window._coupleId = coupleId;
         await window._initCouple(db, coupleId, user.uid, userData);
+        window._initList(db, coupleId);
         window._initMessages(db, coupleId, user.uid);
         if (typeof buildNavs === 'function') buildNavs();
       } else {
@@ -446,6 +447,8 @@ input[type=file]{display:none;}
 
   window._db = db;
   window._auth = auth;
+  // 暴露 Firestore 操作給非 module script 使用
+  window._fsOps = { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, doc, getDoc, setDoc, deleteDoc };
 
   // ── 留言系統 ──
   // Firestore 結構：couples/{coupleId}/messages/{msgId}
@@ -1454,58 +1457,88 @@ let listTab='pending',listCat='全部',pendingId=null;
 function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
 function setListCat(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
 const STAR_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+const EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+const DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
+const STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+
+// ── Firestore 清單監聽 ──
+window._initList = function(db, coupleId) {
+  var { collection, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } = window._fsOps;
+  var listRef = collection(db, 'couples', coupleId, 'list');
+  var q = query(listRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    LIST = [];
+    snap.forEach(function(d) { LIST.push(Object.assign({id: d.id}, d.data())); });
+    renderList();
+    renderInspire();
+    if (typeof window._updateStats === 'function') window._updateStats();
+  });
+};
+
 function renderList(){
   var body=document.getElementById('listBody');
   if(!body)return;
+  if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
   var items=LIST.filter(function(i){return (listTab==='pending'?!i.done:i.done)&&(listCat==='全部'||i.c===listCat);});
-  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">還沒有項目</div>';return;}
-  var EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
-  var FLAG_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/><line x1="4" y1="22" x2="4" y2="15" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  var DONE_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#B8860B" stroke-width="2.5" stroke-linecap="round"/></svg>';
-  var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">'+(listTab==='pending'?'沒有待完成項目，新增一個吧！':'還沒有完成的項目')+'</div>';return;}
   var html='';
   for(var idx=0;idx<items.length;idx++){
     var item=items[idx];
-    var chk='<div class="lck '+(item.done?'done':'')+'" onclick="toggleItem('+item.id+')">'+(item.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>':'')+'</div>';
-    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+item.c+'</div><div class="lby">'+item.by+'・'+item.at+'</div></div>';
-    var flag='';
-    if(item.challenge){flag='<div class="li-flag '+(item.chalDone?'done':'')+'" onclick="jumpToChallenge()">'+(item.chalDone?DONE_I+'已完成':FLAG_I+'挑戰中')+'</div>';}
+    var chk='<div class="lck '+(item.done?'done':'')+'" onclick="toggleItem(\''+item.id+'\')">'+(item.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>':'')+'</div>';
+    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+item.c+'</div><div class="lby">'+(item.by||'我')+'・'+(item.at||'')+'</div></div>';
     var stars='';
     if(item.done&&item.star){for(var si=0;si<item.star;si++)stars+=STAR_I;}
     if(stars)stars='<div style="display:flex;gap:1px;">'+stars+'</div>';
-    var act='<button onclick="editItem('+item.id+')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--card2);cursor:pointer;">'+EDIT_I+'</button><button onclick="deleteItem('+item.id+')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#fdecea;cursor:pointer;">'+DEL_I+'</button>';
-    html+='<div class="li" id="li-'+item.id+'">'+chk+lt+'<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">'+flag+stars+act+'</div></div>';
+    var act='<button onclick="deleteItem(\''+item.id+'\')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#fdecea;cursor:pointer;">'+DEL_I+'</button>';
+    html+='<div class="li" id="li-'+item.id+'">'+chk+lt+'<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">'+stars+act+'</div></div>';
   }
   body.innerHTML=html;
 }
-function editItem(id){showToast("編輯功能開發中");}
 function jumpToChallenge(){showToast('跳到對應挑戰');}
 
 function toggleItem(id){
-  const item=LIST.find(i=>i.id===id);if(!item)return;
+  var item=LIST.find(function(i){return i.id===id;});
+  if(!item||!window._coupleId||!window._fsOps)return;
+  var {doc, updateDoc, collection} = window._fsOps;
   if(!item.done){
     pendingId=id;
     document.getElementById('compTitle').textContent=item.n;
-    document.getElementById('compDoneBtn').onclick=()=>{
-      const it=LIST.find(i=>i.id===pendingId);
-      if(it){it.done=true;it.star=currentStar||0;}
-      closeMo('completeListMo');spawnHearts();renderList();currentStar=0;
-      document.querySelectorAll('#compStars .strbtn').forEach(b=>b.classList.remove('on'));
+    document.getElementById('compDoneBtn').onclick=async function(){
+      var it=LIST.find(function(i){return i.id===pendingId;});
+      if(!it)return;
+      var star=currentStar||0;
+      var docRef=doc(window._db,'couples',window._coupleId,'list',pendingId);
+      await updateDoc(docRef,{done:true,star:star,doneAt:window._fsOps.serverTimestamp()});
+      closeMo('completeListMo');spawnHearts();currentStar=0;
+      document.querySelectorAll('#compStars .strbtn').forEach(function(b){b.classList.remove('on');});
     };
     openMo('completeListMo');
   } else {
-    if(confirm('確定恢復為未完成嗎？')){item.done=false;delete item.star;renderList();}
+    if(confirm('確定恢復為未完成嗎？')){
+      var docRef=doc(window._db,'couples',window._coupleId,'list',id);
+      updateDoc(docRef,{done:false,star:0,doneAt:null});
+    }
   }
 }
-function deleteItem(id){if(confirm('確定刪除？此操作無法復原。')){LIST=LIST.filter(i=>i.id!==id);renderList();}}
-function addListItem(){
-  const n=document.getElementById('newLN').value.trim();
-  const c=document.getElementById('newLC').value;
-  if(!n)return;
-  LIST.unshift({id:Date.now(),n,c,done:false,by:'我',at:new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})});
+async function deleteItem(id){
+  if(!confirm('確定刪除？此操作無法復原。'))return;
+  var {doc, deleteDoc} = window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'list',id));
+}
+async function addListItem(){
+  var n=document.getElementById('newLN').value.trim();
+  var cat=document.getElementById('newLC').value;
+  if(!n){showToast('請輸入名稱');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var {collection, addDoc, serverTimestamp} = window._fsOps;
+  var myName=(window.userData&&window.userData.name)||'我';
+  var today=new Date();
+  var at=(today.getMonth()+1)+'/'+ today.getDate();
+  await addDoc(collection(window._db,'couples',window._coupleId,'list'),{
+    n:n, c:cat, done:false, by:myName, at:at, createdAt:serverTimestamp()
+  });
   document.getElementById('newLN').value='';
-  closeMo('addListMo');renderList();
+  closeMo('addListMo');
 }
 let currentStar=0;
 function setStar(n){
@@ -1541,9 +1574,16 @@ function renderInspire(){
       <button onclick="addFromInspire('${i.n}','${i.c}')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">加入</button>
     </div>`).join('');
 }
-function addFromInspire(n,c){
-  LIST.unshift({id:Date.now(),n,c,done:false,by:'我',at:new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'})});
-  renderInspire();renderList();
+async function addFromInspire(n,cat){
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  var myName=(window.userData&&window.userData.name)||'我';
+  var today=new Date();
+  var at=(today.getMonth()+1)+'/'+today.getDate();
+  await addDoc(collection(window._db,'couples',window._coupleId,'list'),{
+    n:n,c:cat,done:false,by:myName,at:at,createdAt:serverTimestamp()
+  });
+  showToast('已加入清單 ✓');
 }
 
 // CHALLENGES
