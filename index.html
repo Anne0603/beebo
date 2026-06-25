@@ -275,15 +275,20 @@ input[type=file]{display:none;}
     // 初始化 couple document + 所有功能
     try { await window._initCouple(db, coupleId, uid, window.userData); } catch(e) { console.warn(e); }
     // 等主 script 的 _init 函數載入後才呼叫（setTimeout 0 確保順序）
-    setTimeout(function() {
-      if (typeof window._initList === 'function') window._initList(db, coupleId);
-      if (typeof window._initMems === 'function') window._initMems(db, coupleId);
-      if (typeof window._initEvents === 'function') window._initEvents(db, coupleId);
-      if (typeof window._initRests === 'function') window._initRests(db, coupleId);
-      if (typeof window._initChals === 'function') window._initChals(db, coupleId);
-      if (typeof window._initQuotes === 'function') window._initQuotes(db, coupleId);
-      if (typeof window._initMessages === 'function') window._initMessages(db, coupleId, uid);
-    }, 0);
+    // 等主 script 完全執行後再初始化
+    function _doInit() {
+      if (typeof window._initList !== 'function') {
+        setTimeout(_doInit, 50); return;
+      }
+      window._initList(db, coupleId);
+      window._initMems(db, coupleId);
+      window._initEvents(db, coupleId);
+      window._initRests(db, coupleId);
+      window._initChals(db, coupleId);
+      window._initQuotes(db, coupleId);
+      window._initMessages(db, coupleId, uid);
+    }
+    _doInit();
 
     // 關閉配對 modal，進入主頁
     var pm = document.getElementById('pairingMo');
@@ -939,7 +944,7 @@ window.startPairingCountdown = function(expiry, el) {
   <div class="pt">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="#4A7A58" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 6l1.5-2.5h5L16 6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>回憶錄
     <div style="margin-left:auto;display:flex;gap:6px;">
-      <select id="memYear" onchange="renderMemory()" style="font-size:11px;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option>2025</option><option>2024</option><option>2023</option></select>
+      <select id="memYear" onchange="renderMemory()" style="font-size:11px;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部年份</option></select>
       <select id="memMonth" onchange="renderMemory()" style="font-size:11px;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
     </div>
   </div>
@@ -976,6 +981,7 @@ window.startPairingCountdown = function(expiry, el) {
   </div>
   <div style="padding:0 13px;flex-shrink:0;"><div class="tabs"><div class="tab on" onclick="setChalTab('active',this)">進行中</div><div class="tab" onclick="setChalTab('done',this)">已完成</div><div class="tab" onclick="setChalTab('failed',this)">已失敗</div></div></div>
   <div class="sc" id="chalBody" style="padding-top:6px;"></div>
+  <button class="fab" onclick="openMo('addChalMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
   <div class="bnav" id="bnav-challenges"></div>
 </div>
 
@@ -1076,7 +1082,7 @@ window.startPairingCountdown = function(expiry, el) {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="9" rx="1" fill="#4A7A58" opacity=".7"/><rect x="10" y="6" width="4" height="15" rx="1" fill="#4A7A58"/><rect x="17" y="9" width="4" height="12" rx="1" fill="#4A7A58" opacity=".7"/></svg>我們的回顧
   </div>
-  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="2026">2026 年</option><option value="2025">2025 年</option><option value="2024">2024 年</option><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPage('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div style="display:flex;align-items:flex-end;gap:3px;height:70px;"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">1月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">2月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">3月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--accent);border-radius:4px 4px 0 0;height:40px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">4月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">4</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">5月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">6月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">7月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">8月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:20px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">9月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">2</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:30px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">10月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">3</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:10px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">11月</div><div style="font-size:8px;color:var(--accent);font-weight:700;">1</div></div><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;"><div style="width:100%;background:var(--lt);border-radius:4px 4px 0 0;height:4px;min-height:4px;"></div><div style="font-size:8px;color:var(--sub);">12月</div><div style="font-size:8px;color:var(--accent);font-weight:700;"></div></div></div></div></div>
+  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="2026">2026 年</option><option value="2025">2025 年</option><option value="2024">2024 年</option><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPage('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div id="reviewChart" style="display:flex;justify-content:space-around;align-items:flex-end;height:60px;padding:0 4px;gap:2px;"></div></div></div>
 </div>
 
 <!-- CALENDAR -->
@@ -1087,7 +1093,7 @@ window.startPairingCountdown = function(expiry, el) {
   </div>
   <div class="sc">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">‹</button><div style="font-size:14px;font-weight:700;color:var(--txt);">2025年 6月</div><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">›</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">‹</button><div style="font-size:14px;font-weight:700;color:var(--txt);" id="calMonthTitle">約會計畫</div><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">›</button></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">
         <div class="cdow">日</div><div class="cdow">一</div><div class="cdow">二</div><div class="cdow">三</div><div class="cdow">四</div><div class="cdow">五</div><div class="cdow">六</div>
         <div class="cday om">1</div><div class="cday om">2</div><div class="cday om">3</div><div class="cday om">4</div><div class="cday om">5</div><div class="cday om">6</div><div class="cday om">7</div>
@@ -1102,6 +1108,7 @@ window.startPairingCountdown = function(expiry, el) {
 
     
   </div>
+  <div class="sc" id="calBody" style="padding-top:0;"></div>
   <button class="fab" onclick="openMo('addEventMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 </div>
 
@@ -2504,6 +2511,27 @@ function renderCalendar() {
       '<div style="flex:1;"><div class="evn">' + e.name + '</div>' +
       '<div class="evm">' + mo + '月' + dy + '日（週' + wd + '）' + (e.place?'・'+e.place:'') + '・' + diffTxt + '</div></div></div>';
   }).join('');
+  // 更新月份圖表
+  var chartEl = document.getElementById('reviewChart') || document.getElementById('calChart');
+  if (chartEl) {
+    var months = {};
+    EVENTS.forEach(function(e) {
+      if (e.dateStart) {
+        var mo = new Date(e.dateStart).getMonth();
+        months[mo] = (months[mo]||0) + 1;
+      }
+    });
+    var moNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    var max = Math.max(1, Math.max.apply(null, Object.values(months)));
+    chartEl.innerHTML = moNames.map(function(nm, i) {
+      var cnt = months[i]||0;
+      var h = Math.max(4, Math.round(cnt/max*50));
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">' +
+        '<div style="font-size:8px;color:var(--accent);font-weight:700;">'+(cnt||'')+'</div>' +
+        '<div style="width:70%;background:'+(cnt?'var(--accent)':'var(--bdr)')+';border-radius:3px 3px 0 0;height:'+h+'px;"></div>' +
+        '<div style="font-size:8px;color:var(--sub);">'+nm+'</div></div>';
+    }).join('');
+  }
   var calEl = document.getElementById('calNext');
   if (calEl && upcoming.length) {
     var nx = upcoming[0];
