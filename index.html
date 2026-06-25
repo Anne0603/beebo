@@ -1016,7 +1016,7 @@ window.startPairingCountdown = function(expiry, el) {
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="sr" onclick="location.reload()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openMo('changelogMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.0.0 ›</div></div>
+      <div class="sr" onclick="openChangelogMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.0.0 ›</div></div>
       <div class="sr" onclick="showConfirmMo('確定要登出嗎？',firebaseSignOut)"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
     </div>
 
@@ -1026,8 +1026,8 @@ window.startPairingCountdown = function(expiry, el) {
 
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openMo('inspireMgMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#A87848" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">靈感題庫管理</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openMo('transferMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">轉移管理員</div></div><div></div></div>
+      <div class="sr" onclick="openInspireMgMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#A87848" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">靈感題庫管理</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openTransferMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">備用管理員帳號</div></div><div></div></div>
 
       <!-- 測試專用 -->
       <div style="margin-top:8px;padding:10px 12px;background:#fff3cd;border-radius:12px;border:1.5px dashed #e6a800;">
@@ -1188,12 +1188,12 @@ window.startPairingCountdown = function(expiry, el) {
 </div></div></div>
 <div class="mo" id="msgMo"><div class="mbox"><div class="mh"><span class="mtit">留言紀錄</span><button class="mcl" onclick="closeMo('msgMo')">×</button></div><div id="msgList" style="display:flex;flex-direction:column;gap:0;overflow-y:auto;max-height:55vh;"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">載入中...</div></div></div></div>
 <div class="mob" id="decideMo"><div class="msh"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('decideMo')">×</button></div><select onchange="setDC(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;margin-bottom:8px;"><option value="全部">全部分類</option><option value="想去哪" id="dc-opt-1">想去哪</option><option value="想吃什麼" id="dc-opt-2">想吃什麼</option><option value="想做什麼" id="dc-opt-3">想做什麼</option><option value="想看什麼" id="dc-opt-4">想看什麼</option></select><div class="rcard"><div class="rname" id="rname">去九份老街</div><div class="rcat2" id="rcat">想去哪</div></div><div class="rbtns"><button class="btn2 bsec" onclick="reroll()">再抽一次</button><button class="btn2 bpri" onclick="closeMo('decideMo')">就這個！</button></div></div></div>
-<div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt="" onclick="triggerUpload()"><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2">小柔</div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;">點擊更換照片</div><button class="pubtn" onclick="triggerUpload()">更換照片</button><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
+<div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt=""><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2"></div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;" id="photoSubtitle"></div><div id="photoEditArea"><button class="pubtn" onclick="triggerUpload()">更換照片</button></div><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
 <div class="mo" id="profileMo"><div class="mbox"><div class="mh"><span class="mtit">我的個人資料</span><button class="mcl" onclick="closeMo('profileMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:center;"><div style="position:relative;cursor:pointer;" onclick="openPhoto('me')"><div style="width:68px;height:68px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);overflow:hidden;display:flex;align-items:center;justify-content:center;" id="profileAv"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H2v-5L16 3z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">暱稱</label><input class="fi" id="profileName" value="" placeholder="輸入暱稱"></div><div class="fg"><label class="fl">生日</label><input class="fi" type="date" id="profileBday" value=""></div><div class="fg"><label class="fl">性別</label><select class="fsel"><option>男</option><option>女</option><option>不公開</option></select></div><div class="fg"><label class="fl">帳號（Gmail）</label><input class="fi" id="profileEmail" value="" readonly style="color:var(--sub);"></div><div class="fg"><label class="fl">在一起日期</label><input class="fi" type="date" id="profileStartDate" value="" onchange="confirmDateChange(this)"><div style="font-size:10px;color:var(--sub);margin-top:3px;">修改後天數將重新計算</div></div><button class="btn2 bpri" onclick="saveProfile()">儲存</button></div></div></div>
 <div class="mo" id="lineTokenMo"><div class="mbox"><div class="mh"><span class="mtit">LINE Notify Token</span><button class="mcl" onclick="closeMo('lineTokenMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);line-height:1.6;">前往 LINE Notify 官網取得 Token，貼上後即可接收通知。</div><div class="fg"><label class="fl">Token</label><input class="fi" placeholder="貼上 Token..."></div><button class="btn2 bpri" onclick="closeMo('lineTokenMo')">儲存</button></div></div></div>
 <div class="mo" id="pinSetMo"><div class="mbox"><div class="mh"><span class="mtit">設定隱私鎖</span><button class="mcl" onclick="closeMo('pinSetMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">閒置 10 分鐘後自動鎖定。</div><div class="fg"><label class="fl">設定 4 位數 PIN</label><input class="fi" type="password" maxlength="4" placeholder="輸入 PIN" id="pi1"></div><div class="fg"><label class="fl">確認 PIN</label><input class="fi" type="password" maxlength="4" placeholder="再輸入一次" id="pi2"></div><button class="btn2 bpri" onclick="savePin()">啟用隱私鎖</button></div></div></div>
 <div class="mo" id="exportMo"><div class="mbox"><div class="mh"><span class="mtit">匯出資料</span><button class="mcl" onclick="closeMo('exportMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">照片 ZIP 下載</div><div style="font-size:11px;color:var(--sub);">由管理員後台產生下載連結，需先在電腦端操作</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">回憶錄 PDF 匯出</div><div style="font-size:11px;color:var(--sub);">封面＋照片網格＋餐廳清單，可選單筆或全部</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">清單／餐廳／紀念日 Excel</div><div style="font-size:11px;color:var(--sub);">所有文字資料匯出為 Excel 試算表</div></div></div></div></div>
-<div class="mo" id="changelogMo"><div class="mbox"><div class="mh"><span class="mtit">版本紀錄</span><button class="mcl" onclick="closeMo('changelogMo')">×</button></div><div style="display:flex;flex-direction:column;gap:14px;max-height:60vh;overflow-y:auto;"><div style="border-radius:12px;background:var(--lt);padding:12px;"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">v1.0.0 — 2026</div><div style="font-size:12px;color:var(--txt);line-height:1.8;">• 留言板即時同步<br>• 清單兩人共享<br>• 餐廳記錄<br>• 挑戰兩人打勾<br>• 語錄收藏<br>• 成就系統<br>• 個人資料與頭像上傳<br>• 在一起天數計算<br>• 紀念日倒數</div></div></div></div></div></div>
+<div class="mo" id="changelogMo"><div class="mbox"><div class="mh"><span class="mtit">版本紀錄</span><button class="mcl" onclick="closeMo('changelogMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div id="changelogList" style="display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto;"></div><div id="changelogAddArea" style="display:none;flex-direction:column;gap:8px;border-top:1px solid var(--bdr);padding-top:10px;"><div class="fg"><label class="fl">版本號</label><input class="fi" id="clVersion" placeholder="v1.1.0"></div><div class="fg"><label class="fl">更新內容（每行一項）</label><textarea class="fi" id="clContent" rows="4" placeholder="• 新功能說明" style="resize:none;"></textarea></div><button class="btn2 bpri" onclick="saveChangelog()">新增版本</button></div><button id="changelogAddBtn" class="btn2 bsec" onclick="toggleChangelogAdd()" style="display:none;">+ 新增版本</button></div></div></div></div>
 <div class="mo" id="logoutConfirm"><div class="cbox"><div class="ctit">確定要登出嗎？</div><div class="csub">登出後需重新使用 Google 帳號登入</div><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('logoutConfirm')">取消</button><button class="btn2 bpri" onclick="closeMo('logoutConfirm')">登出</button></div></div></div>
 <div class="mo" id="notifyDelMo"><div class="mbox"><div class="mh"><span class="mtit">通知自動刪除</span><button class="mcl" onclick="closeMo('notifyDelMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">超過設定天數的通知將自動刪除</div><div class="fg"><label class="fl">保留天數</label><select class="fsel" id="notifyDelDays"><option value="7">7 天</option><option value="30" selected>30 天</option><option value="60">60 天</option><option value="90">90 天</option><option value="0">永久保留</option></select></div><button class="btn2 bpri" onclick="saveNotifyDel()">儲存</button></div></div></div>
 <div class="mo" id="customNameMo"><div class="mbox"><div class="mh"><span class="mtit">自訂暱稱</span><button class="mcl" onclick="closeMo('customNameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">修改你在嗶啵裡顯示的暱稱（最多12字）</div><div class="fg"><label class="fl">暱稱</label><input class="fi" id="customNameInput" placeholder="輸入暱稱" maxlength="12"></div><button class="btn2 bpri" onclick="saveCustomName()">儲存</button></div></div></div>
@@ -1203,28 +1203,20 @@ window.startPairingCountdown = function(expiry, el) {
   <button onclick="switchInspireTab('list',this)" style="flex:1;padding:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-list">清單靈感</button>
   <button onclick="switchInspireTab('chal',this)" style="flex:1;padding:7px;border:none;background:var(--card2);color:var(--sub);font-size:12px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-chal">挑戰靈感</button>
 </div>
-<div id="inspireListMg" style="display:flex;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--card2);border-radius:10px;font-size:12px;">
-    <span>去看夜市・想去哪</span>
-    <button onclick="showToast('已刪除')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">刪除</button>
-  </div>
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--card2);border-radius:10px;font-size:12px;">
-    <span>海邊看日落・想去哪</span>
-    <button onclick="showToast('已刪除')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">刪除</button>
-  </div>
+<div id="inspireListMg" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
+<div id="inspireChalMg" style="display:none;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
+<div style="border-top:1px solid var(--bdr);margin-top:10px;padding-top:10px;display:flex;flex-direction:column;gap:6px;">
+  <div style="font-size:11px;font-weight:700;color:var(--sub);">新增靈感</div>
+  <input class="fi" id="newInspireName" placeholder="靈感名稱..." style="font-size:12px;">
+  <select class="fsel" id="newInspireCat" style="font-size:12px;">
+    <option value="想去哪">想去哪</option>
+    <option value="想吃什麼">想吃什麼</option>
+    <option value="想做什麼">想做什麼</option>
+    <option value="想看什麼">想看什麼</option>
+  </select>
+  <button onclick="addInspireItem()" class="btn2 bpri" style="font-size:12px;">新增</button>
 </div>
-<div id="inspireChalMg" style="display:none;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--card2);border-radius:10px;font-size:12px;">
-    <span>一起騎腳踏車環湖</span>
-    <button onclick="showToast('已刪除')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">刪除</button>
-  </div>
-</div>
-<div style="display:flex;gap:6px;margin-top:8px;">
-  <input class="fi" placeholder="新增靈感..." style="flex:1;font-size:12px;padding:7px 10px;">
-  <button onclick="showToast('已新增')" class="btn2 bpri" style="padding:7px 14px;font-size:12px;">加入</button>
-</div>
-<button onclick="showToast('JSON 匯入開發中')" class="btn2 bsec" style="width:100%;margin-top:6px;font-size:12px;">匯入 JSON</button>
-</div></div></div>
+</div></div>
 <div class="mo" id="bindMo"><div class="mbox"><div class="mh"><span class="mtit">帳號綁定管理</span><button class="mcl" onclick="closeMo('bindMo')">×</button></div><div style="display:flex;flex-direction:column;gap:14px;"><div id="bindStatus" style="background:var(--lt);border-radius:12px;padding:14px;font-size:13px;line-height:1.8;">載入中...</div><button class="btn2" style="background:#c62828;color:#fff;width:100%;" onclick="unpairAccount()">解除配對</button><div style="font-size:11px;color:var(--sub);text-align:center;">解除後雙方資料保留，需重新配對才能共享功能</div><button class="btn2 bsec" onclick="closeMo('bindMo')">關閉</button></div></div></div>
 <div class="mo" id="devResetMo"><div class="mbox">
   <div class="mh"><span class="mtit" style="color:#c62828;">⚠️ 清除測試資料</span><button class="mcl" onclick="closeMo('devResetMo')">×</button></div>
@@ -1261,7 +1253,7 @@ window.startPairingCountdown = function(expiry, el) {
   </div>
 </div></div>
 
-<div class="mo" id="transferMo"><div class="cbox"><div class="ctit" style="color:#c62828;">轉移管理員帳號</div><div class="csub">此操作不可逆。轉移後您將失去管理員權限。<br>請輸入「confirm」確認。</div><input class="fi" placeholder='輸入 "confirm"' style="margin-bottom:12px;"><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('transferMo')">取消</button><button class="btn2" style="background:#c62828;color:#fff;" onclick="closeMo('transferMo')">確認轉移</button></div></div></div>
+<div class="mo" id="transferMo"><div class="mbox"><div class="mh"><span class="mtit">備用管理員帳號</span><button class="mcl" onclick="closeMo('transferMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);line-height:1.7;">綁定備用 Google 帳號後，該帳號登入也能使用管理員功能。用來防止主帳號遺失。</div><div id="backupAdminList" style="background:var(--card2);border-radius:10px;padding:10px;font-size:12px;min-height:40px;">載入中...</div><div class="fg"><label class="fl">備用帳號 Email</label><input class="fi" id="backupEmail" placeholder="backup@gmail.com" type="email"></div><button class="btn2 bpri" onclick="addBackupAdmin()">綁定備用帳號</button><button class="btn2 bsec" onclick="closeMo('transferMo')">關閉</button></div></div></div>
 <div class="mo" id="inspireMo"><div class="msh"><div class="mh"><span class="mtit">靈感</span><button class="mcl" onclick="closeMo('inspireMo')">×</button></div><div style="display:flex;flex-direction:column;gap:8px;" id="inspireList"></div></div></div>
 
 <div class="mo" id="clearNotifyMo"><div class="mbox"><div class="mh"><span class="mtit">清除通知</span><button class="mcl" onclick="closeMo('clearNotifyMo')">×</button></div>
@@ -1385,16 +1377,29 @@ function closeMo(id){document.getElementById(id).classList.remove('open');}
 // PHOTO
 let photoTarget='me';
 const photoData={me:null,partner:null};
-const photoNames={me:'我',partner:'對方'};
 function openPhoto(who){
   photoTarget=who;
-  const img=document.getElementById('pimg2'),ph=document.getElementById('pph2');
-  document.getElementById('pname2').textContent=photoNames[who];
-  if(photoData[who]){img.src=photoData[who];img.style.display='block';ph.style.display='none';}
-  else{img.style.display='none';ph.style.display='flex';}
+  var img=document.getElementById('pimg2');
+  var ph=document.getElementById('pph2');
+  var subtitle=document.getElementById('photoSubtitle');
+  var editArea=document.getElementById('photoEditArea');
+  var nameEl=document.getElementById('pname2');
+  var isMine = (who==='me');
+  // 填入名稱
+  if(nameEl) nameEl.textContent = isMine ? (window.userData&&window.userData.name)||'我' : (window.partnerData&&window.partnerData.name)||'對方';
+  // 填入照片
+  var photoUrl = isMine ? (window.userData&&window.userData.photo) : (window.partnerData&&window.partnerData.photo);
+  if(photoUrl){
+    img.src=photoUrl; img.style.display='block'; ph.style.display='none';
+  } else {
+    img.style.display='none'; ph.style.display='flex';
+  }
+  // 夥伴只能查看，自己才能更換
+  if(editArea) editArea.style.display = isMine ? 'block' : 'none';
+  if(subtitle) subtitle.textContent = isMine ? '點擊更換照片' : '查看模式';
   openMo('photoMo');
 }
-function triggerUpload(){document.getElementById('photoFile').click();}
+function triggerUpload(){if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}document.getElementById('photoFile').click();}
 function handlePhoto(e){
   const file=e.target.files[0];if(!file)return;
   // 先顯示本地預覽
@@ -1418,12 +1423,17 @@ function handlePhoto(e){
     if(profEl)profEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
     const img=document.getElementById('pimg2');
     if(img){img.src=url;}
-    // 寫入 Firestore
-    var userRef=doc(window._db,'users',window.currentUser.uid);
-    updateDoc(userRef,{photo:url}).then(function(){
-      if(window.userData) window.userData.photo=url;
-      showToast('頭像已更新 ✓');
-    });
+    // 寫入 Firestore（用 _fsOps）
+    if(window._fsOps&&window._db&&window.currentUser){
+      var userRef=window._fsOps.doc(window._db,'users',window.currentUser.uid);
+      window._fsOps.updateDoc(userRef,{photo:url}).then(function(){
+        if(window.userData) window.userData.photo=url;
+        // 同步更新 profileAv
+        var profEl=document.getElementById('profileAv');
+        if(profEl)profEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        showToast('頭像已更新 ✓');
+      });
+    }
   }).catch(function(err){
     console.error(err);
     showToast('上傳失敗，請再試');
@@ -1792,17 +1802,13 @@ function setStar(n, containerId){
   });
 }
 
-// INSPIRE
-const INSPIRE=[
-  {n:'去看夜市',c:'想去哪',challenge:true,chalDone:false},{n:'海邊看日落',c:'想去哪'},{n:'登山健行',c:'想去哪',challenge:true,chalDone:true},
-  {n:'吃壽司',c:'想吃什麼'},{n:'自助早午餐',c:'想吃什麼'},{n:'吃甜點下午茶',c:'想吃什麼'},
-  {n:'一起畫畫',c:'想做什麼'},{n:'學做一道新菜',c:'想做什麼'},{n:'一起運動',c:'想做什麼'},
-  {n:'看恐怖片',c:'想看什麼'},{n:'看演唱會',c:'想看什麼'},{n:'看舞台劇',c:'想看什麼'},
-];
+// INSPIRE（從 localStorage 讀取）
 function renderInspire(){
+  var INSPIRE=_getInspireData()||_getDefaultInspire();
   var q=(document.getElementById('inspireSearch')||{value:''}).value.trim().toLowerCase();
-  var items=INSPIRE.filter(i=>{
-    if(LIST.find(l=>l.n===i.n)) return false;
+  var items=INSPIRE.filter(function(i){
+    if(i.chal) return false; // 挑戰靈感不顯示在清單靈感裡
+    if(LIST.find(function(l){return l.n===i.n;})) return false;
     if(q && !i.n.toLowerCase().includes(q) && !i.c.toLowerCase().includes(q)) return false;
     return true;
   });
@@ -2263,6 +2269,1238 @@ function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList l
 // ══════════════════════════════
 // 設定頁功能
 // ══════════════════════════════
+
+// ── 版本紀錄（Firestore）──
+async function openChangelogMo(){
+  openMo('changelogMo');
+  var listEl=document.getElementById('changelogList');
+  var addBtn=document.getElementById('changelogAddBtn');
+  var isAdmin=window.userData&&window.userData.isAdmin;
+  if(addBtn) addBtn.style.display=isAdmin?'flex':'none';
+  if(!listEl)return;
+  listEl.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">載入中...</div>';
+  try{
+    var {collection,query,orderBy,getDocs}=window._fsOps;
+    var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    var snap=await fsModule.getDocs(fsModule.query(
+      fsModule.collection(window._db,'changelog'),
+      fsModule.orderBy('createdAt','desc')
+    ));
+    if(snap.empty){
+      listEl.innerHTML='<div style="border-radius:12px;background:var(--lt);padding:12px;"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">v1.0.0 — 2026</div><div style="font-size:12px;color:var(--txt);line-height:1.8;">• 留言板即時同步<br>• 清單兩人共享<br>• 餐廳記錄<br>• 挑戰兩人打勾<br>• 語錄收藏<br>• 成就系統</div></div>';
+      return;
+    }
+    var html='';
+    snap.forEach(function(d){
+      var v=d.data();
+      html+='<div style="border-radius:12px;background:var(--lt);padding:12px;">'+
+        '<div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">'+v.version+' — '+(v.date||'')+'</div>'+
+        '<div style="font-size:12px;color:var(--txt);line-height:1.8;">'+(v.content||'').split('\n').join('<br>')+'</div>'+
+        (isAdmin?'<button onclick="deleteChangelog(\''+d.id+'\')" style="all:unset;font-size:10px;color:#c62828;cursor:pointer;margin-top:6px;">刪除此版本</button>':'')+
+        '</div>';
+    });
+    listEl.innerHTML=html;
+  }catch(e){
+    listEl.innerHTML='<div style="color:var(--sub);font-size:12px;padding:12px;">載入失敗</div>';
+  }
+}
+function toggleChangelogAdd(){
+  var area=document.getElementById('changelogAddArea');
+  if(area)area.style.display=area.style.display==='none'?'flex':'none';
+}
+async function saveChangelog(){
+  var ver=(document.getElementById('clVersion')||{}).value||'';
+  var content=(document.getElementById('clContent')||{}).value||'';
+  if(!ver.trim()){showToast('請填寫版本號');return;}
+  if(!window._db||!window._fsOps){showToast('請先配對');return;}
+  var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await fsModule.addDoc(fsModule.collection(window._db,'changelog'),{
+    version:ver.trim(),content:content.trim(),
+    date:new Date().getFullYear()+'',
+    createdAt:fsModule.serverTimestamp()
+  });
+  document.getElementById('clVersion').value='';
+  document.getElementById('clContent').value='';
+  showToast('版本已新增 ✓');
+  openChangelogMo();
+}
+async function deleteChangelog(id){
+  if(!confirm('刪除此版本紀錄？'))return;
+  var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await fsModule.deleteDoc(fsModule.doc(window._db,'changelog',id));
+  openChangelogMo();
+}
+
+// ── 備用管理員帳號 ──
+async function openTransferMo(){
+  openMo('transferMo');
+  var listEl=document.getElementById('backupAdminList');
+  if(!listEl||!window._coupleData)return;
+  var admins=window._coupleData.backupAdmins||[];
+  if(!admins.length){listEl.innerHTML='<span style="color:var(--sub);">尚無備用帳號</span>';return;}
+  var html='';
+  for(var i=0;i<admins.length;i++){
+    var email=admins[i];
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">'+
+      '<span>'+email+'</span>'+
+      '<button data-email="'+email+'" onclick="removeBackupAdmin(this.dataset.email)" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">移除</button>'+
+      '</div>';
+  }
+  listEl.innerHTML=html;
+}
+
+async function addBackupAdmin(){
+  var email=(document.getElementById('backupEmail')||{}).value||'';
+  if(!email.includes('@')){showToast('請輸入有效 Email');return;}
+  if(!window._coupleRef||!window._fsOps){showToast('請先配對');return;}
+  var admins=(window._coupleData&&window._coupleData.backupAdmins)||[];
+  if(admins.includes(email)){showToast('此帳號已綁定');return;}
+  admins=admins.concat([email]);
+  await window._fsOps.updateDoc(window._coupleRef,{backupAdmins:admins});
+  if(window._coupleData)window._coupleData.backupAdmins=admins;
+  document.getElementById('backupEmail').value='';
+  showToast('備用帳號已綁定 ✓');
+  openTransferMo();
+}
+async function removeBackupAdmin(email){
+  if(!confirm('移除備用帳號 '+email+'？'))return;
+  var admins=(window._coupleData&&window._coupleData.backupAdmins)||[];
+  admins=admins.filter(function(e){return e!==email;});
+  await window._fsOps.updateDoc(window._coupleRef,{backupAdmins:admins});
+  if(window._coupleData)window._coupleData.backupAdmins=admins;
+  showToast('已移除');
+  openTransferMo();
+}
+
+// ── 靈感題庫管理（localStorage）──
+function _getInspireData(){
+  try{return JSON.parse(localStorage.getItem('beebo_inspire')||'null');}catch(e){return null;}
+}
+function _saveInspireData(data){
+  localStorage.setItem('beebo_inspire',JSON.stringify(data));
+}
+function _getDefaultInspire(){
+  return [
+    {n:'去看夜市',c:'想去哪'},{n:'海邊看日落',c:'想去哪'},{n:'登山健行',c:'想去哪'},
+    {n:'吃壽司',c:'想吃什麼'},{n:'自助早午餐',c:'想吃什麼'},{n:'吃甜點下午茶',c:'想吃什麼'},
+    {n:'一起畫畫',c:'想做什麼'},{n:'學做一道新菜',c:'想做什麼'},{n:'一起運動',c:'想做什麼'},
+    {n:'看恐怖片',c:'想看什麼'},{n:'看演唱會',c:'想看什麼'},{n:'看舞台劇',c:'想看什麼'},
+  ];
+}
+function openInspireMgMo(){
+  var data=_getInspireData()||_getDefaultInspire();
+  if(!_getInspireData())_saveInspireData(data);
+  renderInspireMg('list');
+  openMo('inspireMgMo');
+}
+
+
+function switchInspireTab(tab,el){
+  var tabs=['list','chal'];
+  tabs.forEach(function(t){
+    var btn=document.getElementById('itab-'+t);
+    var body=document.getElementById('inspire'+t.charAt(0).toUpperCase()+t.slice(1)+'Mg');
+    if(btn){btn.style.background=t===tab?'var(--accent)':'var(--card2)';btn.style.color=t===tab?'#fff':'var(--sub)';}
+    if(body){body.style.display=t===tab?'flex':'none';}
+  });
+}
+
+function buildNavs(){
+  PAGES.forEach(p=>{
+    const el=document.getElementById('bnav-'+p);
+    if(!el)return;
+    el.innerHTML=PAGES.map((pg,i)=>{
+      const on=pg===p,c=on?'#4A7A58':'#A0C0A8',f=on?'#C8E4D0':'none';
+      const icon=i===0?NAVSVG[i](c,f):NAVSVG[i](c);
+      return `<button class="nb" onclick="goPage('${pg}')">${icon}<span class="nl ${on?'on':''}">${NAVL[i]}</span>${on?'<div class="ndot"></div>':''}</button>`;
+    }).join('');
+  });
+}
+function goPage(p){
+  const cur=document.getElementById('page-'+curPage);
+  if(cur)cur.classList.remove('active');
+  const next=document.getElementById('page-'+p);
+  if(next){next.classList.add('active');
+    if(p==='settings' && typeof initSettingsPage==='function') initSettingsPage();curPage=p;}
+}
+function goPageX(p){
+  pageHist.push(curPage);
+  goPage(p);
+}
+function goBack(){
+  const prev=pageHist.pop()||'home';
+  goPage(prev);
+}
+function openMo(id){
+  document.getElementById(id).classList.add('open');
+  if(id==='msgMo'){
+    // 重新渲染確保最新 + 捲到底
+    if(window._messages && window.currentUser){
+      window._renderMsgList(window._messages, window.currentUser.uid);
+    }
+    // 清除未讀紅點
+    var dot=document.getElementById('msgUnreadDot');
+    if(dot) dot.style.display='none';
+  }
+}
+function closeMo(id){document.getElementById(id).classList.remove('open');}
+
+// PHOTO
+function openPhoto(who){
+  photoTarget=who;
+  var img=document.getElementById('pimg2');
+  var ph=document.getElementById('pph2');
+  var subtitle=document.getElementById('photoSubtitle');
+  var editArea=document.getElementById('photoEditArea');
+  var nameEl=document.getElementById('pname2');
+  var isMine = (who==='me');
+  // 填入名稱
+  if(nameEl) nameEl.textContent = isMine ? (window.userData&&window.userData.name)||'我' : (window.partnerData&&window.partnerData.name)||'對方';
+  // 填入照片
+  var photoUrl = isMine ? (window.userData&&window.userData.photo) : (window.partnerData&&window.partnerData.photo);
+  if(photoUrl){
+    img.src=photoUrl; img.style.display='block'; ph.style.display='none';
+  } else {
+    img.style.display='none'; ph.style.display='flex';
+  }
+  // 夥伴只能查看，自己才能更換
+  if(editArea) editArea.style.display = isMine ? 'block' : 'none';
+  if(subtitle) subtitle.textContent = isMine ? '點擊更換照片' : '查看模式';
+  openMo('photoMo');
+}
+function triggerUpload(){if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}document.getElementById('photoFile').click();}
+function handlePhoto(e){
+  const file=e.target.files[0];if(!file)return;
+  // 先顯示本地預覽
+  const r=new FileReader();
+  r.onload=ev=>{
+    const url=ev.target.result;
+    const img=document.getElementById('pimg2'),ph=document.getElementById('pph2');
+    img.src=url;img.style.display='block';ph.style.display='none';
+  };
+  r.readAsDataURL(file);
+  e.target.value='';
+  // 只有自己才能改頭像
+  if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}
+  if(!window.currentUser){showToast('請先登入');return;}
+  showToast('上傳中...');
+  window._uploadToCloudinary(file).then(function(url){
+    photoData['me']=url;
+    const avcEl=document.getElementById('avc-me');
+    if(avcEl)avcEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    const profEl=document.getElementById('profileAv');
+    if(profEl)profEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+    const img=document.getElementById('pimg2');
+    if(img){img.src=url;}
+    // 寫入 Firestore（用 _fsOps）
+    if(window._fsOps&&window._db&&window.currentUser){
+      var userRef=window._fsOps.doc(window._db,'users',window.currentUser.uid);
+      window._fsOps.updateDoc(userRef,{photo:url}).then(function(){
+        if(window.userData) window.userData.photo=url;
+        // 同步更新 profileAv
+        var profEl=document.getElementById('profileAv');
+        if(profEl)profEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        showToast('頭像已更新 ✓');
+      });
+    }
+  }).catch(function(err){
+    console.error(err);
+    showToast('上傳失敗，請再試');
+  });
+}
+
+// THEME
+function setTheme(k,dotEl){
+  const t=THEMES[k],r=document.documentElement.style;
+  Object.entries(t).forEach(([k,v])=>r.setProperty('--'+k,v));
+  document.querySelectorAll('.tdot').forEach(d=>d.classList.remove('on'));
+  if(dotEl)dotEl.classList.add('on');
+  
+
+
+let memTab = 'photo';
+let QUOTES = [];
+
+// ── Firestore 語錄監聽 ──
+window._initQuotes = function(db, coupleId) {
+  var {collection, query, orderBy, onSnapshot} = window._fsOps;
+  var qRef = collection(db, 'couples', coupleId, 'quotes');
+  var q = query(qRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    QUOTES = [];
+    snap.forEach(function(d){ QUOTES.push(Object.assign({id: d.id}, d.data())); });
+    renderQuotes();
+  });
+};
+
+function switchMemTab(tab){
+  memTab = tab;
+  var pBtn=document.getElementById('memTab-photo');
+  var qBtn=document.getElementById('memTab-quote');
+  var pBody=document.getElementById('memBody');
+  var qBody=document.getElementById('quoteBody');
+  if(!pBtn||!qBtn||!pBody||!qBody) return;
+  // update tab button styles
+  pBtn.style.fontWeight = tab==='photo'?'700':'400';
+  pBtn.style.color = tab==='photo'?'var(--accent)':'var(--sub)';
+  pBtn.style.borderBottom = tab==='photo'?'2px solid var(--accent)':'2px solid transparent';
+  qBtn.style.fontWeight = tab==='quote'?'700':'400';
+  qBtn.style.color = tab==='quote'?'var(--accent)':'var(--sub)';
+  qBtn.style.borderBottom = tab==='quote'?'2px solid var(--accent)':'2px solid transparent';
+  // toggle bodies
+  pBody.style.display = tab==='photo' ? 'flex' : 'none';
+  qBody.style.display = tab==='quote' ? 'flex' : 'none';
+  if(tab==='quote') renderQuotes();
+  else if(tab==='photo') renderMemory();
+}
+function renderQuotes(){
+  var body = document.getElementById('quoteBody');
+  if(!body) return;
+  var addBtn = '<button onclick="openMo(\'addQuoteMo\')" style="all:unset;display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--card);border-radius:14px;border:1px solid var(--bdr);cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;box-shadow:0 2px 8px var(--shd);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>新增語錄</button>';
+  if(!QUOTES.length){body.innerHTML=addBtn+'<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有語錄，記下第一句話吧 💬</div>';return;}
+  var myName=(window.userData&&window.userData.name)||'我';
+  var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
+  body.innerHTML = addBtn + QUOTES.map(function(q){
+    var by = q.senderUid===( window.currentUser&&window.currentUser.uid) ? myName : partnerName;
+    var dateStr = q.dateLabel || (q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'}) : '');
+    return '<div class="card" style="border-radius:14px;">'+
+      '<div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「'+(q.text||'')+'」</div>'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+      '<div style="font-size:11px;color:var(--sub);">'+by+'・'+dateStr+'</div>'+
+      '<button onclick="deleteQuote(\''+q.id+'\')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;padding:3px 8px;border-radius:8px;background:#fdecea;">刪除</button>'+
+      '</div></div>';
+  }).join('');
+}
+
+
+function launchFw(){
+  document.getElementById('fwOverlay').classList.add('open');
+  const colors=['#4A7A58','#9A6060','#486890','#906030','#F4C430','#E53935'];
+  for(let i=0;i<40;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const angle=Math.random()*Math.PI*2;
+    const dist=80+Math.random()*160;
+    p.style.cssText=`left:50%;top:50%;background:${colors[i%colors.length]};--tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;animation-delay:${Math.random()*0.3}s;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),1500);
+  }
+}
+function closeFw(){
+  document.getElementById('fwOverlay').classList.remove('open');
+  showToast('挑戰移到成就頁！');
+}
+
+
+function toggleAddVersion(){
+  var f=document.getElementById('addVersionForm');
+  f.style.display=f.style.display==='none'?'block':'none';
+  if(f.style.display==='block'){
+    var today=new Date();
+    document.getElementById('newVerDate').value=today.toISOString().split('T')[0];
+  }
+}
+function saveVersion(){
+  var ver=document.getElementById('newVer').value.trim();
+  var date=document.getElementById('newVerDate').value;
+  var note=document.getElementById('newVerNote').value.trim();
+  if(!ver||!note){alert('請填寫版本號和說明');return;}
+  var fmt=date?date.replace(/-/g,'/'):'';
+  var newEntry=`<div><div style="font-size:13px;font-weight:700;color:var(--txt);">${ver} <span style="font-size:10px;color:var(--sub);font-weight:400;">${fmt}</span></div><div style="font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7;">${note}</div></div>`;
+  var list=document.getElementById('changelogList');
+  list.insertAdjacentHTML('afterbegin',newEntry);
+  document.getElementById('addVersionForm').style.display='none';
+  document.getElementById('newVer').value='';
+  document.getElementById('newVerNote').value='';
+  showToast('版本紀錄已新增');
+}
+
+function clearNotify(days){
+  var msg = days===0 ? '確定要清除全部通知嗎？' : '確定要清除'+days+'天前的通知嗎？';
+  if(!confirm(msg)) return;
+  closeMo('clearNotifyMo');
+  showToast('通知已清除');
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  if(!t)return;
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(function(){t.classList.remove('show');},2000);
+}
+
+buildNavs();
+
+// 留言數統計（留言監聽更新後呼叫）
+// ══════════════════════════════════════════
+// ⚠️  測試專用清除函數 — 正式上線前整段移除
+// ══════════════════════════════════════════
+function devResetOpen(){
+  // 開啟時顯示 coupleId 提示（後8碼）
+  var hint = document.getElementById('resetCoupleHint');
+  if(hint && window._coupleId){
+    hint.textContent = '你的 coupleId 後8碼：' + window._coupleId.slice(-8);
+  }
+  document.getElementById('resetConfirm1').value='';
+  document.getElementById('resetConfirm2').value='';
+  openMo('devResetMo');
+}
+function devResetStep3(){
+  var v1=(document.getElementById('resetConfirm1')||{}).value||'';
+  var v2=(document.getElementById('resetConfirm2')||{}).value||'';
+  if(v1.trim()!=='我確認清除'){
+    showToast('第一層確認文字不正確');return;
+  }
+  if(!window._coupleId||v2.trim()!==window._coupleId.slice(-8)){
+    showToast('coupleId 後8碼不正確');return;
+  }
+  closeMo('devResetMo');
+  openMo('devResetFinalMo');
+}
+async function devResetExecute(){
+  closeMo('devResetFinalMo');
+  if(!window._db||!window._coupleId||!window.currentUser){
+    showToast('資料不完整，無法清除');return;
+  }
+  showToast('清除中，請稍候...');
+  try {
+    var db=window._db;
+    var coupleId=window._coupleId;
+    var myUid=window.currentUser.uid;
+    var partnerId=window.userData&&window.userData.partnerId;
+    var {doc,deleteDoc,collection,getDocs} = window._fsOps;
+    // 取得 getDocs（需要額外暴露）
+    var fsModule = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    var getDocs2 = fsModule.getDocs;
+
+    // 刪除子 collections
+    var subCols=['messages','list','rests','challenges','quotes'];
+    for(var si=0;si<subCols.length;si++){
+      var colRef=collection(db,'couples',coupleId,subCols[si]);
+      var snap=await getDocs2(colRef);
+      var dels=[];
+      snap.forEach(function(d){dels.push(deleteDoc(d.ref));});
+      await Promise.all(dels);
+    }
+    // 刪除 couples doc
+    await deleteDoc(doc(db,'couples',coupleId));
+    // 刪除兩人 users doc
+    await deleteDoc(doc(db,'users',myUid));
+    if(partnerId) await deleteDoc(doc(db,'users',partnerId));
+    // 登出
+    if(window._auth) await window._auth.signOut();
+    showToast('清除完成，即將重新整理...');
+    setTimeout(function(){location.reload();},1500);
+  } catch(e) {
+    console.error(e);
+    showToast('清除失敗：'+e.message);
+  }
+}
+// ══════════════════════════════════════════
+
+function _achCard(name, date, locked){
+  var svg='<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M6 2h12v8a6 6 0 01-12 0V2z" fill="'+(locked?'#ccc':'#FFF0B0')+'" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/><path d="M12 16v4M8 22h8" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/><path d="M6 2H2v4a4 4 0 004 4M18 2h4v4a4 4 0 01-4 4" stroke="'+(locked?'#aaa':'#E6A800')+'" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  return '<div class="ach'+(locked?' locked':'')+'"><div class="achi">'+svg+'</div><div class="achn">'+name+'</div><div class="achd">'+(locked?'未解鎖':date)+'</div></div>';
+}
+function _renderSysAch(){
+  var el=document.getElementById('sysAchList');
+  if(!el)return;
+  var sd=window._coupleData&&window._coupleData.startDate;
+  if(!sd){el.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--sub);font-size:12px;padding:12px;">設定在一起日期後解鎖成就</div>';return;}
+  var start=new Date(sd);start.setHours(0,0,0,0);
+  var today=new Date();today.setHours(0,0,0,0);
+  var days=Math.floor((today-start)/86400000)+1;
+  function fmtDate(d){return d.getFullYear()+'.'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'.'+(d.getDate()<10?'0':'')+d.getDate();}
+  var milestoneDays=[30,100,200,365,500,1000];
+  var html='';
+  milestoneDays.forEach(function(m){
+    var unlocked=days>=m;
+    var dateStr=unlocked?fmtDate(new Date(start.getTime()+(m-1)*86400000)):'';
+    html+=_achCard('在一起 '+m+' 天',dateStr,!unlocked);
+  });
+  el.innerHTML=html;
+  // 挑戰成就
+  var achList=document.getElementById('achList');
+  if(achList){
+    var done=CHALS.filter(function(ch){return ch.status==='done';});
+    if(!done.length){
+      achList.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">完成挑戰後會出現這裡 🏆</div>';
+    } else {
+      achList.innerHTML=done.map(function(ch){
+        var dateStr='';
+        if(ch.doneAt&&ch.doneAt.toDate){var d=ch.doneAt.toDate();dateStr=d.getFullYear()+'.'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'.'+(d.getDate()<10?'0':'')+d.getDate();}
+        return _achCard(ch.name,dateStr,false);
+      }).join('');
+    }
+    // 首頁成就數更新
+    var qcEl=document.querySelector('#page-home .qn');
+  }
+}
+window._updateStats = function() {
+  // 系統成就（根據在一起天數動態計算）
+  _renderSysAch();
+  var msgEl = document.getElementById('stat-msgs');
+  if (msgEl && window._messages) msgEl.textContent = window._messages.length;
+  var restEl = document.getElementById('stat-rests');
+  if (restEl) restEl.textContent = RESTS.length;
+  var restCountEl = document.getElementById('restCount');
+  if (restCountEl) restCountEl.textContent = RESTS.length + ' 家';
+  var chalCountEl = document.getElementById('chalCount');
+  if (chalCountEl) chalCountEl.textContent = '共 ' + CHALS.filter(function(c){return c.status==='active';}).length + ' 個';
+  var listEl = document.getElementById('stat-listdone');
+  if (listEl) listEl.textContent = LIST.filter(function(i){return i.done;}).length;
+  var doneCnt = CHALS.filter(function(c){return c.status==='done';}).length;
+  var chalEl = document.getElementById('stat-chaldone');
+  if (chalEl) chalEl.textContent = doneCnt;
+  var achCountEl = document.getElementById('achCount');
+  if (achCountEl) achCountEl.textContent = doneCnt + ' 個';
+};
+}
+
+// LIST
+function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
+function setListCat(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
+
+// ── Firestore 清單監聽 ──
+window._initList = function(db, coupleId) {
+  var { collection, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } = window._fsOps;
+  var listRef = collection(db, 'couples', coupleId, 'list');
+  var q = query(listRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    LIST = [];
+    snap.forEach(function(d) { LIST.push(Object.assign({id: d.id}, d.data())); });
+    renderList();
+    renderInspire();
+    if (typeof window._updateStats === 'function') window._updateStats();
+  });
+};
+
+function renderList(){
+  var body=document.getElementById('listBody');
+  if(!body)return;
+  if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
+  var items=LIST.filter(function(i){return (listTab==='pending'?!i.done:i.done)&&(listCat==='全部'||i.c===listCat);});
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">'+(listTab==='pending'?'沒有待完成項目，新增一個吧！':'還沒有完成的項目')+'</div>';return;}
+  var html='';
+  for(var idx=0;idx<items.length;idx++){
+    var item=items[idx];
+    var chk='<div class="lck '+(item.done?'done':'')+'" onclick="toggleItem(\''+item.id+'\')">'+(item.done?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>':'')+'</div>';
+    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+item.c+'</div><div class="lby">'+(item.by||'我')+'・'+(item.at||'')+'</div></div>';
+    var stars='';
+    if(item.done&&item.star){for(var si=0;si<item.star;si++)stars+=STAR_I;}
+    if(stars)stars='<div style="display:flex;gap:1px;">'+stars+'</div>';
+    var act='<button onclick="deleteItem(\''+item.id+'\')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#fdecea;cursor:pointer;">'+DEL_I+'</button>';
+    html+='<div class="li" id="li-'+item.id+'">'+chk+lt+'<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">'+stars+act+'</div></div>';
+  }
+  body.innerHTML=html;
+}
+function jumpToChallenge(){showToast('跳到對應挑戰');}
+
+function toggleItem(id){
+  var item=LIST.find(function(i){return i.id===id;});
+  if(!item||!window._coupleId||!window._fsOps)return;
+  var {doc, updateDoc, collection} = window._fsOps;
+  if(!item.done){
+    pendingId=id;
+    document.getElementById('compTitle').textContent=item.n;
+    document.getElementById('compDoneBtn').onclick=async function(){
+      var it=LIST.find(function(i){return i.id===pendingId;});
+      if(!it)return;
+      var star=currentStar||0;
+      var docRef=doc(window._db,'couples',window._coupleId,'list',pendingId);
+      await updateDoc(docRef,{done:true,star:star,doneAt:window._fsOps.serverTimestamp()});
+      closeMo('completeListMo');spawnHearts();currentStar=0;
+      document.querySelectorAll('#compStars .strbtn').forEach(function(b){b.classList.remove('on');});
+    };
+    openMo('completeListMo');
+  } else {
+    if(confirm('確定恢復為未完成嗎？')){
+      var docRef=doc(window._db,'couples',window._coupleId,'list',id);
+      updateDoc(docRef,{done:false,star:0,doneAt:null});
+    }
+  }
+}
+async function deleteItem(id){
+  if(!confirm('確定刪除？此操作無法復原。'))return;
+  var {doc, deleteDoc} = window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'list',id));
+}
+async function addListItem(){
+  var n=document.getElementById('newLN').value.trim();
+  var cat=document.getElementById('newLC').value;
+  if(!n){showToast('請輸入名稱');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var {collection, addDoc, serverTimestamp} = window._fsOps;
+  var myName=(window.userData&&window.userData.name)||'我';
+  var today=new Date();
+  var at=(today.getMonth()+1)+'/'+ today.getDate();
+  await addDoc(collection(window._db,'couples',window._coupleId,'list'),{
+    n:n, c:cat, done:false, by:myName, at:at, createdAt:serverTimestamp()
+  });
+  document.getElementById('newLN').value='';
+  closeMo('addListMo');
+}
+function setStar(n, containerId){
+  currentStar=n;
+  // 支援多個星星容器（新增餐廳 #restStars、完成清單 #compStars）
+  var containers = containerId ? [document.getElementById(containerId)] :
+    [document.getElementById('restStars'), document.getElementById('compStars')];
+  containers.forEach(function(container){
+    if(!container)return;
+    container.querySelectorAll('.strbtn').forEach(function(b,i){
+      var on=i<n;
+      b.classList.toggle('on',on);
+      var path=b.querySelector('path');
+      if(path){path.setAttribute('fill',on?'#F4C430':'none');path.setAttribute('stroke',on?'#E6A800':'#C8C8C8');}
+    });
+  });
+}
+
+// INSPIRE（從 localStorage 讀取）
+function renderInspire(){
+  var INSPIRE=_getInspireData()||_getDefaultInspire();
+  var q=(document.getElementById('inspireSearch')||{value:''}).value.trim().toLowerCase();
+  var items=INSPIRE.filter(function(i){
+    if(i.chal) return false; // 挑戰靈感不顯示在清單靈感裡
+    if(LIST.find(function(l){return l.n===i.n;})) return false;
+    if(q && !i.n.toLowerCase().includes(q) && !i.c.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  var list=document.getElementById('inspireList');
+  if(!list) return;
+  if(!items.length){list.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">沒有符合的靈感</div>';return;}
+  list.innerHTML=items.map(i=>`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);">
+      <div><div style="font-size:13px;font-weight:600;color:var(--txt);">${i.n}</div><div style="font-size:10px;color:var(--sub);">${i.c}</div></div>
+      <button onclick="addFromInspire('${i.n}','${i.c}')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">加入</button>
+    </div>`).join('');
+}
+async function addFromInspire(n,cat){
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  var myName=(window.userData&&window.userData.name)||'我';
+  var today=new Date();
+  var at=(today.getMonth()+1)+'/'+today.getDate();
+  await addDoc(collection(window._db,'couples',window._coupleId,'list'),{
+    n:n,c:cat,done:false,by:myName,at:at,createdAt:serverTimestamp()
+  });
+  showToast('已加入清單 ✓');
+}
+
+// CHALLENGES
+
+// ── Firestore 挑戰監聽 ──
+window._initChals = function(db, coupleId) {
+  var {collection, query, orderBy, onSnapshot} = window._fsOps;
+  var chalRef = collection(db, 'couples', coupleId, 'challenges');
+  var q = query(chalRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    CHALS = [];
+    snap.forEach(function(d){ CHALS.push(Object.assign({id: d.id}, d.data())); });
+    renderChal();
+    _updateHomeChal();
+    if (typeof window._updateStats === 'function') window._updateStats();
+  });
+};
+
+// 主頁挑戰卡更新
+function _updateHomeChal(){
+  var active = CHALS.filter(function(c){ return c.status==='active'; });
+  var nameEl = document.getElementById('challName');
+  var subEl  = document.getElementById('challSub');
+  var pfEl   = document.getElementById('progFill');
+  if(!active.length){
+    if(nameEl) nameEl.textContent='暫無進行中挑戰';
+    if(subEl)  subEl.textContent='';
+    if(pfEl)   pfEl.style.width='0%';
+    return;
+  }
+  var top = active[0];
+  var myUid = window.currentUser ? window.currentUser.uid : '';
+  var checked = (top.checkedBy||[]).length;
+  var iChecked = (top.checkedBy||[]).includes(myUid);
+  if(nameEl) nameEl.textContent = top.name;
+  if(subEl)  subEl.textContent = (top.deadline?'截止 '+top.deadline+'・':'') + checked+'/2 已完成';
+  if(pfEl)   pfEl.style.width = (checked*50)+'%';
+}
+
+function setChalTab(t,el){chalTab=t;document.querySelectorAll('#page-challenges .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderChal();}
+
+function renderChal(){
+  var body=document.getElementById('chalBody');
+  if(!body)return;
+  if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
+  var myUid = window.currentUser ? window.currentUser.uid : '';
+  var myName = (window.userData && window.userData.name) || '我';
+  var partnerName = (window.partnerData && window.partnerData.name) || '對方';
+  var items=CHALS.filter(function(c){return c.status===chalTab;});
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">沒有項目</div>';return;}
+  var html='';
+  for(var i=0;i<items.length;i++){
+    var ch=items[i];
+    var statusCls=ch.status==='active'?'sta':ch.status==='done'?'std':'stf';
+    var statusTxt=ch.status==='active'?'進行中':ch.status==='done'?'已完成':'已失敗';
+    var checked=(ch.checkedBy||[]).length;
+    var iChecked=(ch.checkedBy||[]).includes(myUid);
+    var progPct=checked*50;
+
+    // 兩人打勾狀態顯示
+    var meChecked=(ch.checkedBy||[]).includes(myUid);
+    var partnerUid=window.userData?window.userData.partnerId:'';
+    var partnerChecked=partnerUid&&(ch.checkedBy||[]).includes(partnerUid);
+    var cid = ch.id;
+    var checkRow = [
+      '<div style="display:flex;gap:8px;margin-top:8px;">',
+        '<div onclick="chalCheck(\'' + cid + '\')" style="flex:1;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;cursor:pointer;background:' + (meChecked?'var(--lt)':'var(--card2)') + ';border:1.5px solid ' + (meChecked?'var(--accent)':'var(--bdr)') + ';">',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="' + (meChecked?'var(--accent)':'var(--bdr)') + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+          '<span style="font-size:12px;font-weight:600;color:' + (meChecked?'var(--accent)':'var(--sub)') + ';">' + myName + (meChecked?'✓':'') + '</span>',
+        '</div>',
+        '<div style="flex:1;display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:10px;background:' + (partnerChecked?'var(--lt)':'var(--card2)') + ';border:1.5px solid ' + (partnerChecked?'var(--accent)':'var(--bdr)') + ';">',
+          '<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L19 7" stroke="' + (partnerChecked?'var(--accent)':'var(--bdr)') + '" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+          '<span style="font-size:12px;font-weight:600;color:' + (partnerChecked?'var(--accent)':'var(--sub)') + ';">' + partnerName + (partnerChecked?'✓':'') + '</span>',
+        '</div>',
+      '</div>'
+    ].join('');
+
+    var retryBtn=ch.status==='failed'?'<button class="btn2 bsec" style="margin-top:8px;border:1px solid var(--bdr);width:100%;" onclick="retryChallenge(\'' + ch.id + '\')">重新挑戰</button>':'';
+    var editBtn=ch.status==='active'?'<button onclick="openChalEdit(\'' + ch.id + '\')" style="all:unset;font-size:11px;color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--card2);">編輯</button>':'';
+    var abandonBtn=ch.status==='active'?'<button onclick="abandonChal(\'' + ch.id + '\')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;padding:4px 8px;border-radius:8px;background:#fdecea;">放棄</button>':'';
+
+    html+='<div class="ci2"><div class="ci2-top"><div class="ci2-name">'+ch.name+'</div><div style="display:flex;align-items:center;gap:6px;"><div class="cst '+statusCls+'">'+statusTxt+'</div>'+editBtn+abandonBtn+'</div></div>';
+    html+='<div class="ci2-meta">'+(ch.cat||'')+(ch.deadline?'・截止 '+ch.deadline:'')+'</div>';
+    html+='<div class="cprog"><div class="cpb"><div class="cpf" style="width:'+progPct+'%"></div></div><div class="cpt">'+checked+'/2</div></div>';
+    if(ch.status==='active') html+=checkRow;
+    html+=retryBtn+'</div>';
+  }
+  body.innerHTML=html;
+}
+
+async function chalCheck(id){
+  if(!window._coupleId||!window._fsOps||!window.currentUser)return;
+  var {doc, updateDoc} = window._fsOps;
+  var ch = CHALS.find(function(c){return c.id===id;});
+  if(!ch||ch.status!=='active')return;
+  var myUid=window.currentUser.uid;
+  var checked=ch.checkedBy||[];
+  var alreadyDone=checked.includes(myUid);
+  if(alreadyDone){
+    // 取消打勾
+    checked=checked.filter(function(u){return u!==myUid;});
+    await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{checkedBy:checked,status:'active'});
+    showToast('已取消打勾');
+  } else {
+    checked=checked.concat([myUid]);
+    var newStatus=checked.length>=2?'done':'active';
+    await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{checkedBy:checked,status:newStatus});
+    if(newStatus==='done'){
+      spawnHearts();
+      setTimeout(function(){launchFw();},400);
+      showToast('🎉 挑戰完成！兩人都確認了！');
+    } else {
+      spawnHearts();
+      showToast('已打勾！等對方確認就完成了 ✓');
+    }
+  }
+}
+
+function openChalEdit(id){
+  _editChalId=id;
+  var ch=CHALS.find(function(c){return c.id===id;});
+  if(!ch)return;
+  document.getElementById('editChalName').textContent=ch.name;
+  document.getElementById('editChalDeadline').value=ch.deadline||'';
+  openMo('editChalMo');
+}
+
+async function saveChalEdit(){
+  if(!_editChalId||!window._fsOps)return;
+  var newDate=document.getElementById('editChalDeadline').value;
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_editChalId),{deadline:newDate});
+  closeMo('editChalMo');
+  showToast('截止日期已更新 ✓');
+}
+
+async function abandonChal(id){
+  if(!confirm('確定要放棄這個挑戰嗎？'))return;
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'failed'});
+  showToast('挑戰已移至已失敗');
+}
+
+async function retryChallenge(id){
+  if(!id||!window._fsOps)return;
+  if(!confirm('重新開始這個挑戰？'))return;
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[]});
+  showToast('挑戰重新開始！加油 💪');
+}
+
+// 主頁完成按鈕
+function markDone(){
+  var active=CHALS.filter(function(c){return c.status==='active';});
+  if(!active.length){showToast('目前沒有進行中的挑戰');return;}
+  chalCheck(active[0].id);
+}
+
+function nextChallenge(){
+  document.getElementById('celebrateOverlay').classList.remove('open');
+  _updateHomeChal();
+}
+
+// HEARTS
+function makeHeart(f,s){return `<svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M10 16.5C10 16.5 1.5 11 1.5 5.5C1.5 3 3.5 1 6 1C7.8 1 9.3 2 10 3.2C10.7 2 12.2 1 14 1C16.5 1 18.5 3 18.5 5.5C18.5 11 10 16.5 10 16.5Z" fill="${f}" stroke="${s}" stroke-width="1"/></svg>`;}
+function spawnHearts(){
+  for(let i=0;i<26;i++){
+    setTimeout(()=>{
+      const h=document.createElement('div');h.className='hf';
+      const [f,s]=HC[Math.floor(Math.random()*HC.length)];
+      h.innerHTML=makeHeart(f,s);
+      const sz=14+Math.random()*14;
+      h.style.cssText=`left:${Math.random()*86+4}vw;bottom:${55+Math.random()*50}px;width:${sz}px;animation-duration:${1.5+Math.random()}s;animation-delay:${Math.random()*.55}s;`;
+      document.body.appendChild(h);setTimeout(()=>h.remove(),2800);
+    },i*60);
+  }
+}
+
+async function addChal(){
+  var n=(document.getElementById('newChalName')||{}).value;
+  if(n) n=n.trim(); else n='';
+  if(!n){showToast('請填寫挑戰名稱');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var cat=(document.getElementById('newChalCat')||{}).value||'其他';
+  var deadline=(document.getElementById('newChalDeadline')||{}).value||'';
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  await addDoc(collection(window._db,'couples',window._coupleId,'challenges'),{
+    name:n, cat:cat, deadline:deadline, status:'active',
+    checkedBy:[], createdAt:serverTimestamp()
+  });
+  var el=document.getElementById('newChalName');if(el)el.value='';
+  var de=document.getElementById('newChalDeadline');if(de)de.value='';
+  closeMo('addChalMo');
+  showToast('挑戰已新增！加油 💪');
+}
+
+// DECIDE
+function setDC(c){dcCat=c;drawn=[];reroll();}
+function openDecide(){drawn=[];reroll();openMo('decideMo');}
+function reroll(){
+  let pool=LIST.filter(i=>!i.done&&(dcCat==='全部'||i.c===dcCat)&&!drawn.includes(i.id));
+  if(!pool.length){drawn=[];pool=LIST.filter(i=>!i.done&&(dcCat==='全部'||i.c===dcCat));}
+  if(!pool.length){document.getElementById('rname').textContent='清單都完成了';document.getElementById('rcat').textContent='厲害';return;}
+  const pick=pool[Math.floor(Math.random()*pool.length)];
+  drawn.push(pick.id);
+  document.getElementById('rname').textContent=pick.n;
+  document.getElementById('rcat').textContent=pick.c;
+}
+
+// MEMORY
+ 
+function renderMemory(){
+  const yr=parseInt(document.getElementById('memYear').value);
+  const mo=parseInt(document.getElementById('memMonth').value);
+  const body=document.getElementById('memBody');
+  const filtered=MEMS.filter(m=>m.year===yr&&(mo===0||m.month===mo));
+  if(!filtered.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">這個時間沒有回憶錄</div>';return;}
+  const camSVG='<svg width="32" height="32" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="#A0C0A8" stroke-width="1.5"/><circle cx="12" cy="13" r="4" fill="#C8E4D0"/><path d="M8 6l1.5-2.5h5L16 6" stroke="#A0C0A8" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  const addSVG='<svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#A0C0A8" stroke-width="2" stroke-linecap="round"/></svg>';
+  body.innerHTML='<div class="mem-grid">'+filtered.map(m=>
+    '<div class="mc"><div class="mci" style="position:relative;">'+camSVG+'<button onclick="event.stopPropagation();toggleFav(this)" style="position:absolute;top:4px;right:4px;background:rgba(255,255,255,0.85);border:none;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 21C12 21 3 13.5 3 8a5 5 0 019-3 5 5 0 019 3c0 5.5-9 13-9 13z" stroke="#c62828" stroke-width="1.8"/></svg></button></div><div class="mca"><div class="mcat">'+m.title+'</div><div style="font-size:9px;color:rgba(255,255,255,.7);">'+m.year+'/'+m.month+'・'+m.city+'</div></div></div>'
+  ).join('')+'<div class="madd" onclick="openMo(`addMemMo`)">'+addSVG+'<div style="font-size:10px;color:var(--sub);">新增</div></div></div>';
+}
+
+// ── Firestore 餐廳監聽 ──
+window._initRests = function(db, coupleId) {
+  var {collection, query, orderBy, onSnapshot} = window._fsOps;
+  var restRef = collection(db, 'couples', coupleId, 'rests');
+  var q = query(restRef, orderBy('createdAt', 'desc'));
+  onSnapshot(q, function(snap) {
+    RESTS = [];
+    snap.forEach(function(d){ RESTS.push(Object.assign({id: d.id}, d.data())); });
+    renderRests();
+    renderLinkRests();
+    if (typeof window._updateStats === 'function') window._updateStats();
+  });
+};
+
+function renderRests(){
+  var body=document.getElementById('restBody');
+  if(!body)return;
+  if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
+  var items=RESTS.filter(function(r){
+    return (restCity==='全部'||r.city===restCity||r.city==='國外')&&(restType==='全部'||r.type===restType);
+  });
+  // 國外細篩
+  if(restCity==='國外'){
+    var fc=document.getElementById('restForeignCountry');
+    var fct=fc?fc.value:'';
+    if(fct) items=items.filter(function(r){return r.country===fct;});
+  }
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">還沒有餐廳記錄，記錄第一家吧！</div>';return;}
+  body.innerHTML=items.map(function(r){
+    var stars='';for(var i=0;i<(r.star||0);i++)stars+=STAR_SVG;
+    var cityLabel=r.city==='國外'?(r.country||'')+(r.foreignCity?' '+r.foreignCity:''):r.city;
+    var delBtn='<button onclick="deleteRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:#c62828;cursor:pointer;border-radius:8px;background:#fdecea;">刪除</button>';
+    return '<div class="ri">'+
+      '<div class="ri-top"><div class="ri-name">'+(r.name||'')+'</div><div style="display:flex;gap:1px;">'+stars+'</div></div>'+
+      '<div class="ri-meta">'+(r.type||'')+'・'+(r.date||'')+(r.dish?'・'+r.dish:'')+'</div>'+
+      (r.note?'<div style="font-size:10px;color:var(--sub);margin-top:2px;">'+r.note+'</div>':'')+
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">'+
+      '<span class="ri-city">'+(cityLabel||'')+'</span>'+delBtn+'</div></div>';
+  }).join('');
+}
+
+function renderLinkRests(){
+  var list=document.getElementById('linkRestList');
+  if(!list)return;
+  if(!RESTS.length){list.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div>';return;}
+  list.innerHTML=RESTS.map(function(r){
+    return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;">'+
+      '<input type="checkbox" value="'+r.id+'" style="accent-color:var(--accent);">'+
+      r.name+'・'+(r.city||'')+'・'+Array(r.star+1).join('★')+'</label>';
+  }).join('');
+}
+
+async function deleteRest(id){
+  if(!confirm('確定刪除？'))return;
+  var {doc,deleteDoc}=window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'rests',id));
+}
+
+function setRS(n){
+  restStar=n;
+  document.querySelectorAll('#restStars .strbtn').forEach(function(b,i){
+    b.classList.toggle('on',i<n);
+    var path=b.querySelector('path');
+    if(path){path.setAttribute('fill',i<n?'#F4C430':'none');path.setAttribute('stroke',i<n?'#E6A800':'#C8C8C8');}
+  });
+}
+async function addRest(){
+  var n=(document.getElementById('newRN')||{}).value;
+  if(n) n=n.trim(); else n='';
+  if(!n||!restStar){showToast('請填寫名稱和評分');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var city=(document.getElementById('newRC2')||{}).value||'';
+  var country='',foreignCity='';
+  if(city==='國外'){
+    country=(document.getElementById('newCountry')||{}).value||'';
+    foreignCity=(document.getElementById('newFCity')||{}).value||'';
+  }
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  await addDoc(collection(window._db,'couples',window._coupleId,'rests'),{
+    name: n,
+    type: (document.getElementById('newRT2')||{}).value||'',
+    city: city,
+    country: country,
+    foreignCity: foreignCity,
+    star: restStar,
+    date: (document.getElementById('newRD')||{}).value||new Date().toLocaleDateString('zh-TW'),
+    dish: (document.getElementById('newDish')||{}).value||'',
+    note: '',
+    createdAt: serverTimestamp()
+  });
+  // 清空表單
+  ['newRN','newDish','newFCity'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var rc2=document.getElementById('newRC2');if(rc2)rc2.value='';
+  var rd=document.getElementById('newRD');if(rd)rd.value='';
+  var ff=document.getElementById('foreignFields');if(ff)ff.style.display='none';
+  closeMo('addRestMo');
+  restStar=0;
+  document.querySelectorAll('#restStars .strbtn').forEach(function(b){
+    b.classList.remove('on');
+    var path=b.querySelector('path');
+    if(path){path.setAttribute('fill','none');path.setAttribute('stroke','#C8C8C8');}
+  });
+  showToast('餐廳記錄已新增 ✓');
+}
+
+// PIN
+function savePin(){
+  const p1=document.getElementById('pi1').value;
+  const p2=document.getElementById('pi2').value;
+  if(!/^[0-9]{4}$/.test(p1)){alert('請輸入4位數字');return;}
+  if(p1!==p2){alert('PIN 不一致');return;}
+  pinSet=p1;
+  document.getElementById('pinStatus').textContent='已啟用 ›';
+  closeMo('pinSetMo');
+  startIdleTimer();
+  alert('隱私鎖已啟用！');
+}
+function pinKey(k){
+  if(pinInput.length>=4)return;
+  pinInput+=k;
+  for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('fill',i<pinInput.length);
+  if(pinInput.length===4)setTimeout(checkPin,100);
+}
+function pinDel(){pinInput=pinInput.slice(0,-1);for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('fill',i<pinInput.length);}
+function checkPin(){
+  if(pinInput===pinSet){
+    document.getElementById('lockScreen').classList.remove('open');
+    pinInput='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');
+    resetIdleTimer();
+  } else {
+    document.getElementById('pinErr').textContent='PIN 錯誤，請再試一次';
+    pinInput='';
+    setTimeout(()=>{document.getElementById('pinErr').textContent='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');},800);
+  }
+}
+function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？')){inp.value=(window._coupleData&&window._coupleData.startDate)||'';}}
+// INIT
+try{buildNavs();}catch(err){console.error('buildNavs:',err);}
+try{renderList();}catch(err){console.error('renderList:',err);}
+try{renderChal();}catch(err){console.error('renderChal:',err);}
+try{renderMemory();}catch(err){console.error('renderMemory:',err);}
+try{renderRests();}catch(err){console.error('renderRests:',err);}
+try{renderInspire();}catch(err){console.error('renderInspire:',err);}
+
+function toggleFav(btn){
+  var path = btn.querySelector('path');
+  if(!path) return;
+  var isFav = path.getAttribute('fill')==='#c62828';
+  path.setAttribute('fill', isFav ? 'none' : '#c62828');
+  showToast(isFav ? '取消最愛' : '已標記最愛');
+}
+
+
+function genInvite(){
+  var code='BPO-'+Math.floor(1000+Math.random()*9000);
+  var inp=document.getElementById('inviteCodeInput');
+  if(inp) inp.value=code;
+  var timer=document.getElementById('inviteCountdown');
+  if(timer) timer.textContent='2:00:00';
+  showToast('已產生新邀請碼，2小時內有效');
+}
+async function saveQuote(){
+  var txt=document.getElementById('quoteText');
+  var dateEl=document.getElementById('quoteDate');
+  if(!txt||!txt.value.trim()){showToast('請填寫語錄內容');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  var dateLabel=dateEl&&dateEl.value ? dateEl.value.replace(/-/g,'/') : new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'});
+  await addDoc(collection(window._db,'couples',window._coupleId,'quotes'),{
+    text: txt.value.trim(),
+    senderUid: window.currentUser ? window.currentUser.uid : '',
+    dateLabel: dateLabel,
+    createdAt: serverTimestamp()
+  });
+  txt.value='';
+  if(dateEl) dateEl.value='';
+  closeMo('addQuoteMo');
+  showToast('語錄已儲存 ✓');
+}
+async function deleteQuote(id){
+  if(!confirm('刪除這則語錄？'))return;
+  var {doc,deleteDoc}=window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'quotes',id));
+}
+function setRT(type){restType=type||'全部';if(typeof renderRests==='function')renderRests();}
+function setRC(city){
+  restCity=city||'全部';
+  var row=document.getElementById('foreignFilterRow');
+  if(row) row.style.display=city==='國外'?'flex':'none';
+  if(typeof renderRests==='function')renderRests();
+}
+function filterForeignCity(country){}
+function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
+
+
+function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
+
+// ══════════════════════════════
+// 設定頁功能
+// ══════════════════════════════
+
+// ── 版本紀錄（Firestore）──
+async function openChangelogMo(){
+  openMo('changelogMo');
+  var listEl=document.getElementById('changelogList');
+  var addBtn=document.getElementById('changelogAddBtn');
+  var isAdmin=window.userData&&window.userData.isAdmin;
+  if(addBtn) addBtn.style.display=isAdmin?'flex':'none';
+  if(!listEl)return;
+  listEl.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">載入中...</div>';
+  try{
+    var {collection,query,orderBy,getDocs}=window._fsOps;
+    var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    var snap=await fsModule.getDocs(fsModule.query(
+      fsModule.collection(window._db,'changelog'),
+      fsModule.orderBy('createdAt','desc')
+    ));
+    if(snap.empty){
+      listEl.innerHTML='<div style="border-radius:12px;background:var(--lt);padding:12px;"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">v1.0.0 — 2026</div><div style="font-size:12px;color:var(--txt);line-height:1.8;">• 留言板即時同步<br>• 清單兩人共享<br>• 餐廳記錄<br>• 挑戰兩人打勾<br>• 語錄收藏<br>• 成就系統</div></div>';
+      return;
+    }
+    var html='';
+    snap.forEach(function(d){
+      var v=d.data();
+      html+='<div style="border-radius:12px;background:var(--lt);padding:12px;">'+
+        '<div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">'+v.version+' — '+(v.date||'')+'</div>'+
+        '<div style="font-size:12px;color:var(--txt);line-height:1.8;">'+(v.content||'').split('\n').join('<br>')+'</div>'+
+        (isAdmin?'<button onclick="deleteChangelog(\''+d.id+'\')" style="all:unset;font-size:10px;color:#c62828;cursor:pointer;margin-top:6px;">刪除此版本</button>':'')+
+        '</div>';
+    });
+    listEl.innerHTML=html;
+  }catch(e){
+    listEl.innerHTML='<div style="color:var(--sub);font-size:12px;padding:12px;">載入失敗</div>';
+  }
+}
+function toggleChangelogAdd(){
+  var area=document.getElementById('changelogAddArea');
+  if(area)area.style.display=area.style.display==='none'?'flex':'none';
+}
+async function saveChangelog(){
+  var ver=(document.getElementById('clVersion')||{}).value||'';
+  var content=(document.getElementById('clContent')||{}).value||'';
+  if(!ver.trim()){showToast('請填寫版本號');return;}
+  if(!window._db||!window._fsOps){showToast('請先配對');return;}
+  var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await fsModule.addDoc(fsModule.collection(window._db,'changelog'),{
+    version:ver.trim(),content:content.trim(),
+    date:new Date().getFullYear()+'',
+    createdAt:fsModule.serverTimestamp()
+  });
+  document.getElementById('clVersion').value='';
+  document.getElementById('clContent').value='';
+  showToast('版本已新增 ✓');
+  openChangelogMo();
+}
+async function deleteChangelog(id){
+  if(!confirm('刪除此版本紀錄？'))return;
+  var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+  await fsModule.deleteDoc(fsModule.doc(window._db,'changelog',id));
+  openChangelogMo();
+}
+
+// ── 備用管理員帳號 ──
+async function openTransferMo(){
+  openMo('transferMo');
+  var listEl=document.getElementById('backupAdminList');
+  if(!listEl||!window._coupleData)return;
+  var admins=window._coupleData.backupAdmins||[];
+  if(!admins.length){listEl.innerHTML='<span style="color:var(--sub);">尚無備用帳號</span>';return;}
+  var html='';
+  for(var i=0;i<admins.length;i++){
+    var email=admins[i];
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;">'+
+      '<span>'+email+'</span>'+
+      '<button data-email="'+email+'" onclick="removeBackupAdmin(this.dataset.email)" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;">移除</button>'+
+      '</div>';
+  }
+  listEl.innerHTML=html;
+}
+
+async function addBackupAdmin(){
+  var email=(document.getElementById('backupEmail')||{}).value||'';
+  if(!email.includes('@')){showToast('請輸入有效 Email');return;}
+  if(!window._coupleRef||!window._fsOps){showToast('請先配對');return;}
+  var admins=(window._coupleData&&window._coupleData.backupAdmins)||[];
+  if(admins.includes(email)){showToast('此帳號已綁定');return;}
+  admins=admins.concat([email]);
+  await window._fsOps.updateDoc(window._coupleRef,{backupAdmins:admins});
+  if(window._coupleData)window._coupleData.backupAdmins=admins;
+  document.getElementById('backupEmail').value='';
+  showToast('備用帳號已綁定 ✓');
+  openTransferMo();
+}
+async function removeBackupAdmin(email){
+  if(!confirm('移除備用帳號 '+email+'？'))return;
+  var admins=(window._coupleData&&window._coupleData.backupAdmins)||[];
+  admins=admins.filter(function(e){return e!==email;});
+  await window._fsOps.updateDoc(window._coupleRef,{backupAdmins:admins});
+  if(window._coupleData)window._coupleData.backupAdmins=admins;
+  showToast('已移除');
+  openTransferMo();
+}
+
+// ── 靈感題庫管理（localStorage）──
+function _getInspireData(){
+  try{return JSON.parse(localStorage.getItem('beebo_inspire')||'null');}catch(e){return null;}
+}
+function _saveInspireData(data){
+  localStorage.setItem('beebo_inspire',JSON.stringify(data));
+}
+function _getDefaultInspire(){
+  return [
+    {n:'去看夜市',c:'想去哪'},{n:'海邊看日落',c:'想去哪'},{n:'登山健行',c:'想去哪'},
+    {n:'吃壽司',c:'想吃什麼'},{n:'自助早午餐',c:'想吃什麼'},{n:'吃甜點下午茶',c:'想吃什麼'},
+    {n:'一起畫畫',c:'想做什麼'},{n:'學做一道新菜',c:'想做什麼'},{n:'一起運動',c:'想做什麼'},
+    {n:'看恐怖片',c:'想看什麼'},{n:'看演唱會',c:'想看什麼'},{n:'看舞台劇',c:'想看什麼'},
+  ];
+}
+function openInspireMgMo(){
+  var data=_getInspireData()||_getDefaultInspire();
+  if(!_getInspireData())_saveInspireData(data);
+  renderInspireMg('list');
+  openMo('inspireMgMo');
+}
+function renderInspireMg(tab){
+  var data=_getInspireData()||[];
+  var listEl=document.getElementById('inspireListMg');
+  var chalEl=document.getElementById('inspireChalMg');
+  var items=data.filter(function(item){
+    return tab==='chal'?(item.chal===true):(!item.chal);
+  });
+  function mkRow(item){
+    var div=document.createElement('div');
+    div.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:7px 10px;background:var(--card2);border-radius:10px;font-size:12px;';
+    div.innerHTML='<span>'+item.n+'・'+item.c+'</span>';
+    var btn=document.createElement('button');
+    btn.textContent='刪除';
+    btn.style.cssText='all:unset;font-size:11px;color:#c62828;cursor:pointer;';
+    btn.onclick=function(){deleteInspireItem(item.n,item.c);};
+    div.appendChild(btn);
+    return div;
+  }
+  var target=tab==='list'?listEl:chalEl;
+  if(!target)return;
+  target.innerHTML='';
+  if(!items.length){
+    target.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">沒有靈感，新增一個吧</div>';
+    return;
+  }
+  items.forEach(function(item){target.appendChild(mkRow(item));});
+}
+function switchInspireTab(tab,el){
+  var listPanel=document.getElementById('inspireListMg');
+  var chalPanel=document.getElementById('inspireChalMg');
+  var tab1=document.getElementById('itab-list');
+  var tab2=document.getElementById('itab-chal');
+  if(tab==='list'){
+    if(listPanel)listPanel.style.display='flex';
+    if(chalPanel)chalPanel.style.display='none';
+    if(tab1){tab1.style.background='var(--accent)';tab1.style.color='#fff';}
+    if(tab2){tab2.style.background='var(--card2)';tab2.style.color='var(--sub)';}
+    renderInspireMg('list');
+  }else{
+    if(listPanel)listPanel.style.display='none';
+    if(chalPanel)chalPanel.style.display='flex';
+    if(tab1){tab1.style.background='var(--card2)';tab1.style.color='var(--sub)';}
+    if(tab2){tab2.style.background='var(--accent)';tab2.style.color='#fff';}
+    renderInspireMg('chal');
+  }
+}
+function addInspireItem(){
+  var name=(document.getElementById('newInspireName')||{}).value||'';
+  var cat=(document.getElementById('newInspireCat')||{}).value||'想去哪';
+  var tab=document.getElementById('itab-chal')&&document.getElementById('itab-chal').style.background.includes('accent')?'chal':'list';
+  if(!name.trim()){showToast('請輸入靈感名稱');return;}
+  var data=_getInspireData()||_getDefaultInspire();
+  if(data.find(function(i){return i.n===name.trim();})){showToast('已存在相同名稱');return;}
+  data.push({n:name.trim(),c:cat,chal:tab==='chal'});
+  _saveInspireData(data);
+  document.getElementById('newInspireName').value='';
+  renderInspireMg(tab);
+  showToast('已新增 ✓');
+}
+function deleteInspireItem(name,cat){
+  var data=_getInspireData()||[];
+  data=data.filter(function(i){return !(i.n===name&&i.c===cat);});
+  _saveInspireData(data);
+  var tab=document.getElementById('itab-chal')&&document.getElementById('itab-chal').style.background.includes('accent')?'chal':'list';
+  renderInspireMg(tab);
+  showToast('已刪除');
+}
 
 // ── 自訂暱稱 ──
 function openCustomName(){
