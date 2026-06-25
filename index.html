@@ -300,6 +300,9 @@ input[type=file]{display:none;}
         window._initChals(db, coupleId);
         window._initQuotes(db, coupleId);
         window._initMessages(db, coupleId, user.uid);
+        // 確保配對 modal 關閉
+        var pm = document.getElementById('pairingMo');
+        if (pm) pm.classList.remove('open');
         if (typeof buildNavs === 'function') buildNavs();
       } else {
         // 未配對 → 進主頁，顯示配對 modal（不再擋住主頁）
@@ -532,7 +535,7 @@ function startPairingCountdown(expiry, el) {
         if (el) el.textContent = '—';
       });
       var pill = document.getElementById('nextAnnivPill');
-      if (pill) pill.textContent = '請設定日期';
+      if (pill) { pill.textContent = '點此設定日期'; pill.style.cursor='pointer'; pill.onclick=function(){if(window._openProfileMo)window._openProfileMo();}; }
       var ad = document.getElementById('annivDate');
       if (ad) ad.textContent = '未設定';
       return;
@@ -772,7 +775,7 @@ function startPairingCountdown(expiry, el) {
 <div id="pairingScreen" style="display:none;"></div>
 
 <!-- Pairing Modal -->
-<div class="mo open" id="pairingMo" style="z-index:200;">
+<div class="mo" id="pairingMo" style="z-index:200;">
   <div class="mbox" style="max-width:340px;">
     <div style="text-align:center;padding:8px 0 16px;">
       <div style="font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px;">歡迎來到嗶啵 💚</div>
@@ -822,7 +825,7 @@ function startPairingCountdown(expiry, el) {
     </div>
     <div class="card" style="flex-shrink:0;">
       <div class="ch2"><span class="cl2" style="display:flex;align-items:center;gap:5px;">今日留言<span id="msgUnreadDot" style="display:none;width:7px;height:7px;border-radius:50%;background:#e53935;flex-shrink:0;"></span></span><span style="font-size:10px;color:var(--accent);" id="msgLatestSender"></span></div>
-      <div class="mt" onclick="openMo('msgMo')" id="msgLatestText" style="color:var(--sub);">配對後即可留言 💬</div>
+      <div class="mt" onclick="openMo('msgMo')" id="msgLatestText" style="color:var(--sub);">還沒有留言，先說句話吧 💬</div>
       <div class="hdiv"></div>
       <div class="ir"><input class="mi" id="msgInput" placeholder="留言給對方..." onkeydown="if(event.key==='Enter')sendMsg()"><button class="sb" onclick="sendMsg()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12H19M13 6l6 6-6 6" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     </div>
