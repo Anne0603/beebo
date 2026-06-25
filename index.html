@@ -433,7 +433,7 @@ input[type=file]{display:none;}
     }
   };
 
-  function switchPairTab(tab) {
+  window.switchPairTab = function(tab) {
   var joinPanel = document.getElementById('pairJoinPanel');
   var genPanel  = document.getElementById('pairGenPanel');
   var tab1 = document.getElementById('pairTab1');
@@ -451,7 +451,7 @@ input[type=file]{display:none;}
   }
 }
 
-function startPairingCountdown(expiry, el) {
+window.startPairingCountdown = function(expiry, el) {
     const update = () => {
       const diff = expiry - Date.now();
       if (diff <= 0) { el.textContent = '已過期'; return; }
