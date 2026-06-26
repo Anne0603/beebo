@@ -338,6 +338,7 @@ input[type=file]{display:none;}
       }
     }, (err) => {
       console.error('users doc 監聽錯誤', err);
+      window.showToast('資料同步錯誤: ' + (err.code || err.message));
     });
   }
 
@@ -827,8 +828,8 @@ window.startPairingCountdown = function(expiry, el) {
         readBy: [window.currentUser.uid]
       });
     } catch(e) {
-      console.error(e);
-      if (typeof showToast === 'function') showToast('傳送失敗，請再試');
+      console.error('sendMsg error:', e.code, e.message);
+      window.showToast('傳送失敗: ' + (e.code || e.message || '未知錯誤'));
       inp.value = text;
     }
   };
@@ -2767,7 +2768,7 @@ function renderCalendar() {
   }
 }
 
-async function addEvent() {
+window.addEvent = async function() {
   var name = (document.getElementById('evName')||{}).value||'';
   if (!name.trim()) { window.showToast('請填寫活動名稱'); return; }
   if (!window._coupleId||!window._fsOps) { window.showToast('請先配對'); return; }
