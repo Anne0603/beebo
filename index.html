@@ -743,6 +743,7 @@ window.startPairingCountdown = function(expiry, el) {
   };
 
   window._initMessages = function(db, coupleId, myUid) {
+    console.log('[_initMessages] 啟動監聽 coupleId:', coupleId, 'myUid:', myUid);
     const msgsRef = collection(db, 'couples', coupleId, 'messages');
     // 監聽最新50則（即時同步）
     const q = query(msgsRef, orderBy('createdAt', 'desc'), limit(50));
@@ -818,17 +819,22 @@ window.startPairingCountdown = function(expiry, el) {
       return;
     }
     inp.value = '';
+    // 診斷資訊
+    console.log('[sendMsg] currentUser:', window.currentUser?.uid);
+    console.log('[sendMsg] coupleId:', window._coupleId);
+    console.log('[sendMsg] db:', !!window._db);
     try {
       const msgsRef = collection(window._db, 'couples', window._coupleId, 'messages');
-      await addDoc(msgsRef, {
+      const docRef = await addDoc(msgsRef, {
         text: text,
         senderUid: window.currentUser.uid,
         senderName: window.userData ? window.userData.name : '我',
         createdAt: serverTimestamp(),
         readBy: [window.currentUser.uid]
       });
+      console.log('[sendMsg] 成功寫入:', docRef.id);
     } catch(e) {
-      console.error('sendMsg error:', e.code, e.message);
+      console.error('[sendMsg] 失敗:', e.code, e.message, e);
       window.showToast('傳送失敗: ' + (e.code || e.message || '未知錯誤'));
       inp.value = text;
     }
