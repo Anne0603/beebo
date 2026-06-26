@@ -277,7 +277,7 @@ input[type=file]{display:none;}
     // 等主 script 的 _init 函數載入後才呼叫（setTimeout 0 確保順序）
     // 等主 script 完全執行後再初始化
     function _doInit() {
-      if (typeof window._initList !== 'function') {
+      if (typeof window._initList !== 'function' || typeof window._initEvents !== 'function') {
         setTimeout(_doInit, 50); return;
       }
       window._initList(db, coupleId);
@@ -988,9 +988,7 @@ window.startPairingCountdown = function(expiry, el) {
 <!-- NOTIFY -->
 <div class="page" id="page-notify">
   <div class="pt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.7 3 6 5.7 6 9v5l-2 2h16l-2-2V9c0-3.3-2.7-6-6-6z" stroke="#4A7A58" stroke-width="1.5"/><path d="M10 19a2 2 0 004 0" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>通知<button onclick="openMo('clearNotifyMo')" style="margin-left:auto;font-size:11px;color:var(--sub);background:none;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">清除</button></div>
-  <div class="sc">
-
-    <div class="ni"><div class="nd"></div><div style="flex:1;"><div class="ntit">挑戰快到期了</div><div class="nsub">「去看一場電影」還剩 3 天</div><div class="ntime">2 小時前</div></div></div>
+  <div class="sc" id="notifBody"></div>
 
   </div>
   <div class="bnav" id="bnav-notify"></div>
@@ -1358,7 +1356,7 @@ function doConfirm() {
 
 function editVersion(idx){showToast('編輯功能開發中');}
 
-function switchInspireTab(tab,el){
+window.switchInspireTab = function(tab,el){
   var tabs=['list','chal'];
   tabs.forEach(function(t){
     var btn=document.getElementById('itab-'+t);
@@ -1378,7 +1376,7 @@ const NAVSVG=[
   c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="${c}" stroke-width="1.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`
 ];
 let curPage='home', pageHist=[];
-function buildNavs(){
+window.buildNavs = function(){
   PAGES.forEach(p=>{
     const el=document.getElementById('bnav-'+p);
     if(!el)return;
@@ -1389,7 +1387,7 @@ function buildNavs(){
     }).join('');
   });
 }
-function goPage(p){
+window.goPage = function(p){
   const cur=document.getElementById('page-'+curPage);
   if(cur)cur.classList.remove('active');
   const next=document.getElementById('page-'+p);
@@ -1400,11 +1398,11 @@ function goPageX(p){
   pageHist.push(curPage);
   goPage(p);
 }
-function goBack(){
+window.goBack = function(){
   const prev=pageHist.pop()||'home';
   goPage(prev);
 }
-function openMo(id){
+window.openMo = function(id){
   document.getElementById(id).classList.add('open');
   if(id==='msgMo'){
     // 重新渲染確保最新 + 捲到底
@@ -1415,13 +1413,15 @@ function openMo(id){
     var dot=document.getElementById('msgUnreadDot');
     if(dot) dot.style.display='none';
   }
-}
-function closeMo(id){document.getElementById(id).classList.remove('open');}
+};
+var openMo = window.openMo;
+window.closeMo = function(id){document.getElementById(id).classList.remove('open');};
+var closeMo = window.closeMo;
 
 // PHOTO
 let photoTarget='me';
 const photoData={me:null,partner:null};
-function openPhoto(who){
+window.openPhoto = function(who){
   photoTarget=who;
   var img=document.getElementById('pimg2');
   var ph=document.getElementById('pph2');
@@ -1443,8 +1443,8 @@ function openPhoto(who){
   if(subtitle) subtitle.textContent = isMine ? '點擊更換照片' : '';
   openMo('photoMo');
 }
-function triggerUpload(){if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}document.getElementById('photoFile').click();}
-function handlePhoto(e){
+window.triggerUpload = function(){if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}document.getElementById('photoFile').click();}
+window.handlePhoto = function(e){
   const file=e.target.files[0];if(!file)return;
   if(photoTarget!=='me'){showToast('只能修改自己的頭像');e.target.value='';return;}
   if(!window.currentUser){showToast('請先登入');e.target.value='';return;}
@@ -1515,7 +1515,7 @@ window._initQuotes = function(db, coupleId) {
   });
 };
 
-function switchMemTab(tab){
+window.switchMemTab = function(tab){
   memTab = tab;
   var pBtn=document.getElementById('memTab-photo');
   var qBtn=document.getElementById('memTab-quote');
@@ -1604,13 +1604,14 @@ function clearNotify(days){
   showToast('通知已清除');
 }
 
-function showToast(msg){
+window.showToast = function(msg){
   var t=document.getElementById('toast');
   if(!t)return;
   t.textContent=msg;t.classList.add('show');
   clearTimeout(t._timer);
   t._timer=setTimeout(function(){t.classList.remove('show');},2000);
-}
+};
+var showToast = window.showToast;
 
 buildNavs();
 
@@ -1618,7 +1619,7 @@ buildNavs();
 // ══════════════════════════════════════════
 // ⚠️  測試專用清除函數 — 正式上線前整段移除
 // ══════════════════════════════════════════
-function devResetOpen(){
+window.devResetOpen = function(){
   // 開啟時顯示 coupleId 提示（後8碼）
   var hint = document.getElementById('resetCoupleHint');
   if(hint && window._coupleId){
@@ -1628,7 +1629,7 @@ function devResetOpen(){
   document.getElementById('resetConfirm2').value='';
   openMo('devResetMo');
 }
-function devResetStep3(){
+window.devResetStep3 = function(){
   var v1=(document.getElementById('resetConfirm1')||{}).value||'';
   var v2=(document.getElementById('resetConfirm2')||{}).value||'';
   if(v1.trim()!=='我確認清除'){
@@ -1640,7 +1641,7 @@ function devResetStep3(){
   closeMo('devResetMo');
   openMo('devResetFinalMo');
 }
-async function devResetExecute(){
+window.devResetExecute = async function(){
   closeMo('devResetFinalMo');
   if(!window._db||!window._coupleId||!window.currentUser){
     showToast('資料不完整，無法清除');return;
@@ -1743,8 +1744,8 @@ window._updateStats = function() {
 // LIST
 let LIST=[];
 let listTab='pending',listCat='全部',pendingId=null;
-function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
-function setListCat(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
+window.setListTab = function(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
+window.setListCat = function(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
 const STAR_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 const EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
 const DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
@@ -1814,7 +1815,7 @@ async function deleteItem(id){
   var {doc, deleteDoc} = window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'list',id));
 }
-async function addListItem(){
+window.addListItem = async function(){
   var n=document.getElementById('newLN').value.trim();
   var cat=document.getElementById('newLC').value;
   if(!n){showToast('請輸入名稱');return;}
@@ -1830,7 +1831,7 @@ async function addListItem(){
   closeMo('addListMo');
 }
 let currentStar=0;
-function setStar(n, containerId){
+window.setStar = function(n, containerId){
   currentStar=n;
   // 支援多個星星容器（新增餐廳 #restStars、完成清單 #compStars）
   var containers = containerId ? [document.getElementById(containerId)] :
@@ -1917,7 +1918,7 @@ function _updateHomeChal(){
   if(pfEl)   pfEl.style.width = (checked*50)+'%';
 }
 
-function setChalTab(t,el){chalTab=t;document.querySelectorAll('#page-challenges .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderChal();}
+window.setChalTab = function(t,el){chalTab=t;document.querySelectorAll('#page-challenges .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderChal();}
 
 function renderChal(){
   var body=document.getElementById('chalBody');
@@ -2005,7 +2006,7 @@ function openChalEdit(id){
   openMo('editChalMo');
 }
 
-async function saveChalEdit(){
+window.saveChalEdit = async function(){
   if(!_editChalId||!window._fsOps)return;
   var newDate=document.getElementById('editChalDeadline').value;
   var {doc,updateDoc}=window._fsOps;
@@ -2030,7 +2031,7 @@ async function retryChallenge(id){
 }
 
 // 主頁完成按鈕
-function markDone(){
+window.markDone = function(){
   var active=CHALS.filter(function(c){return c.status==='active';});
   if(!active.length){showToast('目前沒有進行中的挑戰');return;}
   chalCheck(active[0].id);
@@ -2057,7 +2058,7 @@ function spawnHearts(){
   }
 }
 
-async function addChal(){
+window.addChal = async function(){
   var n=(document.getElementById('newChalName')||{}).value;
   if(n) n=n.trim(); else n='';
   if(!n){showToast('請填寫挑戰名稱');return;}
@@ -2078,13 +2079,13 @@ async function addChal(){
 // DECIDE
 let dcCat='全部',drawn=[];
 function setDC(c){dcCat=c;drawn=[];reroll();}
-function openDecide(){
+window.openDecide = function(){
   drawn=[];
   if(!window._coupleId){showToast('請先配對才能使用此功能');return;}
   reroll();
   openMo('decideMo');
 }
-function reroll(){
+window.reroll = function(){
   if(!LIST||!LIST.length){
     document.getElementById('rname').textContent='清單還沒有項目';
     document.getElementById('rcat').textContent='先新增一些吧 ✨';
@@ -2163,7 +2164,7 @@ function renderMemory(){
   grid.appendChild(addCard);
   body.appendChild(grid);
 }
-async function addMem(){
+window.addMem = async function(){
   var title=(document.getElementById('newMemTitle')||{}).value||'';
   if(!title.trim()){showToast('請填寫回憶名稱');return;}
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
@@ -2275,7 +2276,7 @@ function setRS(n){
     if(path){path.setAttribute('fill',i<n?'#F4C430':'none');path.setAttribute('stroke',i<n?'#E6A800':'#C8C8C8');}
   });
 }
-async function addRest(){
+window.addRest = async function(){
   var n=(document.getElementById('newRN')||{}).value;
   if(n) n=n.trim(); else n='';
   if(!n||!restStar){showToast('請填寫名稱和評分');return;}
@@ -2318,7 +2319,7 @@ async function addRest(){
 
 // PIN
 let pinSet=null,pinInput='';
-function savePin(){
+window.savePin = function(){
   const p1=document.getElementById('pi1').value;
   const p2=document.getElementById('pi2').value;
   if(!/^[0-9]{4}$/.test(p1)){alert('請輸入4位數字');return;}
@@ -2373,7 +2374,7 @@ function genInvite(){
   if(timer) timer.textContent='2:00:00';
   showToast('已產生新邀請碼，2小時內有效');
 }
-async function saveQuote(){
+window.saveQuote = async function(){
   var txt=document.getElementById('quoteText');
   var dateEl=document.getElementById('quoteDate');
   if(!txt||!txt.value.trim()){showToast('請填寫語錄內容');return;}
@@ -2414,7 +2415,7 @@ function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList l
 // ══════════════════════════════
 
 // ── 版本紀錄（Firestore）──
-async function openChangelogMo(){
+window.openChangelogMo = async function(){
   openMo('changelogMo');
   var listEl=document.getElementById('changelogList');
   var addBtn=document.getElementById('changelogAddBtn');
@@ -2447,11 +2448,11 @@ async function openChangelogMo(){
     listEl.innerHTML='<div style="color:var(--sub);font-size:12px;padding:12px;">載入失敗</div>';
   }
 }
-function toggleChangelogAdd(){
+window.toggleChangelogAdd = function(){
   var area=document.getElementById('changelogAddArea');
   if(area)area.style.display=area.style.display==='none'?'flex':'none';
 }
-async function saveChangelog(){
+window.saveChangelog = async function(){
   var ver=(document.getElementById('clVersion')||{}).value||'';
   var content=(document.getElementById('clContent')||{}).value||'';
   if(!ver.trim()){showToast('請填寫版本號');return;}
@@ -2475,7 +2476,7 @@ async function deleteChangelog(id){
 }
 
 // ── 備用管理員帳號 ──
-async function openTransferMo(){
+window.openTransferMo = async function(){
   openMo('transferMo');
   var listEl=document.getElementById('backupAdminList');
   if(!listEl||!window._coupleData)return;
@@ -2492,7 +2493,7 @@ async function openTransferMo(){
   listEl.innerHTML=html;
 }
 
-async function addBackupAdmin(){
+window.addBackupAdmin = async function(){
   var email=(document.getElementById('backupEmail')||{}).value||'';
   if(!email.includes('@')){showToast('請輸入有效 Email');return;}
   if(!window._coupleRef||!window._fsOps){showToast('請先配對');return;}
@@ -2530,7 +2531,7 @@ function _getDefaultInspire(){
     {n:'看恐怖片',c:'想看什麼'},{n:'看演唱會',c:'想看什麼'},{n:'看舞台劇',c:'想看什麼'},
   ];
 }
-function openInspireMgMo(){
+window.openInspireMgMo = function(){
   var data=_getInspireData()||_getDefaultInspire();
   if(!_getInspireData())_saveInspireData(data);
   renderInspireMg('list');
@@ -2565,7 +2566,7 @@ function previewMemPhotos(e){
   });
 }
 
-function openLinkRestForMem(){
+window.openLinkRestForMem = function(){
   renderLinkRests();
   // 恢復已勾選
   setTimeout(function(){
@@ -2576,7 +2577,7 @@ function openLinkRestForMem(){
   },50);
   openMo('linkRestMo');
 }
-function confirmLinkRest(){
+window.confirmLinkRest = function(){
   _memLinkedRests=[];
   var boxes=document.querySelectorAll('#linkRestList input[type=checkbox]:checked');
   boxes.forEach(function(cb){ _memLinkedRests.push(cb.value); });
@@ -2595,7 +2596,7 @@ function confirmLinkRest(){
   closeMo('linkRestMo');
 }
 
-function openLinkListForMem(){
+window.openLinkListForMem = function(){
   var modal=document.getElementById('linkListMo');
   if(!modal){
     // 動態建立 modal
@@ -2832,7 +2833,7 @@ function deleteEventFromDay(){deleteEvent();closeMo('calDayMo');}
 // ── chalDetailMo ──
 let _detailChalId=null;
 function openChalDetail(id){_detailChalId=id;openMo('chalDetailMo');}
-async function saveChalDetailEdit(){
+window.saveChalDetailEdit = async function(){
   if(!_detailChalId) return;
   var dl=document.getElementById('chalDetailDeadline');
   if(!dl||!window._fsOps) return;
@@ -2841,7 +2842,7 @@ async function saveChalDetailEdit(){
   closeMo('chalDetailMo');
   showToast('截止日期已更新 ✓');
 }
-async function abandonChalFromDetail(){
+window.abandonChalFromDetail = async function(){
   if(!_detailChalId||!confirm('確定要放棄這個挑戰嗎？')) return;
   await abandonChal(_detailChalId);
   closeMo('chalDetailMo');
