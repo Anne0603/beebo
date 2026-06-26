@@ -1128,7 +1128,7 @@ window.startPairingCountdown = function(expiry, el) {
 
 <div class="toast" id="toast"></div>
 <div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" value="" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" value="10:00" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" value="20:00" style="flex:1;"></div></div><div class="fg"><label class="fl">地點</label><input class="fi" id="editEvPlace" value=""></div><div class="fg"><label class="fl">重複</label><select class="fi" style="padding:8px 10px;"><option>不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註</label><textarea class="fi" rows="2" style="resize:none;"></textarea></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="deleteEvent()" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
-<div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="closeMo('linkRestMo')" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
+<div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="confirmLinkRest()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
 <div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit" id="editChalName">挑戰名稱</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="saveChalEdit()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(_editChalId)abandonChal(_editChalId).then(()=>closeMo('editChalMo'))" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
 <div class="mo" id="calDayMo"><div class="mbox"><div class="mh"><span class="mtit" id="calDayTitle">約會詳情</span><button class="mcl" onclick="closeMo('calDayMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1282,16 +1282,50 @@ window.startPairingCountdown = function(expiry, el) {
 </div></div></div>
 <div class="mo" id="addListMo"><div class="mbox"><div class="mh"><span class="mtit">新增清單項目</span><button class="mcl" onclick="closeMo('addListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱</label><input class="fi" id="newLN" placeholder="想去哪裡？想吃什麼？"></div><div class="fg"><label class="fl">分類</label><select class="fsel" id="newLC"><option>想去哪</option><option>想吃什麼</option><option>想做什麼</option><option>想看什麼</option></select></div><button class="btn2 bpri" onclick="addListItem()">新增</button></div></div></div>
 <div class="mo" id="completeListMo"><div class="mbox"><div class="mh"><span class="mtit" id="compTitle">完成！</span><button class="mcl" onclick="closeMo('completeListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">評分（選填）</label><div style="display:flex;gap:6px;" id="compStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">心得（選填）</label><textarea class="fi" rows="2" placeholder="寫下感想..." style="resize:none;"></textarea></div><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);width:16px;height:16px;">想再去／做一次（自動新增一筆）</label><button class="btn2 bpri" id="compDoneBtn">完成</button></div></div></div>
-<div class="mo" id="addMemMo"><div class="mbox"><div class="mh"><span class="mtit">新增回憶錄</span><button class="mcl" onclick="closeMo('addMemMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱（必填）</label><input class="fi" id="newMemTitle" placeholder="這次旅行的名字"></div><div class="fg"><label class="fl">日期區間</label><div style="display:flex;gap:6px;"><input class="fi" type="date" id="newMemDate1" style="flex:1;"><input class="fi" type="date" id="newMemDate2" style="flex:1;"></div></div><div class="fg"><label class="fl">縣市／地點</label><select class="fsel" id="newMemCity"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>桃園市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>基隆市</option><option>新竹市</option><option>嘉義市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>屏東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option><option>國外</option></select></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">縣市</label><select class="fi" id="newRC" style="padding:8px 10px;" onchange="toggleForeignInput(this.value)"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>桃園市</option><option>花蓮縣</option><option>台東縣</option><option>國外</option></select><input class="fi" id="foreignCityInput" placeholder="國家/城市名稱" style="display:none;margin-top:6px;"></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="newMemNote" rows="2" placeholder="這次旅行的故事..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">餐廳記錄（選填）</label><button onclick="openMo('linkRestMo')" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M18 8c0 3.3-2.7 6-6 6S6 11.3 6 8V3h12v5z" stroke="var(--sub)" stroke-width="1.5"/><path d="M12 14v7M8 21h8" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>選擇關聯餐廳</button><div id="linkedRests" style="font-size:11px;color:var(--sub);margin-top:4px;"></div></div><div class="fg"><label class="fl">關聯清單 / 挑戰（選填）</label>
-  <div style="display:flex;flex-direction:column;gap:6px;max-height:120px;overflow-y:auto;border:1px solid var(--bdr);border-radius:10px;padding:8px;">
-    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 清單：想去海邊看日落</label>
-    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 清單：去看夜市</label>
-    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 挑戰：一起騎腳踏車環湖</label>
-    <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);"> 挑戰：去看一場電影</label>
+<div class="mo" id="addMemMo"><div class="mbox" style="max-height:90vh;overflow-y:auto;"><div class="mh"><span class="mtit">新增回憶錄</span><button class="mcl" onclick="closeMo('addMemMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:12px;">
+  <div class="fg"><label class="fl">名稱（必填）</label><input class="fi" id="newMemTitle" placeholder="這次去哪？做了什麼？"></div>
+  <div class="fg"><label class="fl">日期區間</label><div style="display:flex;gap:6px;"><input class="fi" type="date" id="newMemDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;align-self:center;">至</span><input class="fi" type="date" id="newMemDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div>
+  <div class="fg"><label class="fl">縣市／地點</label>
+    <select class="fsel" id="newMemCity" onchange="toggleMemForeign(this.value)">
+      <option value="">選擇縣市...</option>
+      <option>台北市</option><option>新北市</option><option>桃園市</option><option>台中市</option>
+      <option>台南市</option><option>高雄市</option><option>基隆市</option><option>新竹市</option>
+      <option>嘉義市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option>
+      <option>屏東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option>
+      <option>國外</option>
+    </select>
+    <div id="memForeignFields" style="display:none;flex-direction:column;gap:6px;margin-top:6px;">
+      <select class="fi" id="newMemCountry" style="padding:8px 10px;">
+        <option value="">國家...</option><option>日本</option><option>韓國</option>
+        <option>法國</option><option>義大利</option><option>美國</option><option>英國</option>
+        <option>泰國</option><option>越南</option><option>新加坡</option><option>澳洲</option>
+        <option>其他</option>
+      </select>
+      <input class="fi" id="newMemFCity" placeholder="城市名稱（如：東京、首爾）">
+    </div>
   </div>
-  <div style="font-size:10px;color:var(--sub);margin-top:3px;">勾選後會自動標記為已完成</div>
-</div>
-<button class="btn2 bpri" onclick="addMem()">建立回憶錄</button></div></div></div>
+  <div class="fg"><label class="fl">心得記錄（選填）</label><textarea class="fi" id="newMemNote" rows="3" placeholder="這趟旅行的故事、心情..." style="resize:none;"></textarea></div>
+  <div class="fg"><label class="fl">照片（選填）</label>
+    <div id="memPhotoPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;"></div>
+    <button onclick="document.getElementById('memPhotoFile').click()" class="btn2 bsec" style="width:100%;font-size:12px;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>
+      選擇照片（可多張）
+    </button>
+    <input type="file" id="memPhotoFile" accept="image/*" multiple style="display:none;" onchange="previewMemPhotos(event)">
+    <div style="font-size:10px;color:var(--sub);margin-top:3px;">照片將在建立後上傳</div>
+  </div>
+  <div class="fg"><label class="fl">關聯餐廳（選填）</label>
+    <button onclick="openLinkRestForMem()" class="btn2 bsec" style="width:100%;font-size:12px;">選擇關聯餐廳</button>
+    <div id="linkedRests" style="font-size:11px;color:var(--sub);margin-top:4px;"></div>
+  </div>
+  <div class="fg"><label class="fl">關聯清單／挑戰（選填）</label>
+    <button onclick="openLinkListForMem()" class="btn2 bsec" style="width:100%;font-size:12px;">選擇清單或挑戰</button>
+    <div id="linkedItems" style="font-size:11px;color:var(--sub);margin-top:4px;"></div>
+  </div>
+  <button class="btn2 bpri" onclick="addMem()">建立回憶錄</button>
+</div></div></div>
+
 <div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label><input class="fi" id="evPlace" placeholder="在哪裡？"></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
 <div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">縣市（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="toggleForeignInput(this.value)"><option value="">選擇縣市...</option><option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>國外</option></select><div id="foreignFields" style="display:none;flex-direction:column;gap:6px;margin-top:6px;"><select class="fi" id="newCountry" style="padding:8px 10px;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><input class="fi" id="newFCity" placeholder="城市名稱"></div></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><textarea class="fi" id="newDish" rows="3" placeholder="招牌菜、必點餐點..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textarea></div><button class="btn2 bpri" onclick="addRest()">新增</button></div></div></div>
 
@@ -1412,18 +1446,18 @@ function openPhoto(who){
 function triggerUpload(){if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}document.getElementById('photoFile').click();}
 function handlePhoto(e){
   const file=e.target.files[0];if(!file)return;
+  if(photoTarget!=='me'){showToast('只能修改自己的頭像');e.target.value='';return;}
+  if(!window.currentUser){showToast('請先登入');e.target.value='';return;}
+  if(!window._uploadToCloudinary){showToast('上傳功能載入中，請稍後再試');e.target.value='';return;}
   // 先顯示本地預覽
   const r=new FileReader();
-  r.onload=ev=>{
+  r.onload=function(ev){
     const url=ev.target.result;
     const img=document.getElementById('pimg2'),ph=document.getElementById('pph2');
-    img.src=url;img.style.display='block';ph.style.display='none';
+    if(img){img.src=url;img.style.display='block';}
+    if(ph)ph.style.display='none';
   };
   r.readAsDataURL(file);
-  e.target.value='';
-  // 只有自己才能改頭像
-  if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}
-  if(!window.currentUser){showToast('請先登入');return;}
   showToast('上傳中...');
   window._uploadToCloudinary(file).then(function(url){
     photoData['me']=url;
@@ -2044,7 +2078,12 @@ async function addChal(){
 // DECIDE
 let dcCat='全部',drawn=[];
 function setDC(c){dcCat=c;drawn=[];reroll();}
-function openDecide(){drawn=[];reroll();openMo('decideMo');}
+function openDecide(){
+  drawn=[];
+  if(!window._coupleId){showToast('請先配對才能使用此功能');return;}
+  reroll();
+  openMo('decideMo');
+}
 function reroll(){
   if(!LIST||!LIST.length){
     document.getElementById('rname').textContent='清單還沒有項目';
@@ -2131,26 +2170,41 @@ async function addMem(){
   var d1=(document.getElementById('newMemDate1')||{}).value||'';
   var d2=(document.getElementById('newMemDate2')||{}).value||'';
   var city=(document.getElementById('newMemCity')||{}).value||'';
+  var country=(document.getElementById('newMemCountry')||{}).value||'';
+  var foreignCity=(document.getElementById('newMemFCity')||{}).value||'';
   var note=(document.getElementById('newMemNote')||{}).value||'';
   var year=d1?parseInt(d1.split('-')[0]):new Date().getFullYear();
   var month=d1?parseInt(d1.split('-')[1]):new Date().getMonth()+1;
+  // 上傳照片
+  var photos=[];
+  if(_memPhotoFiles.length){
+    showToast('上傳照片中...');
+    photos=await _uploadMemPhotos(_memPhotoFiles);
+  }
   var {collection,addDoc,serverTimestamp}=window._fsOps;
-  await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
+  var docRef=await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
     title:title.trim(), dateStart:d1, dateEnd:d2,
-    city:city, note:note, photos:[], year:year, month:month,
+    city:city, country:country, foreignCity:foreignCity,
+    note:note, photos:photos,
+    linkedRests:_memLinkedRests, linkedItems:_memLinkedItems,
+    year:year, month:month,
     createdBy:window.currentUser?window.currentUser.uid:'',
     createdAt:serverTimestamp()
   });
-  document.getElementById('newMemTitle').value='';
-  document.getElementById('newMemNote').value='';
+  // 清空表單
+  ['newMemTitle','newMemNote','newMemFCity'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.value='';
+  });
+  var mc=document.getElementById('newMemCity');if(mc)mc.value='';
+  var mff=document.getElementById('memForeignFields');if(mff)mff.style.display='none';
+  var pp=document.getElementById('memPhotoPreview');if(pp)pp.innerHTML='';
+  var lr=document.getElementById('linkedRests');if(lr)lr.textContent='';
+  var li=document.getElementById('linkedItems');if(li)li.textContent='';
+  _memPhotoFiles=[];_memLinkedRests=[];_memLinkedItems=[];
   closeMo('addMemMo');
   showToast('回憶錄已建立 ✓');
 }
-function openMemDetail(id){
-  var m=MEMS.find(function(x){return x.id===id;});
-  if(!m)return;
-  showToast(m.title+(m.city?' · '+m.city:''));
-}
+
 
 
 // ── Firestore 餐廳監聽 ──
@@ -2484,6 +2538,167 @@ function openInspireMgMo(){
 }
 
 
+// ── 回憶錄輔助函數 ──
+function toggleMemForeign(v){
+  var ff=document.getElementById('memForeignFields');
+  if(ff)ff.style.display=v==='國外'?'flex':'none';
+}
+
+let _memPhotoFiles=[];
+let _memLinkedRests=[];
+let _memLinkedItems=[];
+
+function previewMemPhotos(e){
+  var files=Array.from(e.target.files);
+  _memPhotoFiles=_memPhotoFiles.concat(files);
+  var preview=document.getElementById('memPhotoPreview');
+  if(!preview)return;
+  preview.innerHTML='';
+  _memPhotoFiles.forEach(function(f,i){
+    var url=URL.createObjectURL(f);
+    var div=document.createElement('div');
+    div.style.cssText='position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;';
+    div.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;">'
+      +'<button onclick="_memPhotoFiles.splice('+i+',1);previewMemPhotos({target:{files:[]}});" '
+      +'style="position:absolute;top:2px;right:2px;all:unset;background:rgba(0,0,0,.5);color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;text-align:center;cursor:pointer;line-height:16px;">×</button>';
+    preview.appendChild(div);
+  });
+}
+
+function openLinkRestForMem(){
+  renderLinkRests();
+  // 恢復已勾選
+  setTimeout(function(){
+    var boxes=document.querySelectorAll('#linkRestList input[type=checkbox]');
+    boxes.forEach(function(cb){
+      cb.checked=_memLinkedRests.includes(cb.value);
+    });
+  },50);
+  openMo('linkRestMo');
+}
+function confirmLinkRest(){
+  _memLinkedRests=[];
+  var boxes=document.querySelectorAll('#linkRestList input[type=checkbox]:checked');
+  boxes.forEach(function(cb){ _memLinkedRests.push(cb.value); });
+  var el=document.getElementById('linkedRests');
+  if(el){
+    if(_memLinkedRests.length){
+      var names=_memLinkedRests.map(function(id){
+        var r=RESTS.find(function(x){return x.id===id;});
+        return r?r.name:'';
+      }).filter(Boolean);
+      el.textContent='已選：'+names.join('、');
+    } else {
+      el.textContent='';
+    }
+  }
+  closeMo('linkRestMo');
+}
+
+function openLinkListForMem(){
+  var modal=document.getElementById('linkListMo');
+  if(!modal){
+    // 動態建立 modal
+    var div=document.createElement('div');
+    div.className='mo';div.id='linkListMo';
+    div.innerHTML='<div class="mbox"><div class="mh"><span class="mtit">選擇清單／挑戰</span><button class="mcl" onclick="closeMo(\'linkListMo\')">×</button></div>'
+      +'<div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkListContent"></div>'
+      +'<button onclick="confirmLinkList()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div>';
+    document.body.appendChild(div);
+  }
+  // 渲染清單 + 挑戰
+  var content=document.getElementById('linkListContent');
+  if(content){
+    var html='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;">清單項目</div>';
+    html+=LIST.filter(function(i){return !i.done;}).map(function(i){
+      var chk=_memLinkedItems.includes('list:'+i.id)?'checked':'';
+      return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;">'
+        +'<input type="checkbox" value="list:'+i.id+'" '+chk+' style="accent-color:var(--accent);">'+i.n+'</label>';
+    }).join('');
+    html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;margin-top:6px;">進行中挑戰</div>';
+    html+=CHALS.filter(function(c){return c.status==='active';}).map(function(ch){
+      var chk=_memLinkedItems.includes('chal:'+ch.id)?'checked':'';
+      return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--accent);">'
+        +'<input type="checkbox" value="chal:'+ch.id+'" '+chk+' style="accent-color:var(--accent);">'+ch.name+'</label>';
+    }).join('');
+    if(!LIST.length&&!CHALS.length) html='<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">還沒有清單或挑戰</div>';
+    content.innerHTML=html;
+  }
+  openMo('linkListMo');
+}
+function confirmLinkList(){
+  _memLinkedItems=[];
+  var boxes=document.querySelectorAll('#linkListContent input[type=checkbox]:checked');
+  boxes.forEach(function(cb){ _memLinkedItems.push(cb.value); });
+  var el=document.getElementById('linkedItems');
+  if(el) el.textContent=_memLinkedItems.length?'已選 '+_memLinkedItems.length+' 個項目':'';
+  closeMo('linkListMo');
+}
+
+// ── 回憶錄詳情頁（memDetailMo）──
+function openMemDetail(id){
+  var m=MEMS.find(function(x){return x.id===id;});
+  if(!m)return;
+  // 建立或更新詳情 modal
+  var modal=document.getElementById('memDetailMo');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.className='mo';modal.id='memDetailMo';
+    document.body.appendChild(modal);
+  }
+  var dateStr=m.dateStart||(m.year&&m.month?m.year+'/'+m.month:'');
+  if(m.dateEnd&&m.dateEnd!==m.dateStart) dateStr+=(' → '+m.dateEnd);
+  var cityStr=m.city||(m.country?(m.country+(m.foreignCity?' '+m.foreignCity:'')):'');
+  var photosHtml=m.photos&&m.photos.length?
+    '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;">'+
+    m.photos.map(function(p){return '<img src="'+p+'" style="height:120px;border-radius:10px;object-fit:cover;flex-shrink:0;">';}).join('')+
+    '</div>':'<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;background:var(--card2);border-radius:10px;">還沒有照片</div>';
+function addMemPhoto(memId){
+  var input=document.createElement('input');
+  input.type='file';input.accept='image/*';input.multiple=true;
+  input.onchange=async function(e){
+    var files=Array.from(e.target.files);
+    if(!files.length)return;
+    showToast('上傳中...');
+    var urls=[];
+    for(var i=0;i<files.length;i++){
+      try{
+        var url=await window._uploadToCloudinary(files[i]);
+        urls.push(url);
+      }catch(err){console.error(err);}
+    }
+    if(!urls.length){showToast('上傳失敗');return;}
+    var m=MEMS.find(function(x){return x.id===memId;});
+    var existing=m&&m.photos?m.photos:[];
+    var newPhotos=existing.concat(urls);
+    var {doc,updateDoc}=window._fsOps;
+    await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{photos:newPhotos});
+    showToast('照片已上傳 ✓');
+    openMemDetail(memId);
+  };
+  input.click();
+}
+
+async function deleteMemConfirm(id){
+  if(!confirm('刪除這個回憶錄？'))return;
+  var {doc,deleteDoc}=window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'memories',id));
+  closeMo('memDetailMo');
+  showToast('已刪除');
+}
+
+// addMem 上傳照片
+async function _uploadMemPhotos(files){
+  var urls=[];
+  for(var i=0;i<files.length;i++){
+    try{
+      var url=await window._uploadToCloudinary(files[i]);
+      urls.push(url);
+    }catch(err){console.error(err);}
+  }
+  return urls;
+}
+
 // ── 行事曆 Firestore ──
 let EVENTS = [];
 let _editEventId = null;
@@ -2630,6 +2845,8 @@ async function abandonChalFromDetail(){
   if(!_detailChalId||!confirm('確定要放棄這個挑戰嗎？')) return;
   await abandonChal(_detailChalId);
   closeMo('chalDetailMo');
+}
+
 }
 
 // ── toggleForeignInput ──
