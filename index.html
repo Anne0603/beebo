@@ -277,15 +277,16 @@ input[type=file]{display:none;}
     // 等主 script 的 _init 函數載入後才呼叫（setTimeout 0 確保順序）
     // 等主 script 完全執行後再初始化
     function _doInit() {
-      if (typeof window._initList !== 'function' || typeof window._initEvents !== 'function') {
+      // 等待 main script 的 _init 函數（用 function 宣告，非 window.）
+      if (typeof _initList !== 'function' || typeof _initEvents !== 'function') {
         setTimeout(_doInit, 50); return;
       }
-      window._initList(db, coupleId);
-      window._initMems(db, coupleId);
-      window._initEvents(db, coupleId);
-      window._initRests(db, coupleId);
-      window._initChals(db, coupleId);
-      window._initQuotes(db, coupleId);
+      _initList(db, coupleId);
+      if(typeof _initMems === 'function') _initMems(db, coupleId);
+      if(typeof _initEvents === 'function') _initEvents(db, coupleId);
+      _initRests(db, coupleId);
+      _initChals(db, coupleId);
+      _initQuotes(db, coupleId);
       window._initMessages(db, coupleId, uid);
     }
     _doInit();
@@ -1821,7 +1822,7 @@ function renderList(){
 }
 function jumpToChallenge(){showToast('跳到對應挑戰');}
 
-function toggleItem(id){
+async function toggleItem(id){
   var item=LIST.find(function(i){return i.id===id;});
   if(!item||!window._coupleId||!window._fsOps)return;
   var {doc, updateDoc, collection} = window._fsOps;
@@ -2690,7 +2691,7 @@ function confirmLinkList(){
 }
 
 // ── 回憶錄詳情頁（memDetailMo）──
-function openMemDetail(id){
+async function openMemDetail(id){
   var m=MEMS.find(function(x){return x.id===id;});
   if(!m)return;
   // 建立或更新詳情 modal
@@ -2707,7 +2708,7 @@ function openMemDetail(id){
     '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;">'+
     m.photos.map(function(p){return '<img src="'+p+'" style="height:120px;border-radius:10px;object-fit:cover;flex-shrink:0;">';}).join('')+
     '</div>':'<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;background:var(--card2);border-radius:10px;">還沒有照片</div>';
-function addMemPhoto(memId){
+async function addMemPhoto(memId){
   var input=document.createElement('input');
   input.type='file';input.accept='image/*';input.multiple=true;
   input.onchange=async function(e){
