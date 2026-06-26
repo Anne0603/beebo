@@ -2143,6 +2143,7 @@ var dcCat='全部',drawn=[];
 function setDC(v){dcCat=v;drawn=[];reroll();}
 function openDecide(){
   drawn=[];
+  console.log('[openDecide] _coupleId:', window._coupleId, 'LIST:', LIST.length);
   if(!window._coupleId){showToast('請先配對才能使用此功能');return;}
   // LIST 可能尚未載入（Firestore onSnapshot 非同步）
   if(!LIST||!LIST.length){
