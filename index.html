@@ -2855,6 +2855,165 @@ window.abandonChalFromDetail = async function(){
 
 }
 
+// ══════════════════════════════════════════
+// 補齊缺失的設定頁功能函數
+// ══════════════════════════════════════════
+
+// ── 自訂暱稱 ──
+window.openCustomName = function(){
+  var el = document.getElementById('customNameInput');
+  if(el) el.value = (window.userData && window.userData.name) || '';
+  var sv = document.getElementById('customNameSv');
+  if(sv && window.userData && window.userData.name) sv.textContent = window.userData.name + ' ›';
+  window.openMo('customNameMo');
+};
+
+window.saveCustomName = async function(){
+  var el = document.getElementById('customNameInput');
+  var name = el ? el.value.trim() : '';
+  if(!name){ window.showToast('請輸入暱稱'); return; }
+  if(!window.currentUser || !window._db){ window.showToast('請先登入'); return; }
+  var {doc, updateDoc} = window._fsOps;
+  await updateDoc(doc(window._db, 'users', window.currentUser.uid), {name: name});
+  if(!window.userData) window.userData = {};
+  window.userData.name = name;
+  var avnMe = document.getElementById('avn-me');
+  if(avnMe) avnMe.textContent = name;
+  var sv = document.getElementById('customNameSv');
+  if(sv) sv.textContent = name + ' ›';
+  window.closeMo('customNameMo');
+  window.showToast('暱稱已更新 ✓');
+};
+
+// ── 通知偏好 ──
+window.toggleNotif = function(key, el){
+  el.classList.toggle('on');
+  var prefs = JSON.parse(localStorage.getItem('beebo_notif') || '{}');
+  prefs[key] = el.classList.contains('on');
+  localStorage.setItem('beebo_notif', JSON.stringify(prefs));
+  window.showToast(el.classList.contains('on') ? '已開啟' : '已關閉');
+};
+
+// ── 通知自動刪除 ──
+window.saveNotifyDel = async function(){
+  var days = (document.getElementById('notifyDelDays') || {}).value || '30';
+  var sv = document.getElementById('notifyDelSv');
+  if(window._coupleRef && window._fsOps){
+    var {updateDoc} = window._fsOps;
+    try { await updateDoc(window._coupleRef, {notifyDelDays: Number(days)}); } catch(e){}
+  }
+  localStorage.setItem('beebo_notifyDel', days);
+  if(sv) sv.textContent = (days === '0' ? '永久' : days + ' 天') + ' ›';
+  window.closeMo('notifyDelMo');
+  window.showToast('設定已儲存 ✓');
+};
+
+// ── 帳號綁定 ──
+window.openBindMo = function(){
+  var el = document.getElementById('bindStatus');
+  if(el){
+    var myName = (window.userData && window.userData.name) || '我';
+    var partnerName = (window.partnerData && window.partnerData.name) || '對方';
+    var myEmail = window.currentUser ? window.currentUser.email : '';
+    if(window._coupleId){
+      el.innerHTML = '<b>配對狀態：已配對 ✓</b><br>我：' + myName + '（' + myEmail + '）<br>對方：' + partnerName + '<br>配對 ID：' + window._coupleId.slice(-8);
+    } else {
+      el.innerHTML = '<b>配對狀態：未配對</b>';
+    }
+  }
+  window.openMo('bindMo');
+};
+
+window.unpairAccount = async function(){
+  if(!window._coupleId || !window.currentUser || !window._fsOps){ window.showToast('尚未配對'); return; }
+  if(!confirm('確定要解除配對？解除後需重新配對才能共享功能。')) return;
+  var {doc, updateDoc} = window._fsOps;
+  try{
+    await updateDoc(doc(window._db, 'users', window.currentUser.uid), {partnerId: null, isAdmin: false});
+    if(window.userData && window.userData.partnerId){
+      await updateDoc(doc(window._db, 'users', window.userData.partnerId), {partnerId: null, isAdmin: false});
+    }
+    window._coupleId = null;
+    window._initializing = false;
+    window.partnerData = null;
+    window.closeMo('bindMo');
+    window.showToast('已解除配對');
+    setTimeout(function(){ location.reload(); }, 1200);
+  }catch(e){ window.showToast('解除失敗：' + e.message); }
+};
+
+// ── 匯出資料 ──
+window.exportData = function(){
+  if(!window._coupleId){ window.showToast('請先配對'); return; }
+  var data = {
+    exportAt: new Date().toISOString(),
+    coupleId: window._coupleId,
+    userData: window.userData || {},
+    partnerData: window.partnerData || {},
+    coupleData: window._coupleData || {},
+    list: (typeof LIST !== 'undefined' ? LIST : []),
+    rests: (typeof RESTS !== 'undefined' ? RESTS : []),
+    challenges: (typeof CHALS !== 'undefined' ? CHALS : []),
+    quotes: (typeof QUOTES !== 'undefined' ? QUOTES : []),
+    memories: (typeof MEMS !== 'undefined' ? MEMS : []),
+    messages: (window._messages || []).map(function(m){
+      return {text: m.text, sender: m.senderName, time: m.createdAt && m.createdAt.toDate ? m.createdAt.toDate().toISOString() : ''};
+    })
+  };
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'beebo-export-' + new Date().toLocaleDateString('zh-TW').replace(/\//g, '-') + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  window.showToast('資料已匯出 ✓');
+};
+
+// ── 靈感新增 ──
+window.addInspireItem = function(){
+  var name = (document.getElementById('newInspireName') || {}).value || '';
+  var cat = (document.getElementById('newInspireCat') || {}).value || '想去哪';
+  var isChal = document.getElementById('itab-chal') && 
+    document.getElementById('itab-chal').style.background.includes('accent');
+  if(!name.trim()){ window.showToast('請輸入靈感名稱'); return; }
+  var data = _getInspireData() || _getDefaultInspire();
+  if(data.find(function(i){ return i.n === name.trim(); })){ window.showToast('已存在相同名稱'); return; }
+  data.push({n: name.trim(), c: cat, chal: isChal});
+  _saveInspireData(data);
+  var el = document.getElementById('newInspireName');
+  if(el) el.value = '';
+  renderInspireMg(isChal ? 'chal' : 'list');
+  window.showToast('已新增 ✓');
+};
+
+// ── 設定頁初始化 ──
+window.initSettingsPage = function(){
+  // PIN 狀態
+  var pin = localStorage.getItem('beebo_pin');
+  var ps = document.getElementById('pinStatus');
+  if(ps) ps.textContent = pin ? '已設定 ›' : '未設定 ›';
+  // 通知偏好
+  var prefs = JSON.parse(localStorage.getItem('beebo_notif') || '{}');
+  ['msg','chal','anniv','bday'].forEach(function(k){
+    var el = document.getElementById('notif-' + k);
+    if(el){ var on = prefs[k] !== false; el.classList.toggle('on', on); }
+  });
+  // 自訂暱稱顯示
+  var cn = document.getElementById('customNameSv');
+  if(cn && window.userData && window.userData.name) cn.textContent = window.userData.name + ' ›';
+  // 通知刪除天數
+  var days = localStorage.getItem('beebo_notifyDel') || (window._coupleData && window._coupleData.notifyDelDays) || 30;
+  var el = document.getElementById('notifyDelDays');
+  if(el) el.value = String(days);
+  var sv = document.getElementById('notifyDelSv');
+  if(sv) sv.textContent = (days == 0 ? '永久' : days + ' 天') + ' ›';
+};
+
+// ── showConfirmMo 和 clearNotify 補上 window. ──
+window.showConfirmMo = showConfirmMo;
+window.clearNotify = clearNotify;
+
 // ── toggleForeignInput ──
 function toggleForeignInput(v){
   var ff=document.getElementById('foreignFields');
