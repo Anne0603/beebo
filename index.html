@@ -278,6 +278,7 @@ input[type=file]{display:none;}
     // 等主 script 完全執行後再初始化
     function _doInit() {
       // 等待 main script 把 _init 函數掛到 window
+      console.log('[_doInit] 檢查 _initList:', typeof window._initList, '_initEvents:', typeof window._initEvents);
       if (typeof window._initList !== 'function' || typeof window._initEvents !== 'function') {
         setTimeout(_doInit, 50); return;
       }
@@ -1102,7 +1103,7 @@ window.startPairingCountdown = function(expiry, el) {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="9" rx="1" fill="#4A7A58" opacity=".7"/><rect x="10" y="6" width="4" height="15" rx="1" fill="#4A7A58"/><rect x="17" y="9" width="4" height="12" rx="1" fill="#4A7A58" opacity=".7"/></svg>我們的回顧
   </div>
-  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="2026">2026 年</option><option value="2025">2025 年</option><option value="2024">2024 年</option><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPage('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div id="reviewChart" style="display:flex;justify-content:space-around;align-items:flex-end;height:60px;padding:0 4px;gap:2px;"></div></div></div>
+  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select id="reviewYearSel" onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPage('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div id="reviewChart" style="display:flex;justify-content:space-around;align-items:flex-end;height:60px;padding:0 4px;gap:2px;"></div></div></div>
 </div>
 
 <!-- CALENDAR -->
@@ -1377,8 +1378,8 @@ v></div></div>
   r.style.setProperty('--shd', t.shd);
 })();
 
-let RESTS=[];
-let restCity='全部';
+var RESTS=[];
+var restCity='全部';
 
 function showConfirmMo(msg, onConfirm) {
   var mo = document.getElementById('confirmMo');
@@ -1406,16 +1407,16 @@ function switchInspireTab(tab,el){
   });
 }
 
-const PAGES=['home','memory','list','notify','settings'];
-const NAVL=['主頁','回憶錄','清單','通知','設定'];
-const NAVSVG=[
+var PAGES=['home','memory','list','notify','settings'];
+var NAVL=['主頁','回憶錄','清單','通知','設定'];
+var NAVSVG=[
   (c,f)=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 10l9-7 9 7v10a1 1 0 01-1 1H4a1 1 0 01-1-1V10z" stroke="${c}" stroke-width="1.5" fill="${f}"/><path d="M9 21V12h6v9" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
   c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="${c}" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="${c}" stroke-width="1.5"/><path d="M8 6l1.5-2.5h5L16 6" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
   c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="${c}" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
   c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.7 3 6 5.7 6 9v5l-2 2h16l-2-2V9c0-3.3-2.7-6-6-6z" stroke="${c}" stroke-width="1.5"/><path d="M10 19a2 2 0 004 0" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`,
   c=>`<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" stroke="${c}" stroke-width="1.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke="${c}" stroke-width="1.5" stroke-linecap="round"/></svg>`
 ];
-let curPage='home', pageHist=[];
+var curPage='home', pageHist=[];
 function buildNavs(){
   PAGES.forEach(p=>{
     const el=document.getElementById('bnav-'+p);
@@ -1463,8 +1464,8 @@ function closeMo(id){document.getElementById(id).classList.remove('open');};
 var closeMo = window.closeMo;
 
 // PHOTO
-let photoTarget='me';
-const photoData={me:null,partner:null};
+var photoTarget='me';
+var photoData={me:null,partner:null};
 function openPhoto(who){
   photoTarget=who;
   var img=document.getElementById('pimg2');
@@ -1529,7 +1530,7 @@ function handlePhoto(e){
 }
 
 // THEME
-const THEMES={
+var THEMES={
   green:{bg:'#B8CEBC',card:'#fff',card2:'#EAF3EC',accent:'#4A7A58',lt:'#C8E4D0',txt:'#1A2E20',sub:'#5A8A68',bdr:'#A0C0A8',shd:'rgba(20,44,26,0.10)'},
   rose:{bg:'#D4C0BC',card:'#fff',card2:'#F5EDEA',accent:'#9A6060',lt:'#EEDCD8',txt:'#3A1814',sub:'#906060',bdr:'#C8A8A4',shd:'rgba(58,24,20,0.10)'},
   blue:{bg:'#AABCCC',card:'#fff',card2:'#E4EEF5',accent:'#486890',lt:'#C8D8EC',txt:'#141E2C',sub:'#587898',bdr:'#98B0C8',shd:'rgba(20,30,44,0.10)'},
@@ -1548,8 +1549,8 @@ function setTheme(k,dotEl){
 
 
 
-let memTab = 'photo';
-let QUOTES = [];
+var memTab = 'photo';
+var QUOTES = [];
 
 // ── Firestore 語錄監聽 ──
 function _initQuotes(db, coupleId) {
@@ -1788,17 +1789,29 @@ function _updateStats() {
   if (chalEl) chalEl.textContent = doneCnt;
   var achCountEl = document.getElementById('achCount');
   if (achCountEl) achCountEl.textContent = doneCnt + ' 個';
+  // 更新回顧頁年份（只顯示有資料的年份）
+  var yearSel = document.getElementById('reviewYearSel');
+  if(yearSel) {
+    var years = new Set();
+    (EVENTS||[]).forEach(function(e){ if(e.dateStart) years.add(new Date(e.dateStart).getFullYear()); });
+    (RESTS||[]).forEach(function(r){ if(r.createdAt && r.createdAt.seconds) years.add(new Date(r.createdAt.seconds*1000).getFullYear()); });
+    (MEMS||[]).forEach(function(m){ if(m.year) years.add(m.year); });
+    var cur = yearSel.value;
+    var sortedYears = Array.from(years).sort(function(a,b){return b-a;});
+    yearSel.innerHTML = '<option value="全部">全部時間</option>' +
+      sortedYears.map(function(y){return '<option value="'+y+'"'+(String(y)===String(cur)?' selected':'')+'>'+y+' 年</option>';}).join('');
+  }
 };
 
 // LIST
-let LIST=[];
-let listTab='pending',listCat='全部',pendingId=null;
+var LIST=[];
+var listTab='pending',listCat='全部',pendingId=null;
 function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
 function setListCat(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
-const STAR_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-const EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
-const DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
-const STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+var STAR_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+var EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
+var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 
 // ── Firestore 清單監聽 ──
 function _initList(db, coupleId) {
@@ -1879,7 +1892,7 @@ async function addListItem(){
   document.getElementById('newLN').value='';
   closeMo('addListMo');
 }
-let currentStar=0;
+var currentStar=0;
 function setStar(n, containerId){
   currentStar=n;
   // 支援多個星星容器（新增餐廳 #restStars、完成清單 #compStars）
@@ -1928,9 +1941,9 @@ async function addFromInspire(n,cat){
 }
 
 // CHALLENGES
-let CHALS=[];
-let chalTab='active';
-let _editChalId=null;
+var CHALS=[];
+var chalTab='active';
+var _editChalId=null;
 
 // ── Firestore 挑戰監聽 ──
 function _initChals(db, coupleId) {
@@ -2092,7 +2105,7 @@ function nextChallenge(){
 }
 
 // HEARTS
-const HC=[['#B07870','#904858'],['#5A8A68','#3A6A48'],['#5878A0','#385880'],['#A87848','#886028'],['#9878A0','#785880']];
+var HC=[['#B07870','#904858'],['#5A8A68','#3A6A48'],['#5878A0','#385880'],['#A87848','#886028'],['#9878A0','#785880']];
 function makeHeart(f,s){return `<svg width="20" height="18" viewBox="0 0 20 18" fill="none"><path d="M10 16.5C10 16.5 1.5 11 1.5 5.5C1.5 3 3.5 1 6 1C7.8 1 9.3 2 10 3.2C10.7 2 12.2 1 14 1C16.5 1 18.5 3 18.5 5.5C18.5 11 10 16.5 10 16.5Z" fill="${f}" stroke="${s}" stroke-width="1"/></svg>`;}
 function spawnHearts(){
   for(let i=0;i<26;i++){
@@ -2126,7 +2139,7 @@ async function addChal(){
 }
 
 // DECIDE
-let dcCat='全部',drawn=[];
+var dcCat='全部',drawn=[];
 function setDC(v){dcCat=v;drawn=[];reroll();}
 function openDecide(){
   drawn=[];
@@ -2172,7 +2185,7 @@ function reroll(){
 };
 
 // MEMORY
-let MEMS=[];
+var MEMS=[];
 
 // ── Firestore 回憶錄監聽 ──
 function _initMems(db, coupleId) {
@@ -2333,8 +2346,8 @@ async function deleteRest(id){
   await deleteDoc(doc(window._db,'couples',window._coupleId,'rests',id));
 }
 
-let restStar=0;
-let restType='全部';
+var restStar=0;
+var restType='全部';
 function setRS(n){
   restStar=n;
   document.querySelectorAll('#restStars .strbtn').forEach(function(b,i){
@@ -2385,7 +2398,7 @@ async function addRest(){
 }
 
 // PIN
-let pinSet=null,pinInput='';
+var pinSet=null,pinInput='';
 function savePin(){
   const p1=document.getElementById('pi1').value;
   const p2=document.getElementById('pi2').value;
@@ -2593,9 +2606,15 @@ function _saveInspireData(data){
 function _getDefaultInspire(){
   return [
     {n:'去看夜市',c:'想去哪'},{n:'海邊看日落',c:'想去哪'},{n:'登山健行',c:'想去哪'},
+    {n:'去咖啡廳聊天',c:'想去哪'},{n:'逛博物館',c:'想去哪'},{n:'去遊樂園',c:'想去哪'},
+    {n:'去書店挑書',c:'想去哪'},{n:'泡溫泉',c:'想去哪'},{n:'夜間市集',c:'想去哪'},
     {n:'吃壽司',c:'想吃什麼'},{n:'自助早午餐',c:'想吃什麼'},{n:'吃甜點下午茶',c:'想吃什麼'},
+    {n:'吃拉麵',c:'想吃什麼'},{n:'吃燒肉',c:'想吃什麼'},{n:'吃火鍋',c:'想吃什麼'},
+    {n:'嘗試新餐廳',c:'想吃什麼'},{n:'做手工甜點',c:'想吃什麼'},{n:'吃早餐',c:'想吃什麼'},
     {n:'一起畫畫',c:'想做什麼'},{n:'學做一道新菜',c:'想做什麼'},{n:'一起運動',c:'想做什麼'},
+    {n:'玩桌遊',c:'想做什麼'},{n:'一起種植物',c:'想做什麼'},{n:'學一項新技能',c:'想做什麼'},
     {n:'看恐怖片',c:'想看什麼'},{n:'看演唱會',c:'想看什麼'},{n:'看舞台劇',c:'想看什麼'},
+    {n:'追完一部劇',c:'想看什麼'},{n:'看日出或日落',c:'想看什麼'},{n:'看星星',c:'想看什麼'},
   ];
 }
 function openInspireMgMo(){
@@ -2612,9 +2631,9 @@ function toggleMemForeign(v){
   if(ff)ff.style.display=v==='國外'?'flex':'none';
 }
 
-let _memPhotoFiles=[];
-let _memLinkedRests=[];
-let _memLinkedItems=[];
+var _memPhotoFiles=[];
+var _memLinkedRests=[];
+var _memLinkedItems=[];
 
 function previewMemPhotos(e){
   var files=Array.from(e.target.files);
@@ -2768,8 +2787,8 @@ async function _uploadMemPhotos(files){
 }
 
 // ── 行事曆 Firestore ──
-let EVENTS = [];
-let _editEventId = null;
+var EVENTS = [];
+var _editEventId = null;
 
 function _initEvents(db, coupleId) {
   var {collection, query, orderBy, onSnapshot} = window._fsOps;
@@ -2898,7 +2917,7 @@ async function deleteEvent() {
 function deleteEventFromDay(){deleteEvent();closeMo('calDayMo');}
 
 // ── chalDetailMo ──
-let _detailChalId=null;
+var _detailChalId=null;
 function openChalDetail(id){_detailChalId=id;openMo('chalDetailMo');}
 async function saveChalDetailEdit(){
   if(!_detailChalId) return;
