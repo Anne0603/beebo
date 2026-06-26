@@ -813,7 +813,7 @@ window.startPairingCountdown = function(expiry, el) {
     const text = inp.value.trim();
     if (!text) return;
     if (!window.currentUser || !window._coupleId) {
-      if (typeof showToast === 'function') showToast('請先登入並配對');
+      window.showToast('請先完成配對才能留言');
       return;
     }
     inp.value = '';
@@ -988,9 +988,7 @@ window.startPairingCountdown = function(expiry, el) {
 <!-- NOTIFY -->
 <div class="page" id="page-notify">
   <div class="pt"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 3C8.7 3 6 5.7 6 9v5l-2 2h16l-2-2V9c0-3.3-2.7-6-6-6z" stroke="#4A7A58" stroke-width="1.5"/><path d="M10 19a2 2 0 004 0" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>通知<button onclick="openMo('clearNotifyMo')" style="margin-left:auto;font-size:11px;color:var(--sub);background:none;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">清除</button></div>
-  <div class="sc" id="notifBody"></div>
-
-  </div>
+  <div class="sc" id="notifBody"><div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div></div>
   <div class="bnav" id="bnav-notify"></div>
 </div>
 
@@ -1289,17 +1287,13 @@ window.startPairingCountdown = function(expiry, el) {
       <option value="">選擇縣市...</option>
       <option>台北市</option><option>新北市</option><option>桃園市</option><option>台中市</option>
       <option>台南市</option><option>高雄市</option><option>基隆市</option><option>新竹市</option>
-      <option>嘉義市</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option>
-      <option>屏東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option>
-      <option>國外</option>
+      <option>新竹縣</option><option>苗栗縣</option><option>彰化縣</option><option>南投縣</option>
+      <option>雲林縣</option><option>嘉義市</option><option>嘉義縣</option><option>宜蘭縣</option>
+      <option>花蓮縣</option><option>台東縣</option><option>屏東縣</option><option>澎湖縣</option>
+      <option>金門縣</option><option>連江縣</option><option>國外</option>
     </select>
     <div id="memForeignFields" style="display:none;flex-direction:column;gap:6px;margin-top:6px;">
-      <select class="fi" id="newMemCountry" style="padding:8px 10px;">
-        <option value="">國家...</option><option>日本</option><option>韓國</option>
-        <option>法國</option><option>義大利</option><option>美國</option><option>英國</option>
-        <option>泰國</option><option>越南</option><option>新加坡</option><option>澳洲</option>
-        <option>其他</option>
-      </select>
+      <input class="fi" id="newMemCountry" placeholder="國家（如：日本、泰國）">
       <input class="fi" id="newMemFCity" placeholder="城市名稱（如：東京、首爾）">
     </div>
   </div>
@@ -1354,7 +1348,7 @@ function doConfirm() {
   window._confirmCallback = null;
 }
 
-function editVersion(idx){showToast('編輯功能開發中');}
+function editVersion(idx){window.showToast('編輯功能開發中');}
 
 window.switchInspireTab = function(tab,el){
   var tabs=['list','chal'];
@@ -1391,8 +1385,12 @@ window.goPage = function(p){
   const cur=document.getElementById('page-'+curPage);
   if(cur)cur.classList.remove('active');
   const next=document.getElementById('page-'+p);
-  if(next){next.classList.add('active');
-    if(p==='settings' && typeof initSettingsPage==='function') initSettingsPage();curPage=p;}
+  if(next){
+    next.classList.add('active');
+    if(p==='settings' && typeof window.initSettingsPage==='function') window.initSettingsPage();
+    curPage=p;
+    window.buildNavs();
+  }
 }
 function goPageX(p){
   pageHist.push(curPage);
@@ -1443,12 +1441,12 @@ window.openPhoto = function(who){
   if(subtitle) subtitle.textContent = isMine ? '點擊更換照片' : '';
   openMo('photoMo');
 }
-window.triggerUpload = function(){if(photoTarget!=='me'){showToast('只能修改自己的頭像');return;}document.getElementById('photoFile').click();}
+window.triggerUpload = function(){if(photoTarget!=='me'){window.showToast('只能修改自己的頭像');return;}document.getElementById('photoFile').click();}
 window.handlePhoto = function(e){
   const file=e.target.files[0];if(!file)return;
-  if(photoTarget!=='me'){showToast('只能修改自己的頭像');e.target.value='';return;}
-  if(!window.currentUser){showToast('請先登入');e.target.value='';return;}
-  if(!window._uploadToCloudinary){showToast('上傳功能載入中，請稍後再試');e.target.value='';return;}
+  if(photoTarget!=='me'){window.showToast('只能修改自己的頭像');e.target.value='';return;}
+  if(!window.currentUser){window.showToast('請先登入');e.target.value='';return;}
+  if(!window._uploadToCloudinary){window.showToast('上傳功能載入中，請稍後再試');e.target.value='';return;}
   // 先顯示本地預覽
   const r=new FileReader();
   r.onload=function(ev){
@@ -1458,7 +1456,7 @@ window.handlePhoto = function(e){
     if(ph)ph.style.display='none';
   };
   r.readAsDataURL(file);
-  showToast('上傳中...');
+  window.showToast('上傳中...');
   window._uploadToCloudinary(file).then(function(url){
     photoData['me']=url;
     const avcEl=document.getElementById('avc-me');
@@ -1475,12 +1473,12 @@ window.handlePhoto = function(e){
         // 同步更新 profileAv
         var profEl=document.getElementById('profileAv');
         if(profEl)profEl.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        showToast('頭像已更新 ✓');
+        window.showToast('頭像已更新 ✓');
       });
     }
   }).catch(function(err){
     console.error(err);
-    showToast('上傳失敗，請再試');
+    window.showToast('上傳失敗，請再試');
   });
 }
 
@@ -1570,7 +1568,7 @@ function launchFw(){
 }
 function closeFw(){
   document.getElementById('fwOverlay').classList.remove('open');
-  showToast('挑戰移到成就頁！');
+  window.showToast('挑戰移到成就頁！');
 }
 
 
@@ -1594,14 +1592,14 @@ function saveVersion(){
   document.getElementById('addVersionForm').style.display='none';
   document.getElementById('newVer').value='';
   document.getElementById('newVerNote').value='';
-  showToast('版本紀錄已新增');
+  window.showToast('版本紀錄已新增');
 }
 
 function clearNotify(days){
   var msg = days===0 ? '確定要清除全部通知嗎？' : '確定要清除'+days+'天前的通知嗎？';
   if(!confirm(msg)) return;
   closeMo('clearNotifyMo');
-  showToast('通知已清除');
+  window.showToast('通知已清除');
 }
 
 window.showToast = function(msg){
@@ -1633,10 +1631,10 @@ window.devResetStep3 = function(){
   var v1=(document.getElementById('resetConfirm1')||{}).value||'';
   var v2=(document.getElementById('resetConfirm2')||{}).value||'';
   if(v1.trim()!=='我確認清除'){
-    showToast('第一層確認文字不正確');return;
+    window.showToast('第一層確認文字不正確');return;
   }
   if(!window._coupleId||v2.trim()!==window._coupleId.slice(-8)){
-    showToast('coupleId 後8碼不正確');return;
+    window.showToast('coupleId 後8碼不正確');return;
   }
   closeMo('devResetMo');
   openMo('devResetFinalMo');
@@ -1644,9 +1642,9 @@ window.devResetStep3 = function(){
 window.devResetExecute = async function(){
   closeMo('devResetFinalMo');
   if(!window._db||!window._coupleId||!window.currentUser){
-    showToast('資料不完整，無法清除');return;
+    window.showToast('資料不完整，無法清除');return;
   }
-  showToast('清除中，請稍候...');
+  window.showToast('清除中，請稍候...');
   try {
     var db=window._db;
     var coupleId=window._coupleId;
@@ -1673,11 +1671,11 @@ window.devResetExecute = async function(){
     if(partnerId) await deleteDoc(doc(db,'users',partnerId));
     // 登出
     if(window._auth) await window._auth.signOut();
-    showToast('清除完成，即將重新整理...');
+    window.showToast('清除完成，即將重新整理...');
     setTimeout(function(){location.reload();},1500);
   } catch(e) {
     console.error(e);
-    showToast('清除失敗：'+e.message);
+    window.showToast('清除失敗：'+e.message);
   }
 }
 // ══════════════════════════════════════════
@@ -1784,7 +1782,7 @@ function renderList(){
   }
   body.innerHTML=html;
 }
-function jumpToChallenge(){showToast('跳到對應挑戰');}
+function jumpToChallenge(){window.showToast('跳到對應挑戰');}
 
 function toggleItem(id){
   var item=LIST.find(function(i){return i.id===id;});
@@ -1818,8 +1816,8 @@ async function deleteItem(id){
 window.addListItem = async function(){
   var n=document.getElementById('newLN').value.trim();
   var cat=document.getElementById('newLC').value;
-  if(!n){showToast('請輸入名稱');return;}
-  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  if(!n){window.showToast('請輸入名稱');return;}
+  if(!window._coupleId||!window._fsOps){window.showToast('請先配對');return;}
   var {collection, addDoc, serverTimestamp} = window._fsOps;
   var myName=(window.userData&&window.userData.name)||'我';
   var today=new Date();
@@ -1866,8 +1864,8 @@ function renderInspire(){
       <button onclick="addFromInspire('${i.n}','${i.c}')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">加入</button>
     </div>`).join('');
 }
-async function addFromInspire(n,cat){
-  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+window.addFromInspire = async function(n,cat){
+  if(!window._coupleId||!window._fsOps){window.showToast('請先配對');return;}
   var {collection,addDoc,serverTimestamp}=window._fsOps;
   var myName=(window.userData&&window.userData.name)||'我';
   var today=new Date();
@@ -1875,7 +1873,7 @@ async function addFromInspire(n,cat){
   await addDoc(collection(window._db,'couples',window._coupleId,'list'),{
     n:n,c:cat,done:false,by:myName,at:at,createdAt:serverTimestamp()
   });
-  showToast('已加入清單 ✓');
+  window.showToast('已加入清單 ✓');
 }
 
 // CHALLENGES
@@ -1981,7 +1979,7 @@ async function chalCheck(id){
     // 取消打勾
     checked=checked.filter(function(u){return u!==myUid;});
     await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{checkedBy:checked,status:'active'});
-    showToast('已取消打勾');
+    window.showToast('已取消打勾');
   } else {
     checked=checked.concat([myUid]);
     var newStatus=checked.length>=2?'done':'active';
@@ -1989,10 +1987,10 @@ async function chalCheck(id){
     if(newStatus==='done'){
       spawnHearts();
       setTimeout(function(){launchFw();},400);
-      showToast('🎉 挑戰完成！兩人都確認了！');
+      window.showToast('🎉 挑戰完成！兩人都確認了！');
     } else {
       spawnHearts();
-      showToast('已打勾！等對方確認就完成了 ✓');
+      window.showToast('已打勾！等對方確認就完成了 ✓');
     }
   }
 }
@@ -2012,14 +2010,14 @@ window.saveChalEdit = async function(){
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_editChalId),{deadline:newDate});
   closeMo('editChalMo');
-  showToast('截止日期已更新 ✓');
+  window.showToast('截止日期已更新 ✓');
 }
 
 async function abandonChal(id){
   if(!confirm('確定要放棄這個挑戰嗎？'))return;
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'failed'});
-  showToast('挑戰已移至已失敗');
+  window.showToast('挑戰已移至已失敗');
 }
 
 async function retryChallenge(id){
@@ -2027,13 +2025,13 @@ async function retryChallenge(id){
   if(!confirm('重新開始這個挑戰？'))return;
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[]});
-  showToast('挑戰重新開始！加油 💪');
+  window.showToast('挑戰重新開始！加油 💪');
 }
 
 // 主頁完成按鈕
 window.markDone = function(){
   var active=CHALS.filter(function(c){return c.status==='active';});
-  if(!active.length){showToast('目前沒有進行中的挑戰');return;}
+  if(!active.length){window.showToast('目前沒有進行中的挑戰');return;}
   chalCheck(active[0].id);
 }
 
@@ -2061,8 +2059,8 @@ function spawnHearts(){
 window.addChal = async function(){
   var n=(document.getElementById('newChalName')||{}).value;
   if(n) n=n.trim(); else n='';
-  if(!n){showToast('請填寫挑戰名稱');return;}
-  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  if(!n){window.showToast('請填寫挑戰名稱');return;}
+  if(!window._coupleId||!window._fsOps){window.showToast('請先配對');return;}
   var cat=(document.getElementById('newChalCat')||{}).value||'其他';
   var deadline=(document.getElementById('newChalDeadline')||{}).value||'';
   var {collection,addDoc,serverTimestamp}=window._fsOps;
@@ -2073,7 +2071,7 @@ window.addChal = async function(){
   var el=document.getElementById('newChalName');if(el)el.value='';
   var de=document.getElementById('newChalDeadline');if(de)de.value='';
   closeMo('addChalMo');
-  showToast('挑戰已新增！加油 💪');
+  window.showToast('挑戰已新增！加油 💪');
 }
 
 // DECIDE
@@ -2081,7 +2079,7 @@ let dcCat='全部',drawn=[];
 function setDC(c){dcCat=c;drawn=[];reroll();}
 window.openDecide = function(){
   drawn=[];
-  if(!window._coupleId){showToast('請先配對才能使用此功能');return;}
+  if(!window._coupleId){window.showToast('請先配對才能使用此功能');return;}
   reroll();
   openMo('decideMo');
 }
@@ -2166,8 +2164,8 @@ function renderMemory(){
 }
 window.addMem = async function(){
   var title=(document.getElementById('newMemTitle')||{}).value||'';
-  if(!title.trim()){showToast('請填寫回憶名稱');return;}
-  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  if(!title.trim()){window.showToast('請填寫回憶名稱');return;}
+  if(!window._coupleId||!window._fsOps){window.showToast('請先配對');return;}
   var d1=(document.getElementById('newMemDate1')||{}).value||'';
   var d2=(document.getElementById('newMemDate2')||{}).value||'';
   var city=(document.getElementById('newMemCity')||{}).value||'';
@@ -2179,7 +2177,7 @@ window.addMem = async function(){
   // 上傳照片
   var photos=[];
   if(_memPhotoFiles.length){
-    showToast('上傳照片中...');
+    window.showToast('上傳照片中...');
     photos=await _uploadMemPhotos(_memPhotoFiles);
   }
   var {collection,addDoc,serverTimestamp}=window._fsOps;
@@ -2203,7 +2201,7 @@ window.addMem = async function(){
   var li=document.getElementById('linkedItems');if(li)li.textContent='';
   _memPhotoFiles=[];_memLinkedRests=[];_memLinkedItems=[];
   closeMo('addMemMo');
-  showToast('回憶錄已建立 ✓');
+  window.showToast('回憶錄已建立 ✓');
 }
 
 
@@ -2279,8 +2277,8 @@ function setRS(n){
 window.addRest = async function(){
   var n=(document.getElementById('newRN')||{}).value;
   if(n) n=n.trim(); else n='';
-  if(!n||!restStar){showToast('請填寫名稱和評分');return;}
-  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  if(!n||!restStar){window.showToast('請填寫名稱和評分');return;}
+  if(!window._coupleId||!window._fsOps){window.showToast('請先配對');return;}
   var city=(document.getElementById('newRC2')||{}).value||'';
   var country='',foreignCity='';
   if(city==='國外'){
@@ -2312,7 +2310,7 @@ window.addRest = async function(){
     var path=b.querySelector('path');
     if(path){path.setAttribute('fill','none');path.setAttribute('stroke','#C8C8C8');}
   });
-  showToast('餐廳記錄已新增 ✓');
+  window.showToast('餐廳記錄已新增 ✓');
   // onSnapshot 會自動更新，但加個保底
   setTimeout(function(){if(typeof renderRests==='function')renderRests();},500);
 }
@@ -2362,7 +2360,7 @@ function toggleFav(btn){
   if(!path) return;
   var isFav = path.getAttribute('fill')==='#c62828';
   path.setAttribute('fill', isFav ? 'none' : '#c62828');
-  showToast(isFav ? '取消最愛' : '已標記最愛');
+  window.showToast(isFav ? '取消最愛' : '已標記最愛');
 }
 
 
@@ -2372,13 +2370,13 @@ function genInvite(){
   if(inp) inp.value=code;
   var timer=document.getElementById('inviteCountdown');
   if(timer) timer.textContent='2:00:00';
-  showToast('已產生新邀請碼，2小時內有效');
+  window.showToast('已產生新邀請碼，2小時內有效');
 }
 window.saveQuote = async function(){
   var txt=document.getElementById('quoteText');
   var dateEl=document.getElementById('quoteDate');
-  if(!txt||!txt.value.trim()){showToast('請填寫語錄內容');return;}
-  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  if(!txt||!txt.value.trim()){window.showToast('請填寫語錄內容');return;}
+  if(!window._coupleId||!window._fsOps){window.showToast('請先配對');return;}
   var {collection,addDoc,serverTimestamp}=window._fsOps;
   var dateLabel=dateEl&&dateEl.value ? dateEl.value.replace(/-/g,'/') : new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'});
   await addDoc(collection(window._db,'couples',window._coupleId,'quotes'),{
@@ -2390,7 +2388,7 @@ window.saveQuote = async function(){
   txt.value='';
   if(dateEl) dateEl.value='';
   closeMo('addQuoteMo');
-  showToast('語錄已儲存 ✓');
+  window.showToast('語錄已儲存 ✓');
 }
 async function deleteQuote(id){
   if(!confirm('刪除這則語錄？'))return;
@@ -2405,7 +2403,7 @@ function setRC(city){
   if(typeof renderRests==='function')renderRests();
 }
 function filterForeignCity(country){}
-function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
+function setRY(yr){window.showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 
 
 function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
@@ -2455,8 +2453,8 @@ window.toggleChangelogAdd = function(){
 window.saveChangelog = async function(){
   var ver=(document.getElementById('clVersion')||{}).value||'';
   var content=(document.getElementById('clContent')||{}).value||'';
-  if(!ver.trim()){showToast('請填寫版本號');return;}
-  if(!window._db||!window._fsOps){showToast('請先配對');return;}
+  if(!ver.trim()){window.showToast('請填寫版本號');return;}
+  if(!window._db||!window._fsOps){window.showToast('請先配對');return;}
   var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
   await fsModule.addDoc(fsModule.collection(window._db,'changelog'),{
     version:ver.trim(),content:content.trim(),
@@ -2465,7 +2463,7 @@ window.saveChangelog = async function(){
   });
   document.getElementById('clVersion').value='';
   document.getElementById('clContent').value='';
-  showToast('版本已新增 ✓');
+  window.showToast('版本已新增 ✓');
   openChangelogMo();
 }
 async function deleteChangelog(id){
@@ -2495,15 +2493,15 @@ window.openTransferMo = async function(){
 
 window.addBackupAdmin = async function(){
   var email=(document.getElementById('backupEmail')||{}).value||'';
-  if(!email.includes('@')){showToast('請輸入有效 Email');return;}
-  if(!window._coupleRef||!window._fsOps){showToast('請先配對');return;}
+  if(!email.includes('@')){window.showToast('請輸入有效 Email');return;}
+  if(!window._coupleRef||!window._fsOps){window.showToast('請先配對');return;}
   var admins=(window._coupleData&&window._coupleData.backupAdmins)||[];
-  if(admins.includes(email)){showToast('此帳號已綁定');return;}
+  if(admins.includes(email)){window.showToast('此帳號已綁定');return;}
   admins=admins.concat([email]);
   await window._fsOps.updateDoc(window._coupleRef,{backupAdmins:admins});
   if(window._coupleData)window._coupleData.backupAdmins=admins;
   document.getElementById('backupEmail').value='';
-  showToast('備用帳號已綁定 ✓');
+  window.showToast('備用帳號已綁定 ✓');
   openTransferMo();
 }
 async function removeBackupAdmin(email){
@@ -2512,7 +2510,7 @@ async function removeBackupAdmin(email){
   admins=admins.filter(function(e){return e!==email;});
   await window._fsOps.updateDoc(window._coupleRef,{backupAdmins:admins});
   if(window._coupleData)window._coupleData.backupAdmins=admins;
-  showToast('已移除');
+  window.showToast('已移除');
   openTransferMo();
 }
 
@@ -2660,7 +2658,7 @@ function addMemPhoto(memId){
   input.onchange=async function(e){
     var files=Array.from(e.target.files);
     if(!files.length)return;
-    showToast('上傳中...');
+    window.showToast('上傳中...');
     var urls=[];
     for(var i=0;i<files.length;i++){
       try{
@@ -2668,13 +2666,13 @@ function addMemPhoto(memId){
         urls.push(url);
       }catch(err){console.error(err);}
     }
-    if(!urls.length){showToast('上傳失敗');return;}
+    if(!urls.length){window.showToast('上傳失敗');return;}
     var m=MEMS.find(function(x){return x.id===memId;});
     var existing=m&&m.photos?m.photos:[];
     var newPhotos=existing.concat(urls);
     var {doc,updateDoc}=window._fsOps;
     await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{photos:newPhotos});
-    showToast('照片已上傳 ✓');
+    window.showToast('照片已上傳 ✓');
     openMemDetail(memId);
   };
   input.click();
@@ -2685,7 +2683,7 @@ async function deleteMemConfirm(id){
   var {doc,deleteDoc}=window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'memories',id));
   closeMo('memDetailMo');
-  showToast('已刪除');
+  window.showToast('已刪除');
 }
 
 // addMem 上傳照片
@@ -2771,10 +2769,10 @@ function renderCalendar() {
 
 async function addEvent() {
   var name = (document.getElementById('evName')||{}).value||'';
-  if (!name.trim()) { showToast('請填寫活動名稱'); return; }
-  if (!window._coupleId||!window._fsOps) { showToast('請先配對'); return; }
+  if (!name.trim()) { window.showToast('請填寫活動名稱'); return; }
+  if (!window._coupleId||!window._fsOps) { window.showToast('請先配對'); return; }
   var d1 = (document.getElementById('evDate1')||{}).value||'';
-  if (!d1) { showToast('請選擇日期'); return; }
+  if (!d1) { window.showToast('請選擇日期'); return; }
   var {collection,addDoc,serverTimestamp} = window._fsOps;
   await addDoc(collection(window._db,'couples',window._coupleId,'events'), {
     name: name.trim(),
@@ -2789,7 +2787,7 @@ async function addEvent() {
     var el=document.getElementById(id); if(el)el.value='';
   });
   closeMo('addEventMo');
-  showToast('約會計畫已新增 ✓');
+  window.showToast('約會計畫已新增 ✓');
 }
 
 function openEventDetail(id) {
@@ -2808,7 +2806,7 @@ function openEventDetail(id) {
 async function saveEvent() {
   if (!_editEventId||!window._fsOps) return;
   var name=(document.getElementById('editEvName')||{}).value||'';
-  if(!name.trim()){showToast('請填寫活動名稱');return;}
+  if(!name.trim()){window.showToast('請填寫活動名稱');return;}
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'events',_editEventId),{
     name:name.trim(),
@@ -2816,7 +2814,7 @@ async function saveEvent() {
     place:(document.getElementById('editEvPlace')||{}).value||''
   });
   closeMo('editEventMo');
-  showToast('已儲存 ✓');
+  window.showToast('已儲存 ✓');
 }
 
 async function deleteEvent() {
@@ -2826,7 +2824,7 @@ async function deleteEvent() {
   await deleteDoc(doc(window._db,'couples',window._coupleId,'events',_editEventId));
   closeMo('editEventMo');
   _editEventId=null;
-  showToast('已刪除');
+  window.showToast('已刪除');
 }
 function deleteEventFromDay(){deleteEvent();closeMo('calDayMo');}
 
@@ -2840,7 +2838,7 @@ window.saveChalDetailEdit = async function(){
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_detailChalId),{deadline:dl.value});
   closeMo('chalDetailMo');
-  showToast('截止日期已更新 ✓');
+  window.showToast('截止日期已更新 ✓');
 }
 window.abandonChalFromDetail = async function(){
   if(!_detailChalId||!confirm('確定要放棄這個挑戰嗎？')) return;
