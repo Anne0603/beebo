@@ -751,10 +751,13 @@ window.startPairingCountdown = function(expiry, el) {
       const msgs = [];
       snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
       msgs.reverse(); // 舊 → 新
+      console.log('[onSnapshot messages] 收到', msgs.length, '則留言');
       window._messages = msgs;
       window._renderMsgList(msgs, myUid);
       window._updateHomeMsgCard(msgs, myUid);
       if (typeof window._updateStats === 'function') window._updateStats();
+    }, (err) => {
+      console.error('[onSnapshot messages] 錯誤:', err.code, err.message);
     });
   };
 
@@ -1602,12 +1605,12 @@ function saveVersion(){
   window.showToast('版本紀錄已新增');
 }
 
-function clearNotify(days){
+window.clearNotify = function(days){
   var msg = days===0 ? '確定要清除全部通知嗎？' : '確定要清除'+days+'天前的通知嗎？';
   if(!confirm(msg)) return;
-  closeMo('clearNotifyMo');
+  window.closeMo('clearNotifyMo');
   window.showToast('通知已清除');
-}
+};
 
 window.showToast = function(msg){
   var t=document.getElementById('toast');
@@ -3010,9 +3013,8 @@ window.initSettingsPage = function(){
   if(sv) sv.textContent = (days == 0 ? '永久' : days + ' 天') + ' ›';
 };
 
-// ── showConfirmMo 和 clearNotify 補上 window. ──
+// ── showConfirmMo 補上 window. ──
 window.showConfirmMo = showConfirmMo;
-window.clearNotify = clearNotify;
 
 // ── toggleForeignInput ──
 function toggleForeignInput(v){
