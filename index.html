@@ -1338,7 +1338,11 @@ window.startPairingCountdown = function(expiry, el) {
   <div class="fw-card">
     <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="5" fill="#D4A870"/><circle cx="36" cy="36" r="2.5" fill="#fff" opacity=".9"/><line x1="36" y1="30" x2="36" y2="10" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="36" y1="42" x2="36" y2="62" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="33" x2="13" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="39" x2="59" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="39" x2="13" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="33" x2="59" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/></svg>
     <div class="fw-title" style="font-size:22px;font-weight:700;color:var(--txt);margin:12px 0 6px;">挑戰完成！</div>
-    <div style="font-size:13px;color:var(--sub);margin-bottom:18px;">你們一起完成了這個挑戰</di
+v></div></div>
+</div>
+</div>
+
+<script>
 // ── 頁面載入時套用已儲存的主題 ──
 (function(){
   var saved = localStorage.getItem('beebo_theme') || 'green';
@@ -2202,7 +2206,7 @@ function renderMemory(){
     var card=document.createElement('div');
     card.className='mc';
     if(m.photos&&m.photos.length){
-      card.style.backgroundImage='url('+m.photos[0]+')';
+      card.style.backgroundImage="url('" + m.photos[0] + "')";
       card.style.backgroundSize='cover';
       card.style.backgroundPosition='center';
     }
@@ -3072,10 +3076,6 @@ function toggleForeignInput(v){
   if(ff)ff.style.display=v==='國外'?'flex':'none';
 }
 
-nput(v){
-  var ff=document.getElementById('foreignFields');
-  if(ff)ff.style.display=v==='國外'?'flex':'none';
-}
 
 </script>
 </body>
