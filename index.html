@@ -277,16 +277,17 @@ input[type=file]{display:none;}
     // 等主 script 的 _init 函數載入後才呼叫（setTimeout 0 確保順序）
     // 等主 script 完全執行後再初始化
     function _doInit() {
-      // 等待 main script 的 _init 函數（用 function 宣告，非 window.）
-      if (typeof _initList !== 'function' || typeof _initEvents !== 'function') {
+      // 等待 main script 把 _init 函數掛到 window
+      if (typeof window._initList !== 'function' || typeof window._initEvents !== 'function') {
         setTimeout(_doInit, 50); return;
       }
-      _initList(db, coupleId);
-      if(typeof _initMems === 'function') _initMems(db, coupleId);
-      if(typeof _initEvents === 'function') _initEvents(db, coupleId);
-      _initRests(db, coupleId);
-      _initChals(db, coupleId);
-      _initQuotes(db, coupleId);
+      console.log('[_doInit] 開始初始化 coupleId:', coupleId);
+      window._initList(db, coupleId);
+      if(typeof window._initMems === 'function') window._initMems(db, coupleId);
+      if(typeof window._initEvents === 'function') window._initEvents(db, coupleId);
+      window._initRests(db, coupleId);
+      window._initChals(db, coupleId);
+      window._initQuotes(db, coupleId);
       window._initMessages(db, coupleId, uid);
     }
     _doInit();
@@ -1337,12 +1338,7 @@ window.startPairingCountdown = function(expiry, el) {
   <div class="fw-card">
     <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="5" fill="#D4A870"/><circle cx="36" cy="36" r="2.5" fill="#fff" opacity=".9"/><line x1="36" y1="30" x2="36" y2="10" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="36" y1="42" x2="36" y2="62" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="33" x2="13" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="39" x2="59" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="30" y1="39" x2="13" y2="49" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/><line x1="42" y1="33" x2="59" y2="23" stroke="#D4A870" stroke-width="2.5" stroke-linecap="round"/></svg>
     <div class="fw-title" style="font-size:22px;font-weight:700;color:var(--txt);margin:12px 0 6px;">挑戰完成！</div>
-    <div style="font-size:13px;color:var(--sub);margin-bottom:18px;">你們一起完成了這個挑戰</div>
-    <button class="btn2 bpri" onclick="closeFw()" style="width:100%;">太棒了！</button>
-  </div>
-</div>
-
-<script>
+    <div style="font-size:13px;color:var(--sub);margin-bottom:18px;">你們一起完成了這個挑戰</di
 // ── 頁面載入時套用已儲存的主題 ──
 (function(){
   var saved = localStorage.getItem('beebo_theme') || 'green';
@@ -1649,6 +1645,14 @@ function showToast(msg){
   t._timer=setTimeout(function(){t.classList.remove('show');},2000);
 };
 var showToast = window.showToast;
+
+// ── 暴露 _init 函數到 window（供 module script 呼叫）──
+window['_initQuotes'] = _initQuotes;
+window['_initList'] = _initList;
+window['_initChals'] = _initChals;
+window['_initMems'] = _initMems;
+window['_initRests'] = _initRests;
+window['_initEvents'] = _initEvents;
 
 buildNavs();
 
@@ -3064,6 +3068,11 @@ window.showConfirmMo = showConfirmMo;
 
 // ── toggleForeignInput ──
 function toggleForeignInput(v){
+  var ff=document.getElementById('foreignFields');
+  if(ff)ff.style.display=v==='國外'?'flex':'none';
+}
+
+nput(v){
   var ff=document.getElementById('foreignFields');
   if(ff)ff.style.display=v==='國外'?'flex':'none';
 }
