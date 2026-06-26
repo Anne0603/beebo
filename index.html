@@ -747,17 +747,19 @@ window.startPairingCountdown = function(expiry, el) {
     const msgsRef = collection(db, 'couples', coupleId, 'messages');
     // 監聽最新50則（即時同步）
     const q = query(msgsRef, orderBy('createdAt', 'desc'), limit(50));
+    console.log('[_initMessages] 開始監聽, coupleId:', coupleId);
     window._msgUnsubscribe = onSnapshot(q, (snap) => {
       const msgs = [];
       snap.forEach(d => msgs.push({ id: d.id, ...d.data() }));
-      msgs.reverse(); // 舊 → 新
-      console.log('[onSnapshot messages] 收到', msgs.length, '則留言');
+      msgs.reverse();
+      console.log('[onSnapshot messages] 收到', msgs.length, '則, myUid:', myUid);
       window._messages = msgs;
-      window._renderMsgList(msgs, myUid);
-      window._updateHomeMsgCard(msgs, myUid);
-      if (typeof window._updateStats === 'function') window._updateStats();
+      if(typeof window._renderMsgList === 'function') window._renderMsgList(msgs, myUid);
+      if(typeof window._updateHomeMsgCard === 'function') window._updateHomeMsgCard(msgs, myUid);
+      if(typeof window._updateStats === 'function') window._updateStats();
     }, (err) => {
       console.error('[onSnapshot messages] 錯誤:', err.code, err.message);
+      window.showToast('留言同步失敗: ' + err.code);
     });
   };
 
@@ -841,14 +843,7 @@ window.startPairingCountdown = function(expiry, el) {
       window.showToast('傳送失敗: ' + (e.code || e.message || '未知錯誤'));
       inp.value = text;
     }
-  };
-
-e.message, e);
-      window.showToast('傳送失敗: ' + (e.code || e.message || '未知錯誤'));
-      inp.value = text;
-    }
-  };
-
+  }
 </script>
 </head>
 <body>
@@ -1085,7 +1080,7 @@ e.message, e);
       <div id="sysAchList" style="display:contents;"></div>
     </div>
   </div>
-  <button class="fab" onclick="goPageX('challenges')" style="bottom:76px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+  <button class="fab" onclick="window.goPageX('challenges');setTimeout(function(){window.openMo('addChalMo');},300);" style="bottom:76px;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 </div>
 
 <!-- REVIEW -->
@@ -2096,6 +2091,22 @@ window.setDC = function(v){dcCat=v;drawn=[];window.reroll();}
 window.openDecide = function(){
   drawn=[];
   if(!window._coupleId){window.showToast('請先配對才能使用此功能');return;}
+  // LIST 可能尚未載入（Firestore onSnapshot 非同步）
+  if(!LIST||!LIST.length){
+    var rnameEl=document.getElementById('rname');
+    var rcatEl=document.getElementById('rcat');
+    if(rnameEl) rnameEl.textContent='清單載入中...';
+    if(rcatEl) rcatEl.textContent='若有清單項目會自動顯示';
+    window.openMo('decideMo');
+    // 等待資料載入後重試
+    var tries=0;
+    var wait=setInterval(function(){
+      tries++;
+      if(LIST&&LIST.length){ clearInterval(wait); window.reroll(); }
+      if(tries>20) clearInterval(wait);
+    },300);
+    return;
+  }
   window.reroll();
   window.openMo('decideMo');
 };
