@@ -321,14 +321,29 @@ input[type=file]{display:none;}
 
       if (data.partnerId) {
         // ── 已配對 ──
+        const coupleId = [user.uid, data.partnerId].sort().join('_');
+        
         if (!window._coupleId) {
-          // 第一次配對：完整初始化
+          // 第一次：完整初始化
           await window._initAllCoupleFeatures(user.uid, data.partnerId);
-          if (typeof showToast === 'function' && document.getElementById('pairingMo') && document.getElementById('pairingMo').classList.contains('open')) {
+          if (document.getElementById('pairingMo') && document.getElementById('pairingMo').classList.contains('open')) {
             window.showToast('配對成功！歡迎使用嗶啵 💚');
           }
+        } else {
+          // 已初始化過（頁面重整後），直接啟動所有監聽
+          window._coupleId = coupleId;
+          if (!window._msgUnsubscribe) {
+            console.log('[重整後重啟] 直接啟動所有監聽');
+            if (typeof window._initList === 'function') window._initList(db, coupleId);
+            if (typeof window._initRests === 'function') window._initRests(db, coupleId);
+            if (typeof window._initChals === 'function') window._initChals(db, coupleId);
+            if (typeof window._initQuotes === 'function') window._initQuotes(db, coupleId);
+            if (typeof window._initMems === 'function') window._initMems(db, coupleId);
+            if (typeof window._initEvents === 'function') window._initEvents(db, coupleId);
+            window._initMessages(db, coupleId, user.uid);
+          }
         }
-        // 確保 pairingMo 關閉（不管從哪個路徑來）
+        // 確保 pairingMo 關閉
         var pm = document.getElementById('pairingMo');
         if (pm && pm.classList.contains('open')) pm.classList.remove('open');
       } else {
@@ -356,6 +371,10 @@ input[type=file]{display:none;}
     if (user) {
       window.currentUser = user;
       window._db = db;
+      // 每次重新登入/頁面載入都重置，讓 _startUserDocListener 重新初始化
+      window._coupleId = null;
+      window._initializing = false;
+      if (window._msgUnsubscribe) { window._msgUnsubscribe(); window._msgUnsubscribe = null; }
 
       // 隱藏登入畫面
       var ls = document.getElementById('loginScreen');
