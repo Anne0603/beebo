@@ -852,6 +852,15 @@ window.startPairingCountdown = function(expiry, el) {
       inp.value = text;
     }
   }
+
+// ── 暴露 module 函數到 window ──
+window['firebaseSignOut'] = firebaseSignOut;
+window['genInvitePairing'] = genInvitePairing;
+window['googleLogin'] = googleLogin;
+window['saveProfile'] = saveProfile;
+window['sendMsg'] = sendMsg;
+window['submitInviteCode'] = submitInviteCode;
+window['switchPairTab'] = switchPairTab;
 </script>
 </head>
 <body>
