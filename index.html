@@ -1490,6 +1490,7 @@ function goPage(p){
   if(next){
     next.classList.add('active');
     if(p==='settings' && typeof window.initSettingsPage==='function') window.initSettingsPage();
+    if(p==='notify') renderNotifPage();
     curPage=p;
     buildNavs();
   }
@@ -1718,12 +1719,102 @@ function saveVersion(){
   showToast('版本紀錄已新增');
 }
 
+
+// ── 地點管理 ──
+var TAIWAN_CITIES = ['台北市', '新北市', '基隆市', '桃園市', '新竹市', '新竹縣', '苗栗縣', '台中市', '彰化縣', '南投縣', '雲林縣', '嘉義市', '嘉義縣', '台南市', '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣'];
+function getCustomLocations(){try{return JSON.parse(localStorage.getItem('beebo_locations')||'[]');}catch(e){return[];}}
+function saveCustomLocations(locs){localStorage.setItem('beebo_locations',JSON.stringify(locs));}
+function getAllLocations(){return TAIWAN_CITIES.concat(getCustomLocations());}
+function fillLocationSelect(selId,includeEmpty){
+  var sel=document.getElementById(selId);
+  if(!sel)return;
+  var cur=sel.value;
+  var custom=getCustomLocations();
+  sel.innerHTML=(includeEmpty?'<option value="">選擇地點...</option>':'')+
+    '<optgroup label="台灣縣市">'+
+    TAIWAN_CITIES.map(function(loc){return '<option'+(loc===cur?' selected':'')+'>'+loc+'</option>';}).join('')+
+    '</optgroup>';
+  if(custom.length){
+    sel.innerHTML+='<optgroup label="國外地點">'+
+      custom.map(function(loc){return '<option'+(loc===cur?' selected':'')+'>'+loc+'</option>';}).join('')+
+      '</optgroup>';
+  }
+}
+function openLocationMgMo(){renderLocationMgList();openMo('locationMgMo');}
+function renderLocationMgList(){
+  var el=document.getElementById('locationMgList');
+  if(!el)return;
+  var locs=getCustomLocations();
+  if(!locs.length){el.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">尚未新增國外地點</div>';return;}
+  el.innerHTML=locs.map(function(loc,i){
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;">'
+      +'<span style="flex:1;font-size:13px;">📍 '+loc+'</span>'
+      +'<button onclick="delLocationItem('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:18px;line-height:1;">×</button>'
+      +'</div>';
+  }).join('');
+}
+function addLocationItem(){
+  var country=(document.getElementById('newLocationCountry')||{}).value||'';
+  var city=((document.getElementById('newLocationCity')||{}).value||'').trim();
+  if(!country||!city){showToast('請選擇國家並輸入城市名稱');return;}
+  var loc=country+'・'+city;
+  var locs=getCustomLocations();
+  if(locs.includes(loc)){showToast('此地點已存在');return;}
+  locs.push(loc);saveCustomLocations(locs);
+  var cityEl=document.getElementById('newLocationCity');if(cityEl)cityEl.value='';
+  var countryEl=document.getElementById('newLocationCountry');if(countryEl)countryEl.value='';
+  renderLocationMgList();showToast('地點已新增 ✓');
+}
+function delLocationItem(idx){var locs=getCustomLocations();locs.splice(idx,1);saveCustomLocations(locs);renderLocationMgList();}
+function goToLocationFilter(location){
+  goPageX('restaurants');
+  setTimeout(function(){
+    var cf=document.getElementById('restCityFilter');
+    if(cf){for(var i=0;i<cf.options.length;i++){if(cf.options[i].value===location||cf.options[i].text===location){cf.selectedIndex=i;break;}}if(typeof setRC==='function')setRC(cf.value);}
+  },300);
+}
+
+// ── 通知系統 ──
+function addNotif(msg,type){
+  try{
+    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
+    notifs.unshift({msg:msg,type:type||'info',time:Date.now()});
+    if(notifs.length>50)notifs=notifs.slice(0,50);
+    localStorage.setItem('beebo_notifs',JSON.stringify(notifs));
+    renderNotifPage();
+    var dot=document.getElementById('notifDot');
+    if(dot)dot.style.display='block';
+  }catch(e){}
+}
+function renderNotifPage(){
+  var el=document.getElementById('notifBody');
+  if(!el)return;
+  var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
+  if(!notifs.length){el.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div>';return;}
+  var icons={info:'💬',chal:'⭐',list:'✅',mem:'📷',rest:'🍽️'};
+  el.innerHTML=notifs.map(function(n){
+    var d=new Date(n.time);
+    var ts=(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--card);border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
+      +'<div style="font-size:20px;flex-shrink:0;">'+(icons[n.type]||'🔔')+'</div>'
+      +'<div style="flex:1;min-width:0;">'
+      +'<div style="font-size:13px;color:var(--txt);line-height:1.4;">'+n.msg+'</div>'
+      +'<div style="font-size:11px;color:var(--sub);margin-top:3px;">'+ts+'</div>'
+      +'</div></div>';
+  }).join('');
+}
 function clearNotify(days){
-  var msg = days===0 ? '確定要清除全部通知嗎？' : '確定要清除'+days+'天前的通知嗎？';
-  if(!confirm(msg)) return;
-  closeMo('clearNotifyMo');
-  showToast('通知已清除');
-};
+  if(days===0){localStorage.removeItem('beebo_notifs');}
+  else{
+    var cutoff=Date.now()-days*86400000;
+    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
+    notifs=notifs.filter(function(n){return n.time>cutoff;});
+    localStorage.setItem('beebo_notifs',JSON.stringify(notifs));
+  }
+  renderNotifPage();showToast('通知已清除');
+}
+
+
 
 function showToast(msg){
   var t=document.getElementById('toast');
@@ -1935,7 +2026,7 @@ function renderList(){
   var body=document.getElementById('listBody');
   if(!body)return;
   if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
-  var items=LIST.filter(function(i){return (listTab==='pending'?!i.done:i.done)&&(listCat==='全部'||i.c===listCat);
+  var items=LIST.filter(function(i){return (listTab==='pending'?!i.done:i.done)&&(listCat==='全部'||i.c===listCat);});
   var listQ=((document.getElementById('listSearch')||{}).value||'').toLowerCase();
   var listMo=(document.getElementById('listMonthFilter')||{}).value||'';
   if(listQ) items=items.filter(function(i){return (i.n||'').toLowerCase().includes(listQ);});
@@ -1949,7 +2040,7 @@ function renderList(){
     LIST.forEach(function(i){if(i.createdAt&&i.createdAt.seconds){var d=new Date(i.createdAt.seconds*1000);lmonths.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));}});
     var lsorted=Array.from(lmonths).sort().reverse();
     lsorted.forEach(function(m){var o=document.createElement('option');o.value=m;o.textContent=m;listMonSel.appendChild(o);});
-  }});
+  }
   if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">'+(listTab==='pending'?'沒有待完成項目，新增一個吧！':'還沒有完成的項目')+'</div>';return;}
   var html='';
   for(var idx=0;idx<items.length;idx++){
@@ -2056,6 +2147,7 @@ async function addFromInspire(n,cat){
     n:n,c:cat,done:false,by:myName,at:at,createdAt:serverTimestamp()
   });
   showToast('已加入清單 ✓');
+  addNotif('新增了清單：' + name.trim(), 'list');
 }
 
 // CHALLENGES
@@ -2107,8 +2199,37 @@ function renderChal(){
   var myUid = window.currentUser ? window.currentUser.uid : '';
   var myName = (window.userData && window.userData.name) || '我';
   var partnerName = (window.partnerData && window.partnerData.name) || '對方';
-  var items=CHALS.filter(function(c){return c.status===chalTab;});
-  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">沒有項目</div>';return;}
+  var items=CHALS.filter(function(c){return c.status===chalTab;}).sort(function(a,b){
+    if(chalTab!=='active') return 0;
+    if(!a.deadline&&!b.deadline) return 0;
+    if(!a.deadline) return 1; if(!b.deadline) return -1;
+    return new Date(a.deadline)-new Date(b.deadline);
+  });
+  // 搜尋 + 月份篩選
+  var chalQ=((document.getElementById('chalSearch')||{}).value||'').toLowerCase().trim();
+  var chalMo=(document.getElementById('chalMonthFilter')||{}).value||'';
+  if(chalQ) items=items.filter(function(ch){return (ch.name||'').toLowerCase().includes(chalQ);});
+  if(chalMo) items=items.filter(function(ch){
+    var d=ch.createdAt&&ch.createdAt.seconds?new Date(ch.createdAt.seconds*1000):(ch.deadline?new Date(ch.deadline):null);
+    if(!d) return false;
+    return (d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'))===chalMo;
+  });
+  // 更新月份選單
+  var chalMonSel=document.getElementById('chalMonthFilter');
+  if(chalMonSel&&chalMonSel.options.length<=1){
+    var months=new Set();
+    CHALS.forEach(function(ch){if(ch.createdAt&&ch.createdAt.seconds){var d=new Date(ch.createdAt.seconds*1000);months.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'));}});
+    Array.from(months).sort().reverse().forEach(function(m){
+      var o=document.createElement('option');
+      var parts=m.split('-');
+      o.value=m; o.textContent=parts[0]+'年'+parseInt(parts[1])+'月';
+      chalMonSel.appendChild(o);
+    });
+  }
+  if(!items.length){
+    body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">'+(chalQ||chalMo?'沒有符合的項目':'沒有項目')+'</div>';
+    return;
+  }
   var html='';
   for(var i=0;i<items.length;i++){
     var ch=items[i];
@@ -2278,6 +2399,7 @@ async function addChal(){
   var de=document.getElementById('newChalDeadline');if(de)de.value='';
   closeMo('addChalMo');
   showToast('挑戰已新增！加油 💪');
+  addNotif('新增了挑戰：' + name.trim(), 'chal');
 }
 
 // DECIDE
@@ -2875,20 +2997,107 @@ function confirmLinkList(){
 async function openMemDetail(id){
   var m=MEMS.find(function(x){return x.id===id;});
   if(!m)return;
-  // 建立或更新詳情 modal
   var modal=document.getElementById('memDetailMo');
   if(!modal){
     modal=document.createElement('div');
     modal.className='mo';modal.id='memDetailMo';
     document.body.appendChild(modal);
   }
-  var dateStr=m.dateStart||(m.year&&m.month?m.year+'/'+m.month:'');
-  if(m.dateEnd&&m.dateEnd!==m.dateStart) dateStr+=(' → '+m.dateEnd);
-  var cityStr=m.city||(m.country?(m.country+(m.foreignCity?' '+m.foreignCity:'')):'');
-  var photosHtml=m.photos&&m.photos.length?
-    '<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;">'+
-    m.photos.map(function(p){return '<img src="'+p+'" style="height:120px;border-radius:10px;object-fit:cover;flex-shrink:0;">';}).join('')+
-    '</div>':'<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;background:var(--card2);border-radius:10px;">還沒有照片</div>';
+  var mbox=document.createElement('div');
+  mbox.className='mbox';mbox.style.maxHeight='90vh';mbox.style.overflowY='auto';
+  var mh=document.createElement('div');mh.className='mh';
+  var title=document.createElement('span');title.className='mtit';title.textContent=m.title||'回憶';
+  var closeBtn=document.createElement('button');closeBtn.className='mcl';closeBtn.textContent='×';
+  closeBtn.onclick=function(){closeMo('memDetailMo');};
+  mh.appendChild(title);mh.appendChild(closeBtn);mbox.appendChild(mh);
+
+  var body=document.createElement('div');
+  body.style.cssText='display:flex;flex-direction:column;gap:12px;';
+
+  // 日期
+  var dateStr=m.dateStart||'';
+  if(m.dateEnd&&m.dateEnd!==m.dateStart) dateStr+=' → '+m.dateEnd;
+  if(dateStr){var dd=document.createElement('div');dd.style.cssText='font-size:12px;color:var(--sub);';dd.textContent='📅 '+dateStr;body.appendChild(dd);}
+
+  // 地點
+  var cityStr=m.city||(m.country?(m.country+(m.foreignCity?' · '+m.foreignCity:'')):'');
+  if(cityStr){var cc=document.createElement('div');cc.style.cssText='font-size:12px;color:var(--sub);';cc.textContent='📍 '+cityStr;body.appendChild(cc);}
+
+  // 照片
+  if(m.photos&&m.photos.length){
+    var prow=document.createElement('div');
+    prow.style.cssText='display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;';
+    m.photos.forEach(function(p){
+      var img=document.createElement('img');
+      img.src=p;img.style.cssText='height:140px;border-radius:10px;object-fit:cover;flex-shrink:0;cursor:pointer;';
+      img.onclick=function(){window.open(p,'_blank');};
+      prow.appendChild(img);
+    });
+    body.appendChild(prow);
+  } else {
+    var noPhoto=document.createElement('div');
+    noPhoto.style.cssText='text-align:center;color:var(--sub);font-size:12px;padding:14px;background:var(--card2);border-radius:10px;';
+    noPhoto.textContent='還沒有照片，點下方新增';
+    body.appendChild(noPhoto);
+  }
+
+  // 心得
+  if(m.note){
+    var note=document.createElement('div');
+    note.style.cssText='font-size:13px;color:var(--txt);line-height:1.7;white-space:pre-wrap;background:var(--card2);padding:10px;border-radius:10px;';
+    note.textContent=m.note;body.appendChild(note);
+  }
+
+  // 關聯餐廳
+  if(m.linkedRests&&m.linkedRests.length){
+    var restDiv=document.createElement('div');
+    restDiv.style.cssText='background:var(--card2);border-radius:10px;padding:10px;';
+    var restTitle=document.createElement('div');
+    restTitle.style.cssText='font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;';
+    restTitle.textContent='關聯餐廳';
+    restDiv.appendChild(restTitle);
+    m.linkedRests.forEach(function(rid){
+      var r=RESTS.find(function(x){return x.id===rid;});
+      if(r){var d=document.createElement('div');d.style.cssText='font-size:12px;color:var(--txt);padding:3px 0;';d.textContent='🍽 '+r.name+(r.city?' · '+r.city:'');restDiv.appendChild(d);}
+    });
+    if(restDiv.children.length>1) body.appendChild(restDiv);
+  } else if(RESTS.length===0){
+    var noRest=document.createElement('div');
+    noRest.style.cssText='font-size:11px;color:var(--sub);text-align:center;padding:6px;';
+    noRest.textContent='尚未建立餐廳記錄';
+    body.appendChild(noRest);
+  }
+
+  // 關聯清單/挑戰
+  if(m.linkedItems&&m.linkedItems.length){
+    var listDiv=document.createElement('div');
+    listDiv.style.cssText='background:var(--card2);border-radius:10px;padding:10px;';
+    var listTitle=document.createElement('div');
+    listTitle.style.cssText='font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;';
+    listTitle.textContent='關聯清單／挑戰';
+    listDiv.appendChild(listTitle);
+    m.linkedItems.forEach(function(item){
+      var el=document.createElement('div');el.style.cssText='font-size:12px;color:var(--txt);padding:3px 0;';
+      if(item.startsWith('list:')){var li=LIST.find(function(x){return x.id===item.slice(5);});if(li){el.textContent='✅ '+li.n;listDiv.appendChild(el);}}
+      else if(item.startsWith('chal:')){var ch=CHALS.find(function(x){return x.id===item.slice(5);});if(ch){el.textContent='⭐ '+ch.name;listDiv.appendChild(el);}}
+    });
+    if(listDiv.children.length>1) body.appendChild(listDiv);
+  }
+
+  // 按鈕
+  var btns=document.createElement('div');btns.style.cssText='display:flex;gap:8px;';
+  var addPhotoBtn=document.createElement('button');addPhotoBtn.className='btn2 bsec';
+  addPhotoBtn.style.flex='1';addPhotoBtn.style.fontSize='12px';addPhotoBtn.textContent='新增照片';
+  addPhotoBtn.onclick=function(){addMemPhoto(m.id);};
+  var delBtn=document.createElement('button');
+  delBtn.style.cssText="all:unset;flex:1;text-align:center;font-size:12px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;";
+  delBtn.textContent='刪除回憶';delBtn.onclick=function(){deleteMemConfirm(m.id);};
+  btns.appendChild(addPhotoBtn);btns.appendChild(delBtn);body.appendChild(btns);
+
+  mbox.appendChild(body);
+  modal.innerHTML='';modal.appendChild(mbox);
+  openMo('memDetailMo');
+}
 async function addMemPhoto(memId){
   var input=document.createElement('input');
   input.type='file';input.accept='image/*';input.multiple=true;
@@ -3102,8 +3311,6 @@ async function abandonChalFromDetail(){
   if(!_detailChalId||!confirm('確定要放棄這個挑戰嗎？')) return;
   await abandonChal(_detailChalId);
   closeMo('chalDetailMo');
-}
-
 }
 
 // ══════════════════════════════════════════
