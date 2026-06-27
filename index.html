@@ -14,7 +14,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .sc{flex:1;overflow-y:auto;padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
 .sc::-webkit-scrollbar{display:none;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.pt{font-size:18px;font-weight:700;color:var(--txt);padding:14px 13px 2px;flex-shrink:0;display:flex;align-items:center;gap:8px;}
+.pt{font-size:20px;font-weight:700;color:var(--txt);padding:16px 16px 4px;flex-shrink:0;display:flex;align-items:center;gap:8px;}
 .bnav{flex-shrink:0;height:72px;background:var(--card);border-top:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-around;padding:0 4px 10px;box-shadow:0 -2px 12px var(--shd);}
 .nb{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;border:none;background:transparent;padding:8px 0;cursor:pointer;}
 .nl{font-size:11px;color:var(--sub);font-family:"Noto Sans TC",sans-serif;}
@@ -60,7 +60,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .qs{font-size:10px;color:var(--sub);}
 .tabs{display:flex;gap:6px;padding:4px 0;flex-shrink:0;overflow-x:auto;}
 .tabs::-webkit-scrollbar{display:none;}
-.tab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--card);color:var(--sub);white-space:nowrap;flex-shrink:0;}
+.tab{padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--bdr);background:var(--card);color:var(--sub);white-space:nowrap;flex-shrink:0;}
 .tab.on{background:var(--accent);color:#fff;border-color:var(--accent);}
 .li{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border-radius:14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);}
 .li.swiped{transform:translateX(-70px);}
@@ -994,8 +994,8 @@ window['switchPairTab'] = switchPairTab;
   </div>
   <div style="padding:0 13px;flex-shrink:0;">
     <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <input id="listSearch" class="fi" placeholder="🔍 搜尋清單..." oninput="renderList()" style="flex:2;padding:7px 10px;font-size:12px;">
-      <select id="listMonthFilter" onchange="renderList()" style="flex:1;padding:7px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+      <input id="listSearch" class="fi" placeholder="🔍 搜尋清單..." oninput="renderList()" style="flex:2;padding:10px 10px;font-size:12px;">
+      <select id="listMonthFilter" onchange="renderList()" style="flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
         <option value="">全部時間</option>
       </select>
     </div>
@@ -1015,8 +1015,8 @@ window['switchPairTab'] = switchPairTab;
   </div>
   <div style="padding:0 13px;flex-shrink:0;">
     <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <input id="chalSearch" class="fi" placeholder="🔍 搜尋挑戰..." oninput="renderChal()" style="flex:2;padding:7px 10px;font-size:12px;">
-      <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:7px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+      <input id="chalSearch" class="fi" placeholder="🔍 搜尋挑戰..." oninput="renderChal()" style="flex:2;padding:10px 10px;font-size:12px;">
+      <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
         <option value="">全部時間</option>
       </select>
     </div>
@@ -1122,7 +1122,7 @@ window['switchPairTab'] = switchPairTab;
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="9" rx="1" fill="#4A7A58" opacity=".7"/><rect x="10" y="6" width="4" height="15" rx="1" fill="#4A7A58"/><rect x="17" y="9" width="4" height="12" rx="1" fill="#4A7A58" opacity=".7"/></svg>我們的回顧
   </div>
-  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select id="reviewYearSel" onchange="setRY(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPage('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div id="reviewChart" style="display:flex;justify-content:space-around;align-items:flex-end;height:60px;padding:0 4px;gap:2px;"></div></div></div>
+  <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select id="reviewYearSel" onchange="setRY(this.value)" style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPage('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">今年約會</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div id="reviewChart" style="display:flex;justify-content:space-around;align-items:flex-end;height:60px;padding:0 4px;gap:2px;"></div></div></div>
 </div>
 
 <!-- CALENDAR -->
@@ -1158,8 +1158,8 @@ window['switchPairTab'] = switchPairTab;
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8c0 3.3-2.7 6-6 6S6 11.3 6 8V3h12v5z" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 14v7M8 21h8" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>餐廳記錄
   </div>
-  <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;"><div style="display:flex;gap:6px;"><select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option><option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>新竹市</option><option>新竹縣</option><option>苗栗縣</option><option>台中市</option><option>彰化縣</option><option>南投縣</option><option>雲林縣</option><option>嘉義市</option><option>嘉義縣</option><option>台南市</option><option>高雄市</option><option>屏東縣</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option><option>國外</option><option>台南市</option><option>花蓮縣</option><option>台東縣</option><option>國外</option></select></div><div id="foreignFilterRow" style="display:none;gap:6px;"><select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select></div>
-<div style="display:flex;gap:6px;"><select id="restTypeFilter" onchange="setRT(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部類型</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>其他</option></select></div>
+  <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;"><div style="display:flex;gap:6px;"><select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option><option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>新竹市</option><option>新竹縣</option><option>苗栗縣</option><option>台中市</option><option>彰化縣</option><option>南投縣</option><option>雲林縣</option><option>嘉義市</option><option>嘉義縣</option><option>台南市</option><option>高雄市</option><option>屏東縣</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option><option>國外</option><option>台南市</option><option>花蓮縣</option><option>台東縣</option><option>國外</option></select></div><div id="foreignFilterRow" style="display:none;gap:6px;"><select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select></div>
+<div style="display:flex;gap:6px;"><select id="restTypeFilter" onchange="setRT(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部類型</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>其他</option></select></div>
   <div class="sc" id="restBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addRestMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 </div>
@@ -1518,6 +1518,9 @@ function openMo(id){
       if(el && !el.value) el.value = today;
     });
   }
+  // 地點選單填充
+  if(id === 'addRestMo') fillLocationSelect('newRC2', true);
+  if(id === 'addMemMo') fillLocationSelect('newMemCity', true);
   if(id==='msgMo'){
     // 重新渲染確保最新 + 捲到底
     if(window._messages && window.currentUser){
@@ -2282,7 +2285,9 @@ var dcCat='全部',drawn=[];
 function setDC(v){dcCat=v;drawn=[];reroll();}
 function openDecide(){
   drawn=[];
-  console.log('[openDecide] _coupleId:', window._coupleId, 'LIST:', LIST.length);
+  console.log('[openDecide] _coupleId:', window._coupleId, 'LIST length:', LIST ? LIST.length : 'null');
+  var decideMoEl = document.getElementById('decideMo');
+  console.log('[openDecide] decideMo element:', decideMoEl ? '找到' : '找不到！');
   if(!window._coupleId){showToast('請先配對才能使用此功能');return;}
   // LIST 可能尚未載入（Firestore onSnapshot 非同步）
   if(!LIST||!LIST.length){
@@ -2391,8 +2396,12 @@ async function addMem(){
   var d1=(document.getElementById('newMemDate1')||{}).value||'';
   var d2=(document.getElementById('newMemDate2')||{}).value||'';
   var city=(document.getElementById('newMemCity')||{}).value||'';
-  var country=(document.getElementById('newMemCountry')||{}).value||'';
-  var foreignCity=(document.getElementById('newMemFCity')||{}).value||'';
+  var country=''; var foreignCity='';
+  // 新格式：地點統一在 city 欄位（例如「台北市」或「日本・東京」）
+  if(city.includes('・')) {
+    var parts=city.split('・');
+    country=parts[0]; foreignCity=parts[1];
+  }
   var note=(document.getElementById('newMemNote')||{}).value||'';
   var year=d1?parseInt(d1.split('-')[0]):new Date().getFullYear();
   var month=d1?parseInt(d1.split('-')[1]):new Date().getMonth()+1;
