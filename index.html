@@ -110,7 +110,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .ri-city{display:inline-block;font-size:9px;background:var(--lt);color:var(--accent);padding:2px 7px;border-radius:8px;font-weight:600;margin-top:4px;}
 .stg{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
 .stc{background:var(--card);border-radius:14px;padding:12px 13px;border:1px solid var(--bdr);box-shadow:0 2px 8px var(--shd);}
-.stn{font-size:24px;font-weight:700;color:var(--txt);}
+.stn{font-size:28px;font-weight:700;color:var(--txt);word-break:break-all;}
 .stl{font-size:10px;color:var(--sub);margin-top:2px;}
 .cdow{font-size:10px;color:var(--sub);text-align:center;padding:4px 0;font-weight:600;}
 .cday{font-size:12px;color:var(--txt);text-align:center;padding:6px 2px;cursor:pointer;border-radius:50%;}
@@ -993,6 +993,12 @@ window['switchPairTab'] = switchPairTab;
     <div style="margin-left:auto;"><button onclick="openMo('inspireMo')" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button></div>
   </div>
   <div style="padding:0 13px;flex-shrink:0;">
+    <div style="display:flex;gap:6px;margin-bottom:6px;">
+      <input id="listSearch" class="fi" placeholder="🔍 搜尋清單..." oninput="renderList()" style="flex:2;padding:7px 10px;font-size:12px;">
+      <select id="listMonthFilter" onchange="renderList()" style="flex:1;padding:7px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+        <option value="">全部時間</option>
+      </select>
+    </div>
     <div class="tabs"><div class="tab on" onclick="setListTab('pending',this)">未完成</div><div class="tab" onclick="setListTab('done',this)">已完成</div></div>
     <div class="tabs" id="catTabs" style="margin-top:2px;"><div class="tab on" onclick="setListCat('全部',this)">全部</div><div class="tab" onclick="setListCat('想去哪',this)">想去哪</div><div class="tab" onclick="setListCat('想吃什麼',this)">想吃什麼</div><div class="tab" onclick="setListCat('想做什麼',this)">想做什麼</div><div class="tab" onclick="setListCat('想看什麼',this)">想看什麼</div></div>
   </div>
@@ -1007,7 +1013,15 @@ window['switchPairTab'] = switchPairTab;
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰
   </div>
-  <div style="padding:0 13px;flex-shrink:0;"><div class="tabs"><div class="tab on" onclick="setChalTab('active',this)">進行中</div><div class="tab" onclick="setChalTab('done',this)">已完成</div><div class="tab" onclick="setChalTab('failed',this)">已失敗</div></div></div>
+  <div style="padding:0 13px;flex-shrink:0;">
+    <div style="display:flex;gap:6px;margin-bottom:6px;">
+      <input id="chalSearch" class="fi" placeholder="🔍 搜尋挑戰..." oninput="renderChal()" style="flex:2;padding:7px 10px;font-size:12px;">
+      <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:7px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+        <option value="">全部時間</option>
+      </select>
+    </div>
+    <div class="tabs"><div class="tab on" onclick="setChalTab('active',this)">進行中</div><div class="tab" onclick="setChalTab('done',this)">已完成</div><div class="tab" onclick="setChalTab('failed',this)">已失敗</div></div>
+  </div>
   <div class="sc" id="chalBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addChalMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
   <div class="bnav" id="bnav-challenges"></div>
@@ -1143,7 +1157,7 @@ window['switchPairTab'] = switchPairTab;
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8c0 3.3-2.7 6-6 6S6 11.3 6 8V3h12v5z" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 14v7M8 21h8" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>餐廳記錄
   </div>
-  <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;"><div style="display:flex;gap:6px;"><select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option><option>台北市</option><option>新北市</option><option>台中市</option><option>台南市</option><option>高雄市</option><option>桃園市</option><option>新竹市</option><option>台南市</option><option>花蓮縣</option><option>台東縣</option><option>國外</option></select></div><div id="foreignFilterRow" style="display:none;gap:6px;"><select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select></div>
+  <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;"><div style="display:flex;gap:6px;"><select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option><option>台北市</option><option>新北市</option><option>基隆市</option><option>桃園市</option><option>新竹市</option><option>新竹縣</option><option>苗栗縣</option><option>台中市</option><option>彰化縣</option><option>南投縣</option><option>雲林縣</option><option>嘉義市</option><option>嘉義縣</option><option>台南市</option><option>高雄市</option><option>屏東縣</option><option>宜蘭縣</option><option>花蓮縣</option><option>台東縣</option><option>澎湖縣</option><option>金門縣</option><option>連江縣</option><option>國外</option><option>台南市</option><option>花蓮縣</option><option>台東縣</option><option>國外</option></select></div><div id="foreignFilterRow" style="display:none;gap:6px;"><select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select></div>
 <div style="display:flex;gap:6px;"><select id="restTypeFilter" onchange="setRT(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部類型</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>其他</option></select></div>
   <div class="sc" id="restBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addRestMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -1160,6 +1174,31 @@ window['switchPairTab'] = switchPairTab;
   <div id="calDayContent" style="display:flex;flex-direction:column;gap:8px;"></div>
   <button onclick="closeMo('calDayMo');openMo('addEventMo')" class="btn2 bpri" style="width:100%;">新增這天的約會</button>
 </div></div></div>
+<div class="mo" id="addChalMo"><div class="mbox"><div class="mh"><span class="mtit">新增挑戰</span><button class="mcl" onclick="closeMo('addChalMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="fg"><label class="fl">挑戰名稱（必填）</label><input class="fi" id="newChalName" placeholder="e.g. 一起去看星星"></div>
+  <div class="fg"><label class="fl">分類</label>
+    <select class="fi" id="newChalCat" style="padding:8px 10px;">
+      <option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>感情類</option><option>娛樂類</option><option>學習類</option><option>其他</option>
+    </select>
+  </div>
+  <div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="newChalDeadline"></div>
+  <div class="fg"><label class="fl">說明（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="挑戰說明..."></textarea></div>
+  <button onclick="addChal()" class="btn2 bpri" style="width:100%;">新增</button>
+</div></div></div>
+<div class="mo" id="chalDetailMo"><div class="mbox"><div class="mh"><span class="mtit" id="chalDetailTitle">挑戰詳情</span><button class="mcl" onclick="closeMo('chalDetailMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:12px;">
+  <div class="fg"><label class="fl">挑戰名稱</label><input class="fi" id="chalDetailName" placeholder="挑戰名稱"></div>
+  <div class="fg"><label class="fl">分類</label><select class="fi" id="chalDetailCat" style="padding:8px 10px;">
+    <option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>感情類</option><option>娛樂類</option><option>學習類</option><option>其他</option>
+  </select></div>
+  <div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="chalDetailDeadline"></div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="saveChalDetailEdit()" class="btn2 bpri" style="flex:1;">儲存</button>
+    <button onclick="confirmAction('確定要放棄這個挑戰嗎？','abandonChalFromDetail')" class="btn2" style="flex:1;background:#fdecea;color:#c62828;border:none;border-radius:14px;padding:10px;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">放棄挑戰</button>
+  </div>
+</div></div></div>
+
 <div class="mo" id="addChalMo"><div class="mbox"><div class="mh"><span class="mtit">新增挑戰</span><button class="mcl" onclick="closeMo('addChalMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
   <div class="fg"><label class="fl">挑戰名稱（必填）</label><input class="fi" id="newChalName" placeholder="e.g. 一起去看星星"></div>
@@ -2981,15 +3020,36 @@ function deleteEventFromDay(){deleteEvent();closeMo('calDayMo');}
 
 // ── chalDetailMo ──
 var _detailChalId=null;
-function openChalDetail(id){_detailChalId=id;openMo('chalDetailMo');}
+function openChalDetail(id){
+  _detailChalId=id;
+  var ch=CHALS.find(function(c){return c.id===id;});
+  if(ch){
+    var nm=document.getElementById('chalDetailName');
+    var cat=document.getElementById('chalDetailCat');
+    var dl=document.getElementById('chalDetailDeadline');
+    var tt=document.getElementById('chalDetailTitle');
+    if(nm) nm.value=ch.name||'';
+    if(cat) cat.value=ch.cat||'探索類';
+    if(dl) dl.value=ch.deadline||'';
+    if(tt) tt.textContent=ch.name||'挑戰詳情';
+  }
+  openMo('chalDetailMo');
+}
 async function saveChalDetailEdit(){
-  if(!_detailChalId) return;
+  if(!_detailChalId||!window._fsOps) return;
+  var nm=document.getElementById('chalDetailName');
+  var cat=document.getElementById('chalDetailCat');
   var dl=document.getElementById('chalDetailDeadline');
-  if(!dl||!window._fsOps) return;
+  var name=(nm&&nm.value.trim())||'';
+  if(!name){showToast('請輸入挑戰名稱');return;}
   var {doc,updateDoc}=window._fsOps;
-  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_detailChalId),{deadline:dl.value});
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_detailChalId),{
+    name:name,
+    cat:(cat&&cat.value)||'探索類',
+    deadline:(dl&&dl.value)||''
+  });
   closeMo('chalDetailMo');
-  showToast('截止日期已更新 ✓');
+  showToast('已儲存 ✓');
 }
 async function abandonChalFromDetail(){
   if(!_detailChalId||!confirm('確定要放棄這個挑戰嗎？')) return;
@@ -3153,71 +3213,6 @@ function initSettingsPage(){
   var sv = document.getElementById('notifyDelSv');
   if(sv) sv.textContent = (days == 0 ? '永久' : days + ' 天') + ' ›';
 };
-
-// ── showConfirmMo 補上 window. ──
-window.showConfirmMo = showConfirmMo;
-
-// ── 挑戰分類管理 Modal ──
-function openChalCatMo() {
-  renderChalCatMg();
-  openMo('chalCatMo');
-}
-function renderChalCatMg() {
-  var cats = getChalCats();
-  var el = document.getElementById('chalCatList');
-  if(!el) return;
-  el.innerHTML = cats.map(function(cat, i) {
-    return '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;">'
-      + '<span style="flex:1;font-size:13px;">'+cat+'</span>'
-      + (DEFAULT_CHAL_CATS.includes(cat) ? '<span style="font-size:10px;color:var(--sub);">預設</span>' : '')
-      + (!DEFAULT_CHAL_CATS.includes(cat) ? '<button onclick="delChalCat('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:13px;">✕</button>' : '')
-      + '</div>';
-  }).join('');
-  // 同步分類選單
-  renderChalCatSelects();
-}
-function addChalCatItem() {
-  var el = document.getElementById('newChalCatName');
-  var name = el ? el.value.trim() : '';
-  if(!name) { showToast('請輸入分類名稱'); return; }
-  var cats = getChalCats();
-  if(cats.includes(name)) { showToast('分類已存在'); return; }
-  cats.push(name);
-  saveChalCats(cats);
-  if(el) el.value = '';
-  renderChalCatMg();
-  showToast('已新增分類 ✓');
-}
-function delChalCat(idx) {
-  var cats = getChalCats();
-  if(DEFAULT_CHAL_CATS.includes(cats[idx])) { showToast('預設分類無法刪除'); return; }
-  cats.splice(idx, 1);
-  saveChalCats(cats);
-  renderChalCatMg();
-}
-
-// ── toggleForeignInput ──
-function toggleForeignInput(v){
-  var ff=document.getElementById('foreignFields');
-  if(ff)ff.style.display=v==='國外'?'flex':'none';
-}
-
-// ── 暴露 _init 函數到 window（供 module script 呼叫）──
-window['_initQuotes'] = _initQuotes;
-window['_initList'] = _initList;
-window['_initChals'] = _initChals;
-window['_initMems'] = _initMems;
-window['_initRests'] = _initRests;
-window['_initEvents'] = _initEvents;
-
-// ── showConfirmMo 補上 window. ──
-window.showConfirmMo = showConfirmMo;
-
-// ── toggleForeignInput ──
-function toggleForeignInput(v){
-  var ff=document.getElementById('foreignFields');
-  if(ff)ff.style.display=v==='國外'?'flex':'none';
-}
 
 // ── 暴露 _init 函數到 window（供 module script 呼叫）──
 window['_initQuotes'] = _initQuotes;
