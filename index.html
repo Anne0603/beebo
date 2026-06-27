@@ -252,11 +252,9 @@ input[type=file]{display:none;}
 
   // 初始化 couple 所有功能（只跑一次）
   window._initAllCoupleFeatures = async function(uid, partnerId) {
-    if (window._initializing) return;
-    window._initializing = true;
-
     const coupleId = [uid, partnerId].sort().join('_');
     window._coupleId = coupleId;
+    window._initializing = true;
 
     // 載入夥伴資料
     try {
@@ -272,84 +270,41 @@ input[type=file]{display:none;}
       }
     } catch(e) { console.warn('載入夥伴資料失敗', e); }
 
-    // 初始化 couple document + 所有功能
+    // 初始化 couple document
     try { await window._initCouple(db, coupleId, uid, window.userData); } catch(e) { console.warn(e); }
-    // 等主 script 的 _init 函數載入後才呼叫（setTimeout 0 確保順序）
-    // 等主 script 完全執行後再初始化
-    function _doInit() {
-      // 等待 main script 把 _init 函數掛到 window
-      console.log('[_doInit] 檢查 _initList:', typeof window._initList, '_initEvents:', typeof window._initEvents);
-      if (typeof window._initList !== 'function' || typeof window._initEvents !== 'function') {
-        setTimeout(_doInit, 50); return;
-      }
-      console.log('[_doInit] 開始初始化 coupleId:', coupleId);
-      window._initList(db, coupleId);
-      if(typeof window._initMems === 'function') window._initMems(db, coupleId);
-      if(typeof window._initEvents === 'function') window._initEvents(db, coupleId);
-      window._initRests(db, coupleId);
-      window._initChals(db, coupleId);
-      window._initQuotes(db, coupleId);
-      window._initMessages(db, coupleId, uid);
-    }
-    _doInit();
 
-    // 關閉配對 modal，進入主頁
+    // 等待 main script 的 _init 函數（最多等 3 秒）
+    await new Promise(function(resolve) {
+      var tries = 0;
+      function check() {
+        if (typeof window._initList === 'function') {
+          resolve();
+        } else if (tries++ < 60) {
+          setTimeout(check, 50);
+        } else {
+          console.error('[_initAllCoupleFeatures] 等待 _initList 超時');
+          resolve();
+        }
+      }
+      check();
+    });
+
+    // 啟動所有監聽
+    console.log('[initAllCoupleFeatures] 啟動所有監聽, coupleId:', coupleId);
+    if (typeof window._initList === 'function') window._initList(db, coupleId);
+    if (typeof window._initRests === 'function') window._initRests(db, coupleId);
+    if (typeof window._initChals === 'function') window._initChals(db, coupleId);
+    if (typeof window._initQuotes === 'function') window._initQuotes(db, coupleId);
+    if (typeof window._initMems === 'function') window._initMems(db, coupleId);
+    if (typeof window._initEvents === 'function') window._initEvents(db, coupleId);
+    window._initMessages(db, coupleId, uid);
+
+    window._initializing = false;
+
+    // 關閉配對 modal
     var pm = document.getElementById('pairingMo');
     if (pm) pm.classList.remove('open');
-    if (typeof buildNavs === 'function') window.buildNavs();
-  }
-
-  // 監聽 users doc → 單一狀態來源
-  function _startUserDocListener(user) {
-    // 如果已有監聽，先取消
-    if (window._userDocUnsub) {
-      window._userDocUnsub();
-      window._userDocUnsub = null;
-    }
-    const userRef = doc(db, 'users', user.uid);
-    window._userDocUnsub = onSnapshot(userRef, async (snap) => {
-      if (!snap.exists()) return;
-      const data = snap.data();
-      window.userData = data;
-
-      // 更新自己的頭像/名稱
-      var avnMe = document.getElementById('avn-me');
-      if (avnMe) avnMe.textContent = data.name || user.displayName || '我';
-      var myAvc = document.getElementById('avc-me');
-      if (myAvc && (data.photo || user.photoURL)) {
-        myAvc.innerHTML = '<img src="' + (data.photo || user.photoURL) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-      }
-
-      if (data.partnerId) {
-        // ── 已配對 ──
-        const coupleId = [user.uid, data.partnerId].sort().join('_');
-        
-        if (!window._coupleId) {
-          // 第一次：完整初始化
-          await window._initAllCoupleFeatures(user.uid, data.partnerId);
-          if (document.getElementById('pairingMo') && document.getElementById('pairingMo').classList.contains('open')) {
-            window.showToast('配對成功！歡迎使用嗶啵 💚');
-          }
-        } else {
-          // 已初始化過（頁面重整後），重新初始化
-          window._coupleId = null;
-          window._initializing = false;
-          await window._initAllCoupleFeatures(user.uid, data.partnerId);
-        }
-        // 確保 pairingMo 關閉
-        var pm = document.getElementById('pairingMo');
-        if (pm && pm.classList.contains('open')) pm.classList.remove('open');
-      } else {
-        // ── 未配對 ──
-        window._coupleId = null;
-        window._initializing = false;
-        var pm = document.getElementById('pairingMo');
-        if (pm && !pm.classList.contains('open')) pm.classList.add('open');
-      }
-    }, (err) => {
-      console.error('users doc 監聽錯誤', err);
-      window.showToast('資料同步錯誤: ' + (err.code || err.message));
-    });
+    window.buildNavs();
   }
 
   // ── 登入狀態監聽（只負責身份確認）──
@@ -357,17 +312,56 @@ input[type=file]{display:none;}
   var _lo = document.getElementById('loadingOverlay');
   if (_lo) _lo.style.display = 'flex';
 
-  onAuthStateChanged(auth, async (user) => {
+  
+  // ── users doc 監聽（核心狀態機）──
+  function _startUserDocListener(user) {
+    const userRef = doc(db, 'users', user.uid);
+    window._userDocUnsub = onSnapshot(userRef, async (snap) => {
+      if (!snap.exists()) return;
+      const data = snap.data();
+      window.userData = data;
+
+      // 更新頭像/名稱
+      const avnMe = document.getElementById('avn-me');
+      if (avnMe) avnMe.textContent = data.name || '我';
+      const myAvc = document.getElementById('avc-me');
+      if (myAvc && (data.photo || user.photoURL)) {
+        myAvc.innerHTML = '<img src="'+(data.photo||user.photoURL)+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+      }
+
+      if (data.partnerId) {
+        // 已配對 - 如果還沒初始化就初始化
+        if (!window._msgUnsubscribe) {
+          await window._initAllCoupleFeatures(user.uid, data.partnerId);
+          const pm = document.getElementById('pairingMo');
+          if (pm && pm.classList.contains('open')) {
+            window.showToast('配對成功！歡迎使用嗶啵 💚');
+            pm.classList.remove('open');
+          }
+        }
+      } else {
+        // 未配對
+        window._coupleId = null;
+        const pm = document.getElementById('pairingMo');
+        if (pm && !pm.classList.contains('open')) pm.classList.add('open');
+      }
+    }, (err) => {
+      console.error('[userDoc] 監聽錯誤', err.code, err.message);
+    });
+  }
+
+onAuthStateChanged(auth, async (user) => {
     const loading = document.getElementById('loadingOverlay');
     if (loading) loading.style.display = 'none';
 
     if (user) {
       window.currentUser = user;
       window._db = db;
-      // 每次重新登入/頁面載入都重置，讓 _startUserDocListener 重新初始化
+      // 頁面載入時重置所有狀態
       window._coupleId = null;
       window._initializing = false;
       if (window._msgUnsubscribe) { window._msgUnsubscribe(); window._msgUnsubscribe = null; }
+      if (window._userDocUnsub) { window._userDocUnsub(); window._userDocUnsub = null; }
 
       // 隱藏登入畫面
       var ls = document.getElementById('loginScreen');
