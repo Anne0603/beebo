@@ -982,7 +982,7 @@ window['switchPairTab'] = switchPairTab;
 </div>
 <div class="sc" id="memBody"></div>
 <div class="sc" id="quoteBody" style="display:none;"></div>
-  <button class="fab" onclick="openMo('addMemMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+  <button class="fab" onclick="memTab==='photo'?openMo('addMemMo'):openMo('addQuoteMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
   <div class="bnav" id="bnav-memory"></div>
 </div>
 
@@ -1511,7 +1511,8 @@ function openMo(id){
     'addChalMo': ['newChalDeadline'],
     'addEventMo': ['evDate1'],
     'addRestMo': ['newRestDate'],
-    'addMemMo': ['newMemDate1']
+    'addMemMo': ['newMemDate1'],
+    'addQuoteMo': ['quoteDate']
   };
   if(dateMap[id]) {
     dateMap[id].forEach(function(fieldId) {
@@ -1660,11 +1661,10 @@ function switchMemTab(tab){
 function renderQuotes(){
   var body = document.getElementById('quoteBody');
   if(!body) return;
-  var addBtn = '<button onclick="openMo(\'addQuoteMo\')" style="all:unset;display:flex;align-items:center;gap:6px;padding:10px 14px;background:var(--card);border-radius:14px;border:1px solid var(--bdr);cursor:pointer;font-size:13px;color:var(--accent);font-weight:600;box-shadow:0 2px 8px var(--shd);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>新增語錄</button>';
-  if(!QUOTES.length){body.innerHTML=addBtn+'<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有語錄，記下第一句話吧 💬</div>';return;}
+  if(!QUOTES.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有語錄，記下第一句話吧 💬</div>';return;}
   var myName=(window.userData&&window.userData.name)||'我';
   var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
-  body.innerHTML = addBtn + QUOTES.map(function(q){
+  body.innerHTML = QUOTES.map(function(q){
     var by = q.senderUid===( window.currentUser&&window.currentUser.uid) ? myName : partnerName;
     var dateStr = q.dateLabel || (q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'}) : '');
     return '<div class="card" style="border-radius:14px;">'+
@@ -2486,7 +2486,7 @@ function renderMemory(){
   }
   body.innerHTML='';
   var grid=document.createElement('div');
-  grid.style.cssText='display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:8px;';
+  grid.style.cssText='display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;';
   items.forEach(function(m){
     var card=document.createElement('div');
     card.className='mc';
@@ -2496,25 +2496,23 @@ function renderMemory(){
       card.style.backgroundPosition='center';
     }
     var label=document.createElement('div');
-    label.style.cssText='position:absolute;bottom:0;left:0;right:0;padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.5));border-radius:0 0 10px 10px;';
-    label.innerHTML='<div style="font-size:9px;color:#fff;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">'+m.title+'</div>';
+    label.style.cssText='position:absolute;bottom:0;left:0;right:0;padding:8px 8px 6px;background:linear-gradient(transparent,rgba(0,0,0,.6));border-radius:0 0 14px 14px;';
+    label.innerHTML='<div style="font-size:12px;color:#fff;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">'+m.title+'</div>';
     card.style.position='relative';
     card.appendChild(label);
     card.onclick=function(){openMemDetail(m.id);};
     grid.appendChild(card);
   });
-  // 新增按鈕
-  var addCard=document.createElement('div');
-  addCard.className='madd';
-  addCard.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="var(--sub)" stroke-width="2" stroke-linecap="round"/></svg><div style="font-size:10px;color:var(--sub);">新增</div>';
-  addCard.onclick=function(){openMo('addMemMo');};
-  grid.appendChild(addCard);
+  // 新增按鈕已移到右下角 FAB，不在格子裡
   body.appendChild(grid);
 }
+var _addMemSubmitting = false;
 async function addMem(){
+  if(_addMemSubmitting){showToast('建立中，請稍候...');return;}
   var title=(document.getElementById('newMemTitle')||{}).value||'';
   if(!title.trim()){showToast('請填寫回憶名稱');return;}
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  _addMemSubmitting = true;
   var d1=(document.getElementById('newMemDate1')||{}).value||'';
   var d2=(document.getElementById('newMemDate2')||{}).value||'';
   var city=(document.getElementById('newMemCity')||{}).value||'';
@@ -2530,7 +2528,9 @@ async function addMem(){
   // 上傳照片
   var photos=[];
   if(_memPhotoFiles.length){
-    showToast('上傳照片中...');
+    var uploadBtn = document.querySelector('#addMemMo .btn2.bpri');
+    if(uploadBtn){ uploadBtn.textContent='上傳中...'; uploadBtn.disabled=true; }
+    showToast('上傳照片中，請稍候...');
     photos=await _uploadMemPhotos(_memPhotoFiles);
   }
   var {collection,addDoc,serverTimestamp}=window._fsOps;
@@ -2553,6 +2553,9 @@ async function addMem(){
   var lr=document.getElementById('linkedRests');if(lr)lr.textContent='';
   var li=document.getElementById('linkedItems');if(li)li.textContent='';
   _memPhotoFiles=[];_memLinkedRests=[];_memLinkedItems=[];
+  _addMemSubmitting = false;
+  var uploadBtn = document.querySelector('#addMemMo .btn2.bpri');
+  if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
   closeMo('addMemMo');
   showToast('回憶錄已建立 ✓');
 }
@@ -2924,6 +2927,10 @@ function previewMemPhotos(e){
 }
 
 function openLinkRestForMem(){
+  if(!RESTS.length){
+    showToast('還沒有餐廳記錄，先去新增一家吧 🍽️');
+    return;
+  }
   renderLinkRests();
   // 恢復已勾選
   setTimeout(function(){
