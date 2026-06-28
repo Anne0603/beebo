@@ -972,8 +972,8 @@ window['switchPairTab'] = switchPairTab;
   <div class="pt">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="#4A7A58" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 6l1.5-2.5h5L16 6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>回憶錄
     <div style="margin-left:auto;display:flex;gap:6px;">
-      <select id="memYear" onchange="renderMemory()" style="font-size:11px;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部年份</option></select>
-      <select id="memMonth" onchange="renderMemory()" style="font-size:11px;border:1px solid var(--bdr);border-radius:8px;padding:3px 8px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+      <select id="memYear" onchange="renderMemory()" style="font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部年份</option></select>
+      <select id="memMonth" onchange="renderMemory()" style="font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
     </div>
   </div>
   <div style="display:flex;gap:0;flex-shrink:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0;">
@@ -1133,15 +1133,11 @@ window['switchPairTab'] = switchPairTab;
   </div>
   <div class="sc">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">‹</button><div style="font-size:16px;font-weight:700;color:var(--txt);" id="calMonthTitle">約會計畫</div><button style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;">›</button></div>
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button onclick="calPrevMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">‹</button><div style="font-size:16px;font-weight:700;color:var(--txt);" id="calMonthTitle">約會計畫</div><button onclick="calNextMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">›</button></div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
         <div class="cdow">日</div><div class="cdow">一</div><div class="cdow">二</div><div class="cdow">三</div><div class="cdow">四</div><div class="cdow">五</div><div class="cdow">六</div>
-        <div class="cday om">1</div><div class="cday om">2</div><div class="cday om">3</div><div class="cday om">4</div><div class="cday om">5</div><div class="cday om">6</div><div class="cday om">7</div>
-        <div class="cday om">8</div><div class="cday om">9</div><div class="cday om">10</div><div class="cday om">11</div><div class="cday om">12</div><div class="cday om">13</div><div class="cday om">14</div>
-        <div class="cday om">15</div><div class="cday om">16</div><div class="cday om">17</div><div class="cday om">18</div><div class="cday om">19</div><div class="cday om">20</div><div class="cday om">21</div>
-        <div class="cday om">22</div><div class="cday today">23</div><div class="cday">24</div><div class="cday">25</div><div class="cday">26</div><div class="cday">27</div><div class="cday has" onclick="openMo('calDayMo')" style="cursor:pointer;">28</div>
-        <div class="cday">29</div><div class="cday">30</div>
       </div>
+      <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
     </div>
     <div class="slbl">即將到來</div>
     
@@ -1288,6 +1284,15 @@ window['switchPairTab'] = switchPairTab;
   <button onclick="addLocationItem()" class="btn2 bpri" style="white-space:nowrap;padding:8px 12px;">新增</button>
 </div>
 <button onclick="closeMo('locationMgMo')" class="btn2 bsec" style="width:100%;margin-top:8px;">完成</button>
+</div></div>
+<div class="mo" id="deleteMemMo"><div class="mbox">
+  <div class="mh"><span class="mtit">刪除回憶錄</span><button class="mcl" onclick="closeMo('deleteMemMo')">×</button></div>
+  <div style="font-size:13px;color:var(--sub);margin-bottom:12px;line-height:1.6;">回憶很珍貴，請輸入「<b style="color:var(--accent);">刪除</b>」來確認刪除。</div>
+  <input class="fi" id="deleteMemConfirmInput" placeholder="輸入「刪除」確認" style="margin-bottom:12px;">
+  <div style="display:flex;gap:8px;">
+    <button onclick="closeMo('deleteMemMo')" class="btn2 bsec" style="flex:1;">取消</button>
+    <button onclick="execDeleteMem()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
+  </div>
 </div></div>
 <div class="mo" id="chalCatMo"><div class="mbox"><div class="mh"><span class="mtit">管理挑戰分類</span><button class="mcl" onclick="closeMo('chalCatMo')">×</button></div>
 <div id="chalCatList" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
@@ -1834,6 +1839,11 @@ buildNavs();
 // ⚠️  測試專用清除函數 — 正式上線前整段移除
 // ══════════════════════════════════════════
 function devResetOpen(){
+  showToast('載入中...');
+  setTimeout(function(){
+    document.getElementById('page-home').classList.remove('active');
+    document.getElementById('page-home').classList.add('active');
+  }, 50);
   // 開啟時顯示 coupleId 提示（後8碼）
   var hint = document.getElementById('resetCoupleHint');
   if(hint && window._coupleId){
@@ -2746,10 +2756,13 @@ async function saveQuote(){
   closeMo('addQuoteMo');
   showToast('語錄已儲存 ✓');
 }
-async function deleteQuote(id){
-  if(!confirm('刪除這則語錄？'))return;
-  var {doc,deleteDoc}=window._fsOps;
-  await deleteDoc(doc(window._db,'couples',window._coupleId,'quotes',id));
+function deleteQuote(id){
+  confirmAction('確定要刪除這則語錄嗎？', function(){
+    var {doc,deleteDoc} = window._fsOps;
+    deleteDoc(doc(window._db,'couples',window._coupleId,'quotes',id))
+      .then(function(){ showToast('語錄已刪除'); })
+      .catch(function(e){ showToast('刪除失敗'); });
+  });
 }
 function setRT(type){restType=type||'全部';if(typeof renderRests==='function')renderRests();}
 function setRC(city){
@@ -3131,12 +3144,27 @@ async function addMemPhoto(memId){
   input.click();
 }
 
-async function deleteMemConfirm(id){
-  if(!confirm('刪除這個回憶錄？'))return;
-  var {doc,deleteDoc}=window._fsOps;
-  await deleteDoc(doc(window._db,'couples',window._coupleId,'memories',id));
+var _deleteMemId = null;
+function deleteMemConfirm(id){
+  _deleteMemId = id;
+  var inp = document.getElementById('deleteMemConfirmInput');
+  if(inp) inp.value = '';
+  openMo('deleteMemMo');
+}
+async function execDeleteMem(){
+  var inp = document.getElementById('deleteMemConfirmInput');
+  if(!inp || inp.value.trim() !== '刪除'){
+    showToast('請輸入「刪除」確認');
+    inp.focus();
+    return;
+  }
+  if(!_deleteMemId || !window._fsOps) return;
+  var {doc,deleteDoc} = window._fsOps;
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'memories',_deleteMemId));
+  closeMo('deleteMemMo');
   closeMo('memDetailMo');
-  showToast('已刪除');
+  _deleteMemId = null;
+  showToast('回憶已刪除');
 }
 
 // addMem 上傳照片
@@ -3170,53 +3198,104 @@ function renderCalendar() {
   var body = document.getElementById('calBody');
   if (!body) return;
   var today = new Date(); today.setHours(0,0,0,0);
+
+  // ── 月曆格子 ──
+  var grid = document.getElementById('calGrid');
+  var label = document.getElementById('calMonthTitle');
+  if(grid && label) {
+    var y = calYear, mo = calMonth;
+    label.textContent = y + '年' + (mo+1) + '月';
+    var first = new Date(y, mo, 1);
+    var startDay = first.getDay(); // 0=日
+    var daysInMonth = new Date(y, mo+1, 0).getDate();
+    var html = '';
+    // 空格
+    for(var s=0; s<startDay; s++) html += '<div></div>';
+    // 日期
+    var eventDates = {};
+    EVENTS.forEach(function(e){
+      if(e.dateStart){
+        var d = new Date(e.dateStart);
+        if(d.getFullYear()===y && d.getMonth()===mo){
+          var key = d.getDate();
+          eventDates[key] = (eventDates[key]||0)+1;
+        }
+      }
+    });
+    for(var d=1; d<=daysInMonth; d++){
+      var isToday = (y===today.getFullYear() && mo===today.getMonth() && d===today.getDate());
+      var hasEvent = eventDates[d] > 0;
+      var dateStr = y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+      var bg = isToday ? 'var(--accent)' : 'transparent';
+      var color = isToday ? '#fff' : 'var(--txt)';
+      var dateAttr = dateStr;
+      html += '<div data-date="'+dateAttr+'" onclick="calDayClick(this.dataset.date)" style="text-align:center;padding:5px 0;cursor:pointer;border-radius:50%;background:'+bg+';color:'+color+';font-size:13px;position:relative;">'
+        + d
+        + (hasEvent ? '<div style="width:5px;height:5px;border-radius:50%;background:'+(isToday?'#fff':'var(--accent)')+';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);"></div>' : '')
+        + '</div>';
+    }
+    grid.innerHTML = html;
+  }
+
+  // ── 即將到來清單 ──
   var upcoming = EVENTS.filter(function(e) {
     if (!e.dateStart) return false;
     var d = new Date(e.dateStart); d.setHours(0,0,0,0);
     return d >= today;
-  }).slice(0, 15);
+  }).slice(0, 10);
+
   if (!upcoming.length) {
-    body.innerHTML = '<div style="text-align:center;color:var(--sub);padding:32px 0;font-size:13px;">還沒有約會計畫，新增一個吧！</div>';
-    return;
-  }
-  body.innerHTML = upcoming.map(function(e) {
-    var d = new Date(e.dateStart);
-    var diff = Math.floor((d - today) / 86400000);
-    var diffTxt = diff===0?'今天':diff===1?'明天':diff+' 天後';
-    var mo=d.getMonth()+1, dy=d.getDate();
-    var wd=['日','一','二','三','四','五','六'][d.getDay()];
-    return '<div class="ev" onclick="openEventDetail(\'' + e.id + '\')" style="cursor:pointer;">' +
-      '<div class="evd" style="background:var(--accent);"></div>' +
-      '<div style="flex:1;"><div class="evn">' + e.name + '</div>' +
-      '<div class="evm">' + mo + '月' + dy + '日（週' + wd + '）' + (e.place?'・'+e.place:'') + '・' + diffTxt + '</div></div></div>';
-  }).join('');
-  // 更新月份圖表
-  var chartEl = document.getElementById('reviewChart') || document.getElementById('calChart');
-  if (chartEl) {
-    var months = {};
-    EVENTS.forEach(function(e) {
-      if (e.dateStart) {
-        var mo = new Date(e.dateStart).getMonth();
-        months[mo] = (months[mo]||0) + 1;
-      }
-    });
-    var moNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-    var max = Math.max(1, Math.max.apply(null, Object.values(months)));
-    chartEl.innerHTML = moNames.map(function(nm, i) {
-      var cnt = months[i]||0;
-      var h = Math.max(4, Math.round(cnt/max*50));
-      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;">' +
-        '<div style="font-size:8px;color:var(--accent);font-weight:700;">'+(cnt||'')+'</div>' +
-        '<div style="width:70%;background:'+(cnt?'var(--accent)':'var(--bdr)')+';border-radius:3px 3px 0 0;height:'+h+'px;"></div>' +
-        '<div style="font-size:8px;color:var(--sub);">'+nm+'</div></div>';
+    body.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有約會計畫，點下方 + 新增吧！</div>';
+  } else {
+    body.innerHTML = upcoming.map(function(e) {
+      var d = new Date(e.dateStart);
+      var diff = Math.floor((d - today) / 86400000);
+      var diffTxt = diff===0?'今天':diff===1?'明天':diff+' 天後';
+      var mo=d.getMonth()+1, dy=d.getDate();
+      var wd=['日','一','二','三','四','五','六'][d.getDay()];
+      return '<div class="ev" data-eid="'+e.id+'" onclick="openEventDetail(this.dataset.eid)" style="cursor:pointer;">'
+        + '<div class="evd" style="background:var(--accent);"></div>'
+        + '<div style="flex:1;"><div class="evn">'+e.name+'</div>'
+        + '<div class="evm">'+mo+'月'+dy+'日（週'+wd+'）'+(e.place?'・'+e.place:'')+'・'+diffTxt+'</div></div></div>';
     }).join('');
   }
+
+  // 更新 calNext（主頁行事曆卡）
   var calEl = document.getElementById('calNext');
   if (calEl && upcoming.length) {
     var nx = upcoming[0];
     var d = new Date(nx.dateStart);
     var diff = Math.floor((d-today)/86400000);
     calEl.textContent = diff===0?'今天':diff+' 天後';
+  } else if(calEl) {
+    calEl.textContent = '—';
+  }
+}
+
+var calYear = new Date().getFullYear();
+var calMonth = new Date().getMonth();
+
+function calPrevMonth() {
+  calMonth--;
+  if(calMonth < 0){ calMonth=11; calYear--; }
+  renderCalendar();
+}
+function calNextMonth() {
+  calMonth++;
+  if(calMonth > 11){ calMonth=0; calYear++; }
+  renderCalendar();
+}
+function calDayClick(dateStr) {
+  // 點日期：若有行程顯示，否則開啟新增
+  var dayEvents = EVENTS.filter(function(e){ return e.dateStart === dateStr; });
+  if(dayEvents.length) {
+    // 顯示當天行程
+    openEventDetail(dayEvents[0].id);
+  } else {
+    // 開啟新增，預填日期
+    var el = document.getElementById('evDate1');
+    if(el) el.value = dateStr;
+    openMo('addEventMo');
   }
 }
 
