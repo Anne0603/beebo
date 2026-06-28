@@ -1067,7 +1067,7 @@ window['switchPairTab'] = switchPairTab;
     <!-- 其他 -->
     <div class="slbl">其他</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
-      <div class="sr" onclick="location.reload()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="showToast('重新整理中...');setTimeout(function(){location.reload();},400);"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openChangelogMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.0.0 ›</div></div>
       <div class="sr" onclick="showConfirmMo('確定要登出嗎？',firebaseSignOut)"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
@@ -1410,11 +1410,7 @@ window['switchPairTab'] = switchPairTab;
 
 <div class="fw-overlay" id="fwOverlay">
   <div class="fw-card">
-    <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r="5" fill="#D4A870"/></svg>
-  </div>
-</div>
-
-<script>
+    <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r=
 // ── 頁面載入時套用已儲存的主題 ──
 (function(){
   var saved = localStorage.getItem('beebo_theme') || 'green';
@@ -3111,7 +3107,7 @@ async function openMemDetail(id){
   addPhotoBtn.onclick=function(){addMemPhoto(m.id);};
   var delBtn=document.createElement('button');
   delBtn.style.cssText="all:unset;flex:1;text-align:center;font-size:12px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;";
-  delBtn.textContent='刪除回憶';delBtn.onclick=function(){deleteMemConfirm(m.id);};
+  delBtn.textContent='刪除回憶';delBtn.onclick=function(){closeMo('memDetailMo');setTimeout(function(){deleteMemConfirm(m.id);},300);};
   btns.appendChild(addPhotoBtn);btns.appendChild(delBtn);body.appendChild(btns);
 
   mbox.appendChild(body);
@@ -3213,6 +3209,7 @@ function renderCalendar() {
     for(var s=0; s<startDay; s++) html += '<div></div>';
     // 日期
     var eventDates = {};
+    // 用戶行程
     EVENTS.forEach(function(e){
       if(e.dateStart){
         var d = new Date(e.dateStart);
@@ -3222,6 +3219,25 @@ function renderCalendar() {
         }
       }
     });
+    // 加入節日和紀念日
+    var checkDates = [
+      {m:2,d:14},{m:3,d:14},{m:8,d:10},{m:12,d:25},{m:1,d:1}
+    ];
+    checkDates.forEach(function(h){
+      if(h.m === mo+1){ eventDates[h.d] = (eventDates[h.d]||0)+1; }
+    });
+    if(window._coupleData&&window._coupleData.startDate){
+      var sd=window._coupleData.startDate.split('-');
+      if(parseInt(sd[1])===mo+1) eventDates[parseInt(sd[2])]=(eventDates[parseInt(sd[2])]||0)+1;
+    }
+    if(window.userData&&window.userData.birthday){
+      var bd=window.userData.birthday.split('-');
+      if(parseInt(bd[1])===mo+1) eventDates[parseInt(bd[2])]=(eventDates[parseInt(bd[2])]||0)+1;
+    }
+    if(window.partnerData&&window.partnerData.birthday){
+      var pbd=window.partnerData.birthday.split('-');
+      if(parseInt(pbd[1])===mo+1) eventDates[parseInt(pbd[2])]=(eventDates[parseInt(pbd[2])]||0)+1;
+    }
     for(var d=1; d<=daysInMonth; d++){
       var isToday = (y===today.getFullYear() && mo===today.getMonth() && d===today.getDate());
       var hasEvent = eventDates[d] > 0;
@@ -3238,11 +3254,47 @@ function renderCalendar() {
   }
 
   // ── 即將到來清單 ──
-  var upcoming = EVENTS.filter(function(e) {
+  // 加入系統節日
+  var year = today.getFullYear();
+  var nextYear = year + 1;
+  var holidays = [
+    {id:'h-vday', name:"情人節 💕", dateStart: year+'-02-14', system:true},
+    {id:'h-vday2', name:"情人節 💕", dateStart: nextYear+'-02-14', system:true},
+    {id:'h-white', name:"白色情人節 🤍", dateStart: year+'-03-14', system:true},
+    {id:'h-white2', name:"白色情人節 🤍", dateStart: nextYear+'-03-14', system:true},
+    {id:'h-qixi', name:"七夕情人節 🌠", dateStart: year+'-08-10', system:true},
+    {id:'h-qixi2', name:"七夕情人節 🌠", dateStart: nextYear+'-08-10', system:true},
+    {id:'h-xmas', name:"聖誕節 🎄", dateStart: year+'-12-25', system:true},
+    {id:'h-xmas2', name:"聖誕節 🎄", dateStart: nextYear+'-12-25', system:true},
+    {id:'h-ny', name:"新年快樂 🎊", dateStart: nextYear+'-01-01', system:true},
+  ];
+  // 加入生日
+  if(window.userData && window.userData.birthday){
+    var bd = window.userData.birthday;
+    var bdThisYear = year+'-'+bd.slice(5);
+    var bdNextYear = nextYear+'-'+bd.slice(5);
+    holidays.push({id:'h-mybd', name:'我的生日 🎂', dateStart: bdThisYear, system:true});
+    holidays.push({id:'h-mybd2', name:'我的生日 🎂', dateStart: bdNextYear, system:true});
+  }
+  if(window.partnerData && window.partnerData.birthday){
+    var pbd = window.partnerData.birthday;
+    holidays.push({id:'h-pbd', name:(window.partnerData.name||'對方')+'的生日 🎂', dateStart: year+'-'+pbd.slice(5), system:true});
+    holidays.push({id:'h-pbd2', name:(window.partnerData.name||'對方')+'的生日 🎂', dateStart: nextYear+'-'+pbd.slice(5), system:true});
+  }
+  // 加入紀念日
+  if(window._coupleData && window._coupleData.startDate){
+    var sd = window._coupleData.startDate;
+    var anniv = year+'-'+sd.slice(5);
+    holidays.push({id:'h-anniv', name:'交往紀念日 💑', dateStart: anniv, system:true});
+    holidays.push({id:'h-anniv2', name:'交往紀念日 💑', dateStart: nextYear+'-'+sd.slice(5), system:true});
+  }
+  var allEvents = EVENTS.concat(holidays);
+  var cutoff = new Date(today); cutoff.setDate(cutoff.getDate() + 45);
+  var upcoming = allEvents.filter(function(e) {
     if (!e.dateStart) return false;
     var d = new Date(e.dateStart); d.setHours(0,0,0,0);
-    return d >= today;
-  }).slice(0, 10);
+    return d >= today && d <= cutoff;
+  }).sort(function(a,b){ return new Date(a.dateStart)-new Date(b.dateStart); }).slice(0, 20);
 
   if (!upcoming.length) {
     body.innerHTML = '<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有約會計畫，點下方 + 新增吧！</div>';
@@ -3253,10 +3305,11 @@ function renderCalendar() {
       var diffTxt = diff===0?'今天':diff===1?'明天':diff+' 天後';
       var mo=d.getMonth()+1, dy=d.getDate();
       var wd=['日','一','二','三','四','五','六'][d.getDay()];
-      return '<div class="ev" data-eid="'+e.id+'" onclick="openEventDetail(this.dataset.eid)" style="cursor:pointer;">'
-        + '<div class="evd" style="background:var(--accent);"></div>'
+      var isSystem = e.system;
+      return '<div class="ev" '+(isSystem?'':' data-eid="'+e.id+'" onclick="openEventDetail(this.dataset.eid)"')+' style="cursor:'+(isSystem?'default':'pointer')+';">'
+        + '<div class="evd" style="background:'+(isSystem?'#c0a080':'var(--accent)')+'"></div>'
         + '<div style="flex:1;"><div class="evn">'+e.name+'</div>'
-        + '<div class="evm">'+mo+'月'+dy+'日（週'+wd+'）'+(e.place?'・'+e.place:'')+'・'+diffTxt+'</div></div></div>';
+        + '<div class="evm">'+mo+'月'+dy+'日（週'+wd+'）'+(e.place?'・'+e.place:'')+(isSystem?'':('・'+diffTxt))+'</div></div></div>';
     }).join('');
   }
 
@@ -3560,6 +3613,8 @@ window['_initList'] = _initList;
 window['_initChals'] = _initChals;
 window['_initMems'] = _initMems;
 window['_initRests'] = _initRests;
+window['_initEvents'] = _initEvents;
+ = _initRests;
 window['_initEvents'] = _initEvents;
 </script>
 </body>
