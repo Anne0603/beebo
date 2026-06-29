@@ -1698,7 +1698,7 @@ function renderQuotes(){
     return '<div class="card" style="border-radius:14px;">'+
       '<div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「'+(q.text||'')+'」</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-      '<div style="font-size:11px;color:var(--sub);">'+by+'・'+dateStr+'</div>'+
+      '<div style="font-size:11px;color:var(--sub);">'+by+'・'+dateStr+'<button onclick="editQuote(\'\'+q.id+\'\')" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;padding:3px 8px;background:var(--lt);border-radius:8px;margin-right:4px;">編輯</button>\n      '+'<button onclick="editQuote(\'\'+q.id+\'\')" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;padding:3px 8px;background:var(--lt);border-radius:8px;margin-right:4px;">編輯</button>'+'</div>'+
       '<button onclick="deleteQuote(\''+q.id+'\')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;padding:3px 8px;border-radius:8px;background:#fdecea;">刪除</button>'+
       '</div></div>';
   }).join('');
@@ -1800,6 +1800,135 @@ function goToLocationFilter(location){
     var cf=document.getElementById('restCityFilter');
     if(cf){for(var i=0;i<cf.options.length;i++){if(cf.options[i].value===location||cf.options[i].text===location){cf.selectedIndex=i;break;}}if(typeof setRC==='function')setRC(cf.value);}
   },300);
+}
+
+// ── confirmAction（自訂確認）──
+var _confirmCallback = null;
+function confirmAction(msg, callback, sub) {
+  var msgEl = document.getElementById('confirmMsg');
+  var subEl = document.getElementById('confirmSub');
+  if(msgEl) msgEl.textContent = msg || '';
+  if(subEl) subEl.textContent = sub || '';
+  _confirmCallback = callback;
+  openMo('confirmMo');
+}
+function doConfirm() {
+  closeMo('confirmMo');
+  if(typeof _confirmCallback === 'function') _confirmCallback();
+  else if(typeof _confirmCallback === 'string' && window[_confirmCallback]) window[_confirmCallback]();
+  _confirmCallback = null;
+}
+
+// ── 挑戰分類管理 ──
+var DEFAULT_CHAL_CATS = ['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
+function getChalCats() {
+  try { return JSON.parse(localStorage.getItem('beebo_chal_cats') || 'null') || DEFAULT_CHAL_CATS.slice(); }
+  catch(e) { return DEFAULT_CHAL_CATS.slice(); }
+}
+function saveChalCats(cats) { localStorage.setItem('beebo_chal_cats', JSON.stringify(cats)); }
+function openChalCatMo() { renderChalCatMg(); openMo('chalCatMo'); }
+function renderChalCatMg() {
+  var cats = getChalCats();
+  var el = document.getElementById('chalCatList');
+  if(!el) return;
+  el.innerHTML = cats.map(function(cat, i) {
+    var isDef = DEFAULT_CHAL_CATS.includes(cat);
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;">'
+      + '<span style="flex:1;font-size:13px;">'+cat+'</span>'
+      + (isDef ? '<span style="font-size:10px;color:var(--sub);">預設</span>' : '<button onclick="delChalCat('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;">×</button>')
+      + '</div>';
+  }).join('');
+  // 同步分類選單
+  ['newChalCat','chalDetailCat'].forEach(function(id){
+    var sel = document.getElementById(id);
+    if(!sel) return;
+    var cur = sel.value;
+    sel.innerHTML = cats.map(function(c){ return '<option'+(c===cur?' selected':'')+'>'+c+'</option>'; }).join('');
+  });
+}
+function addChalCatItem() {
+  var el = document.getElementById('newChalCatName');
+  var name = el ? el.value.trim() : '';
+  if(!name) { showToast('請輸入分類名稱'); return; }
+  var cats = getChalCats();
+  if(cats.includes(name)) { showToast('分類已存在'); return; }
+  cats.push(name);
+  saveChalCats(cats);
+  if(el) el.value = '';
+  renderChalCatMg();
+  showToast('已新增分類 ✓');
+}
+function delChalCat(idx) {
+  var cats = getChalCats();
+  if(DEFAULT_CHAL_CATS.includes(cats[idx])) { showToast('預設分類無法刪除'); return; }
+  cats.splice(idx, 1);
+  saveChalCats(cats);
+  renderChalCatMg();
+}
+
+// ── 靈感題庫管理 ──
+function _getDefaultInspire(){
+  return [
+    {n:'去看夜市',c:'想去哪'},{n:'海邊看日落',c:'想去哪'},{n:'登山健行',c:'想去哪'},
+    {n:'去咖啡廳聊天',c:'想去哪'},{n:'逛博物館',c:'想去哪'},{n:'去遊樂園',c:'想去哪'},
+    {n:'去書店挑書',c:'想去哪'},{n:'泡溫泉',c:'想去哪'},{n:'夜間市集',c:'想去哪'},
+    {n:'吃壽司',c:'想吃什麼'},{n:'自助早午餐',c:'想吃什麼'},{n:'吃甜點下午茶',c:'想吃什麼'},
+    {n:'吃拉麵',c:'想吃什麼'},{n:'吃燒肉',c:'想吃什麼'},{n:'吃火鍋',c:'想吃什麼'},
+    {n:'嘗試新餐廳',c:'想吃什麼'},{n:'做手工甜點',c:'想吃什麼'},{n:'吃早餐',c:'想吃什麼'},
+    {n:'一起畫畫',c:'想做什麼'},{n:'學做一道新菜',c:'想做什麼'},{n:'一起運動',c:'想做什麼'},
+    {n:'玩桌遊',c:'想做什麼'},{n:'一起種植物',c:'想做什麼'},{n:'學一項新技能',c:'想做什麼'},
+    {n:'看恐怖片',c:'想看什麼'},{n:'看演唱會',c:'想看什麼'},{n:'看舞台劇',c:'想看什麼'},
+    {n:'追完一部劇',c:'想看什麼'},{n:'看日出或日落',c:'想看什麼'},{n:'看星星',c:'想看什麼'},
+  ];
+}
+function _getInspireData(){ try{ var d=localStorage.getItem('beebo_inspire'); return d?JSON.parse(d):null; }catch(e){return null;} }
+function _saveInspireData(d){ localStorage.setItem('beebo_inspire',JSON.stringify(d)); }
+function openInspireMgMo(){
+  var data=_getInspireData()||_getDefaultInspire();
+  if(!_getInspireData()) _saveInspireData(data);
+  renderInspireMg('list');
+  openMo('inspireMgMo');
+}
+function renderInspireMg(tab){
+  var data=_getInspireData()||_getDefaultInspire();
+  var el=document.getElementById('inspireMgBody');
+  if(!el) return;
+  var cats=['想去哪','想吃什麼','想做什麼','想看什麼'];
+  el.innerHTML=cats.map(function(cat){
+    var items=data.filter(function(i){return i.c===cat;});
+    return '<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;">'+cat+'</div>'
+      +items.map(function(item,idx){
+        return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--card2);border-radius:8px;margin-bottom:4px;">'
+          +'<span style="flex:1;font-size:12px;">'+item.n+'</span>'
+          +'<button onclick="delInspireItem(this)" data-cat="'+cat+'" data-idx="'+idx+'" style="all:unset;color:#c62828;cursor:pointer;font-size:14px;">×</button>'
+          +'</div>';
+      }).join('')
+      +'</div>';
+  }).join('');
+}
+function delInspireItem(btn) {
+  var cat = btn.dataset.cat;
+  var idx = parseInt(btn.dataset.idx);
+  var data=_getInspireData()||_getDefaultInspire();
+  var catItems=data.filter(function(i){return i.c===cat;});
+  var target=catItems[idx];
+  if(!target) return;
+  var newData=data.filter(function(i){return !(i.c===cat&&i.n===target.n);});
+  _saveInspireData(newData);
+  renderInspireMg('list');
+}
+function addInspireItem() {
+  var nEl=document.getElementById('newInspireName');
+  var cEl=document.getElementById('newInspireCat');
+  var n=(nEl&&nEl.value.trim())||'';
+  var cat=(cEl&&cEl.value)||'想去哪';
+  if(!n){showToast('請輸入名稱');return;}
+  var data=_getInspireData()||_getDefaultInspire();
+  data.push({n:n,c:cat});
+  _saveInspireData(data);
+  if(nEl) nEl.value='';
+  renderInspireMg('list');
+  showToast('已新增 ✓');
 }
 
 // ── 通知系統 ──
@@ -2133,7 +2262,10 @@ async function addListItem(){
     n:n, c:cat, done:false, by:myName, at:at, createdAt:serverTimestamp()
   });
   document.getElementById('newLN').value='';
+  var myNm=(window.userData&&window.userData.name)||'我';
+  addNotif(myNm+' 新增了清單：「'+n+'」','list');
   closeMo('addListMo');
+  showToast('已加入清單 ✓');
 }
 var currentStar=0;
 function setStar(n, containerId){
@@ -2181,7 +2313,7 @@ async function addFromInspire(n,cat){
     n:n,c:cat,done:false,by:myName,at:at,createdAt:serverTimestamp()
   });
   showToast('已加入清單 ✓');
-  addNotif('新增了清單：' + name.trim(), 'list');
+
 }
 
 // CHALLENGES
@@ -2327,13 +2459,13 @@ async function chalCheck(id){
       showToast('🎉 挑戰完成！兩人都確認了！');
       var myNm3=(window.userData&&window.userData.name)||'我';
       addNotif('🎉 '+myNm3+' 完成了挑戰：「'+ch.name+'」','chal');
-      addNotif('🎉 挑戰完成：' + ch.name, 'chal');
+
     } else {
       spawnHearts();
       showToast('已打勾！等對方確認就完成了 ✓');
       var myNm4=(window.userData&&window.userData.name)||'我';
       addNotif('✓ '+myNm4+' 打勾了挑戰：「'+ch.name+'」','chal');
-      addNotif('✓ 已打勾挑戰：' + ch.name + '，等對方確認', 'chal');
+
     }
   }
 }
