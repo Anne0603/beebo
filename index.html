@@ -281,7 +281,7 @@ input[type=file]{display:none;}
       function check() {
         if (typeof window._initList === 'function') {
           resolve();
-        } else if (tries++ < 60) {
+        } else if (tries++ < 160) {
           setTimeout(check, 50);
         } else {
           console.error('[_initAllCoupleFeatures] 等待 _initList 超時');
@@ -1427,7 +1427,6 @@ window['switchPairTab'] = switchPairTab;
     </svg>
   </div>
 </div>
-
 // ── 頁面載入時套用已儲存的主題 ──
 (function(){
   var saved = localStorage.getItem('beebo_theme') || 'green';
@@ -3631,6 +3630,14 @@ window['_initChals'] = _initChals;
 window['_initMems'] = _initMems;
 window['_initRests'] = _initRests;
 window['_initEvents'] = _initEvents;
+window['_initQuotes'] = _initQuotes;
+window.buildNavs = buildNavs;
+window.showToast = showToast;
+window.openMo = openMo;
+window.closeMo = closeMo;
+window.goPage = goPage;
+window.goPageX = goPageX;
+
 </script>
 </body>
 </html>
