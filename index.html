@@ -1278,7 +1278,7 @@ window['switchPairTab'] = switchPairTab;
   </div>
 </div></div></div>
 <div class="mo" id="msgMo"><div class="mbox"><div class="mh"><span class="mtit">留言紀錄</span><button class="mcl" onclick="closeMo('msgMo')">×</button></div><div id="msgList" style="display:flex;flex-direction:column;gap:0;overflow-y:auto;max-height:55vh;"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">還沒有留言，先說句話吧 💬</div></div></div></div>
-<div class="mo" id="decideMo" style="align-items:flex-end;"><div style="background:var(--card);border-radius:20px 20px 0 0;padding:18px;width:100%;max-height:80vh;overflow-y:auto;"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('decideMo')">×</button></div><select onchange="window.setDC(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;margin-bottom:8px;"><option value="全部">全部分類</option><option value="想去哪" id="dc-opt-1">想去哪</option><option value="想吃什麼" id="dc-opt-2">想吃什麼</option><option value="想做什麼" id="dc-opt-3">想做什麼</option><option value="想看什麼" id="dc-opt-4">想看什麼</option></select><div class="rcard"><div class="rname" id="rname">點下方開始</div><div class="rcat2" id="rcat">從清單隨機抽一個</div></div><div class="rbtns"><button class="btn2 bsec" onclick="window.reroll()">再抽一次</button><button class="btn2 bpri" onclick="closeMo('decideMo')">就這個！</button></div></div></div>
+<div class="mo" id="decideMo" style="align-items:flex-end;"><div style="background:var(--card);border-radius:20px 20px 0 0;padding:18px;width:100%;max-height:80vh;overflow-y:auto;"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('decideMo')">×</button></div><select onchange="window.setDC(this.value)" style="width:100%;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;margin-bottom:8px;"><option value="全部">全部分類</option><option value="想去哪" id="dc-opt-1">想去哪</option><option value="想吃什麼" id="dc-opt-2">想吃什麼</option><option value="想做什麼" id="dc-opt-3">想做什麼</option><option value="想看什麼" id="dc-opt-4">想看什麼</option></select><div class="rcard"><div class="rname" id="rname">點下方開始</div><div class="rcat2" id="rcat">從清單隨機抽一個</div></div><div class="rbtns"><button class="btn2 bsec" onclick="window.reroll()">再抽一次</button><button class="btn2 bpri" onclick="pickThisItem()">就這個！</button></div></div></div>
 <div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt=""><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2"></div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;" id="photoSubtitle"></div><div id="photoEditArea"><button class="pubtn" onclick="triggerUpload()">更換照片</button></div><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
 <div class="mo" id="profileMo"><div class="mbox"><div class="mh"><span class="mtit">我的個人資料</span><button class="mcl" onclick="closeMo('profileMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:center;"><div style="position:relative;cursor:pointer;" onclick="openPhoto('me')"><div style="width:68px;height:68px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);overflow:hidden;display:flex;align-items:center;justify-content:center;" id="profileAv"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H2v-5L16 3z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">暱稱</label><input class="fi" id="profileName" value="" placeholder="輸入暱稱"></div><div class="fg"><label class="fl">生日</label><input class="fi" type="date" id="profileBday" value=""></div><div class="fg"><label class="fl">性別</label><select class="fsel"><option>男</option><option>女</option><option>不公開</option></select></div><div class="fg"><label class="fl">帳號（Gmail）</label><input class="fi" id="profileEmail" value="" readonly style="color:var(--sub);"></div><div class="fg"><label class="fl">在一起日期</label><input class="fi" type="date" id="profileStartDate" value="" onchange="confirmDateChange(this)"><div style="font-size:10px;color:var(--sub);margin-top:3px;">修改後天數將重新計算</div></div><button class="btn2 bpri" onclick="saveProfile()">儲存</button></div></div></div>
 
@@ -1434,7 +1434,7 @@ window['switchPairTab'] = switchPairTab;
 <div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><textarea class="fi" id="newDish" rows="3" placeholder="招牌菜、必點餐點..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textarea></div>
 
 <script>
-// ── 頁面載入時套用已儲存的主題 ──
+// ──// ── 頁面載入時套用已儲存的主題 ──
 (function(){
   var saved = localStorage.getItem('beebo_theme') || 'green';
   var themes = {
@@ -2577,6 +2577,25 @@ async function addChal(){
 
 // DECIDE
 var dcCat='全部',drawn=[];
+function pickThisItem() {
+  // 取得目前抽到的項目名稱
+  var rnameEl = document.getElementById('rname');
+  var name = rnameEl ? rnameEl.textContent : '';
+  if(!name || name === '點下方開始' || name === '清單載入中...' || name === '清單還沒有項目') {
+    closeMo('decideMo');
+    return;
+  }
+  closeMo('decideMo');
+  // 預填行事曆新增頁面
+  setTimeout(function(){
+    var evNameEl = document.getElementById('evName');
+    var evDate1El = document.getElementById('evDate1');
+    if(evNameEl) evNameEl.value = name;
+    if(evDate1El && !evDate1El.value) evDate1El.value = new Date().toISOString().split('T')[0];
+    openMo('addEventMo');
+  }, 300);
+}
+
 function setDC(v){dcCat=v;drawn=[];reroll();}
 function openDecide(){
   drawn=[];
@@ -3905,6 +3924,6 @@ window.closeMo = closeMo;
 window.goPage = goPage;
 window.goPageX = goPageX;
 
-</script>
+ipt>
 </body>
 </html>
