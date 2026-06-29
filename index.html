@@ -825,9 +825,13 @@ window.startPairingCountdown = function(expiry, el) {
     if (senderEl) senderEl.textContent = senderName + '・' + timeStr;
     const textEl = document.getElementById('msgLatestText');
     if (textEl) { textEl.textContent = '「' + (latest.text || '') + '」'; textEl.style.color = 'var(--txt)'; }
-    // 未讀紅點：最新留言不是自己發的
+    // 未讀紅點：最新留言不是自己發的且未讀
     const dot = document.getElementById('msgUnreadDot');
-    if (dot) dot.style.display = isMine ? 'none' : 'inline-block';
+    if (dot) {
+      const readBy = latest.readBy || [];
+      const unread = !isMine && !readBy.includes(myUid);
+      dot.style.display = unread ? 'inline-block' : 'none';
+    }
   };
 
   window.sendMsg = async function() {
@@ -1008,7 +1012,15 @@ window['switchPairTab'] = switchPairTab;
       </select>
     </div>
     <div class="tabs"><div class="tab on" onclick="setListTab('pending',this)">未完成</div><div class="tab" onclick="setListTab('done',this)">已完成</div></div>
-    <div class="tabs" id="catTabs" style="margin-top:2px;"><div class="tab on" onclick="setListCat('全部',this)">全部</div><div class="tab" onclick="setListCat('想去哪',this)">想去哪</div><div class="tab" onclick="setListCat('想吃什麼',this)">想吃什麼</div><div class="tab" onclick="setListCat('想做什麼',this)">想做什麼</div><div class="tab" onclick="setListCat('想看什麼',this)">想看什麼</div></div>
+    <div id="catTabs" style="margin-top:2px;">
+    <select id="listCatSel" onchange="setListCatSel(this.value)" style="width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+      <option value="全部">全部分類</option>
+      <option value="想去哪">想去哪</option>
+      <option value="想吃什麼">想吃什麼</option>
+      <option value="想做什麼">想做什麼</option>
+      <option value="想看什麼">想看什麼</option>
+    </select>
+  </div><div class="tab" onclick="setListCat('想去哪',this)">想去哪</div><div class="tab" onclick="setListCat('想吃什麼',this)">想吃什麼</div><div class="tab" onclick="setListCat('想做什麼',this)">想做什麼</div><div class="tab" onclick="setListCat('想看什麼',this)">想看什麼</div></div>
   </div>
   <div class="sc" id="listBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addListMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -1376,6 +1388,11 @@ window['switchPairTab'] = switchPairTab;
   <button onclick="clearNotify(0)" style="all:unset;padding:10px 14px;border-radius:12px;background:#fdecea;border:1px solid #f5c6cb;font-size:13px;color:#c62828;font-weight:600;cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">徹底清除全部</button>
 </div></div></div>
 
+<div class="mo" id="editQuoteMo"><div class="mbox">
+  <div class="mh"><span class="mtit">編輯語錄</span><button class="mcl" onclick="closeMo('editQuoteMo')">×</button></div>
+  <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" id="editQuoteText" rows="3" placeholder="記下這句話..."></textarea></div>
+  <button onclick="saveEditQuote()" class="btn2 bpri" style="width:100%;margin-top:8px;">儲存</button>
+</div></div>
 <div class="mo" id="addQuoteMo"><div class="mbox"><div class="mh"><span class="mtit">新增語錄</span><button class="mcl" onclick="closeMo('addQuoteMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
   <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" id="quoteText" rows="4" placeholder="記下這句話..." style="resize:none;line-height:1.6;"></textarea></div>
@@ -1414,19 +1431,7 @@ window['switchPairTab'] = switchPairTab;
 </div></div></div>
 
 <div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label><input class="fi" id="evPlace" placeholder="在哪裡？"></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
-<div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><textarea class="fi" id="newDish" rows="3" placeholder="招牌菜、必點餐點..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textarea></div><button class="btn2 bpri" onclick="addRest()">新增</button></div></div></div>
-
-<div class="fw-overlay" id="fwOverlay">
-  <div class="fw-card">
-    <svg width="52" height="52" viewBox="0 0 72 72" fill="none">
-      <circle cx="36" cy="36" r="5" fill="#D4A870"/>
-      <circle cx="36" cy="22" r="3" fill="#D4A870" opacity="0.6"/>
-      <circle cx="36" cy="50" r="3" fill="#D4A870" opacity="0.6"/>
-      <circle cx="22" cy="36" r="3" fill="#D4A870" opacity="0.6"/>
-      <circle cx="50" cy="36" r="3" fill="#D4A870" opacity="0.6"/>
-    </svg>
-  </div>
-</div>
+<div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><textarea class="fi" id="newDish" rows="3" placeholder="招牌菜、必點餐點..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textarea></div>
 
 <script>
 // ── 頁面載入時套用已儲存的主題 ──
@@ -2030,7 +2035,8 @@ function _updateStats() {
 var LIST=[];
 var listTab='pending',listCat='全部',pendingId=null;
 function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
-function setListCat(c,el){listCat=c;document.querySelectorAll('#catTabs .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
+function setListCat(c,el){listCat=c;renderList();}
+function setListCatSel(v){listCat=v;renderList();}
 var STAR_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 var EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
 var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
@@ -2319,10 +2325,14 @@ async function chalCheck(id){
       spawnHearts();
       setTimeout(function(){launchFw();},400);
       showToast('🎉 挑戰完成！兩人都確認了！');
+      var myNm3=(window.userData&&window.userData.name)||'我';
+      addNotif('🎉 '+myNm3+' 完成了挑戰：「'+ch.name+'」','chal');
       addNotif('🎉 挑戰完成：' + ch.name, 'chal');
     } else {
       spawnHearts();
       showToast('已打勾！等對方確認就完成了 ✓');
+      var myNm4=(window.userData&&window.userData.name)||'我';
+      addNotif('✓ '+myNm4+' 打勾了挑戰：「'+ch.name+'」','chal');
       addNotif('✓ 已打勾挑戰：' + ch.name + '，等對方確認', 'chal');
     }
   }
@@ -2428,8 +2438,9 @@ async function addChal(){
   var el=document.getElementById('newChalName');if(el)el.value='';
   var de=document.getElementById('newChalDeadline');if(de)de.value='';
   closeMo('addChalMo');
+  var myNm2=(window.userData&&window.userData.name)||'我';
+  addNotif(myNm2+' 新增了挑戰：「'+name.trim()+'」','chal');
   showToast('挑戰已新增！加油 💪');
-  addNotif('新增了挑戰：' + name.trim(), 'chal');
 }
 
 // DECIDE
@@ -3164,6 +3175,27 @@ async function addMemPhoto(memId){
   input.click();
 }
 
+var _editQuoteId = null;
+function editQuote(id) {
+  _editQuoteId = id;
+  var q = QUOTES.find(function(x){return x.id===id;});
+  if(!q) return;
+  var el = document.getElementById('editQuoteText');
+  if(el) el.value = q.text || '';
+  openMo('editQuoteMo');
+}
+async function saveEditQuote() {
+  if(!_editQuoteId || !window._fsOps) return;
+  var el = document.getElementById('editQuoteText');
+  var text = (el && el.value.trim()) || '';
+  if(!text) { showToast('請輸入內容'); return; }
+  var {doc, updateDoc} = window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'quotes',_editQuoteId), {text: text});
+  closeMo('editQuoteMo');
+  showToast('語錄已更新 ✓');
+  _editQuoteId = null;
+}
+
 var _deleteMemId = null;
 function deleteMemConfirm(id){
   _deleteMemId = id;
@@ -3707,6 +3739,22 @@ function initSettingsPage(){
   var sv = document.getElementById('notifyDelSv');
   if(sv) sv.textContent = (days == 0 ? '永久' : days + ' 天') + ' ›';
 };
+
+// ── 暴露 _init 函數到 window（供 module script 呼叫）──
+window['_initQuotes'] = _initQuotes;
+window['_initList'] = _initList;
+window['_initChals'] = _initChals;
+window['_initMems'] = _initMems;
+window['_initRests'] = _initRests;
+window['_initEvents'] = _initEvents;
+window['_initQuotes'] = _initQuotes;
+window.buildNavs = buildNavs;
+window.showToast = showToast;
+window.openMo = openMo;
+window.closeMo = closeMo;
+window.goPage = goPage;
+window.goPageX = goPageX;
+
 
 // ── 暴露 _init 函數到 window（供 module script 呼叫）──
 window['_initQuotes'] = _initQuotes;
