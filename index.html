@@ -252,9 +252,11 @@ input[type=file]{display:none;}
 
   // 初始化 couple 所有功能（只跑一次）
   window._initAllCoupleFeatures = async function(uid, partnerId) {
+    if (window._initializing) { console.log('[init] 已在初始化中，跳過'); return; }
     const coupleId = [uid, partnerId].sort().join('_');
     window._coupleId = coupleId;
     window._initializing = true;
+    window._msgUnsubscribe = function(){}; // placeholder 防止重複進入
 
     // 載入夥伴資料
     try {
@@ -360,8 +362,14 @@ onAuthStateChanged(auth, async (user) => {
       // 頁面載入時重置所有狀態
       window._coupleId = null;
       window._initializing = false;
-      if (window._msgUnsubscribe) { window._msgUnsubscribe(); window._msgUnsubscribe = null; }
-      if (window._userDocUnsub) { window._userDocUnsub(); window._userDocUnsub = null; }
+      if (window._msgUnsubscribe && typeof window._msgUnsubscribe === 'function') {
+        try { window._msgUnsubscribe(); } catch(e) {}
+      }
+      window._msgUnsubscribe = null;
+      if (window._userDocUnsub && typeof window._userDocUnsub === 'function') {
+        try { window._userDocUnsub(); } catch(e) {}
+      }
+      window._userDocUnsub = null;
 
       // 隱藏登入畫面
       var ls = document.getElementById('loginScreen');
