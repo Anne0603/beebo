@@ -3631,11 +3631,8 @@ function calDayClick(dateStr) {
   };
   var normDateStr = normDate(dateStr);
   var dayEvents = EVENTS.filter(function(e){ return normDate(e.dateStart) === normDateStr; });
-  if(dayEvents.length === 1) {
-    openEventDetail(dayEvents[0].id);
-    return;
-  }
-  if(dayEvents.length > 1) {
+  console.log('[calDayClick] dateStr:', dateStr, 'normDateStr:', normDateStr, 'dayEvents:', dayEvents.length, EVENTS.map(function(e){return e.dateStart+'>'+normDate(e.dateStart);}));
+  if(dayEvents.length >= 1) {
     // 多個行程：用 toast 列出，點確認選擇第一個
     var names = dayEvents.map(function(e){ return e.name; }).join('、');
     // 建立選擇 modal
