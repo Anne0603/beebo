@@ -1752,7 +1752,7 @@ function saveVersion(){
   var ver=document.getElementById('newVer').value.trim();
   var date=document.getElementById('newVerDate').value;
   var note=document.getElementById('newVerNote').value.trim();
-  if(!ver||!note){alert('請填寫版本號和說明');return;}
+  if(!ver||!note){showToast('請填寫版本號和說明');return;}
   var fmt=date?date.replace(/-/g,'/'):'';
   var newEntry=`<div><div style="font-size:13px;font-weight:700;color:var(--txt);">${ver} <span style="font-size:10px;color:var(--sub);font-weight:400;">${fmt}</span></div><div style="font-size:12px;color:var(--sub);margin-top:4px;line-height:1.7;">${note}</div></div>`;
   var list=document.getElementById('changelogList');
@@ -2321,7 +2321,7 @@ async function toggleItem(id){
   }
 }
 async function deleteItem(id){
-  if(!confirm('確定刪除？此操作無法復原。'))return;
+  if(!window.confirm('確定刪除？此操作無法復原。'))return;
   var {doc, deleteDoc} = window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'list',id));
 }
@@ -2565,7 +2565,7 @@ async function saveChalEdit(){
 }
 
 async function abandonChal(id){
-  if(!confirm('確定要放棄這個挑戰嗎？'))return;
+  if(!window.confirm('確定要放棄這個挑戰嗎？'))return;
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'failed'});
   showToast('挑戰已移至已失敗');
@@ -2573,7 +2573,7 @@ async function abandonChal(id){
 
 async function retryChallenge(id){
   if(!id||!window._fsOps)return;
-  if(!confirm('重新開始這個挑戰？'))return;
+  if(!window.confirm('重新開始這個挑戰？'))return;
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[]});
   showToast('挑戰重新開始！加油 💪');
@@ -2883,7 +2883,7 @@ function renderLinkRests(){
 }
 
 async function deleteRest(id){
-  if(!confirm('確定刪除？'))return;
+  if(!window.confirm('確定刪除此記錄？'))return;
   var {doc,deleteDoc}=window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'rests',id));
 }
@@ -3094,7 +3094,7 @@ async function saveChangelog(){
   openChangelogMo();
 }
 async function deleteChangelog(id){
-  if(!confirm('刪除此版本紀錄？'))return;
+  if(!window.confirm('刪除此版本紀錄？'))return;
   var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
   await fsModule.deleteDoc(fsModule.doc(window._db,'changelog',id));
   openChangelogMo();
@@ -3132,7 +3132,7 @@ async function addBackupAdmin(){
   openTransferMo();
 }
 async function removeBackupAdmin(email){
-  if(!confirm('移除備用帳號 '+email+'？'))return;
+  if(!window.confirm('移除備用帳號 '+email+'？'))return;
   var admins=(window._coupleData&&window._coupleData.backupAdmins)||[];
   admins=admins.filter(function(e){return e!==email;});
   await window._fsOps.updateDoc(window._coupleRef,{backupAdmins:admins});
@@ -3798,7 +3798,7 @@ async function saveEvent() {
 
 async function deleteEvent() {
   if(!_editEventId||!window._fsOps) return;
-  if(!confirm('刪除這個約會？')) return;
+  if(!window.confirm('確定刪除這個行程？')) return;
   var {doc,deleteDoc}=window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'events',_editEventId));
   closeMo('editEventMo');
@@ -3841,7 +3841,7 @@ async function saveChalDetailEdit(){
   showToast('已儲存 ✓');
 }
 async function abandonChalFromDetail(){
-  if(!_detailChalId||!confirm('確定要放棄這個挑戰嗎？')) return;
+  if(!_detailChalId||!window.confirm('確定要放棄這個挑戰嗎？')) return;
   await abandonChal(_detailChalId);
   closeMo('chalDetailMo');
 }
@@ -3917,7 +3917,7 @@ function openBindMo(){
 
 async function unpairAccount(){
   if(!window._coupleId || !window.currentUser || !window._fsOps){ showToast('尚未配對'); return; }
-  if(!confirm('確定要解除配對？解除後需重新配對才能共享功能。')) return;
+  if(!window.confirm('確定要解除配對？解除後需重新配對才能共享功能。')) return;
   var {doc, updateDoc} = window._fsOps;
   try{
     await updateDoc(doc(window._db, 'users', window.currentUser.uid), {partnerId: null, isAdmin: false});
