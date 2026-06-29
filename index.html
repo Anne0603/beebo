@@ -1509,7 +1509,11 @@ function goPage(p){
   if(next){
     next.classList.add('active');
     if(p==='settings' && typeof window.initSettingsPage==='function') window.initSettingsPage();
-    if(p==='notify') renderNotifPage();
+    if(p==='notify') {
+      renderNotifPage();
+      var dot=document.getElementById('notifDot');
+      if(dot) dot.style.display='none';
+    }
     curPage=p;
     buildNavs();
   }
@@ -3307,7 +3311,7 @@ function renderCalendar() {
     holidays.push({id:'h-anniv2', name:'交往紀念日 💑', dateStart: nextYear+'-'+sd.slice(5), system:true});
   }
   var allEvents = EVENTS.concat(holidays);
-  var cutoff = new Date(today); cutoff.setDate(cutoff.getDate() + 45);
+  var cutoff = new Date(today); cutoff.setDate(cutoff.getDate() + 90);
   var upcoming = allEvents.filter(function(e) {
     if (!e.dateStart) return false;
     var d = new Date(e.dateStart); d.setHours(0,0,0,0);
@@ -3357,17 +3361,47 @@ function calNextMonth() {
   renderCalendar();
 }
 function calDayClick(dateStr) {
-  // 點日期：若有行程顯示，否則開啟新增
+  // 找當天的用戶行程
   var dayEvents = EVENTS.filter(function(e){ return e.dateStart === dateStr; });
   if(dayEvents.length) {
-    // 顯示當天行程
     openEventDetail(dayEvents[0].id);
-  } else {
-    // 開啟新增，預填日期
-    var el = document.getElementById('evDate1');
-    if(el) el.value = dateStr;
-    openMo('addEventMo');
+    return;
   }
+  // 找當天的節日
+  var d = new Date(dateStr);
+  var m = d.getMonth()+1, day = d.getDate();
+  var holidays = [];
+  var hMap = {
+    '2-14':'情人節 💕', '3-14':'白色情人節 🤍', '8-10':'七夕情人節 🌠',
+    '12-25':'聖誕節 🎄', '1-1':'新年快樂 🎊'
+  };
+  var hKey = m+'-'+day;
+  if(hMap[hKey]) holidays.push(hMap[hKey]);
+  // 紀念日
+  if(window._coupleData && window._coupleData.startDate) {
+    var sd = window._coupleData.startDate;
+    var sdM = parseInt(sd.split('-')[1]), sdD = parseInt(sd.split('-')[2]);
+    if(sdM===m && sdD===day) holidays.push('交往紀念日 💑');
+  }
+  // 生日
+  if(window.userData && window.userData.birthday) {
+    var bd = window.userData.birthday;
+    var bdM = parseInt(bd.split('-')[1]), bdD = parseInt(bd.split('-')[2]);
+    if(bdM===m && bdD===day) holidays.push('我的生日 🎂');
+  }
+  if(window.partnerData && window.partnerData.birthday) {
+    var pbd = window.partnerData.birthday;
+    var pbdM = parseInt(pbd.split('-')[1]), pbdD = parseInt(pbd.split('-')[2]);
+    if(pbdM===m && pbdD===day) holidays.push((window.partnerData.name||'對方')+'的生日 🎂');
+  }
+  if(holidays.length) {
+    showToast(holidays.join('、'));
+    return;
+  }
+  // 空日期 → 開啟新增
+  var el = document.getElementById('evDate1');
+  if(el) el.value = dateStr;
+  openMo('addEventMo');
 }
 
 async function addEvent() {
