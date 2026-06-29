@@ -1950,7 +1950,7 @@ function addInspireItem() {
 // ── Discord 推播通知 ──
 var DISCORD_WEBHOOKS = {
   me: 'https://discord.com/api/webhooks/1521131968132153416/pu3lSKv8GNVcvWl_-PGx_udb7AIHybkRxfdAwZBXhFXQyGiYHKI2v5XXmF35tsFesnUj',
-  partner: ''  // 之後加對方的 webhook
+  partner: 'https://discord.com/api/webhooks/1521131968132153416/pu3lSKv8GNVcvWl_-PGx_udb7AIHybkRxfdAwZBXhFXQyGiYHKI2v5XXmF35tsFesnUj'
 };
 
 async function sendDiscordNotif(msg, type) {
@@ -1966,22 +1966,17 @@ async function sendDiscordNotif(msg, type) {
       footer: { text: myName + ' · ' + new Date().toLocaleString('zh-TW') }
     }]
   };
-  // 發給自己
-  if(DISCORD_WEBHOOKS.me) {
-    fetch(DISCORD_WEBHOOKS.me, {
+  // 發到共用頻道（去重複）
+  var urls = [];
+  if(DISCORD_WEBHOOKS.me) urls.push(DISCORD_WEBHOOKS.me);
+  if(DISCORD_WEBHOOKS.partner && DISCORD_WEBHOOKS.partner !== DISCORD_WEBHOOKS.me) urls.push(DISCORD_WEBHOOKS.partner);
+  urls.forEach(function(url){
+    fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     }).catch(function(){});
-  }
-  // 發給對方
-  if(DISCORD_WEBHOOKS.partner) {
-    fetch(DISCORD_WEBHOOKS.partner, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(function(){});
-  }
+  });
 }
 
 // ── 通知系統 ──
