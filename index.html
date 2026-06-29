@@ -1947,6 +1947,43 @@ function addInspireItem() {
   showToast('已新增 ✓');
 }
 
+// ── Discord 推播通知 ──
+var DISCORD_WEBHOOKS = {
+  me: 'https://discord.com/api/webhooks/1521131968132153416/pu3lSKv8GNVcvWl_-PGx_udb7AIHybkRxfdAwZBXhFXQyGiYHKI2v5XXmF35tsFesnUj',
+  partner: ''  // 之後加對方的 webhook
+};
+
+async function sendDiscordNotif(msg, type) {
+  var icons = { list:'✅', chal:'⭐', mem:'📷', rest:'🍽️', msg:'💬', cal:'📅', info:'🔔' };
+  var icon = icons[type] || '🔔';
+  var myName = (window.userData && window.userData.name) || '嗶啵';
+  var payload = {
+    username: '嗶啵 APP',
+    avatar_url: 'https://cdn.discordapp.com/embed/avatars/0.png',
+    embeds: [{
+      description: icon + ' ' + msg,
+      color: 5763719,
+      footer: { text: myName + ' · ' + new Date().toLocaleString('zh-TW') }
+    }]
+  };
+  // 發給自己
+  if(DISCORD_WEBHOOKS.me) {
+    fetch(DISCORD_WEBHOOKS.me, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function(){});
+  }
+  // 發給對方
+  if(DISCORD_WEBHOOKS.partner) {
+    fetch(DISCORD_WEBHOOKS.partner, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(function(){});
+  }
+}
+
 // ── 通知系統 ──
 function addNotif(msg,type){
   try{
@@ -1957,6 +1994,7 @@ function addNotif(msg,type){
     renderNotifPage();
     var dot=document.getElementById('notifDot');
     if(dot)dot.style.display='block';
+    sendDiscordNotif(msg,type);
   }catch(e){}
 }
 function renderNotifPage(){
