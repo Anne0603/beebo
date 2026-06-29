@@ -1245,6 +1245,7 @@ window['switchPairTab'] = switchPairTab;
   </div>
   <button onclick="closeMo('chalDetailMo');goPage('challenges')" class="btn2 bsec" style="width:100%;">查看所有挑戰</button>
 </div></div></div>
+<div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label><input class="fi" id="evPlace" placeholder="在哪裡？"></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
 <div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
   <div style="text-align:center;padding:8px 0 16px;">
     <div style="font-size:14px;color:var(--txt);font-weight:600;" id="confirmMoText">確定嗎？</div>
@@ -1430,7 +1431,7 @@ window['switchPairTab'] = switchPairTab;
   <button class="btn2 bpri" onclick="addMem()">建立回憶錄</button>
 </div></div></div>
 
-<div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label><input class="fi" id="evPlace" placeholder="在哪裡？"></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
+
 <div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><textarea class="fi" id="newDish" rows="3" placeholder="招牌菜、必點餐點..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="心得..."></textarea></div>
 
 <script>
@@ -2586,16 +2587,13 @@ function pickThisItem() {
     return;
   }
   closeMo('decideMo');
-  // 預填行事曆新增頁面，先跳到行事曆頁
+  // 直接開新增行事曆 modal，帶入清單名稱
   setTimeout(function(){
-    goPageX('calendar');
-    setTimeout(function(){
-      var evNameEl = document.getElementById('evName');
-      var evDate1El = document.getElementById('evDate1');
-      if(evNameEl) evNameEl.value = name;
-      if(evDate1El) evDate1El.value = new Date().toISOString().split('T')[0];
-      openMo('addEventMo');
-    }, 300);
+    var evNameEl = document.getElementById('evName');
+    var evDate1El = document.getElementById('evDate1');
+    if(evNameEl) evNameEl.value = name;
+    if(evDate1El) evDate1El.value = new Date().toISOString().split('T')[0];
+    openMo('addEventMo');
   }, 200);
 }
 
