@@ -1714,7 +1714,10 @@ function renderQuotes(){
     return '<div class="card" style="border-radius:14px;">'+
       '<div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「'+(q.text||'')+'」</div>'+
       '<div style="display:flex;justify-content:space-between;align-items:center;">'+
-      '<div style="font-size:11px;color:var(--sub);">'+by+'・'+dateStr+'<button onclick="editQuote(\'\'+q.id+\'\')" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;padding:3px 8px;background:var(--lt);border-radius:8px;margin-right:4px;">編輯</button>\n      '+'<button onclick="editQuote(\'\'+q.id+\'\')" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;padding:3px 8px;background:var(--lt);border-radius:8px;margin-right:4px;">編輯</button>'+'</div>'+
+      '<div style="display:flex;align-items:center;justify-content:space-between;">'+
+      '<div style="font-size:11px;color:var(--sub);">'+by+'・'+dateStr+'</div>'+
+      '<div style="display:flex;gap:4px;">'+
+      '<button onclick="editQuote(\'\'+q.id+\'\')" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;padding:3px 8px;background:var(--lt);border-radius:8px;">編輯</button>'+
       '<button onclick="deleteQuote(\''+q.id+'\')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;padding:3px 8px;border-radius:8px;background:#fdecea;">刪除</button>'+
       '</div></div>';
   }).join('');
