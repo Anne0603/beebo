@@ -2319,9 +2319,11 @@ async function chalCheck(id){
       spawnHearts();
       setTimeout(function(){launchFw();},400);
       showToast('🎉 挑戰完成！兩人都確認了！');
+      addNotif('🎉 挑戰完成：' + ch.name, 'chal');
     } else {
       spawnHearts();
       showToast('已打勾！等對方確認就完成了 ✓');
+      addNotif('✓ 已打勾挑戰：' + ch.name + '，等對方確認', 'chal');
     }
   }
 }
@@ -3362,7 +3364,14 @@ function calNextMonth() {
 }
 function calDayClick(dateStr) {
   // 找當天的用戶行程
-  var dayEvents = EVENTS.filter(function(e){ return e.dateStart === dateStr; });
+  // 統一日期格式再比較
+  var normDate = function(s){
+    if(!s) return '';
+    var p=s.split('-');
+    return p[0]+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0');
+  };
+  var normDateStr = normDate(dateStr);
+  var dayEvents = EVENTS.filter(function(e){ return normDate(e.dateStart) === normDateStr; });
   if(dayEvents.length) {
     openEventDetail(dayEvents[0].id);
     return;
@@ -3431,6 +3440,46 @@ function openEventDetail(id) {
   var ev = EVENTS.find(function(e){ return e.id===id; });
   if (!ev) return;
   _editEventId = id;
+  // 顯示詳情 toast + 填入編輯欄位
+  var d = new Date(ev.dateStart);
+  var wd=['日','一','二','三','四','五','六'][d.getDay()];
+  var today = new Date(); today.setHours(0,0,0,0);
+  var diff = Math.floor((d-today)/86400000);
+  var diffTxt = diff<0?Math.abs(diff)+'天前':diff===0?'今天':diff===1?'明天':diff+'天後';
+  var info = ev.name + '\n' + (d.getMonth()+1)+'月'+d.getDate()+'日（週'+wd+'）' + (ev.place?'  '+ev.place:'') + '  ' + diffTxt;
+  // 建立詳情 modal（如果不存在）
+  var modal = document.getElementById('evDetailModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.className='mo'; modal.id='evDetailModal';
+    document.body.appendChild(modal);
+  }
+  var mbox = document.createElement('div'); mbox.className='mbox';
+  var mh = document.createElement('div'); mh.className='mh';
+  var mtit = document.createElement('span'); mtit.className='mtit'; mtit.textContent=ev.name;
+  var mcl = document.createElement('button'); mcl.className='mcl'; mcl.textContent='×';
+  mcl.onclick=function(){closeMo('evDetailModal');};
+  mh.appendChild(mtit); mh.appendChild(mcl); mbox.appendChild(mh);
+  var body=document.createElement('div'); body.style.cssText='display:flex;flex-direction:column;gap:10px;';
+  var dateDiv=document.createElement('div'); dateDiv.style.cssText='font-size:13px;color:var(--sub);';
+  dateDiv.textContent='📅 '+(d.getMonth()+1)+'月'+d.getDate()+'日（週'+wd+'） · '+diffTxt;
+  body.appendChild(dateDiv);
+  if(ev.timeStart){var tDiv=document.createElement('div');tDiv.style.cssText='font-size:13px;color:var(--sub);';tDiv.textContent='⏰ '+ev.timeStart+(ev.timeEnd?' - '+ev.timeEnd:'');body.appendChild(tDiv);}
+  if(ev.place){var pDiv=document.createElement('div');pDiv.style.cssText='font-size:13px;color:var(--sub);';pDiv.textContent='📍 '+ev.place;body.appendChild(pDiv);}
+  var btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;margin-top:4px;';
+  var editBtn=document.createElement('button'); editBtn.className='btn2 bsec'; editBtn.style.flex='1'; editBtn.textContent='編輯';
+  editBtn.onclick=function(){editThisEvent();};
+  var delBtn=document.createElement('button');
+  delBtn.style.cssText="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#fdecea;color:#c62828;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;";
+  delBtn.textContent='刪除'; delBtn.onclick=function(){confirmAction('確定要刪除這個行程？',function(){deleteEvent(id);closeMo('evDetailModal');});};
+  btns.appendChild(editBtn); btns.appendChild(delBtn); body.appendChild(btns);
+  mbox.appendChild(body); modal.innerHTML=''; modal.appendChild(mbox);
+  openMo('evDetailModal');
+}
+function editThisEvent() {
+  closeMo('evDetailModal');
+  var ev = EVENTS.find(function(e){ return e.id===_editEventId; });
+  if(!ev) return;
   var nameEl=document.getElementById('editEvName');
   var d1El=document.getElementById('editEvDate1');
   var plEl=document.getElementById('editEvPlace');
