@@ -1418,7 +1418,16 @@ window['switchPairTab'] = switchPairTab;
 
 <div class="fw-overlay" id="fwOverlay">
   <div class="fw-card">
-    <svg width="52" height="52" viewBox="0 0 72 72" fill="none"><circle cx="36" cy="36" r=
+    <svg width="52" height="52" viewBox="0 0 72 72" fill="none">
+      <circle cx="36" cy="36" r="5" fill="#D4A870"/>
+      <circle cx="36" cy="22" r="3" fill="#D4A870" opacity="0.6"/>
+      <circle cx="36" cy="50" r="3" fill="#D4A870" opacity="0.6"/>
+      <circle cx="22" cy="36" r="3" fill="#D4A870" opacity="0.6"/>
+      <circle cx="50" cy="36" r="3" fill="#D4A870" opacity="0.6"/>
+    </svg>
+  </div>
+</div>
+
 // ── 頁面載入時套用已儲存的主題 ──
 (function(){
   var saved = localStorage.getItem('beebo_theme') || 'green';
