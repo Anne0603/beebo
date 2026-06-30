@@ -3559,6 +3559,7 @@ async function forgotPin(){
       }
     }, { merge: true });
     showToast('已送出重置請求，請等待對方同意 💌');
+    addNotif('⚠️ '+myName+' 請求重置隱私鎖 PIN', 'info');
     closeMo('lockScreen');
     // 顯示等待畫面
     var waitEl = document.getElementById('pinWaitText');
@@ -3583,6 +3584,8 @@ async function approvePinReset(){
   } catch(e) {}
   closeMo('pinResetRequestMo');
   showToast('已同意對方重置 PIN');
+  var myNmAR=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmAR+' 已同意重置 PIN 請求 ✓', 'info');
 }
 async function rejectPinReset(){
   if(!window._coupleId || !window._fsOps) return;
@@ -3594,6 +3597,8 @@ async function rejectPinReset(){
   } catch(e) {}
   closeMo('pinResetRequestMo');
   showToast('已拒絕重置請求');
+  var myNmRJ=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmRJ+' 已拒絕重置 PIN 請求', 'info');
 }
 function cancelPinWait(){
   closeMo('pinWaitMo');
