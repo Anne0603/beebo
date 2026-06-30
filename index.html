@@ -2991,6 +2991,8 @@ async function addMem(){
   if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
   closeMo('addMemMo');
   showToast('回憶錄已建立 ✓');
+  var myNmM=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmM+' 新增了回憶錄：「'+title.trim()+'」','mem');
 }
 
 
@@ -3100,6 +3102,8 @@ async function addRest(){
     if(path){path.setAttribute('fill','none');path.setAttribute('stroke','#C8C8C8');}
   });
   showToast('餐廳記錄已新增 ✓');
+  var myNmR=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmR+' 新增了餐廳記錄：「'+name+'」','rest');
   // onSnapshot 會自動更新，但加個保底
   setTimeout(function(){if(typeof renderRests==='function')renderRests();},500);
 }
@@ -3168,8 +3172,9 @@ async function saveQuote(){
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
   var {collection,addDoc,serverTimestamp}=window._fsOps;
   var dateLabel=dateEl&&dateEl.value ? dateEl.value.replace(/-/g,'/') : new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'});
+  var quoteTextVal = txt.value.trim();
   await addDoc(collection(window._db,'couples',window._coupleId,'quotes'),{
-    text: txt.value.trim(),
+    text: quoteTextVal,
     senderUid: window.currentUser ? window.currentUser.uid : '',
     dateLabel: dateLabel,
     createdAt: serverTimestamp()
@@ -3178,6 +3183,8 @@ async function saveQuote(){
   if(dateEl) dateEl.value='';
   closeMo('addQuoteMo');
   showToast('語錄已儲存 ✓');
+  var myNmQ=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmQ+' 新增了語錄：「'+quoteTextVal+'」','mem');
 }
 function deleteQuote(id){
   confirmAction('確定要刪除這則語錄嗎？', function(){
