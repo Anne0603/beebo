@@ -1183,7 +1183,7 @@ window['switchPairTab'] = switchPairTab;
 <!-- MODALS -->
 
 <div class="toast" id="toast"></div>
-<div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" value="" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" value="10:00" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" value="20:00" style="flex:1;"></div></div><div class="fg"><label class="fl">地點</label><input class="fi" id="editEvPlace" value=""></div><div class="fg"><label class="fl">重複</label><select class="fi" style="padding:8px 10px;"><option>不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註</label><textarea class="fi" rows="2" style="resize:none;"></textarea></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="deleteEvent()" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
+<div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div><div style="font-size:11px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="editEvTime1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" id="editEvTime2" style="flex:1;"></div></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="editEvPlace" style="padding:8px 10px;"><option value="">選擇地點...</option></select></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="confirmAction('確定刪除這個行程？',function(){deleteEvent();closeMo('editEventMo');})" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
 <div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="confirmLinkRest()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
 <div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit" id="editChalName">挑戰名稱</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="saveChalEdit()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(_editChalId)abandonChal(_editChalId).then(()=>closeMo('editChalMo'))" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
 <div class="mo" id="calDayMo"><div class="mbox"><div class="mh"><span class="mtit" id="calDayTitle">約會詳情</span><button class="mcl" onclick="closeMo('calDayMo')">×</button></div>
@@ -3758,27 +3758,7 @@ function openEventDetail(id) {
   if(ev.place){var pDiv=document.createElement('div');pDiv.style.cssText='font-size:13px;color:var(--sub);';pDiv.textContent='📍 '+ev.place;body.appendChild(pDiv);}
   var btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;margin-top:4px;';
   var editBtn=document.createElement('button'); editBtn.className='btn2 bsec'; editBtn.style.flex='1'; editBtn.textContent='編輯';
-  editBtn.onclick=function(){
-    closeMo('evDetailModal');
-    var ev2 = EVENTS.find(function(e){ return e.id===_editEventId; });
-    if(!ev2) return;
-    var nameEl=document.getElementById('editEvName');
-    var d1El=document.getElementById('editEvDate1');
-    var d2El=document.getElementById('editEvDate2');
-    var t1El=document.getElementById('editEvTime1');
-    var t2El=document.getElementById('editEvTime2');
-    if(nameEl) nameEl.value=ev2.name||'';
-    if(d1El) d1El.value=ev2.dateStart||'';
-    if(d2El) d2El.value=ev2.dateEnd||ev2.dateStart||'';
-    if(t1El) t1El.value=ev2.timeStart||'';
-    if(t2El) t2El.value=ev2.timeEnd||'';
-    fillLocationSelect('editEvPlace', true);
-    setTimeout(function(){
-      var plEl=document.getElementById('editEvPlace');
-      if(plEl && ev2.place) plEl.value=ev2.place;
-    }, 50);
-    setTimeout(function(){ openMo('editEventMo'); }, 300);
-  };
+  editBtn.onclick=function(){ editThisEvent(); };
   var delBtn=document.createElement('button');
   delBtn.style.cssText="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#fdecea;color:#c62828;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;";
   delBtn.textContent='刪除'; delBtn.onclick=function(){
@@ -3792,19 +3772,27 @@ function openEventDetail(id) {
   openMo('evDetailModal');
 }
 function editThisEvent() {
-  closeMo('evDetailModal');
   var ev = EVENTS.find(function(e){ return e.id===_editEventId; });
   if(!ev) return;
+  // 填入所有欄位
   var nameEl=document.getElementById('editEvName');
   var d1El=document.getElementById('editEvDate1');
+  var d2El=document.getElementById('editEvDate2');
+  var t1El=document.getElementById('editEvTime1');
+  var t2El=document.getElementById('editEvTime2');
   if(nameEl) nameEl.value=ev.name||'';
   if(d1El) d1El.value=ev.dateStart||'';
+  if(d2El) d2El.value=ev.dateEnd||'';
+  if(t1El) t1El.value=ev.timeStart||'';
+  if(t2El) t2El.value=ev.timeEnd||'';
   fillLocationSelect('editEvPlace', true);
   setTimeout(function(){
     var plEl=document.getElementById('editEvPlace');
     if(plEl && ev.place) plEl.value=ev.place;
   }, 50);
-  openMo('editEventMo');
+  // 關閉詳情，開啟編輯
+  closeMo('evDetailModal');
+  setTimeout(function(){ openMo('editEventMo'); }, 250);
 }
 
 async function saveEvent() {
@@ -4043,6 +4031,9 @@ window.closeMo = closeMo;
 window.goPage = goPage;
 window.goPageX = goPageX;
 
+</script>
+</body>
+</html>
 
 // ── 暴露 _init 函數到 window（供 module script 呼叫）──
 window['_initQuotes'] = _initQuotes;
@@ -4058,9 +4049,4 @@ window.openMo = openMo;
 window.closeMo = closeMo;
 window.goPage = goPage;
 window.goPageX = goPageX;
-window.goPage = goPage;
-window.goPageX = goPageX;
 
-</script>
-</body>
-</html>
