@@ -1144,6 +1144,8 @@ window.reauthenticateForPinReset = async function() {
           <option value="14">前2週</option>
         </select>
       </div>
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
+      <div class="sr" onclick="openDiscordSettingsMo()" style="margin:0;padding:0;background:none;box-shadow:none;border-radius:0;"><div class="sl"><div class="si">💬</div><div class="slb">Discord 通知設定</div></div><div class="sv">›</div></div>
     </div>
 
     <!-- 安全 -->
@@ -1154,7 +1156,7 @@ window.reauthenticateForPinReset = async function() {
     <div class="slbl">其他</div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="sr" onclick="showToast('重新整理中...');setTimeout(function(){location.reload();},400);"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面 <span style="font-size:10px;color:var(--sub);font-weight:400;">(約需2秒)</span></div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）<div id="lastExportTime" style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">尚未匯出過</div></div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openChangelogMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.0.0 ›</div></div>
       <div class="sr" onclick="showConfirmMo('確定要登出嗎？',firebaseSignOut)"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
     </div>
@@ -1399,6 +1401,25 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="rejectPinReset()" class="btn2 bsec" style="flex:1;">拒絕</button>
     <button onclick="approvePinReset()" class="btn2 bpri" style="flex:1;">同意重置</button>
   </div>
+</div></div>
+
+<div class="mo" id="discordSettingsMo"><div class="mbox">
+  <div class="mh"><span class="mtit">Discord 通知設定</span><button class="mcl" onclick="closeMo('discordSettingsMo')">×</button></div>
+  <div style="font-size:11px;color:var(--sub);margin-bottom:10px;line-height:1.6;">在 Discord 頻道建立 Webhook，貼上網址即可開啟通知。兩人可用同一組，也可各自設定。</div>
+  <div class="fg"><label class="fl">我的 Webhook URL</label>
+    <div style="display:flex;gap:6px;">
+      <input class="fi" id="discordWebhookMe" placeholder="https://discord.com/api/webhooks/..." style="flex:1;">
+      <button onclick="clearDiscordWebhook('me')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;padding:0 6px;">×</button>
+    </div>
+  </div>
+  <div class="fg"><label class="fl">對方的 Webhook URL（選填）</label>
+    <div style="display:flex;gap:6px;">
+      <input class="fi" id="discordWebhookPartner" placeholder="https://discord.com/api/webhooks/..." style="flex:1;">
+      <button onclick="clearDiscordWebhook('partner')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;padding:0 6px;">×</button>
+    </div>
+  </div>
+  <button onclick="testDiscordWebhook()" class="btn2 bsec" style="width:100%;margin-bottom:8px;">🔔 測試我的 Webhook</button>
+  <button onclick="saveDiscordSettings()" class="btn2 bpri" style="width:100%;">儲存設定</button>
 </div></div>
 
 <div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
@@ -2376,11 +2397,67 @@ window.testDiscord = async function() {
   }
 };
 
+// ── Discord Webhook 設定管理 ──
+function openDiscordSettingsMo(){
+  var current = getDiscordWebhooks();
+  var meEl = document.getElementById('discordWebhookMe');
+  var partnerEl = document.getElementById('discordWebhookPartner');
+  if(meEl) meEl.value = current.me || '';
+  if(partnerEl) partnerEl.value = current.partner || '';
+  openMo('discordSettingsMo');
+}
+function saveDiscordSettings(){
+  var meEl = document.getElementById('discordWebhookMe');
+  var partnerEl = document.getElementById('discordWebhookPartner');
+  var meUrl = meEl ? meEl.value.trim() : '';
+  var partnerUrl = partnerEl ? partnerEl.value.trim() : '';
+  if(meUrl && !meUrl.startsWith('https://discord.com/api/webhooks/')){
+    showToast('Webhook URL 格式不正確');
+    return;
+  }
+  if(partnerUrl && !partnerUrl.startsWith('https://discord.com/api/webhooks/')){
+    showToast('Webhook URL 格式不正確');
+    return;
+  }
+  var newSettings = { me: meUrl, partner: partnerUrl };
+  saveDiscordWebhooks(newSettings);
+  DISCORD_WEBHOOKS = newSettings;
+  closeMo('discordSettingsMo');
+  showToast('Discord 設定已儲存 ✓');
+}
+function clearDiscordWebhook(which){
+  var elId = which === 'me' ? 'discordWebhookMe' : 'discordWebhookPartner';
+  var el = document.getElementById(elId);
+  if(el) el.value = '';
+}
+function testDiscordWebhook(){
+  var meEl = document.getElementById('discordWebhookMe');
+  var url = meEl ? meEl.value.trim() : '';
+  if(!url){ showToast('請先輸入 Webhook URL'); return; }
+  fetch(url, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ username:'嗶啵 APP', content:'🔔 測試成功！這是來自嗶啵的測試訊息。' })
+  }).then(function(res){
+    showToast(res.ok ? '測試成功！請查看 Discord ✓' : '測試失敗: '+res.status);
+  }).catch(function(e){
+    showToast('測試失敗: '+e.message);
+  });
+}
+
 // ── Discord 推播通知 ──
-var DISCORD_WEBHOOKS = {
-  me: 'https://discord.com/api/webhooks/1521135615003984025/6WjvkmiuDy_-UEFNWjHEdN0xRFU_By7L_UuK6-93cF3j1_SYOoRQPPZxxEPu17J9VsSV',
-  partner: 'https://discord.com/api/webhooks/1521135615003984025/6WjvkmiuDy_-UEFNWjHEdN0xRFU_By7L_UuK6-93cF3j1_SYOoRQPPZxxEPu17J9VsSV'
-};
+var DEFAULT_DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1521135615003984025/6WjvkmiuDy_-UEFNWjHEdN0xRFU_By7L_UuK6-93cF3j1_SYOoRQPPZxxEPu17J9VsSV';
+function getDiscordWebhooks(){
+  try{
+    var saved = JSON.parse(localStorage.getItem('beebo_discord_webhooks')||'null');
+    if(saved && (saved.me || saved.partner)) return saved;
+  }catch(e){}
+  return { me: DEFAULT_DISCORD_WEBHOOK, partner: DEFAULT_DISCORD_WEBHOOK };
+}
+function saveDiscordWebhooks(obj){
+  localStorage.setItem('beebo_discord_webhooks', JSON.stringify(obj));
+}
+var DISCORD_WEBHOOKS = getDiscordWebhooks();
 
 async function sendDiscordNotif(msg, type) {
   var icons = { list:'✅', chal:'⭐', mem:'📷', rest:'🍽️', msg:'💬', cal:'📅', info:'🔔' };
@@ -3663,7 +3740,9 @@ function resetIdleTimer(){
 
 // 頁面載入時，如果已設定 PIN，立即鎖定並啟動閒置計時
 (function(){
-  if(getPinSet()){
+  var pinVal = getPinSet();
+  console.log('[PIN init] getPinSet():', pinVal ? '有設定('+pinVal.length+'碼)' : '無設定');
+  if(pinVal){
     setTimeout(function(){
       showLockScreen();
       startIdleTimer();
@@ -4709,7 +4788,19 @@ function exportData(){
   a.download = 'beebo-export-' + new Date().toLocaleDateString('zh-TW').replace(/\//g, '-') + '.json';
   a.click();
   URL.revokeObjectURL(url);
+  localStorage.setItem('beebo_last_export', Date.now());
+  updateLastExportDisplay();
   showToast('資料已匯出 ✓');
+}
+function updateLastExportDisplay(){
+  var el = document.getElementById('lastExportTime');
+  if(!el) return;
+  var ts = localStorage.getItem('beebo_last_export');
+  if(!ts){ el.textContent = '尚未匯出過'; return; }
+  var d = new Date(parseInt(ts));
+  var diff = Math.floor((Date.now() - d.getTime()) / 86400000);
+  var diffText = diff===0?'今天':diff===1?'昨天':diff+'天前';
+  el.textContent = '上次匯出：'+diffText+'（'+d.toLocaleDateString('zh-TW')+'）';
 };
 
 // ── 靈感新增 ──
@@ -4759,6 +4850,7 @@ function initSettingsPage(){
     var isAdminUser = window.userData && window.userData.isAdmin === true;
     adminWrap.style.display = isAdminUser ? 'block' : 'none';
   }
+  updateLastExportDisplay();
 };
 
 // ── 暴露 _init 函數到 window（供 module script 呼叫）──
