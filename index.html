@@ -1824,18 +1824,55 @@ function fillLocationSelect(selId,includeEmpty){
   }
 }
 function openLocationMgMo(){renderLocationMgList();openMo('locationMgMo');}
+function _isLocationInUse(loc){
+  var inUse = false;
+  (RESTS||[]).forEach(function(r){ if(r.location===loc || r.city===loc) inUse=true; });
+  (MEMS||[]).forEach(function(m){ if(m.location===loc || m.city===loc) inUse=true; });
+  (EVENTS||[]).forEach(function(e){ if(e.place===loc) inUse=true; });
+  return inUse;
+}
 function renderLocationMgList(){
   var el=document.getElementById('locationMgList');
   if(!el)return;
   var locs=getCustomLocations();
   if(!locs.length){el.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">尚未新增國外地點</div>';return;}
   el.innerHTML=locs.map(function(loc,i){
+    var inUse = _isLocationInUse(loc);
     return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;">'
-      +'<span style="flex:1;font-size:13px;">📍 '+loc+'</span>'
-      +'<button onclick="delLocationItem('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:18px;line-height:1;">×</button>'
+      +'<span style="flex:1;font-size:13px;">📍 '+loc+(inUse?' <span style="font-size:10px;color:var(--sub);">(使用中)</span>':'')+'</span>'
+      +(inUse?'':'<button onclick="delLocationItem('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:18px;line-height:1;">×</button>')
       +'</div>';
   }).join('');
 }
+var _delLocationIdx = null;
+function confirmDelLocation(idx){
+  var locs=getCustomLocations();
+  var loc = locs[idx];
+  if(!loc) return;
+  if(_isLocationInUse(loc)){ showToast('此地點使用中，無法刪除'); return; }
+  _delLocationIdx = idx;
+  var nameEl = document.getElementById('delLocationConfirmText');
+  if(nameEl) nameEl.innerHTML = '請輸入「<b style="color:var(--accent);">'+loc+'</b>」確認刪除';
+  var inputEl = document.getElementById('delLocationConfirmInput');
+  if(inputEl){ inputEl.value=''; inputEl.dataset.target=loc; }
+  openMo('delLocationMo');
+}
+function execDelLocation(){
+  var inputEl = document.getElementById('delLocationConfirmInput');
+  var target = inputEl ? inputEl.dataset.target : '';
+  if(!inputEl || inputEl.value.trim() !== target){
+    showToast('請輸入正確的地點名稱');
+    return;
+  }
+  if(_isLocationInUse(target)){ showToast('此地點使用中，無法刪除'); closeMo('delLocationMo'); return; }
+  var locs=getCustomLocations();
+  locs.splice(_delLocationIdx,1);
+  saveCustomLocations(locs);
+  closeMo('delLocationMo');
+  renderLocationMgList();
+  showToast('已刪除 ✓');
+}
+function delLocationItem(idx){ confirmDelLocation(idx); }
 function addLocationItem(){
   var country=(document.getElementById('newLocationCountry')||{}).value||'';
   var city=((document.getElementById('newLocationCity')||{}).value||'').trim();
@@ -1848,7 +1885,6 @@ function addLocationItem(){
   var countryEl=document.getElementById('newLocationCountry');if(countryEl)countryEl.value='';
   renderLocationMgList();showToast('地點已新增 ✓');
 }
-function delLocationItem(idx){var locs=getCustomLocations();locs.splice(idx,1);saveCustomLocations(locs);renderLocationMgList();}
 function goToLocationFilter(location){
   goPageX('restaurants');
   setTimeout(function(){
