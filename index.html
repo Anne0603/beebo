@@ -1254,6 +1254,39 @@ window['switchPairTab'] = switchPairTab;
   <div class="mh"><span class="mtit" id="dayEventsTitle">當天行程</span><button class="mcl" onclick="closeMo('dayEventsModal')">×</button></div>
   <div id="dayEventsList" style="display:flex;flex-direction:column;gap:8px;"></div>
 </div></div>
+<div class="mo" id="editChalCatMo"><div class="mbox">
+  <div class="mh"><span class="mtit">編輯分類名稱</span><button class="mcl" onclick="closeMo('editChalCatMo')">×</button></div>
+  <input class="fi" id="editChalCatInput" placeholder="分類名稱" style="margin-bottom:12px;">
+  <button onclick="saveEditChalCat()" class="btn2 bpri" style="width:100%;">儲存</button>
+</div></div>
+
+<div class="mo" id="delChalCatMo"><div class="mbox">
+  <div class="mh"><span class="mtit">刪除分類</span><button class="mcl" onclick="closeMo('delChalCatMo')">×</button></div>
+  <div id="delChalCatConfirmText" style="font-size:13px;color:var(--sub);margin-bottom:12px;"></div>
+  <input class="fi" id="delChalCatConfirmInput" placeholder="輸入分類名稱確認" style="margin-bottom:12px;">
+  <div style="display:flex;gap:8px;">
+    <button onclick="closeMo('delChalCatMo')" class="btn2 bsec" style="flex:1;">取消</button>
+    <button onclick="execDelChalCat()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
+  </div>
+</div></div>
+
+<div class="mo" id="delLocationMo"><div class="mbox">
+  <div class="mh"><span class="mtit">刪除地點</span><button class="mcl" onclick="closeMo('delLocationMo')">×</button></div>
+  <div id="delLocationConfirmText" style="font-size:13px;color:var(--sub);margin-bottom:12px;"></div>
+  <input class="fi" id="delLocationConfirmInput" placeholder="輸入地點名稱確認" style="margin-bottom:12px;">
+  <div style="display:flex;gap:8px;">
+    <button onclick="closeMo('delLocationMo')" class="btn2 bsec" style="flex:1;">取消</button>
+    <button onclick="execDelLocation()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
+  </div>
+</div></div>
+
+<div class="mo" id="importInspireMo"><div class="mbox">
+  <div class="mh"><span class="mtit">JSON 匯入靈感題庫</span><button class="mcl" onclick="closeMo('importInspireMo')">×</button></div>
+  <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6;">格式範例：[{"n":"吃火鍋","c":"想吃什麼"}, {"n":"看夜景","c":"想去哪"}]<br>分類需為：想去哪／想吃什麼／想做什麼／想看什麼</div>
+  <textarea class="fi" id="importInspireText" rows="8" placeholder='貼上 JSON 內容...' style="font-family:monospace;font-size:12px;margin-bottom:12px;"></textarea>
+  <button onclick="execImportInspire()" class="btn2 bpri" style="width:100%;">匯入（將覆蓋現有題庫）</button>
+</div></div>
+
 <div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
   <div style="text-align:center;padding:8px 0 16px;">
     <div style="font-size:14px;color:var(--txt);font-weight:600;" id="confirmMoText">確定嗎？</div>
@@ -1335,6 +1368,10 @@ window['switchPairTab'] = switchPairTab;
 <div style="display:flex;gap:0;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:10px;">
   <button onclick="switchInspireTab('list',this)" style="flex:1;padding:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-list">清單靈感</button>
   <button onclick="switchInspireTab('chal',this)" style="flex:1;padding:7px;border:none;background:var(--card2);color:var(--sub);font-size:12px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-chal">挑戰靈感</button>
+</div>
+<div style="display:flex;gap:6px;margin-bottom:10px;">
+  <button onclick="openImportInspireMo()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📥 JSON 匯入</button>
+  <button onclick="exportInspireJSON()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📤 匯出</button>
 </div>
 <div id="inspireListMg" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
 <div id="inspireChalMg" style="display:none;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
@@ -1851,24 +1888,79 @@ function getChalCats() {
 }
 function saveChalCats(cats) { localStorage.setItem('beebo_chal_cats', JSON.stringify(cats)); }
 function openChalCatMo() { renderChalCatMg(); openMo('chalCatMo'); }
+function _isChalCatInUse(cat){
+  return (CHALS||[]).some(function(ch){ return ch.cat === cat; });
+}
 function renderChalCatMg() {
   var cats = getChalCats();
   var el = document.getElementById('chalCatList');
   if(!el) return;
   el.innerHTML = cats.map(function(cat, i) {
-    var isDef = DEFAULT_CHAL_CATS.includes(cat);
+    var inUse = _isChalCatInUse(cat);
     return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;">'
-      + '<span style="flex:1;font-size:13px;">'+cat+'</span>'
-      + (isDef ? '<span style="font-size:10px;color:var(--sub);">預設</span>' : '<button onclick="delChalCat('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;">×</button>')
+      + '<span style="flex:1;font-size:13px;">'+cat+(inUse?' <span style="font-size:10px;color:var(--sub);">(使用中)</span>':'')+'</span>'
+      + '<button onclick="editChalCat('+i+')" style="all:unset;color:var(--accent);cursor:pointer;font-size:12px;padding:2px 6px;background:var(--lt);border-radius:6px;margin-right:4px;">編輯</button>'
+      + (inUse?'':'<button onclick="confirmDelChalCat('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;">×</button>')
       + '</div>';
   }).join('');
-  // 同步分類選單
   ['newChalCat','chalDetailCat'].forEach(function(id){
     var sel = document.getElementById(id);
     if(!sel) return;
     var cur = sel.value;
     sel.innerHTML = cats.map(function(c){ return '<option'+(c===cur?' selected':'')+'>'+c+'</option>'; }).join('');
   });
+}
+var _editChalCatIdx = null;
+function editChalCat(idx){
+  var cats = getChalCats();
+  _editChalCatIdx = idx;
+  var inputEl = document.getElementById('editChalCatInput');
+  if(inputEl) inputEl.value = cats[idx];
+  openMo('editChalCatMo');
+}
+function saveEditChalCat(){
+  var inputEl = document.getElementById('editChalCatInput');
+  var newName = inputEl ? inputEl.value.trim() : '';
+  if(!newName){ showToast('請輸入分類名稱'); return; }
+  var cats = getChalCats();
+  var oldName = cats[_editChalCatIdx];
+  if(cats.includes(newName) && newName !== oldName){ showToast('分類名稱已存在'); return; }
+  cats[_editChalCatIdx] = newName;
+  saveChalCats(cats);
+  // 同步更新使用此分類的挑戰
+  if(window._fsOps && window._coupleId && oldName !== newName){
+    CHALS.forEach(function(ch){
+      if(ch.cat === oldName){
+        var {doc, updateDoc} = window._fsOps;
+        updateDoc(doc(window._db,'couples',window._coupleId,'challenges',ch.id), {cat: newName}).catch(function(){});
+      }
+    });
+  }
+  closeMo('editChalCatMo');
+  renderChalCatMg();
+  showToast('已更新 ✓');
+}
+var _delChalCatIdx = null;
+function confirmDelChalCat(idx){
+  var cats = getChalCats();
+  var cat = cats[idx];
+  _delChalCatIdx = idx;
+  var nameEl = document.getElementById('delChalCatConfirmText');
+  if(nameEl) nameEl.innerHTML = '請輸入「<b style="color:var(--accent);">'+cat+'</b>」確認刪除';
+  var inputEl = document.getElementById('delChalCatConfirmInput');
+  if(inputEl){ inputEl.value=''; inputEl.dataset.target=cat; }
+  openMo('delChalCatMo');
+}
+function execDelChalCat(){
+  var inputEl = document.getElementById('delChalCatConfirmInput');
+  var target = inputEl ? inputEl.dataset.target : '';
+  if(!inputEl || inputEl.value.trim() !== target){ showToast('請輸入正確的分類名稱'); return; }
+  var cats = getChalCats();
+  cats.splice(_delChalCatIdx,1);
+  saveChalCats(cats);
+  closeMo('delChalCatMo');
+  renderChalCatMg();
+  showToast('已刪除 ✓');
 }
 function addChalCatItem() {
   var el = document.getElementById('newChalCatName');
@@ -1882,13 +1974,7 @@ function addChalCatItem() {
   renderChalCatMg();
   showToast('已新增分類 ✓');
 }
-function delChalCat(idx) {
-  var cats = getChalCats();
-  if(DEFAULT_CHAL_CATS.includes(cats[idx])) { showToast('預設分類無法刪除'); return; }
-  cats.splice(idx, 1);
-  saveChalCats(cats);
-  renderChalCatMg();
-}
+function delChalCat(idx) { confirmDelChalCat(idx); }
 
 // ── 靈感題庫管理 ──
 function _getDefaultInspire(){
@@ -2012,6 +2098,43 @@ async function sendDiscordNotif(msg, type) {
       body: JSON.stringify(payload)
     }).catch(function(){});
   });
+}
+
+// ── 靈感題庫 JSON 匯入/匯出 ──
+function exportInspireJSON() {
+  var data = _getInspireData() || _getDefaultInspire();
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'inspire-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('已匯出 ✓');
+}
+function openImportInspireMo() {
+  var ta = document.getElementById('importInspireText');
+  if(ta) ta.value = '';
+  openMo('importInspireMo');
+}
+function execImportInspire() {
+  var ta = document.getElementById('importInspireText');
+  var text = ta ? ta.value.trim() : '';
+  if(!text) { showToast('請貼上 JSON 內容'); return; }
+  try {
+    var data = JSON.parse(text);
+    if(!Array.isArray(data)) throw new Error('格式錯誤');
+    var valid = data.every(function(item){ return item.n && item.c; });
+    if(!valid) throw new Error('每筆需包含 n（名稱）和 c（分類）');
+    var validCats = ['想去哪','想吃什麼','想做什麼','想看什麼'];
+    var bad = data.filter(function(item){ return !validCats.includes(item.c); });
+    if(bad.length) { showToast('分類需為：想去哪/想吃什麼/想做什麼/想看什麼'); return; }
+    _saveInspireData(data);
+    closeMo('importInspireMo');
+    renderInspireMg('list');
+    showToast('匯入成功！共 '+data.length+' 筆 ✓');
+  } catch(e) {
+    showToast('JSON 格式錯誤：' + e.message);
+  }
 }
 
 // ── 通知系統 ──
@@ -2211,11 +2334,11 @@ function _updateStats() {
       if(m.city && m.city !== '國外') places.add(m.city);
       if(m.city === '國外' && m.country && m.foreignCity) places.add(m.country + '・' + m.foreignCity);
       else if(m.city === '國外' && m.country) places.add(m.country);
-      // 新格式（統一地點）
       if(m.location) places.add(m.location);
     });
-    // 也從新格式的地點欄位讀取
     (RESTS||[]).forEach(function(r){ if(r.location) places.add(r.location); });
+    // 行事曆地點
+    (EVENTS||[]).forEach(function(e){ if(e.place) places.add(e.place); });
     
     var placesArr = Array.from(places).sort();
     var statCities = document.getElementById('stat-cities');
