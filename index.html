@@ -154,6 +154,11 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 
 .mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:80;align-items:center;justify-content:center;pointer-events:none;}
 .mo.open{display:flex;pointer-events:auto;}
+.pindot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--accent);background:transparent;transition:background .15s;}
+.pindot.fill{background:var(--accent);}
+.pinkey{width:64px;height:64px;border-radius:50%;border:1px solid var(--bdr);background:var(--card);font-size:22px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;}
+.pinkey:active{background:var(--card2);}
+
 .mob{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;align-items:flex-end;pointer-events:none;}
 .mob.open{display:flex;pointer-events:auto;}
 .mbox{background:var(--card);border-radius:20px;padding:20px;width:88vw;max-width:340px;max-height:82vh;overflow-y:auto;}
@@ -1093,7 +1098,7 @@ window['switchPairTab'] = switchPairTab;
 
     <!-- 安全 -->
     <div class="slbl">安全</div>
-    <div class="sr" onclick="openMo('pinSetMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">隱私鎖 PIN</div></div><div class="sv" id="pinStatus">未設定 ›</div></div>
+    <div class="sr" onclick="openPinSetMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 11V7a4 4 0 018 0v4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">隱私鎖 PIN</div></div><div class="sv" id="pinStatus">未設定 ›</div></div>
 
     <!-- 其他 -->
     <div class="slbl">其他</div>
@@ -1335,7 +1340,35 @@ window['switchPairTab'] = switchPairTab;
 <div class="mo" id="photoMo" style="background:rgba(0,0,0,.92);z-index:90;"><div class="pfull"><button class="pcl" onclick="closeMo('photoMo')">×</button><div class="pph2" id="pph2" onclick="triggerUpload()"><svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.4)" stroke-width="2" stroke-linecap="round"/></svg><div style="color:rgba(255,255,255,.4);font-size:11px;">點擊上傳</div></div><img id="pimg2" class="pimg2" src="" alt=""><div style="color:#fff;font-size:18px;font-weight:700;margin-top:14px;" id="pname2"></div><div style="color:rgba(255,255,255,.5);font-size:11px;margin-top:3px;" id="photoSubtitle"></div><div id="photoEditArea"><button class="pubtn" onclick="triggerUpload()">更換照片</button></div><input type="file" id="photoFile" accept="image/*" onchange="handlePhoto(event)"></div></div>
 <div class="mo" id="profileMo"><div class="mbox"><div class="mh"><span class="mtit">我的個人資料</span><button class="mcl" onclick="closeMo('profileMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="display:flex;justify-content:center;"><div style="position:relative;cursor:pointer;" onclick="openPhoto('me')"><div style="width:68px;height:68px;border-radius:50%;background:var(--card2);border:2px solid var(--bdr);overflow:hidden;display:flex;align-items:center;justify-content:center;" id="profileAv"><svg width="30" height="30" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="12" r="6" stroke="#4A7A58" stroke-width="1.5"/><path d="M4 28c0-6 5-9 12-9s12 3 12 9" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div style="position:absolute;bottom:0;right:0;width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none"><path d="M16 3l5 5L7 21H2v-5L16 3z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">暱稱</label><input class="fi" id="profileName" value="" placeholder="輸入暱稱"></div><div class="fg"><label class="fl">生日</label><input class="fi" type="date" id="profileBday" value=""></div><div class="fg"><label class="fl">性別</label><select class="fsel"><option>男</option><option>女</option><option>不公開</option></select></div><div class="fg"><label class="fl">帳號（Gmail）</label><input class="fi" id="profileEmail" value="" readonly style="color:var(--sub);"></div><div class="fg"><label class="fl">在一起日期</label><input class="fi" type="date" id="profileStartDate" value="" onchange="confirmDateChange(this)"><div style="font-size:10px;color:var(--sub);margin-top:3px;">修改後天數將重新計算</div></div><button class="btn2 bpri" onclick="saveProfile()">儲存</button></div></div></div>
 
-<div class="mo" id="pinSetMo"><div class="mbox"><div class="mh"><span class="mtit">設定隱私鎖</span><button class="mcl" onclick="closeMo('pinSetMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">閒置 10 分鐘後自動鎖定。</div><div class="fg"><label class="fl">設定 4 位數 PIN</label><input class="fi" type="password" maxlength="4" placeholder="輸入 PIN" id="pi1"></div><div class="fg"><label class="fl">確認 PIN</label><input class="fi" type="password" maxlength="4" placeholder="再輸入一次" id="pi2"></div><button class="btn2 bpri" onclick="savePin()">啟用隱私鎖</button></div></div></div>
+<div class="mo" id="pinSetMo"><div class="mbox"><div class="mh"><span class="mtit">設定隱私鎖</span><button class="mcl" onclick="closeMo('pinSetMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">閒置 5 分鐘後自動鎖定。</div><div class="fg"><label class="fl">設定 4 位數 PIN</label><input class="fi" type="password" maxlength="4" placeholder="輸入 PIN" id="pi1" inputmode="numeric"></div><div class="fg"><label class="fl">確認 PIN</label><input class="fi" type="password" maxlength="4" placeholder="再輸入一次" id="pi2" inputmode="numeric"></div><button class="btn2 bpri" onclick="savePin()">啟用隱私鎖</button><button onclick="disablePin()" id="disablePinBtn" style="display:none;all:unset;text-align:center;padding:10px;border-radius:14px;background:#fdecea;color:#c62828;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">解除隱私鎖</button></div></div></div>
+
+<div class="mo" id="lockScreen" style="z-index:200;background:var(--bg);">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:24px;">
+    <div style="font-size:40px;">🔒</div>
+    <div style="font-size:15px;font-weight:600;color:var(--txt);">嗶啵已鎖定</div>
+    <div style="display:flex;gap:14px;">
+      <div class="pindot" id="pd0"></div>
+      <div class="pindot" id="pd1"></div>
+      <div class="pindot" id="pd2"></div>
+      <div class="pindot" id="pd3"></div>
+    </div>
+    <div id="pinErr" style="font-size:12px;color:#c62828;height:16px;"></div>
+    <div style="display:grid;grid-template-columns:repeat(3,64px);gap:14px;">
+      <button class="pinkey" onclick="pinKey('1')">1</button>
+      <button class="pinkey" onclick="pinKey('2')">2</button>
+      <button class="pinkey" onclick="pinKey('3')">3</button>
+      <button class="pinkey" onclick="pinKey('4')">4</button>
+      <button class="pinkey" onclick="pinKey('5')">5</button>
+      <button class="pinkey" onclick="pinKey('6')">6</button>
+      <button class="pinkey" onclick="pinKey('7')">7</button>
+      <button class="pinkey" onclick="pinKey('8')">8</button>
+      <button class="pinkey" onclick="pinKey('9')">9</button>
+      <div></div>
+      <button class="pinkey" onclick="pinKey('0')">0</button>
+      <button class="pinkey" onclick="pinDel()" style="font-size:18px;">⌫</button>
+    </div>
+  </div>
+</div>
 <div class="mo" id="exportMo"><div class="mbox"><div class="mh"><span class="mtit">匯出資料</span><button class="mcl" onclick="closeMo('exportMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">照片 ZIP 下載</div><div style="font-size:11px;color:var(--sub);">由管理員後台產生下載連結，需先在電腦端操作</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">回憶錄 PDF 匯出</div><div style="font-size:11px;color:var(--sub);">封面＋照片網格＋餐廳清單，可選單筆或全部</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">清單／餐廳／紀念日 Excel</div><div style="font-size:11px;color:var(--sub);">所有文字資料匯出為 Excel 試算表</div></div></div></div></div>
 <div class="mo" id="changelogMo"><div class="mbox"><div class="mh"><span class="mtit">版本紀錄</span><button class="mcl" onclick="closeMo('changelogMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div id="changelogList" style="display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto;"></div><div id="changelogAddArea" style="display:none;flex-direction:column;gap:8px;border-top:1px solid var(--bdr);padding-top:10px;"><div class="fg"><label class="fl">版本號</label><input class="fi" id="clVersion" placeholder="v1.1.0"></div><div class="fg"><label class="fl">更新內容（每行一項）</label><textarea class="fi" id="clContent" rows="4" placeholder="• 新功能說明" style="resize:none;"></textarea></div><button class="btn2 bpri" onclick="saveChangelog()">新增版本</button></div><button id="changelogAddBtn" class="btn2 bsec" onclick="toggleChangelogAdd()" style="display:none;">+ 新增版本</button></div></div></div></div>
 <div class="mo" id="logoutConfirm"><div class="cbox"><div class="ctit">確定要登出嗎？</div><div class="csub">登出後需重新使用 Google 帳號登入</div><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('logoutConfirm')">取消</button><button class="btn2 bpri" onclick="closeMo('logoutConfirm')">登出</button></div></div></div>
@@ -3221,37 +3254,109 @@ async function addRest(){
   setTimeout(function(){if(typeof renderRests==='function')renderRests();},500);
 }
 
-// PIN
-var pinSet=null,pinInput='';
+// ── 隱私鎖 PIN 系統 ──
+var pinInput = '';
+var _idleTimer = null;
+var IDLE_LOCK_MS = 5 * 60 * 1000; // 5 分鐘
+
+function getPinSet(){ return localStorage.getItem('beebo_pin') || null; }
+
 function savePin(){
   const p1=document.getElementById('pi1').value;
   const p2=document.getElementById('pi2').value;
   if(!/^[0-9]{4}$/.test(p1)){showToast('請輸入4位數字');return;}
   if(p1!==p2){showToast('PIN 不一致');return;}
-  pinSet=p1;
+  localStorage.setItem('beebo_pin', p1);
   document.getElementById('pinStatus').textContent='已啟用 ›';
+  document.getElementById('pi1').value='';
+  document.getElementById('pi2').value='';
   closeMo('pinSetMo');
   startIdleTimer();
   showToast('隱私鎖已啟用！');
 }
+
+function disablePin(){
+  confirmAction('確定要解除隱私鎖嗎？', function(){
+    localStorage.removeItem('beebo_pin');
+    document.getElementById('pinStatus').textContent='未設定 ›';
+    stopIdleTimer();
+    closeMo('pinSetMo');
+    showToast('隱私鎖已解除');
+  });
+}
+
+function openPinSetMo(){
+  var hasPin = !!getPinSet();
+  var btn = document.getElementById('disablePinBtn');
+  var saveBtn = document.querySelector('#pinSetMo .btn2.bpri');
+  if(btn) btn.style.display = hasPin ? 'block' : 'none';
+  if(saveBtn) saveBtn.textContent = hasPin ? '更新 PIN' : '啟用隱私鎖';
+  openMo('pinSetMo');
+}
+
 function pinKey(k){
   if(pinInput.length>=4)return;
   pinInput+=k;
   for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('fill',i<pinInput.length);
-  if(pinInput.length===4)setTimeout(checkPin,100);
+  if(pinInput.length===4)setTimeout(checkPin,150);
 }
-function pinDel(){pinInput=pinInput.slice(0,-1);for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('fill',i<pinInput.length);}
+function pinDel(){
+  pinInput=pinInput.slice(0,-1);
+  for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.toggle('fill',i<pinInput.length);
+}
 function checkPin(){
+  var pinSet = getPinSet();
   if(pinInput===pinSet){
-    document.getElementById('lockScreen').classList.remove('open');
-    pinInput='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');
+    closeMo('lockScreen');
+    pinInput='';
+    for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');
+    document.getElementById('pinErr').textContent='';
     resetIdleTimer();
   } else {
     document.getElementById('pinErr').textContent='PIN 錯誤，請再試一次';
     pinInput='';
-    setTimeout(()=>{document.getElementById('pinErr').textContent='';for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');},800);
+    setTimeout(function(){
+      document.getElementById('pinErr').textContent='';
+      for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');
+    },800);
   }
 }
+
+function showLockScreen(){
+  var pinSet = getPinSet();
+  if(!pinSet) return;
+  pinInput = '';
+  for(let i=0;i<4;i++)document.getElementById('pd'+i).classList.remove('fill');
+  document.getElementById('pinErr').textContent='';
+  openMo('lockScreen');
+}
+
+function startIdleTimer(){
+  if(!getPinSet()) return;
+  resetIdleTimer();
+  ['click','touchstart','keydown','scroll'].forEach(function(evt){
+    document.addEventListener(evt, resetIdleTimer, {passive:true});
+  });
+}
+function stopIdleTimer(){
+  if(_idleTimer) clearTimeout(_idleTimer);
+  _idleTimer = null;
+}
+function resetIdleTimer(){
+  if(_idleTimer) clearTimeout(_idleTimer);
+  if(!getPinSet()) return;
+  _idleTimer = setTimeout(function(){ showLockScreen(); }, IDLE_LOCK_MS);
+}
+
+// 頁面載入時，如果已設定 PIN，立即鎖定並啟動閒置計時
+(function(){
+  if(getPinSet()){
+    setTimeout(function(){
+      showLockScreen();
+      startIdleTimer();
+    }, 100);
+  }
+})();
 function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？')){inp.value=(window._coupleData&&window._coupleData.startDate)||'';}}
 // INIT
 try{buildNavs();}catch(err){console.error('buildNavs:',err);}
