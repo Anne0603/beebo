@@ -6,7 +6,6 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // coupleId 是兩個 uid 用 _ 串接（排序後），檢查目前使用者是否是其中一員
     function isCoupleOf(coupleId) {
       return isLoggedIn() && (
         coupleId.split('_')[0] == request.auth.uid ||
@@ -25,6 +24,12 @@ service cloud.firestore {
       allow read, write: if isLoggedIn();
     }
 
+    // changelog 是全域共用（非 couple-scoped），任何登入者可讀；只有管理員可寫（由 JS 判斷，這裡僅限登入）
+    match /changelog/{docId} {
+      allow read: if isLoggedIn();
+      allow write: if isLoggedIn();
+    }
+
     match /couples/{coupleId} {
       allow read, write: if isCoupleOf(coupleId);
 
@@ -41,6 +46,12 @@ service cloud.firestore {
         allow read, write: if isCoupleOf(coupleId);
       }
       match /quotes/{quoteId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
+      match /memories/{memId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
+      match /events/{eventId} {
         allow read, write: if isCoupleOf(coupleId);
       }
     }

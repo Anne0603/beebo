@@ -319,7 +319,11 @@ input[type=file]{display:none;}
       window._lastHandledPinReqTime = window._lastHandledPinReqTime || null;
       window._pinResetUnsub = onSnapshot(doc(db, 'couples', coupleId), (snap) => {
         var data = snap.data();
-        if(!data || !data.pinResetRequest) return;
+        if(!data) return;
+        if(!window._coupleData) window._coupleData = {};
+        window._coupleData.discordWebhook = data.discordWebhook || '';
+        if(typeof window.DISCORD_WEBHOOK !== 'undefined') window.DISCORD_WEBHOOK = data.discordWebhook || '';
+        if(!data.pinResetRequest) return;
         var req = data.pinResetRequest;
         var reqTimeKey = req.time && req.time.seconds ? req.time.seconds : null;
         // 同一筆請求（同一個時間戳記）只處理一次
@@ -373,6 +377,8 @@ input[type=file]{display:none;}
       if (myAvc && (data.photo || user.photoURL)) {
         myAvc.innerHTML = '<img src="'+(data.photo||user.photoURL)+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
       }
+      var adminWrap = document.getElementById('adminSectionWrap');
+      if (adminWrap) adminWrap.style.display = (data.isAdmin === true) ? 'block' : 'none';
 
       if (data.partnerId) {
         // 已配對 - 如果還沒初始化就初始化
@@ -662,6 +668,23 @@ window.startPairingCountdown = function(expiry, el) {
     window._coupleRef = coupleRef;
     window._db = db;
     window._applyStartDate(window._coupleData.startDate || '');
+
+    // ── 自我修復：舊配對資料可能在 isAdmin 機制上線前就建立，導致兩邊都是 false/未設定 ──
+    // 用 coupleId（已排序的 uid1_uid2）決定性指派，避免兩個裝置同時執行造成衝突
+    try {
+      var uids = coupleId.split('_');
+      var uidA = uids[0], uidB = uids[1];
+      if (uidA && uidB) {
+        var [snapA, snapB] = await Promise.all([getDoc(doc(db,'users',uidA)), getDoc(doc(db,'users',uidB))]);
+        var dataA = snapA.exists() ? snapA.data() : {};
+        var dataB = snapB.exists() ? snapB.data() : {};
+        if (dataA.isAdmin !== true && dataB.isAdmin !== true) {
+          await updateDoc(doc(db,'users',uidA), { isAdmin: true });
+          console.log('[自我修復] 兩邊都沒有管理員，已指派給', uidA);
+          if (myUid === uidA && myUserData) myUserData.isAdmin = true;
+        }
+      }
+    } catch(e) { console.warn('[isAdmin 自我修復失敗]', e.message); }
   };
 
   window._applyStartDate = function(dateStr) {
@@ -1151,9 +1174,8 @@ window.reauthenticateForPinReset = async function() {
           <option value="14">前2週</option>
         </select>
       </div>
-      <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
-      <div class="sr" onclick="openDiscordSettingsMo()" style="margin:0;padding:0;background:none;box-shadow:none;border-radius:0;"><div class="sl"><div class="si">💬</div><div class="slb">Discord 通知設定</div></div><div class="sv">›</div></div>
     </div>
+    <div class="sr" onclick="openDiscordSettingsMo()" style="margin-top:8px;"><div class="sl"><div class="si">💬</div><div class="slb">Discord 通知設定</div></div><div class="sv">›</div></div>
 
     <!-- 安全 -->
     <div class="slbl">安全</div>
@@ -1256,6 +1278,7 @@ window.reauthenticateForPinReset = async function() {
   </div>
   <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;"><div style="display:flex;gap:6px;"><select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option></select></div><div id="foreignFilterRow" style="display:none;gap:6px;"><select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select></div>
 <div style="display:flex;gap:6px;"><select id="restTypeFilter" onchange="setRT(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部類型</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>其他</option></select></div>
+  </div>
   <div class="sc" id="restBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addRestMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 </div>
@@ -1523,6 +1546,7 @@ window.reauthenticateForPinReset = async function() {
     </div>
   </div>
 </div>
+<div class="mo" id="exportMemFilterMo"><div class="mbox"><div class="mh"><span class="mtit">匯出回憶錄報告</span><button class="mcl" onclick="closeMo('exportMemFilterMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">可選擇只匯出特定時間範圍的回憶，留空表示全部匯出。</div><div class="fg"><label class="fl">開始日期（選填）</label><input class="fi" type="date" id="exportMemFrom"></div><div class="fg"><label class="fl">結束日期（選填）</label><input class="fi" type="date" id="exportMemTo"></div><button class="btn2 bpri" onclick="doExportMemoryReport()">📖 產生報告</button></div></div></div>
 <div class="mo" id="exportMo"><div class="mbox"><div class="mh"><span class="mtit">匯出資料</span><button class="mcl" onclick="closeMo('exportMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">照片 ZIP 下載</div><div style="font-size:11px;color:var(--sub);">由管理員後台產生下載連結，需先在電腦端操作</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">回憶錄 PDF 匯出</div><div style="font-size:11px;color:var(--sub);">封面＋照片網格＋餐廳清單，可選單筆或全部</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">清單／餐廳／紀念日 Excel</div><div style="font-size:11px;color:var(--sub);">所有文字資料匯出為 Excel 試算表</div></div></div></div></div>
 <div class="mo" id="changelogMo"><div class="mbox"><div class="mh"><span class="mtit">版本紀錄</span><button class="mcl" onclick="closeMo('changelogMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div id="changelogList" style="display:flex;flex-direction:column;gap:8px;max-height:50vh;overflow-y:auto;"></div><div id="changelogAddArea" style="display:none;flex-direction:column;gap:8px;border-top:1px solid var(--bdr);padding-top:10px;"><div class="fg"><label class="fl">版本號</label><input class="fi" id="clVersion" placeholder="v1.1.0"></div><div class="fg"><label class="fl">更新內容（每行一項）</label><textarea class="fi" id="clContent" rows="4" placeholder="• 新功能說明" style="resize:none;"></textarea></div><button class="btn2 bpri" onclick="saveChangelog()">新增版本</button></div><button id="changelogAddBtn" class="btn2 bsec" onclick="toggleChangelogAdd()" style="display:none;">+ 新增版本</button></div></div></div></div>
 <div class="mo" id="logoutConfirm"><div class="cbox"><div class="ctit">確定要登出嗎？</div><div class="csub">登出後需重新使用 Google 帳號登入</div><div class="cbtns"><button class="btn2 bsec" onclick="closeMo('logoutConfirm')">取消</button><button class="btn2 bpri" onclick="closeMo('logoutConfirm')">登出</button></div></div></div>
@@ -2433,23 +2457,30 @@ window.testDiscord = async function() {
 
 // ── Discord Webhook 設定管理 ──
 function openDiscordSettingsMo(){
-  var current = getDiscordWebhooks();
+  var current = getDiscordWebhook();
   var meEl = document.getElementById('discordWebhookMe');
-  if(meEl) meEl.value = current.me || '';
+  if(meEl) meEl.value = current || '';
   openMo('discordSettingsMo');
 }
-function saveDiscordSettings(){
+async function saveDiscordSettings(){
   var meEl = document.getElementById('discordWebhookMe');
   var url = meEl ? meEl.value.trim() : '';
   if(url && !url.startsWith('https://discord.com/api/webhooks/')){
     showToast('Webhook URL 格式不正確');
     return;
   }
-  var newSettings = { me: url, partner: url };
-  saveDiscordWebhooks(newSettings);
-  DISCORD_WEBHOOKS = newSettings;
-  closeMo('discordSettingsMo');
-  showToast('Discord 設定已儲存 ✓');
+  if(!window._coupleId || !window._fsOps){ showToast('請先配對'); return; }
+  try{
+    var {doc, setDoc} = window._fsOps;
+    await setDoc(doc(window._db,'couples',window._coupleId), { discordWebhook: url }, {merge:true});
+    if(window._coupleData) window._coupleData.discordWebhook = url;
+    DISCORD_WEBHOOK = url;
+    closeMo('discordSettingsMo');
+    showToast('Discord 設定已儲存 ✓');
+  }catch(e){
+    console.error('[saveDiscordSettings]', e);
+    showToast('儲存失敗：' + e.message);
+  }
 }
 function clearDiscordWebhook(){
   var el = document.getElementById('discordWebhookMe');
@@ -2483,21 +2514,15 @@ function testDiscordWebhook(){
   });
 }
 
-// ── Discord 推播通知 ──
-var DEFAULT_DISCORD_WEBHOOK = 'https://discord.com/api/webhooks/1521135615003984025/6WjvkmiuDy_-UEFNWjHEdN0xRFU_By7L_UuK6-93cF3j1_SYOoRQPPZxxEPu17J9VsSV';
-function getDiscordWebhooks(){
-  try{
-    var saved = JSON.parse(localStorage.getItem('beebo_discord_webhooks')||'null');
-    if(saved && (saved.me || saved.partner)) return saved;
-  }catch(e){}
-  return { me: DEFAULT_DISCORD_WEBHOOK, partner: DEFAULT_DISCORD_WEBHOOK };
+// ── Discord 推播通知（共用設定存在 Firestore couples 文件，雙方共用同一份）──
+function getDiscordWebhook(){
+  return (window._coupleData && window._coupleData.discordWebhook) || '';
 }
-function saveDiscordWebhooks(obj){
-  localStorage.setItem('beebo_discord_webhooks', JSON.stringify(obj));
-}
-var DISCORD_WEBHOOKS = getDiscordWebhooks();
+var DISCORD_WEBHOOK = '';
 
 async function sendDiscordNotif(msg, type) {
+  var url = getDiscordWebhook();
+  if(!url) return;
   var icons = { list:'✅', chal:'⭐', mem:'📷', rest:'🍽️', msg:'💬', cal:'📅', info:'🔔' };
   var icon = icons[type] || '🔔';
   var myName = (window.userData && window.userData.name) || '嗶啵';
@@ -2510,17 +2535,11 @@ async function sendDiscordNotif(msg, type) {
       footer: { text: myName + ' · ' + new Date().toLocaleString('zh-TW') }
     }]
   };
-  // 發到共用頻道（去重複）
-  var urls = [];
-  if(DISCORD_WEBHOOKS.me) urls.push(DISCORD_WEBHOOKS.me);
-  if(DISCORD_WEBHOOKS.partner && DISCORD_WEBHOOKS.partner !== DISCORD_WEBHOOKS.me) urls.push(DISCORD_WEBHOOKS.partner);
-  urls.forEach(function(url){
-    fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(function(){});
-  });
+  fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  }).catch(function(){});
 }
 
 // ── 靈感題庫 JSON 匯入/匯出 ──
@@ -3303,7 +3322,7 @@ async function addChal(){
   var de=document.getElementById('newChalDeadline');if(de)de.value='';
   closeMo('addChalMo');
   var myNm2=(window.userData&&window.userData.name)||'我';
-  addNotif(myNm2+' 新增了挑戰：「'+name.trim()+'」','chal');
+  addNotif(myNm2+' 新增了挑戰：「'+n+'」','chal');
   showToast('挑戰已新增！加油 💪');
 }
 
@@ -4883,12 +4902,29 @@ function unpairAccount(){
 // ── 匯出回憶錄報告（可列印成PDF）──
 function exportMemoryReport(){
   if(!window._coupleId){ showToast('請先配對'); return; }
+  // 先彈出篩選視窗
+  openMo('exportMemFilterMo');
+}
+function doExportMemoryReport(){
+  var fromEl = document.getElementById('exportMemFrom');
+  var toEl   = document.getElementById('exportMemTo');
+  var from = fromEl ? fromEl.value : '';
+  var to   = toEl   ? toEl.value   : '';
+  closeMo('exportMemFilterMo');
+
   var myName = (window.userData&&window.userData.name)||'我';
   var partnerName = (window.partnerData&&window.partnerData.name)||'對方';
-  var mems = (typeof MEMS !== 'undefined' ? MEMS : []).slice().sort(function(a,b){
+  var allMems = (typeof MEMS !== 'undefined' ? MEMS : []).slice().sort(function(a,b){
     return (a.dateStart||'').localeCompare(b.dateStart||'');
   });
+  var mems = allMems.filter(function(m){
+    var d = m.dateStart || '';
+    if(from && d && d < from) return false;
+    if(to   && d && d > to)   return false;
+    return true;
+  });
   var quotes = (typeof QUOTES !== 'undefined' ? QUOTES : []);
+  var rangeLabel = (from||'') + (from&&to?' ～ ':'') + (to||'');
 
   var html = '<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8">' +
     '<title>嗶啵回憶錄 - ' + myName + ' & ' + partnerName + '</title>' +
@@ -4906,7 +4942,10 @@ function exportMemoryReport(){
     '@media print{ body{padding:0;} .mem{break-inside:avoid;} }' +
     '</style></head><body>' +
     '<h1>💕 ' + myName + ' & ' + partnerName + ' 的回憶錄</h1>' +
-    '<p style="text-align:center;color:#8A5A64;font-size:13px;">匯出時間：' + new Date().toLocaleString('zh-TW') + '</p>';
+    '<p style="text-align:center;color:#8A5A64;font-size:13px;">' +
+      (rangeLabel ? '篩選時間：' + rangeLabel + '　' : '') +
+      '匯出時間：' + new Date().toLocaleString('zh-TW') +
+    '</p>';
 
   if(mems.length){
     html += '<h2 style="color:#8B4B5A;">📷 照片回憶（' + mems.length + ' 則）</h2>';
@@ -4922,10 +4961,10 @@ function exportMemoryReport(){
         '</div>';
     });
   } else {
-    html += '<p style="color:#8A5A64;">尚無回憶錄記錄</p>';
+    html += '<p style="color:#8A5A64;">此時間範圍內沒有回憶錄記錄</p>';
   }
 
-  if(quotes.length){
+  if(!from && !to && quotes.length){
     html += '<h2 style="color:#8B4B5A;">💬 語錄收藏（' + quotes.length + ' 則）</h2>';
     quotes.forEach(function(q){
       var by = q.senderUid===(window.currentUser&&window.currentUser.uid) ? myName : partnerName;
