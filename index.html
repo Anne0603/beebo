@@ -220,7 +220,7 @@ input[type=file]{display:none;}
 <!-- Firebase SDK -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, reauthenticateWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -879,6 +879,19 @@ window['saveProfile'] = saveProfile;
 window['sendMsg'] = sendMsg;
 window['submitInviteCode'] = submitInviteCode;
 window['switchPairTab'] = switchPairTab;
+
+window.reauthenticateForPinReset = async function() {
+  if (!window.currentUser) return false;
+  try {
+    const provider = new GoogleAuthProvider();
+    await reauthenticateWithPopup(window.currentUser, provider);
+    return true;
+  } catch (e) {
+    console.error('[reauthenticate] 失敗:', e);
+    window.showToast('身份驗證失敗，請再試一次');
+    return false;
+  }
+};
 </script>
 </head>
 <body>
@@ -3333,26 +3346,24 @@ function checkPin(){
   }
 }
 
-function forgotPin(){
+async function forgotPin(){
   if(!window.currentUser){
     showToast('請先登入');
     return;
   }
-  var userEmail = window.currentUser.email || '帳號';
+  if(typeof window.reauthenticateForPinReset !== 'function'){
+    showToast('驗證功能載入中，請稍候再試');
+    return;
+  }
+  showToast('請重新驗證您的 Google 帳號...');
+  var ok = await window.reauthenticateForPinReset();
+  if(!ok) return; // 驗證失敗或取消，保持鎖定
+  localStorage.removeItem('beebo_pin');
+  localStorage.removeItem('beebo_pin_attempts');
   closeMo('lockScreen');
-  setTimeout(function(){
-    confirmAction(
-      '確定要重置 PIN 嗎？',
-      function(){
-        localStorage.removeItem('beebo_pin');
-        localStorage.removeItem('beebo_pin_attempts');
-        stopIdleTimer();
-        showToast('PIN 已重置，請重新設定');
-        setTimeout(function(){ openPinSetMo(); }, 400);
-      },
-      '將以「' + userEmail + '」帳號身份驗證並清除 PIN'
-    );
-  }, 250);
+  stopIdleTimer();
+  showToast('驗證成功，PIN 已重置，請重新設定');
+  setTimeout(function(){ openPinSetMo(); }, 400);
 }
 
 function showLockScreen(){
