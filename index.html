@@ -882,13 +882,20 @@ window['switchPairTab'] = switchPairTab;
 
 window.reauthenticateForPinReset = async function() {
   if (!window.currentUser) return false;
+  var expectedUid = window.currentUser.uid;
   try {
     const provider = new GoogleAuthProvider();
-    await reauthenticateWithPopup(window.currentUser, provider);
+    const result = await signInWithPopup(auth, provider);
+    if (result.user.uid !== expectedUid) {
+      window.showToast('請使用原本的帳號登入');
+      return false;
+    }
     return true;
   } catch (e) {
-    console.error('[reauthenticate] 失敗:', e);
-    window.showToast('身份驗證失敗，請再試一次');
+    console.error('[reauthenticate] 失敗:', e.code, e.message);
+    if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+      window.showToast('驗證失敗: ' + (e.code || e.message));
+    }
     return false;
   }
 };
