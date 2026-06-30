@@ -1281,7 +1281,7 @@ window['switchPairTab'] = switchPairTab;
 </div></div>
 
 <div class="mo" id="importInspireMo"><div class="mbox">
-  <div class="mh"><span class="mtit">JSON 匯入靈感題庫</span><button class="mcl" onclick="closeMo('importInspireMo')">×</button></div>
+  <div class="mh"><span class="mtit">JSON 匯入靈感題庫</span><button class="mcl" onclick="closeMo('importInspireMo');setTimeout(function(){openMo('inspireMgMo');},250);">×</button></div>
   <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6;">格式範例：[{"n":"吃火鍋","c":"想吃什麼"}, {"n":"看夜景","c":"想去哪"}]<br>分類需為：想去哪／想吃什麼／想做什麼／想看什麼</div>
   <textarea class="fi" id="importInspireText" rows="8" placeholder='貼上 JSON 內容...' style="font-family:monospace;font-size:12px;margin-bottom:12px;"></textarea>
   <button onclick="execImportInspire()" class="btn2 bpri" style="width:100%;">匯入（將覆蓋現有題庫）</button>
@@ -2148,7 +2148,8 @@ function exportInspireJSON() {
 function openImportInspireMo() {
   var ta = document.getElementById('importInspireText');
   if(ta) ta.value = '';
-  openMo('importInspireMo');
+  closeMo('inspireMgMo');
+  setTimeout(function(){ openMo('importInspireMo'); }, 250);
 }
 function execImportInspire() {
   var ta = document.getElementById('importInspireText');
@@ -2164,8 +2165,8 @@ function execImportInspire() {
     if(bad.length) { showToast('分類需為：想去哪/想吃什麼/想做什麼/想看什麼'); return; }
     _saveInspireData(data);
     closeMo('importInspireMo');
-    renderInspireMg('list');
     showToast('匯入成功！共 '+data.length+' 筆 ✓');
+    setTimeout(function(){ openMo('inspireMgMo'); renderInspireMg('list'); }, 250);
   } catch(e) {
     showToast('JSON 格式錯誤：' + e.message);
   }
