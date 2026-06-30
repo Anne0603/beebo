@@ -1554,9 +1554,10 @@ function buildNavs(){
     el.innerHTML=PAGES.map((pg,i)=>{
       const on=pg===p,c=on?'#4A7A58':'#A0C0A8',f=on?'#C8E4D0':'none';
       const icon=i===0?NAVSVG[i](c,f):NAVSVG[i](c);
-      return `<button class="nb" onclick="goPage('${pg}')">${icon}<span class="nl ${on?'on':''}">${NAVL[i]}</span>${on?'<div class="ndot"></div>':''}</button>`;
+      return `<button class="nb" data-page="${pg}" onclick="goPage('${pg}')">${icon}<span class="nl ${on?'on':''}">${NAVL[i]}</span>${on?'<div class="ndot"></div>':''}</button>`;
     }).join('');
   });
+  if(typeof updateNotifBadge==='function') updateNotifBadge();
 }
 function goPage(p){
   const cur=document.getElementById('page-'+curPage);
@@ -1567,8 +1568,7 @@ function goPage(p){
     if(p==='settings' && typeof window.initSettingsPage==='function') window.initSettingsPage();
     if(p==='notify') {
       renderNotifPage();
-      var dot=document.getElementById('notifDot');
-      if(dot) dot.style.display='none';
+      markAllNotifsRead();
     }
     curPage=p;
     buildNavs();
@@ -2236,20 +2236,51 @@ function checkUpcomingReminders() {
     });
   }
 
-  reminders.forEach(function(msg){ addNotif(msg, 'info'); });
+  reminders.forEach(function(msg){ addNotif(msg, 'info', true); });
 }
 
 // ── 通知系統 ──
 function addNotif(msg,type,skipDiscord){
   try{
     var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
-    notifs.unshift({msg:msg,type:type||'info',time:Date.now()});
+    notifs.unshift({msg:msg,type:type||'info',time:Date.now(),read:false});
     if(notifs.length>50)notifs=notifs.slice(0,50);
     localStorage.setItem('beebo_notifs',JSON.stringify(notifs));
     renderNotifPage();
-    var dot=document.getElementById('notifDot');
-    if(dot)dot.style.display='block';
+    updateNotifBadge();
     if(!skipDiscord) sendDiscordNotif(msg,type);
+  }catch(e){}
+}
+function getUnreadNotifCount(){
+  try{
+    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
+    return notifs.filter(function(n){return n.read===false;}).length;
+  }catch(e){return 0;}
+}
+function updateNotifBadge(){
+  var count = getUnreadNotifCount();
+  var navBtn = document.querySelector('[data-page="notify"]');
+  if(navBtn){
+    var dot = navBtn.querySelector('.nav-notif-dot');
+    if(count > 0){
+      if(!dot){
+        dot = document.createElement('div');
+        dot.className = 'nav-notif-dot';
+        dot.style.cssText = 'position:absolute;top:2px;right:18%;width:8px;height:8px;border-radius:50%;background:#e53935;border:1.5px solid var(--card);';
+        navBtn.style.position = 'relative';
+        navBtn.appendChild(dot);
+      }
+    } else if(dot){
+      dot.remove();
+    }
+  }
+}
+function markAllNotifsRead(){
+  try{
+    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
+    notifs.forEach(function(n){ n.read = true; });
+    localStorage.setItem('beebo_notifs',JSON.stringify(notifs));
+    updateNotifBadge();
   }catch(e){}
 }
 function renderNotifPage(){
