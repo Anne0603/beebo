@@ -307,6 +307,7 @@ input[type=file]{display:none;}
     var pm = document.getElementById('pairingMo');
     if (pm) pm.classList.remove('open');
     window.buildNavs();
+    setTimeout(function(){ if(typeof window.checkUpcomingReminders==='function') window.checkUpcomingReminders(); }, 1000);
   }
 
   // ── 登入狀態監聽（只負責身份確認）──
@@ -1078,6 +1079,16 @@ window['switchPairTab'] = switchPairTab;
       <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">紀念日提醒</span><div class="toggle" id="notif-anniv" onclick="toggleNotif('anniv',this)"></div></div>
       <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">生日提醒</span><div class="toggle" id="notif-bday" onclick="toggleNotif('bday',this)"></div></div>
+      <hr style="border:none;border-top:1px solid var(--bdr);margin:0;">
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:13px;color:var(--txt);font-weight:600;">提前提醒天數</span>
+        <select id="notif-advance-days" onchange="saveAdvanceDays(this.value)" style="font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card2);color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+          <option value="1">前1天</option>
+          <option value="2">前2天</option>
+          <option value="3">前3天</option>
+          <option value="7">前1週</option>
+          <option value="14">前2週</option>
+        </select>
+      </div>
     </div>
 
     <!-- 安全 -->
@@ -1471,7 +1482,7 @@ window['switchPairTab'] = switchPairTab;
 </div></div></div>
 
 
-<div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label><textarea class="fi" id="newDish" rows="3" placeholder="招牌菜、必點餐點..." style="resize:none;"></textarea></div><div class="fg"><label class="fl">備註（選填）</label>
+<div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">點了什麼（選填）</label>
 
 <script>
 // ── 頁面載入時套用已儲存的主題 ──
@@ -2171,8 +2182,65 @@ function execImportInspire() {
   }
 }
 
+// ── 提前通知天數設定 ──
+function getAdvanceDays() {
+  return parseInt(localStorage.getItem('beebo_advance_days') || '3');
+}
+function saveAdvanceDays(days) {
+  localStorage.setItem('beebo_advance_days', days);
+  showToast('已設定提前 ' + (days==7?'1週':days==14?'2週':days+'天') + '提醒');
+}
+// 檢查即將到來的紀念日/生日/節日/行事曆，符合提前天數就發通知（每天檢查一次）
+function checkUpcomingReminders() {
+  var lastCheck = localStorage.getItem('beebo_last_reminder_check');
+  var today = new Date(); today.setHours(0,0,0,0);
+  var todayStr = today.toISOString().split('T')[0];
+  if(lastCheck === todayStr) return; // 今天已檢查過
+  localStorage.setItem('beebo_last_reminder_check', todayStr);
+
+  var advDays = getAdvanceDays();
+  var checkDate = new Date(today); checkDate.setDate(checkDate.getDate() + advDays);
+  var cm = checkDate.getMonth()+1, cd = checkDate.getDate();
+
+  var notifMsg = JSON.parse(localStorage.getItem('beebo_notif') || '{}');
+  var reminders = [];
+
+  // 紀念日
+  if(notifMsg.anniv !== false && window._coupleData && window._coupleData.startDate) {
+    var sd = window._coupleData.startDate.split('-');
+    if(parseInt(sd[1])===cm && parseInt(sd[2])===cd) reminders.push('💑 交往紀念日即將到來（' + advDays + '天後）！');
+  }
+  // 生日
+  if(notifMsg.bday !== false) {
+    if(window.userData && window.userData.birthday) {
+      var bd = window.userData.birthday.split('-');
+      if(parseInt(bd[1])===cm && parseInt(bd[2])===cd) reminders.push('🎂 你的生日即將到來（' + advDays + '天後）！');
+    }
+    if(window.partnerData && window.partnerData.birthday) {
+      var pbd = window.partnerData.birthday.split('-');
+      if(parseInt(pbd[1])===cm && parseInt(pbd[2])===cd) reminders.push('🎂 ' + (window.partnerData.name||'對方') + ' 的生日即將到來（' + advDays + '天後）！');
+    }
+  }
+  // 節日
+  var hMap = {'2-14':'情人節 💕','3-14':'白色情人節 🤍','8-10':'七夕情人節 🌠','12-25':'聖誕節 🎄'};
+  if(hMap[cm+'-'+cd]) reminders.push(hMap[cm+'-'+cd] + ' 即將到來（' + advDays + '天後）！');
+  // 行事曆行程
+  if(notifMsg.chal !== false && window.EVENTS) {
+    window.EVENTS.forEach(function(e){
+      if(e.dateStart){
+        var ed = new Date(e.dateStart);
+        if(ed.getFullYear()===checkDate.getFullYear() && ed.getMonth()+1===cm && ed.getDate()===cd){
+          reminders.push('📅 「' + e.name + '」即將到來（' + advDays + '天後）！');
+        }
+      }
+    });
+  }
+
+  reminders.forEach(function(msg){ addNotif(msg, 'info'); });
+}
+
 // ── 通知系統 ──
-function addNotif(msg,type){
+function addNotif(msg,type,skipDiscord){
   try{
     var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
     notifs.unshift({msg:msg,type:type||'info',time:Date.now()});
@@ -2181,7 +2249,7 @@ function addNotif(msg,type){
     renderNotifPage();
     var dot=document.getElementById('notifDot');
     if(dot)dot.style.display='block';
-    sendDiscordNotif(msg,type);
+    if(!skipDiscord) sendDiscordNotif(msg,type);
   }catch(e){}
 }
 function renderNotifPage(){
@@ -2493,7 +2561,7 @@ async function deleteItem(id){
   await deleteDoc(doc(window._db,'couples',window._coupleId,'list',id));
   showToast('已刪除');
   var myNmDL=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmDL+' 刪除了清單：「'+liName+'」','list');
+  addNotif(myNmDL+' 刪除了清單：「'+liName+'」','list',true);
 }
 async function addListItem(){
   var n=document.getElementById('newLN').value.trim();
@@ -2742,7 +2810,7 @@ async function abandonChal(id){
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'failed'});
   showToast('挑戰已移至已失敗');
   var myNmAC=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmAC+' 放棄了挑戰：「'+chName+'」','chal');
+  addNotif(myNmAC+' 放棄了挑戰：「'+chName+'」','chal',true);
 }
 
 async function retryChallenge(id){
@@ -3066,7 +3134,7 @@ async function deleteRest(id){
   await deleteDoc(doc(window._db,'couples',window._coupleId,'rests',id));
   showToast('已刪除');
   var myNmDR=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmDR+' 刪除了餐廳記錄：「'+rName+'」','rest');
+  addNotif(myNmDR+' 刪除了餐廳記錄：「'+rName+'」','rest',true);
 }
 
 var restStar=0;
@@ -3209,7 +3277,7 @@ function deleteQuote(id){
       .then(function(){
         showToast('語錄已刪除');
         var myNmDQ=(window.userData&&window.userData.name)||'我';
-        addNotif(myNmDQ+' 刪除了語錄：「'+qText+'」','mem');
+        addNotif(myNmDQ+' 刪除了語錄：「'+qText+'」','mem',true);
       })
       .catch(function(e){ showToast('刪除失敗'); });
   });
@@ -3613,7 +3681,7 @@ async function saveEditQuote() {
   closeMo('editQuoteMo');
   showToast('語錄已更新 ✓');
   var myNmEQ=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmEQ+' 編輯了語錄：「'+text+'」','mem');
+  addNotif(myNmEQ+' 編輯了語錄：「'+text+'」','mem',true);
   _editQuoteId = null;
 }
 
@@ -3641,7 +3709,7 @@ async function execDeleteMem(){
   _deleteMemId = null;
   showToast('回憶已刪除');
   var myNmDM=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmDM+' 刪除了回憶錄：「'+delMemTitle+'」','mem');
+  addNotif(myNmDM+' 刪除了回憶錄：「'+delMemTitle+'」','mem',true);
 }
 
 // addMem 上傳照片
@@ -3992,7 +4060,7 @@ async function saveEvent() {
   closeMo('editEventMo');
   showToast('已儲存 ✓');
   var myNmSE=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmSE+' 編輯了行程：「'+name.trim()+'」','chal');
+  addNotif(myNmSE+' 編輯了行程：「'+name.trim()+'」','chal',true);
 }
 
 async function deleteEvent(id) {
@@ -4007,7 +4075,7 @@ async function deleteEvent(id) {
   _editEventId=null;
   showToast('行程已刪除 ✓');
   var myNmDE=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmDE+' 刪除了行程：「'+evName+'」','chal');
+  addNotif(myNmDE+' 刪除了行程：「'+evName+'」','chal',true);
 }
 function deleteEventFromDay(){deleteEvent();closeMo('calDayMo');}
 
@@ -4194,6 +4262,9 @@ function initSettingsPage(){
     var el = document.getElementById('notif-' + k);
     if(el){ var on = prefs[k] !== false; el.classList.toggle('on', on); }
   });
+  // 提前提醒天數
+  var advSel = document.getElementById('notif-advance-days');
+  if(advSel) advSel.value = getAdvanceDays();
   // 自訂暱稱顯示
   var cn = document.getElementById('customNameSv');
   if(cn && window.userData && window.userData.name) cn.textContent = window.userData.name + ' ›';
@@ -4214,9 +4285,16 @@ window['_initRests'] = _initRests;
 window['_initEvents'] = _initEvents;
 window['_initQuotes'] = _initQuotes;
 window.buildNavs = buildNavs;
+window.checkUpcomingReminders = checkUpcomingReminders;
 window.reroll = reroll;
 window.setDC = setDC;
 window.showToast = showToast;
+window.openMo = openMo;
+window.closeMo = closeMo;
+window.goPage = goPage;
+window.goPageX = goPageX;
+
+showToast = showToast;
 window.openMo = openMo;
 window.closeMo = closeMo;
 window.goPage = goPage;
