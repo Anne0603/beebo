@@ -3758,10 +3758,35 @@ function openEventDetail(id) {
   if(ev.place){var pDiv=document.createElement('div');pDiv.style.cssText='font-size:13px;color:var(--sub);';pDiv.textContent='📍 '+ev.place;body.appendChild(pDiv);}
   var btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;margin-top:4px;';
   var editBtn=document.createElement('button'); editBtn.className='btn2 bsec'; editBtn.style.flex='1'; editBtn.textContent='編輯';
-  editBtn.onclick=function(){editThisEvent();};
+  editBtn.onclick=function(){
+    closeMo('evDetailModal');
+    var ev2 = EVENTS.find(function(e){ return e.id===_editEventId; });
+    if(!ev2) return;
+    var nameEl=document.getElementById('editEvName');
+    var d1El=document.getElementById('editEvDate1');
+    var d2El=document.getElementById('editEvDate2');
+    var t1El=document.getElementById('editEvTime1');
+    var t2El=document.getElementById('editEvTime2');
+    if(nameEl) nameEl.value=ev2.name||'';
+    if(d1El) d1El.value=ev2.dateStart||'';
+    if(d2El) d2El.value=ev2.dateEnd||ev2.dateStart||'';
+    if(t1El) t1El.value=ev2.timeStart||'';
+    if(t2El) t2El.value=ev2.timeEnd||'';
+    fillLocationSelect('editEvPlace', true);
+    setTimeout(function(){
+      var plEl=document.getElementById('editEvPlace');
+      if(plEl && ev2.place) plEl.value=ev2.place;
+    }, 50);
+    setTimeout(function(){ openMo('editEventMo'); }, 300);
+  };
   var delBtn=document.createElement('button');
   delBtn.style.cssText="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#fdecea;color:#c62828;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;";
-  delBtn.textContent='刪除'; delBtn.onclick=function(){confirmAction('確定要刪除這個行程？',function(){deleteEvent(id);closeMo('evDetailModal');});};
+  delBtn.textContent='刪除'; delBtn.onclick=function(){
+    closeMo('evDetailModal');
+    setTimeout(function(){
+      confirmAction('確定要刪除這個行程？', function(){ deleteEvent(id); });
+    }, 300);
+  };
   btns.appendChild(editBtn); btns.appendChild(delBtn); body.appendChild(btns);
   mbox.appendChild(body); modal.innerHTML=''; modal.appendChild(mbox);
   openMo('evDetailModal');
