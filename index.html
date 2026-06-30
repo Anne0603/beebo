@@ -3542,10 +3542,25 @@ function checkPin(){
   }
 }
 
-async function forgotPin(){
-  console.log('[forgotPin] currentUser:', !!window.currentUser, 'coupleId:', window._coupleId, 'fsOps:', !!window._fsOps);
+function forgotPin(){
   if(!window.currentUser || !window._coupleId || !window._fsOps){
-    showToast('需要先配對才能使用此功能 (除錯: user='+(!!window.currentUser)+' couple='+(!!window._coupleId)+' fs='+(!!window._fsOps)+')');
+    showToast('需要先配對才能使用此功能');
+    return;
+  }
+  // 先關鎖定畫面，再跳確認視窗，避免被lockScreen的z-index蓋住
+  closeMo('lockScreen');
+  setTimeout(function(){
+    confirmAction(
+      '確定要送出 PIN 重置請求嗎？',
+      function(){ execForgotPin(); },
+      '對方會收到通知，需同意後才能重置'
+    );
+  }, 250);
+}
+async function execForgotPin(){
+  if(!window.currentUser || !window._coupleId || !window._fsOps){
+    showToast('需要先配對才能使用此功能');
+    if(getPinSet()) showLockScreen();
     return;
   }
   var {doc, setDoc, serverTimestamp} = window._fsOps;
@@ -3561,14 +3576,13 @@ async function forgotPin(){
     }, { merge: true });
     showToast('已送出重置請求，請等待對方同意 💌');
     addNotif('⚠️ '+myName+' 請求重置隱私鎖 PIN', 'info');
-    closeMo('lockScreen');
-    // 顯示等待畫面
     var waitEl = document.getElementById('pinWaitText');
     if(waitEl) waitEl.textContent = '已送出請求，等待對方同意...';
     openMo('pinWaitMo');
   } catch(e) {
     console.error('[forgotPin] 失敗:', e);
     showToast('送出請求失敗，請稍後再試');
+    if(getPinSet()) showLockScreen();
   }
 }
 
