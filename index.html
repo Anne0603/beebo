@@ -1249,6 +1249,10 @@ window['switchPairTab'] = switchPairTab;
 <select class="fi" id="evPlace" style="padding:8px 10px;">
   <option value="">選擇地點...</option>
 </select></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
+<div class="mo" id="dayEventsModal"><div class="mbox">
+  <div class="mh"><span class="mtit" id="dayEventsTitle">當天行程</span><button class="mcl" onclick="closeMo('dayEventsModal')">×</button></div>
+  <div id="dayEventsList" style="display:flex;flex-direction:column;gap:8px;"></div>
+</div></div>
 <div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
   <div style="text-align:center;padding:8px 0 16px;">
     <div style="font-size:14px;color:var(--txt);font-weight:600;" id="confirmMoText">確定嗎？</div>
@@ -3625,79 +3629,56 @@ function calNextMonth() {
   renderCalendar();
 }
 function calDayClick(dateStr) {
-  // 找當天的用戶行程
-  // 統一日期格式再比較
   var normDate = function(s){
     if(!s) return '';
     var p=s.split('-');
     return p[0]+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0');
   };
-  var normDateStr = normDate(dateStr);
-  var dayEvents = EVENTS.filter(function(e){ return normDate(e.dateStart) === normDateStr; });
-  console.log('[calDayClick] dateStr:', dateStr, 'normDateStr:', normDateStr, 'dayEvents:', dayEvents.length, EVENTS.map(function(e){return e.dateStart+'>'+normDate(e.dateStart);}));
+  var nds = normDate(dateStr);
+  var dayEvents = EVENTS.filter(function(e){ return normDate(e.dateStart) === nds; });
   if(dayEvents.length >= 1) {
-    // 多個行程：用 toast 列出，點確認選擇第一個
-    var names = dayEvents.map(function(e){ return e.name; }).join('、');
-    // 建立選擇 modal
-    var modal = document.getElementById('dayEventsModal');
-    if(!modal){ modal=document.createElement('div'); modal.className='mo'; modal.id='dayEventsModal'; document.body.appendChild(modal); }
-    var mbox=document.createElement('div'); mbox.className='mbox';
-    var mh=document.createElement('div'); mh.className='mh';
-    var mtit=document.createElement('span'); mtit.className='mtit';
-    var d2=new Date(dateStr); mtit.textContent=(d2.getMonth()+1)+'月'+d2.getDate()+'日的行程';
-    var mcl=document.createElement('button'); mcl.className='mcl'; mcl.textContent='×';
-    mcl.onclick=function(){closeMo('dayEventsModal');};
-    mh.appendChild(mtit); mh.appendChild(mcl); mbox.appendChild(mh);
-    var body=document.createElement('div'); body.style.cssText='display:flex;flex-direction:column;gap:8px;';
-    dayEvents.forEach(function(ev){
-      var btn=document.createElement('button');
-      btn.className='btn2 bsec'; btn.style.cssText='width:100%;text-align:left;padding:12px;';
-      btn.innerHTML='<b>'+ev.name+'</b><br><span style="font-size:11px;color:var(--sub);">'+(ev.timeStart||'')+(ev.place?' · '+ev.place:'')+'</span>';
-      btn.onclick=function(){ closeMo('dayEventsModal'); openEventDetail(ev.id); };
-      body.appendChild(btn);
-    });
-    var addBtn=document.createElement('button');
-    addBtn.className='btn2 bpri'; addBtn.style.width='100%'; addBtn.textContent='+ 新增行程';
-    addBtn.onclick=function(){ closeMo('dayEventsModal'); var el=document.getElementById('evDate1'); if(el) el.value=dateStr; openMo('addEventMo'); };
-    body.appendChild(addBtn);
-    mbox.appendChild(body); modal.innerHTML=''; modal.appendChild(mbox);
+    var d2 = new Date(dateStr);
+    var titleEl = document.getElementById('dayEventsTitle');
+    var listEl = document.getElementById('dayEventsList');
+    if(titleEl) titleEl.textContent = (d2.getMonth()+1)+'月'+d2.getDate()+'日的行程';
+    if(listEl) {
+      listEl.innerHTML = '';
+      dayEvents.forEach(function(ev){
+        var btn = document.createElement('button');
+        btn.className = 'btn2 bsec';
+        btn.style.cssText = 'width:100%;text-align:left;padding:12px;';
+        var nameB = document.createElement('b');
+        nameB.style.fontSize = '13px';
+        nameB.textContent = ev.name;
+        var sub = document.createElement('div');
+        sub.style.cssText = 'font-size:11px;color:var(--sub);margin-top:2px;';
+        sub.textContent = (ev.timeStart||'全天') + (ev.place ? ' · '+ev.place : '');
+        btn.appendChild(nameB);
+        btn.appendChild(sub);
+        btn.onclick = (function(eid){ return function(){ closeMo('dayEventsModal'); openEventDetail(eid); }; })(ev.id);
+        listEl.appendChild(btn);
+      });
+      var addBtn = document.createElement('button');
+      addBtn.className = 'btn2 bpri';
+      addBtn.style.cssText = 'width:100%;margin-top:4px;';
+      addBtn.textContent = '+ 新增行程';
+      addBtn.onclick = (function(ds){ return function(){ closeMo('dayEventsModal'); var el=document.getElementById('evDate1'); if(el) el.value=ds; openMo('addEventMo'); }; })(dateStr);
+      listEl.appendChild(addBtn);
+    }
     openMo('dayEventsModal');
     return;
   }
-  // 找當天的節日
   var d = new Date(dateStr);
   var m = d.getMonth()+1, day = d.getDate();
   var holidays = [];
-  var hMap = {
-    '2-14':'情人節 💕', '3-14':'白色情人節 🤍', '8-10':'七夕情人節 🌠',
-    '12-25':'聖誕節 🎄', '1-1':'新年快樂 🎊'
-  };
-  var hKey = m+'-'+day;
-  if(hMap[hKey]) holidays.push(hMap[hKey]);
-  // 紀念日
-  if(window._coupleData && window._coupleData.startDate) {
-    var sd = window._coupleData.startDate;
-    var sdM = parseInt(sd.split('-')[1]), sdD = parseInt(sd.split('-')[2]);
-    if(sdM===m && sdD===day) holidays.push('交往紀念日 💑');
-  }
-  // 生日
-  if(window.userData && window.userData.birthday) {
-    var bd = window.userData.birthday;
-    var bdM = parseInt(bd.split('-')[1]), bdD = parseInt(bd.split('-')[2]);
-    if(bdM===m && bdD===day) holidays.push('我的生日 🎂');
-  }
-  if(window.partnerData && window.partnerData.birthday) {
-    var pbd = window.partnerData.birthday;
-    var pbdM = parseInt(pbd.split('-')[1]), pbdD = parseInt(pbd.split('-')[2]);
-    if(pbdM===m && pbdD===day) holidays.push((window.partnerData.name||'對方')+'的生日 🎂');
-  }
-  if(holidays.length) {
-    showToast(holidays.join('、'));
-    return;
-  }
-  // 空日期 → 開啟新增
-  var el = document.getElementById('evDate1');
-  if(el) el.value = dateStr;
+  var hMap = {'2-14':'情人節 💕','3-14':'白色情人節 🤍','8-10':'七夕情人節 🌠','12-25':'聖誕節 🎄','1-1':'新年快樂 🎊'};
+  if(hMap[m+'-'+day]) holidays.push(hMap[m+'-'+day]);
+  if(window._coupleData&&window._coupleData.startDate){var sd=window._coupleData.startDate.split('-');if(parseInt(sd[1])===m&&parseInt(sd[2])===day)holidays.push('交往紀念日 💑');}
+  if(window.userData&&window.userData.birthday){var bd=window.userData.birthday.split('-');if(parseInt(bd[1])===m&&parseInt(bd[2])===day)holidays.push('我的生日 🎂');}
+  if(window.partnerData&&window.partnerData.birthday){var pbd=window.partnerData.birthday.split('-');if(parseInt(pbd[1])===m&&parseInt(pbd[2])===day)holidays.push((window.partnerData.name||'對方')+'的生日 🎂');}
+  if(holidays.length){showToast(holidays.join('、'));return;}
+  var el=document.getElementById('evDate1');
+  if(el) el.value=dateStr;
   openMo('addEventMo');
 }
 
