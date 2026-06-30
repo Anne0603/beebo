@@ -2487,8 +2487,13 @@ async function toggleItem(id){
 }
 async function deleteItem(id){
   if(!window.confirm('確定刪除？此操作無法復原。'))return;
+  var li = LIST.find(function(x){return x.id===id;});
+  var liName = li ? li.n : '清單項目';
   var {doc, deleteDoc} = window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'list',id));
+  showToast('已刪除');
+  var myNmDL=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmDL+' 刪除了清單：「'+liName+'」','list');
 }
 async function addListItem(){
   var n=document.getElementById('newLN').value.trim();
@@ -2731,9 +2736,13 @@ async function saveChalEdit(){
 
 async function abandonChal(id){
   if(!window.confirm('確定要放棄這個挑戰嗎？'))return;
+  var ch = CHALS.find(function(x){return x.id===id;});
+  var chName = ch ? ch.name : '挑戰';
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'failed'});
   showToast('挑戰已移至已失敗');
+  var myNmAC=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmAC+' 放棄了挑戰：「'+chName+'」','chal');
 }
 
 async function retryChallenge(id){
@@ -3051,8 +3060,13 @@ function renderLinkRests(){
 
 async function deleteRest(id){
   if(!window.confirm('確定刪除此記錄？'))return;
+  var r = RESTS.find(function(x){return x.id===id;});
+  var rName = r ? r.name : '餐廳記錄';
   var {doc,deleteDoc}=window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'rests',id));
+  showToast('已刪除');
+  var myNmDR=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmDR+' 刪除了餐廳記錄：「'+rName+'」','rest');
 }
 
 var restStar=0;
@@ -3187,10 +3201,16 @@ async function saveQuote(){
   addNotif(myNmQ+' 新增了語錄：「'+quoteTextVal+'」','mem');
 }
 function deleteQuote(id){
+  var q = QUOTES.find(function(x){return x.id===id;});
+  var qText = q ? q.text : '語錄';
   confirmAction('確定要刪除這則語錄嗎？', function(){
     var {doc,deleteDoc} = window._fsOps;
     deleteDoc(doc(window._db,'couples',window._coupleId,'quotes',id))
-      .then(function(){ showToast('語錄已刪除'); })
+      .then(function(){
+        showToast('語錄已刪除');
+        var myNmDQ=(window.userData&&window.userData.name)||'我';
+        addNotif(myNmDQ+' 刪除了語錄：「'+qText+'」','mem');
+      })
       .catch(function(e){ showToast('刪除失敗'); });
   });
 }
@@ -3592,6 +3612,8 @@ async function saveEditQuote() {
   await updateDoc(doc(window._db,'couples',window._coupleId,'quotes',_editQuoteId), {text: text});
   closeMo('editQuoteMo');
   showToast('語錄已更新 ✓');
+  var myNmEQ=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmEQ+' 編輯了語錄：「'+text+'」','mem');
   _editQuoteId = null;
 }
 
@@ -3610,12 +3632,16 @@ async function execDeleteMem(){
     return;
   }
   if(!_deleteMemId || !window._fsOps) return;
+  var delMemObj = MEMS.find(function(m){return m.id===_deleteMemId;});
+  var delMemTitle = delMemObj ? delMemObj.title : '回憶';
   var {doc,deleteDoc} = window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'memories',_deleteMemId));
   closeMo('deleteMemMo');
   closeMo('memDetailMo');
   _deleteMemId = null;
   showToast('回憶已刪除');
+  var myNmDM=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmDM+' 刪除了回憶錄：「'+delMemTitle+'」','mem');
 }
 
 // addMem 上傳照片
@@ -3958,20 +3984,30 @@ async function saveEvent() {
   await updateDoc(doc(window._db,'couples',window._coupleId,'events',_editEventId),{
     name:name.trim(),
     dateStart:(document.getElementById('editEvDate1')||{}).value||'',
+    dateEnd:(document.getElementById('editEvDate2')||{}).value||'',
+    timeStart:(document.getElementById('editEvTime1')||{}).value||'',
+    timeEnd:(document.getElementById('editEvTime2')||{}).value||'',
     place:(document.getElementById('editEvPlace')||{}).value||''
   });
   closeMo('editEventMo');
   showToast('已儲存 ✓');
+  var myNmSE=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmSE+' 編輯了行程：「'+name.trim()+'」','chal');
 }
 
-async function deleteEvent() {
-  if(!_editEventId||!window._fsOps) return;
-  if(!window.confirm('確定刪除這個行程？')) return;
+async function deleteEvent(id) {
+  var evId = id || _editEventId;
+  if(!evId||!window._fsOps) return;
+  var ev = EVENTS.find(function(x){return x.id===evId;});
+  var evName = ev ? ev.name : '行程';
   var {doc,deleteDoc}=window._fsOps;
-  await deleteDoc(doc(window._db,'couples',window._coupleId,'events',_editEventId));
+  await deleteDoc(doc(window._db,'couples',window._coupleId,'events',evId));
   closeMo('editEventMo');
+  closeMo('evDetailModal');
   _editEventId=null;
-  showToast('已刪除');
+  showToast('行程已刪除 ✓');
+  var myNmDE=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmDE+' 刪除了行程：「'+evName+'」','chal');
 }
 function deleteEventFromDay(){deleteEvent();closeMo('calDayMo');}
 
