@@ -3543,8 +3543,9 @@ function checkPin(){
 }
 
 async function forgotPin(){
+  console.log('[forgotPin] currentUser:', !!window.currentUser, 'coupleId:', window._coupleId, 'fsOps:', !!window._fsOps);
   if(!window.currentUser || !window._coupleId || !window._fsOps){
-    showToast('需要先配對才能使用此功能');
+    showToast('需要先配對才能使用此功能 (除錯: user='+(!!window.currentUser)+' couple='+(!!window._coupleId)+' fs='+(!!window._fsOps)+')');
     return;
   }
   var {doc, setDoc, serverTimestamp} = window._fsOps;
