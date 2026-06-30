@@ -1160,6 +1160,7 @@ window.reauthenticateForPinReset = async function() {
     </div>
 
     <!-- 管理員專區 -->
+    <div id="adminSectionWrap" style="display:none;">
     <div class="slbl" style="display:flex;align-items:center;gap:6px;">管理員專區 <span class="abadge">管理員</span></div>
     <div style="display:flex;flex-direction:column;gap:6px;">
 
@@ -1179,6 +1180,7 @@ window.reauthenticateForPinReset = async function() {
           <div style="font-size:10px;color:#c62828;">危險 ›</div>
         </div>
       </div>
+    </div>
     </div>
     <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);">嗶啵 v1.0.0</div>
   </div>
@@ -4708,6 +4710,12 @@ function initSettingsPage(){
   if(el) el.value = String(days);
   var sv = document.getElementById('notifyDelSv');
   if(sv) sv.textContent = (days == 0 ? '永久' : days + ' 天') + ' ›';
+  // 管理員專區：只有 isAdmin 為 true 才顯示
+  var adminWrap = document.getElementById('adminSectionWrap');
+  if(adminWrap) {
+    var isAdminUser = window.userData && window.userData.isAdmin === true;
+    adminWrap.style.display = isAdminUser ? 'block' : 'none';
+  }
 };
 
 // ── 暴露 _init 函數到 window（供 module script 呼叫）──
