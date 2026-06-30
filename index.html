@@ -1308,7 +1308,7 @@ window['switchPairTab'] = switchPairTab;
     <div style="font-size:14px;color:var(--txt);font-weight:600;" id="confirmMoText">確定嗎？</div>
   </div>
   <div style="display:flex;gap:8px;">
-    <button onclick="closeMo('confirmMo')" class="btn2 bsec" style="flex:1;">取消</button>
+    <button onclick="closeMo('confirmMo');if(getPinSet())showLockScreen();" class="btn2 bsec" style="flex:1;">取消</button>
     <button onclick="doConfirm()" class="btn2 bpri" style="flex:1;">確定</button>
   </div>
 </div></div>
@@ -3339,18 +3339,20 @@ function forgotPin(){
     return;
   }
   var userEmail = window.currentUser.email || '帳號';
-  confirmAction(
-    '確定要重置 PIN 嗎？',
-    function(){
-      localStorage.removeItem('beebo_pin');
-      localStorage.removeItem('beebo_pin_attempts');
-      closeMo('lockScreen');
-      stopIdleTimer();
-      showToast('PIN 已重置，請重新設定');
-      setTimeout(function(){ openPinSetMo(); }, 400);
-    },
-    '將以「' + userEmail + '」帳號身份驗證並清除 PIN'
-  );
+  closeMo('lockScreen');
+  setTimeout(function(){
+    confirmAction(
+      '確定要重置 PIN 嗎？',
+      function(){
+        localStorage.removeItem('beebo_pin');
+        localStorage.removeItem('beebo_pin_attempts');
+        stopIdleTimer();
+        showToast('PIN 已重置，請重新設定');
+        setTimeout(function(){ openPinSetMo(); }, 400);
+      },
+      '將以「' + userEmail + '」帳號身份驗證並清除 PIN'
+    );
+  }, 250);
 }
 
 function showLockScreen(){
