@@ -313,6 +313,36 @@ input[type=file]{display:none;}
     if (pm) pm.classList.remove('open');
     window.buildNavs();
     setTimeout(function(){ if(typeof window.checkUpcomingReminders==='function') window.checkUpcomingReminders(); }, 1000);
+
+    // ── PIN 重置請求監聽 ──
+    if(!window._pinResetUnsub) {
+      window._pinResetUnsub = onSnapshot(doc(db, 'couples', coupleId), (snap) => {
+        var data = snap.data();
+        if(!data || !data.pinResetRequest) return;
+        var req = data.pinResetRequest;
+        if(req.status === 'pending' && req.requestedBy !== uid) {
+          // 對方送了重置請求給我，顯示通知
+          var nameEl = document.getElementById('pinResetRequesterName');
+          if(nameEl) nameEl.textContent = req.requestedByName || '對方';
+          if(document.getElementById('pinResetRequestMo') && !document.getElementById('pinResetRequestMo').classList.contains('open')) {
+            window.openMo('pinResetRequestMo');
+          }
+        }
+        if(req.status === 'approved' && req.requestedBy === uid) {
+          // 我的請求被同意了
+          localStorage.removeItem('beebo_pin');
+          localStorage.removeItem('beebo_pin_attempts');
+          if(window.closeMo) window.closeMo('pinWaitMo');
+          window.showToast('對方已同意！請重新設定 PIN');
+          setTimeout(function(){ if(window.openPinSetMo) window.openPinSetMo(); }, 400);
+        }
+        if(req.status === 'rejected' && req.requestedBy === uid) {
+          if(window.closeMo) window.closeMo('pinWaitMo');
+          window.showToast('對方拒絕了重置請求');
+          setTimeout(function(){ if(window.showLockScreen) window.showLockScreen(); }, 400);
+        }
+      });
+    }
   }
 
   // ── 登入狀態監聽（只負責身份確認）──
@@ -1346,6 +1376,26 @@ window.reauthenticateForPinReset = async function() {
   <div style="display:flex;gap:8px;">
     <button onclick="closeMo('delRestTypeMo');setTimeout(function(){openMo('restTypeMo');},250);" class="btn2 bsec" style="flex:1;">取消</button>
     <button onclick="execDelRestType()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
+  </div>
+</div></div>
+
+<div class="mo" id="pinWaitMo"><div class="mbox">
+  <div class="mh"><span class="mtit">等待對方同意</span></div>
+  <div style="text-align:center;padding:16px 0;">
+    <div style="font-size:32px;margin-bottom:12px;">💌</div>
+    <div id="pinWaitText" style="font-size:13px;color:var(--sub);margin-bottom:16px;">已送出請求，等待對方同意...</div>
+    <button onclick="cancelPinWait()" class="btn2 bsec" style="width:100%;">取消，返回鎖定畫面</button>
+  </div>
+</div></div>
+
+<div class="mo" id="pinResetRequestMo"><div class="mbox">
+  <div class="mh"><span class="mtit">🔓 PIN 重置請求</span></div>
+  <div style="font-size:13px;color:var(--txt);margin-bottom:16px;line-height:1.6;">
+    <b id="pinResetRequesterName">對方</b> 忘記隱私鎖 PIN，請求重置。是否同意？
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="rejectPinReset()" class="btn2 bsec" style="flex:1;">拒絕</button>
+    <button onclick="approvePinReset()" class="btn2 bpri" style="flex:1;">同意重置</button>
   </div>
 </div></div>
 
@@ -3493,23 +3543,61 @@ function checkPin(){
 }
 
 async function forgotPin(){
-  if(!window.currentUser){
-    showToast('請先登入');
+  if(!window.currentUser || !window._coupleId || !window._fsOps){
+    showToast('需要先配對才能使用此功能');
     return;
   }
-  if(typeof window.reauthenticateForPinReset !== 'function'){
-    showToast('驗證功能載入中，請稍候再試');
-    return;
+  var {doc, setDoc, serverTimestamp} = window._fsOps;
+  var myName = (window.userData && window.userData.name) || '我';
+  try {
+    await setDoc(doc(window._db, 'couples', window._coupleId), {
+      pinResetRequest: {
+        requestedBy: window.currentUser.uid,
+        requestedByName: myName,
+        status: 'pending',
+        time: serverTimestamp()
+      }
+    }, { merge: true });
+    showToast('已送出重置請求，請等待對方同意 💌');
+    closeMo('lockScreen');
+    // 顯示等待畫面
+    var waitEl = document.getElementById('pinWaitText');
+    if(waitEl) waitEl.textContent = '已送出請求，等待對方同意...';
+    openMo('pinWaitMo');
+  } catch(e) {
+    console.error('[forgotPin] 失敗:', e);
+    showToast('送出請求失敗，請稍後再試');
   }
-  showToast('請重新驗證您的 Google 帳號...');
-  var ok = await window.reauthenticateForPinReset();
-  if(!ok) return; // 驗證失敗或取消，保持鎖定
+}
+
+// ── 對方同意/拒絕重置請求 ──
+async function approvePinReset(){
+  if(!window._coupleId || !window._fsOps) return;
+  var {doc, setDoc, deleteField} = window._fsOps;
   localStorage.removeItem('beebo_pin');
   localStorage.removeItem('beebo_pin_attempts');
-  closeMo('lockScreen');
-  stopIdleTimer();
-  showToast('驗證成功，PIN 已重置，請重新設定');
-  setTimeout(function(){ openPinSetMo(); }, 400);
+  try {
+    await setDoc(doc(window._db, 'couples', window._coupleId), {
+      pinResetRequest: { status: 'approved' }
+    }, { merge: true });
+  } catch(e) {}
+  closeMo('pinResetRequestMo');
+  showToast('已同意對方重置 PIN');
+}
+async function rejectPinReset(){
+  if(!window._coupleId || !window._fsOps) return;
+  var {doc, setDoc} = window._fsOps;
+  try {
+    await setDoc(doc(window._db, 'couples', window._coupleId), {
+      pinResetRequest: { status: 'rejected' }
+    }, { merge: true });
+  } catch(e) {}
+  closeMo('pinResetRequestMo');
+  showToast('已拒絕重置請求');
+}
+function cancelPinWait(){
+  closeMo('pinWaitMo');
+  if(getPinSet()) showLockScreen();
 }
 
 function showLockScreen(){
