@@ -314,14 +314,18 @@ input[type=file]{display:none;}
     window.buildNavs();
     setTimeout(function(){ if(typeof window.checkUpcomingReminders==='function') window.checkUpcomingReminders(); }, 1000);
 
-    // ── PIN 重置請求監聽 ──
+    // ── PIN 重置請求監聽（用 time 時間戳記去重複，避免舊狀態被重複觸發）──
     if(!window._pinResetUnsub) {
+      window._lastHandledPinReqTime = window._lastHandledPinReqTime || null;
       window._pinResetUnsub = onSnapshot(doc(db, 'couples', coupleId), (snap) => {
         var data = snap.data();
         if(!data || !data.pinResetRequest) return;
         var req = data.pinResetRequest;
+        var reqTimeKey = req.time && req.time.seconds ? req.time.seconds : null;
+        // 同一筆請求（同一個時間戳記）只處理一次
+        if(reqTimeKey !== null && window._lastHandledPinReqTime === reqTimeKey) return;
+
         if(req.status === 'pending' && req.requestedBy !== uid) {
-          // 對方送了重置請求給我，顯示通知
           var nameEl = document.getElementById('pinResetRequesterName');
           if(nameEl) nameEl.textContent = req.requestedByName || '對方';
           if(document.getElementById('pinResetRequestMo') && !document.getElementById('pinResetRequestMo').classList.contains('open')) {
@@ -329,7 +333,7 @@ input[type=file]{display:none;}
           }
         }
         if(req.status === 'approved' && req.requestedBy === uid) {
-          // 我的請求被同意了
+          window._lastHandledPinReqTime = reqTimeKey;
           localStorage.removeItem('beebo_pin');
           localStorage.removeItem('beebo_pin_attempts');
           if(window.closeMo) window.closeMo('pinWaitMo');
@@ -337,6 +341,7 @@ input[type=file]{display:none;}
           setTimeout(function(){ if(window.openPinSetMo) window.openPinSetMo(); }, 400);
         }
         if(req.status === 'rejected' && req.requestedBy === uid) {
+          window._lastHandledPinReqTime = reqTimeKey;
           if(window.closeMo) window.closeMo('pinWaitMo');
           window.showToast('對方拒絕了重置請求');
           setTimeout(function(){ if(window.showLockScreen) window.showLockScreen(); }, 400);
@@ -1157,6 +1162,8 @@ window.reauthenticateForPinReset = async function() {
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="sr" onclick="showToast('重新整理中...');setTimeout(function(){location.reload();},400);"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面 <span style="font-size:10px;color:var(--sub);font-weight:400;">(約需2秒)</span></div></div><div class="sv">›</div></div>
       <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）<div id="lastExportTime" style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">尚未匯出過</div></div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="exportMemoryReport()"><div class="sl"><div class="si">📖</div><div class="slb">匯出回憶錄報告<div style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">含照片，可列印成PDF</div></div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('faqMo')"><div class="sl"><div class="si">❓</div><div class="slb">常見問題</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openChangelogMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 8v4l3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">版本紀錄</div></div><div class="sv">v1.0.0 ›</div></div>
       <div class="sr" onclick="showConfirmMo('確定要登出嗎？',firebaseSignOut)"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
     </div>
@@ -1405,21 +1412,46 @@ window.reauthenticateForPinReset = async function() {
 
 <div class="mo" id="discordSettingsMo"><div class="mbox">
   <div class="mh"><span class="mtit">Discord 通知設定</span><button class="mcl" onclick="closeMo('discordSettingsMo')">×</button></div>
-  <div style="font-size:11px;color:var(--sub);margin-bottom:10px;line-height:1.6;">在 Discord 頻道建立 Webhook，貼上網址即可開啟通知。兩人可用同一組，也可各自設定。</div>
-  <div class="fg"><label class="fl">我的 Webhook URL</label>
-    <div style="display:flex;gap:6px;">
-      <input class="fi" id="discordWebhookMe" placeholder="https://discord.com/api/webhooks/..." style="flex:1;">
-      <button onclick="clearDiscordWebhook('me')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;padding:0 6px;">×</button>
+  <div style="font-size:11px;color:var(--sub);margin-bottom:12px;line-height:1.6;">在你們共用的 Discord 頻道建立 Webhook，貼上網址即可讓雙方都收到通知。</div>
+  <div class="fg"><label class="fl">Webhook URL</label>
+    <input class="fi" id="discordWebhookMe" placeholder="https://discord.com/api/webhooks/...">
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button onclick="clearDiscordWebhook('me')" class="btn2 bsec" style="flex:1;">清空</button>
+    <button onclick="testDiscordWebhook()" class="btn2 bsec" style="flex:1;">🔔 測試</button>
+  </div>
+  <button onclick="saveDiscordSettings()" class="btn2 bpri" style="width:100%;margin-top:8px;">儲存設定</button>
+</div></div>
+
+<div class="mo" id="editRestMo"><div class="mbox">
+  <div class="mh"><span class="mtit">編輯餐廳記錄</span><button class="mcl" onclick="closeMo('editRestMo')">×</button></div>
+  <div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="editRestName"></div>
+  <div class="fg"><label class="fl">評分（必填）</label>
+    <div id="editRestStars" style="display:flex;gap:4px;" data-value="0">
+      <div class="strbtn" id="editRestStar1" onclick="setEditRestStar(1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+      <div class="strbtn" id="editRestStar2" onclick="setEditRestStar(2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+      <div class="strbtn" id="editRestStar3" onclick="setEditRestStar(3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+      <div class="strbtn" id="editRestStar4" onclick="setEditRestStar(4)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
+      <div class="strbtn" id="editRestStar5" onclick="setEditRestStar(5)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div>
     </div>
   </div>
-  <div class="fg"><label class="fl">對方的 Webhook URL（選填）</label>
-    <div style="display:flex;gap:6px;">
-      <input class="fi" id="discordWebhookPartner" placeholder="https://discord.com/api/webhooks/..." style="flex:1;">
-      <button onclick="clearDiscordWebhook('partner')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;padding:0 6px;">×</button>
-    </div>
+  <div class="fg"><label class="fl">類型</label><select class="fi" id="editRestType" style="padding:8px 10px;"></select></div>
+  <div class="fg"><label class="fl">地點</label><select class="fi" id="editRestLocation" style="padding:8px 10px;"><option value="">選擇地點...</option></select></div>
+  <div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="editRestDate"></div>
+  <div class="fg"><label class="fl">推薦餐點（選填）</label><textarea class="fi" id="editRestDish" rows="2" style="resize:none;"></textarea></div>
+  <button onclick="saveRestEdit()" class="btn2 bpri" style="width:100%;margin-top:4px;">儲存</button>
+</div></div>
+
+<div class="mo" id="faqMo"><div class="mbox" style="max-height:80vh;overflow-y:auto;">
+  <div class="mh"><span class="mtit">常見問題</span><button class="mcl" onclick="closeMo('faqMo')">×</button></div>
+  <div style="display:flex;flex-direction:column;gap:14px;font-size:13px;color:var(--txt);line-height:1.7;">
+    <div><b style="color:var(--accent);">Q: 資料存在哪裡？安全嗎？</b><br>所有資料都存在你們專屬的 Firebase 雲端資料庫，只有配對成功的兩人能看到，不會被第三方存取。</div>
+    <div><b style="color:var(--accent);">Q: 怎麼跟另一半配對？</b><br>一方在「設定」產生邀請碼，分享給另一半，對方輸入邀請碼即可完成配對。</div>
+    <div><b style="color:var(--accent);">Q: 忘記隱私鎖 PIN 怎麼辦？</b><br>在鎖定畫面點「忘記 PIN？」，送出請求後等待另一半同意，同意後即可重新設定。</div>
+    <div><b style="color:var(--accent);">Q: 怎麼收到通知？</b><br>APP 內建通知頁會記錄所有動態。也可以在設定中貼上 Discord Webhook，讓重要通知同步發送到 Discord。</div>
+    <div><b style="color:var(--accent);">Q: 可以匯出資料備份嗎？</b><br>可以，設定頁「匯出資料」會下載一份 JSON 檔案，包含清單、挑戰、餐廳、回憶錄等所有紀錄。</div>
+    <div><b style="color:var(--accent);">Q: 解除配對會怎樣？</b><br>解除配對後雙方需重新配對才能繼續共享功能，已有的資料不會被刪除。</div>
   </div>
-  <button onclick="testDiscordWebhook()" class="btn2 bsec" style="width:100%;margin-bottom:8px;">🔔 測試我的 Webhook</button>
-  <button onclick="saveDiscordSettings()" class="btn2 bpri" style="width:100%;">儲存設定</button>
 </div></div>
 
 <div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
@@ -2401,46 +2433,50 @@ window.testDiscord = async function() {
 function openDiscordSettingsMo(){
   var current = getDiscordWebhooks();
   var meEl = document.getElementById('discordWebhookMe');
-  var partnerEl = document.getElementById('discordWebhookPartner');
   if(meEl) meEl.value = current.me || '';
-  if(partnerEl) partnerEl.value = current.partner || '';
   openMo('discordSettingsMo');
 }
 function saveDiscordSettings(){
   var meEl = document.getElementById('discordWebhookMe');
-  var partnerEl = document.getElementById('discordWebhookPartner');
-  var meUrl = meEl ? meEl.value.trim() : '';
-  var partnerUrl = partnerEl ? partnerEl.value.trim() : '';
-  if(meUrl && !meUrl.startsWith('https://discord.com/api/webhooks/')){
+  var url = meEl ? meEl.value.trim() : '';
+  if(url && !url.startsWith('https://discord.com/api/webhooks/')){
     showToast('Webhook URL 格式不正確');
     return;
   }
-  if(partnerUrl && !partnerUrl.startsWith('https://discord.com/api/webhooks/')){
-    showToast('Webhook URL 格式不正確');
-    return;
-  }
-  var newSettings = { me: meUrl, partner: partnerUrl };
+  var newSettings = { me: url, partner: url };
   saveDiscordWebhooks(newSettings);
   DISCORD_WEBHOOKS = newSettings;
   closeMo('discordSettingsMo');
   showToast('Discord 設定已儲存 ✓');
 }
-function clearDiscordWebhook(which){
-  var elId = which === 'me' ? 'discordWebhookMe' : 'discordWebhookPartner';
-  var el = document.getElementById(elId);
+function clearDiscordWebhook(){
+  var el = document.getElementById('discordWebhookMe');
   if(el) el.value = '';
 }
 function testDiscordWebhook(){
   var meEl = document.getElementById('discordWebhookMe');
   var url = meEl ? meEl.value.trim() : '';
   if(!url){ showToast('請先輸入 Webhook URL'); return; }
+  if(!url.startsWith('https://discord.com/api/webhooks/')){
+    showToast('URL 格式不正確，需以 https://discord.com/api/webhooks/ 開頭');
+    return;
+  }
+  showToast('發送測試中...');
   fetch(url, {
     method: 'POST',
     headers: {'Content-Type':'application/json'},
     body: JSON.stringify({ username:'嗶啵 APP', content:'🔔 測試成功！這是來自嗶啵的測試訊息。' })
   }).then(function(res){
-    showToast(res.ok ? '測試成功！請查看 Discord ✓' : '測試失敗: '+res.status);
+    if(res.ok || res.status===204){
+      showToast('測試成功！請查看 Discord ✓');
+    } else {
+      res.text().then(function(t){
+        console.error('[testDiscordWebhook] 狀態碼:', res.status, t);
+        showToast('測試失敗，狀態碼: '+res.status);
+      });
+    }
   }).catch(function(e){
+    console.error('[testDiscordWebhook] 錯誤:', e);
     showToast('測試失敗: '+e.message);
   });
 }
@@ -3477,13 +3513,14 @@ function renderRests(){
   body.innerHTML=items.map(function(r){
     var stars='';for(var i=0;i<(r.star||0);i++)stars+=STAR_SVG;
     var cityLabel=r.city==='國外'?(r.country||'')+(r.foreignCity?' '+r.foreignCity:''):r.city;
-    var delBtn='<button onclick="deleteRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:#c62828;cursor:pointer;border-radius:8px;background:#fdecea;">刪除</button>';
+    var editBtn='<button onclick="editRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:var(--accent);cursor:pointer;border-radius:8px;background:var(--lt);margin-right:4px;">編輯</button>';
+    var delBtn='<button onclick="confirmDeleteRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:#c62828;cursor:pointer;border-radius:8px;background:#fdecea;">刪除</button>';
     return '<div class="ri">'+
       '<div class="ri-top"><div class="ri-name">'+(r.name||'')+'</div><div style="display:flex;gap:1px;">'+stars+'</div></div>'+
       '<div class="ri-meta">'+(r.type||'')+'・'+(r.date||'')+(r.dish?'・'+r.dish:'')+'</div>'+
       (r.note?'<div style="font-size:10px;color:var(--sub);margin-top:2px;">'+r.note+'</div>':'')+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">'+
-      '<span class="ri-city">'+(cityLabel||'')+'</span>'+delBtn+'</div></div>';
+      '<span class="ri-city">'+(cityLabel||'')+'</span><div>'+editBtn+delBtn+'</div></div></div>';
   }).join('');
 }
 
@@ -3498,15 +3535,77 @@ function renderLinkRests(){
   }).join('');
 }
 
-async function deleteRest(id){
-  if(!window.confirm('確定刪除此記錄？'))return;
+async function confirmDeleteRest(id){
   var r = RESTS.find(function(x){return x.id===id;});
   var rName = r ? r.name : '餐廳記錄';
+  confirmAction('確定要刪除「'+rName+'」嗎？', function(){
+    deleteRest(id, rName);
+  });
+}
+async function deleteRest(id, rName){
   var {doc,deleteDoc}=window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'rests',id));
   showToast('已刪除');
   var myNmDR=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmDR+' 刪除了餐廳記錄：「'+rName+'」','rest',true);
+  addNotif(myNmDR+' 刪除了餐廳記錄：「'+(rName||'')+'」','rest',true);
+}
+
+// ── 編輯餐廳記錄 ──
+var _editRestId = null;
+function editRest(id){
+  var r = RESTS.find(function(x){return x.id===id;});
+  if(!r) return;
+  _editRestId = id;
+  document.getElementById('editRestName').value = r.name || '';
+  document.getElementById('editRestDate').value = r.date || '';
+  document.getElementById('editRestDish').value = r.dish || '';
+  fillLocationSelect('editRestLocation', true);
+  setTimeout(function(){
+    var locEl = document.getElementById('editRestLocation');
+    if(locEl && (r.location||r.city)) locEl.value = r.location || r.city;
+  }, 50);
+  // 類型選單
+  var types = getRestTypes();
+  var typeSel = document.getElementById('editRestType');
+  if(typeSel){
+    typeSel.innerHTML = types.map(function(t){return '<option'+(t===r.type?' selected':'')+'>'+t+'</option>';}).join('');
+  }
+  // 星等
+  for(var i=1;i<=5;i++){
+    var btn = document.getElementById('editRestStar'+i);
+    if(btn) btn.classList.toggle('on', i<=(r.star||0));
+  }
+  document.getElementById('editRestStars').dataset.value = r.star || 0;
+  openMo('editRestMo');
+}
+function setEditRestStar(n){
+  for(var i=1;i<=5;i++){
+    var btn = document.getElementById('editRestStar'+i);
+    if(btn) btn.classList.toggle('on', i<=n);
+  }
+  document.getElementById('editRestStars').dataset.value = n;
+}
+async function saveRestEdit(){
+  if(!_editRestId) return;
+  var name = document.getElementById('editRestName').value.trim();
+  if(!name){ showToast('請填寫名稱'); return; }
+  var star = parseInt(document.getElementById('editRestStars').dataset.value || '0');
+  if(!star){ showToast('請選擇評分'); return; }
+  var {doc,updateDoc} = window._fsOps;
+  var location = document.getElementById('editRestLocation').value;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'rests',_editRestId), {
+    name: name,
+    type: document.getElementById('editRestType').value,
+    location: location,
+    city: location,
+    star: star,
+    date: document.getElementById('editRestDate').value,
+    dish: document.getElementById('editRestDish').value.trim()
+  });
+  closeMo('editRestMo');
+  showToast('已更新 ✓');
+  var myNmER=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmER+' 編輯了餐廳記錄：「'+name+'」','rest',true);
 }
 
 var restStar=0;
@@ -3575,6 +3674,10 @@ function savePin(){
   closeMo('pinSetMo');
   startIdleTimer();
   showToast('隱私鎖已啟用！');
+  if(window._coupleId && window._fsOps){
+    var {doc, setDoc} = window._fsOps;
+    setDoc(doc(window._db,'couples',window._coupleId), { pinResetRequest: null }, {merge:true}).catch(function(){});
+  }
 }
 
 function disablePin(){
@@ -3586,6 +3689,11 @@ function disablePin(){
       document.getElementById('pinStatus').textContent='未設定 ›';
       stopIdleTimer();
       showToast('隱私鎖已解除');
+      // 清除 Firestore 裡殘留的重置請求，避免之後onSnapshot重新觸發
+      if(window._coupleId && window._fsOps){
+        var {doc, setDoc} = window._fsOps;
+        setDoc(doc(window._db,'couples',window._coupleId), { pinResetRequest: null }, {merge:true}).catch(function(){});
+      }
     });
   }, 250);
 }
@@ -4764,6 +4872,69 @@ async function unpairAccount(){
 };
 
 // ── 匯出資料 ──
+// ── 匯出回憶錄報告（可列印成PDF）──
+function exportMemoryReport(){
+  if(!window._coupleId){ showToast('請先配對'); return; }
+  var myName = (window.userData&&window.userData.name)||'我';
+  var partnerName = (window.partnerData&&window.partnerData.name)||'對方';
+  var mems = (typeof MEMS !== 'undefined' ? MEMS : []).slice().sort(function(a,b){
+    return (a.dateStart||'').localeCompare(b.dateStart||'');
+  });
+  var quotes = (typeof QUOTES !== 'undefined' ? QUOTES : []);
+
+  var html = '<!DOCTYPE html><html lang="zh-TW"><head><meta charset="UTF-8">' +
+    '<title>嗶啵回憶錄 - ' + myName + ' & ' + partnerName + '</title>' +
+    '<style>' +
+    'body{font-family:"Noto Sans TC",sans-serif;max-width:700px;margin:0 auto;padding:24px;color:#2E1A1E;}' +
+    'h1{text-align:center;color:#8B4B5A;border-bottom:3px solid #F2D4CE;padding-bottom:12px;}' +
+    '.mem{margin-bottom:32px;page-break-inside:avoid;border-radius:12px;background:#FBF0EE;padding:16px;}' +
+    '.mem-title{font-size:18px;font-weight:700;color:#8B4B5A;margin-bottom:6px;}' +
+    '.mem-meta{font-size:13px;color:#8A5A64;margin-bottom:10px;}' +
+    '.mem-note{font-size:14px;line-height:1.8;margin-bottom:12px;white-space:pre-wrap;}' +
+    '.mem-photos{display:flex;flex-wrap:wrap;gap:8px;}' +
+    '.mem-photos img{width:150px;height:150px;object-fit:cover;border-radius:8px;}' +
+    '.quote{margin-bottom:12px;padding:12px;background:#F2D4CE;border-radius:10px;font-size:14px;}' +
+    '.quote-meta{font-size:11px;color:#8A5A64;margin-top:4px;}' +
+    '@media print{ body{padding:0;} .mem{break-inside:avoid;} }' +
+    '</style></head><body>' +
+    '<h1>💕 ' + myName + ' & ' + partnerName + ' 的回憶錄</h1>' +
+    '<p style="text-align:center;color:#8A5A64;font-size:13px;">匯出時間：' + new Date().toLocaleString('zh-TW') + '</p>';
+
+  if(mems.length){
+    html += '<h2 style="color:#8B4B5A;">📷 照片回憶（' + mems.length + ' 則）</h2>';
+    mems.forEach(function(m){
+      var dateStr = m.dateStart || '';
+      if(m.dateEnd && m.dateEnd !== m.dateStart) dateStr += ' ~ ' + m.dateEnd;
+      var loc = m.location || m.city || '';
+      html += '<div class="mem">' +
+        '<div class="mem-title">' + (m.title||'未命名回憶') + '</div>' +
+        '<div class="mem-meta">' + dateStr + (loc?' · '+loc:'') + '</div>' +
+        (m.note ? '<div class="mem-note">' + m.note.replace(/</g,'&lt;') + '</div>' : '') +
+        (m.photos && m.photos.length ? '<div class="mem-photos">' + m.photos.map(function(p){return '<img src="'+p+'">';}).join('') + '</div>' : '') +
+        '</div>';
+    });
+  } else {
+    html += '<p style="color:#8A5A64;">尚無回憶錄記錄</p>';
+  }
+
+  if(quotes.length){
+    html += '<h2 style="color:#8B4B5A;">💬 語錄收藏（' + quotes.length + ' 則）</h2>';
+    quotes.forEach(function(q){
+      var by = q.senderUid===(window.currentUser&&window.currentUser.uid) ? myName : partnerName;
+      html += '<div class="quote">「' + (q.text||'').replace(/</g,'&lt;') + '」' +
+        '<div class="quote-meta">' + by + ' · ' + (q.dateLabel||'') + '</div></div>';
+    });
+  }
+
+  html += '</body></html>';
+
+  var win = window.open('', '_blank');
+  if(!win){ showToast('請允許彈出視窗'); return; }
+  win.document.write(html);
+  win.document.close();
+  showToast('已開啟報告，可用瀏覽器「列印」功能存成 PDF');
+}
+
 function exportData(){
   if(!window._coupleId){ showToast('請先配對'); return; }
   var data = {
@@ -4862,6 +5033,7 @@ window['_initRests'] = _initRests;
 window['_initEvents'] = _initEvents;
 window['_initQuotes'] = _initQuotes;
 window.buildNavs = buildNavs;
+window.initSettingsPage = initSettingsPage;
 window.checkUpcomingReminders = checkUpcomingReminders;
 window.reroll = reroll;
 window.setDC = setDC;
