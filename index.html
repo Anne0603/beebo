@@ -1255,7 +1255,7 @@ window['switchPairTab'] = switchPairTab;
   <div id="dayEventsList" style="display:flex;flex-direction:column;gap:8px;"></div>
 </div></div>
 <div class="mo" id="editChalCatMo"><div class="mbox">
-  <div class="mh"><span class="mtit">編輯分類名稱</span><button class="mcl" onclick="closeMo('editChalCatMo')">×</button></div>
+  <div class="mh"><span class="mtit">編輯分類名稱</span><button class="mcl" onclick="closeMo('editChalCatMo');setTimeout(function(){openMo('chalCatMo');},250);">×</button></div>
   <input class="fi" id="editChalCatInput" placeholder="分類名稱" style="margin-bottom:12px;">
   <button onclick="saveEditChalCat()" class="btn2 bpri" style="width:100%;">儲存</button>
 </div></div>
@@ -1335,13 +1335,7 @@ window['switchPairTab'] = switchPairTab;
 <div style="font-size:11px;color:var(--sub);margin-bottom:8px;">台灣縣市已內建，在此新增國外地點（格式：國家・城市）</div>
 <div id="locationMgList" style="display:flex;flex-direction:column;gap:6px;max-height:45vh;overflow-y:auto;"></div>
 <div style="display:flex;gap:6px;margin-top:10px;">
-  <select id="newLocationCountry" class="fi" style="flex:1;padding:8px 10px;">
-    <option value="">國家...</option>
-    <option>日本</option><option>韓國</option><option>泰國</option><option>越南</option>
-    <option>新加坡</option><option>馬來西亞</option><option>香港</option><option>澳門</option>
-    <option>美國</option><option>英國</option><option>法國</option><option>義大利</option>
-    <option>德國</option><option>西班牙</option><option>澳洲</option><option>其他</option>
-  </select>
+  <input id="newLocationCountry" class="fi" placeholder="國家（自行輸入）" style="flex:1;padding:8px 10px;">
   <input id="newLocationCity" class="fi" placeholder="城市名稱" style="flex:1;padding:8px 10px;">
   <button onclick="addLocationItem()" class="btn2 bpri" style="white-space:nowrap;padding:8px 12px;">新增</button>
 </div>
@@ -1916,7 +1910,8 @@ function editChalCat(idx){
   _editChalCatIdx = idx;
   var inputEl = document.getElementById('editChalCatInput');
   if(inputEl) inputEl.value = cats[idx];
-  openMo('editChalCatMo');
+  closeMo('chalCatMo');
+  setTimeout(function(){ openMo('editChalCatMo'); }, 250);
 }
 function saveEditChalCat(){
   var inputEl = document.getElementById('editChalCatInput');
@@ -1939,6 +1934,7 @@ function saveEditChalCat(){
   closeMo('editChalCatMo');
   renderChalCatMg();
   showToast('已更新 ✓');
+  setTimeout(function(){ openMo('chalCatMo'); }, 250);
 }
 var _delChalCatIdx = null;
 function confirmDelChalCat(idx){
@@ -1949,7 +1945,8 @@ function confirmDelChalCat(idx){
   if(nameEl) nameEl.innerHTML = '請輸入「<b style="color:var(--accent);">'+cat+'</b>」確認刪除';
   var inputEl = document.getElementById('delChalCatConfirmInput');
   if(inputEl){ inputEl.value=''; inputEl.dataset.target=cat; }
-  openMo('delChalCatMo');
+  closeMo('chalCatMo');
+  setTimeout(function(){ openMo('delChalCatMo'); }, 250);
 }
 function execDelChalCat(){
   var inputEl = document.getElementById('delChalCatConfirmInput');
@@ -1961,6 +1958,7 @@ function execDelChalCat(){
   closeMo('delChalCatMo');
   renderChalCatMg();
   showToast('已刪除 ✓');
+  setTimeout(function(){ openMo('chalCatMo'); }, 250);
 }
 function addChalCatItem() {
   var el = document.getElementById('newChalCatName');
@@ -3626,10 +3624,15 @@ function renderCalendar() {
     // 用戶行程
     EVENTS.forEach(function(e){
       if(e.dateStart){
-        var d = new Date(e.dateStart);
-        if(d.getFullYear()===y && d.getMonth()===mo){
-          var key = d.getDate();
-          eventDates[key] = (eventDates[key]||0)+1;
+        var startD = new Date(e.dateStart);
+        var endD = e.dateEnd ? new Date(e.dateEnd) : startD;
+        var cur = new Date(startD);
+        while(cur <= endD){
+          if(cur.getFullYear()===y && cur.getMonth()===mo){
+            var key = cur.getDate();
+            eventDates[key] = (eventDates[key]||0)+1;
+          }
+          cur.setDate(cur.getDate()+1);
         }
       }
     });
@@ -3759,7 +3762,11 @@ function calDayClick(dateStr) {
     return p[0]+'-'+String(parseInt(p[1])).padStart(2,'0')+'-'+String(parseInt(p[2])).padStart(2,'0');
   };
   var nds = normDate(dateStr);
-  var dayEvents = EVENTS.filter(function(e){ return normDate(e.dateStart) === nds; });
+  var dayEvents = EVENTS.filter(function(e){
+    var s = normDate(e.dateStart);
+    var en = e.dateEnd ? normDate(e.dateEnd) : s;
+    return nds >= s && nds <= en;
+  });
   if(dayEvents.length >= 1) {
     var d2 = new Date(dateStr);
     var titleEl = document.getElementById('dayEventsTitle');
