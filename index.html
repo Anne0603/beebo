@@ -1949,8 +1949,21 @@ function saveVersion(){
 
 // ── 地點管理 ──
 var TAIWAN_CITIES = ['台北市', '新北市', '基隆市', '桃園市', '新竹市', '新竹縣', '苗栗縣', '台中市', '彰化縣', '南投縣', '雲林縣', '嘉義市', '嘉義縣', '台南市', '高雄市', '屏東縣', '宜蘭縣', '花蓮縣', '台東縣', '澎湖縣', '金門縣', '連江縣'];
-function getCustomLocations(){try{return JSON.parse(localStorage.getItem('beebo_locations')||'[]');}catch(e){return[];}}
-function saveCustomLocations(locs){localStorage.setItem('beebo_locations',JSON.stringify(locs));}
+function getCustomLocations(){
+  if(window._coupleData && Array.isArray(window._coupleData.customLocations)) {
+    return window._coupleData.customLocations;
+  }
+  try{return JSON.parse(localStorage.getItem('beebo_locations')||'[]');}catch(e){return[];}
+}
+function saveCustomLocations(locs){
+  localStorage.setItem('beebo_locations',JSON.stringify(locs));
+  if(window._coupleId && window._fsOps) {
+    var {doc, setDoc} = window._fsOps;
+    setDoc(doc(window._db,'couples',window._coupleId), {customLocations: locs}, {merge:true}).catch(function(e){
+      console.error('[saveCustomLocations] Firestore寫入失敗:', e);
+    });
+  }
+}
 function getAllLocations(){return TAIWAN_CITIES.concat(getCustomLocations());}
 function fillRestCityFilter(){
   var sel = document.getElementById('restCityFilter');
@@ -3740,16 +3753,15 @@ async function openChangelogMo(){
   openMo('changelogMo');
   var listEl=document.getElementById('changelogList');
   var addBtn=document.getElementById('changelogAddBtn');
-  var isAdmin=window.userData&&window.userData.isAdmin;
+  var isAdmin=window.userData&&window.userData.isAdmin===true;
   if(addBtn) addBtn.style.display=isAdmin?'flex':'none';
   if(!listEl)return;
   listEl.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">載入中...</div>';
   try{
     var {collection,query,orderBy,getDocs}=window._fsOps;
-    var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    var snap=await fsModule.getDocs(fsModule.query(
-      fsModule.collection(window._db,'changelog'),
-      fsModule.orderBy('createdAt','desc')
+    var snap=await getDocs(query(
+      collection(window._db,'changelog'),
+      orderBy('createdAt','desc')
     ));
     if(snap.empty){
       listEl.innerHTML='<div style="border-radius:12px;background:var(--lt);padding:12px;"><div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">v1.0.0 — 2026</div><div style="font-size:12px;color:var(--txt);line-height:1.8;">• 留言板即時同步<br>• 清單兩人共享<br>• 餐廳記錄<br>• 挑戰兩人打勾<br>• 語錄收藏<br>• 成就系統</div></div>';
@@ -3761,11 +3773,15 @@ async function openChangelogMo(){
       html+='<div style="border-radius:12px;background:var(--lt);padding:12px;">'+
         '<div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:6px;">'+v.version+' — '+(v.date||'')+'</div>'+
         '<div style="font-size:12px;color:var(--txt);line-height:1.8;">'+(v.content||'').split('\n').join('<br>')+'</div>'+
-        (isAdmin?'<button onclick="deleteChangelog(\''+d.id+'\')" style="all:unset;font-size:10px;color:#c62828;cursor:pointer;margin-top:6px;">刪除此版本</button>':'')+
+        (isAdmin?('<div style="display:flex;gap:8px;margin-top:6px;">'+
+          '<button onclick="editChangelog(\''+d.id+'\')" style="all:unset;font-size:10px;color:var(--accent);cursor:pointer;">編輯</button>'+
+          '<button onclick="deleteChangelog(\''+d.id+'\')" style="all:unset;font-size:10px;color:#c62828;cursor:pointer;">刪除此版本</button>'+
+          '</div>'):'')+
         '</div>';
     });
     listEl.innerHTML=html;
   }catch(e){
+    console.error('[openChangelogMo]', e);
     listEl.innerHTML='<div style="color:var(--sub);font-size:12px;padding:12px;">載入失敗</div>';
   }
 }
@@ -3773,26 +3789,53 @@ function toggleChangelogAdd(){
   var area=document.getElementById('changelogAddArea');
   if(area)area.style.display=area.style.display==='none'?'flex':'none';
 }
+var _editChangelogId = null;
 async function saveChangelog(){
   var ver=(document.getElementById('clVersion')||{}).value||'';
   var content=(document.getElementById('clContent')||{}).value||'';
   if(!ver.trim()){showToast('請填寫版本號');return;}
   if(!window._db||!window._fsOps){showToast('請先配對');return;}
-  var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-  await fsModule.addDoc(fsModule.collection(window._db,'changelog'),{
-    version:ver.trim(),content:content.trim(),
-    date:new Date().getFullYear()+'',
-    createdAt:fsModule.serverTimestamp()
-  });
+  var {collection,addDoc,doc,updateDoc,serverTimestamp}=window._fsOps;
+  if(_editChangelogId){
+    await updateDoc(doc(window._db,'changelog',_editChangelogId),{
+      version:ver.trim(), content:content.trim()
+    });
+    showToast('版本已更新 ✓');
+    _editChangelogId = null;
+  } else {
+    await addDoc(collection(window._db,'changelog'),{
+      version:ver.trim(),content:content.trim(),
+      date:new Date().getFullYear()+'',
+      createdAt:serverTimestamp()
+    });
+    showToast('版本已新增 ✓');
+  }
   document.getElementById('clVersion').value='';
   document.getElementById('clContent').value='';
-  showToast('版本已新增 ✓');
+  var addBtnText = document.querySelector('#changelogAddArea .btn2.bpri');
+  if(addBtnText) addBtnText.textContent = '新增版本';
   openChangelogMo();
+}
+function editChangelog(id){
+  var area = document.getElementById('changelogAddArea');
+  // 從目前列表的資料抓取，因為沒有保存在前端陣列，改用 Firestore 讀取
+  var {doc, getDoc} = window._fsOps;
+  getDoc(doc(window._db,'changelog',id)).then(function(snap){
+    if(!snap.exists()) return;
+    var v = snap.data();
+    document.getElementById('clVersion').value = v.version || '';
+    document.getElementById('clContent').value = v.content || '';
+    _editChangelogId = id;
+    if(area) area.style.display = 'flex';
+    var saveBtnText = document.querySelector('#changelogAddArea .btn2.bpri');
+    if(saveBtnText) saveBtnText.textContent = '儲存修改';
+  });
 }
 async function deleteChangelog(id){
   if(!window.confirm('刪除此版本紀錄？'))return;
-  var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-  await fsModule.deleteDoc(fsModule.doc(window._db,'changelog',id));
+  var {doc,deleteDoc}=window._fsOps;
+  await deleteDoc(doc(window._db,'changelog',id));
+  showToast('已刪除');
   openChangelogMo();
 }
 
