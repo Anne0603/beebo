@@ -1536,7 +1536,7 @@ window.reauthenticateForPinReset = async function() {
 </div></div></div>
 
 
-<div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div>
+<div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">推薦餐點（選填）</label><textarea class="fi" id="newDish" rows="2" placeholder="這家店的招牌是..." style="resize:none;"></textarea></div><button onclick="addRest()" class="btn2 bpri" style="width:100%;margin-top:4px;">新增記錄</button></div></div></div>
 
 <script>
 // ── 頁面載入時套用已儲存的主題 ──
@@ -3237,19 +3237,13 @@ async function addRest(){
   if(n) n=n.trim(); else n='';
   if(!n||!restStar){showToast('請填寫名稱和評分');return;}
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
-  var city=(document.getElementById('newRC2')||{}).value||''; var location=city;
-  var country='',foreignCity='';
-  if(city==='國外'){
-    country=(document.getElementById('newCountry')||{}).value||'';
-    foreignCity=(document.getElementById('newFCity')||{}).value||'';
-  }
+  var location=(document.getElementById('newRC2')||{}).value||'';
   var {collection,addDoc,serverTimestamp}=window._fsOps;
   await addDoc(collection(window._db,'couples',window._coupleId,'rests'),{
     name: n,
     type: (document.getElementById('newRT2')||{}).value||'',
-    city: city,
-    country: country,
-    foreignCity: foreignCity,
+    location: location,
+    city: location,
     star: restStar,
     date: (document.getElementById('newRD')||{}).value||new Date().toLocaleDateString('zh-TW'),
     dish: (document.getElementById('newDish')||{}).value||'',
