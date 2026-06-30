@@ -1135,7 +1135,8 @@ window.reauthenticateForPinReset = async function() {
 
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si">🏷️</div><div class="slb">管理挑戰分類</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si">🏷️</div><div class="slb">管理挑戰分類</div></div></div>
+<div class="sr" onclick="openRestTypeMo()"><div class="sl"><div class="si">🍽️</div><div class="slb">管理餐廳類型</div></div><div class="sv">›</div></div>
 <div class="sr" onclick="openLocationMgMo()"><div class="sl"><div class="si">📍</div><div class="slb">管理常用地點</div></div><div class="sv" id="locationMgSv">›</div></div>
 <div class="sr" onclick="openInspireMgMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#A87848" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">靈感題庫管理</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openTransferMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">備用管理員帳號</div></div><div></div></div>
@@ -1307,11 +1308,11 @@ window.reauthenticateForPinReset = async function() {
 </div></div>
 
 <div class="mo" id="delLocationMo"><div class="mbox">
-  <div class="mh"><span class="mtit">刪除地點</span><button class="mcl" onclick="closeMo('delLocationMo')">×</button></div>
+  <div class="mh"><span class="mtit">刪除地點</span><button class="mcl" onclick="closeMo('delLocationMo');setTimeout(function(){openMo('locationMgMo');},250);">×</button></div>
   <div id="delLocationConfirmText" style="font-size:13px;color:var(--sub);margin-bottom:12px;"></div>
   <input class="fi" id="delLocationConfirmInput" placeholder="輸入地點名稱確認" style="margin-bottom:12px;">
   <div style="display:flex;gap:8px;">
-    <button onclick="closeMo('delLocationMo')" class="btn2 bsec" style="flex:1;">取消</button>
+    <button onclick="closeMo('delLocationMo');setTimeout(function(){openMo('locationMgMo');},250);" class="btn2 bsec" style="flex:1;">取消</button>
     <button onclick="execDelLocation()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
   </div>
 </div></div>
@@ -1321,6 +1322,31 @@ window.reauthenticateForPinReset = async function() {
   <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6;">格式範例：[{"n":"吃火鍋","c":"想吃什麼"}, {"n":"看夜景","c":"想去哪"}]<br>分類需為：想去哪／想吃什麼／想做什麼／想看什麼</div>
   <textarea class="fi" id="importInspireText" rows="8" placeholder='貼上 JSON 內容...' style="font-family:monospace;font-size:12px;margin-bottom:12px;"></textarea>
   <button onclick="execImportInspire()" class="btn2 bpri" style="width:100%;">匯入（將覆蓋現有題庫）</button>
+</div></div>
+
+<div class="mo" id="restTypeMo"><div class="mbox">
+  <div class="mh"><span class="mtit">管理餐廳類型</span><button class="mcl" onclick="closeMo('restTypeMo')">×</button></div>
+  <div id="restTypeList" style="display:flex;flex-direction:column;gap:8px;max-height:45vh;overflow-y:auto;"></div>
+  <div style="display:flex;gap:6px;margin-top:10px;">
+    <input class="fi" id="newRestTypeName" placeholder="新類型名稱..." style="flex:1;">
+    <button onclick="addRestTypeItem()" class="btn2 bpri" style="width:auto;padding:0 16px;">新增</button>
+  </div>
+</div></div>
+
+<div class="mo" id="editRestTypeMo"><div class="mbox">
+  <div class="mh"><span class="mtit">編輯類型名稱</span><button class="mcl" onclick="closeMo('editRestTypeMo');setTimeout(function(){openMo('restTypeMo');},250);">×</button></div>
+  <input class="fi" id="editRestTypeInput" placeholder="類型名稱" style="margin-bottom:12px;">
+  <button onclick="saveEditRestType()" class="btn2 bpri" style="width:100%;">儲存</button>
+</div></div>
+
+<div class="mo" id="delRestTypeMo"><div class="mbox">
+  <div class="mh"><span class="mtit">刪除類型</span><button class="mcl" onclick="closeMo('delRestTypeMo');setTimeout(function(){openMo('restTypeMo');},250);">×</button></div>
+  <div id="delRestTypeConfirmText" style="font-size:13px;color:var(--sub);margin-bottom:12px;"></div>
+  <input class="fi" id="delRestTypeConfirmInput" placeholder="輸入類型名稱確認" style="margin-bottom:12px;">
+  <div style="display:flex;gap:8px;">
+    <button onclick="closeMo('delRestTypeMo');setTimeout(function(){openMo('restTypeMo');},250);" class="btn2 bsec" style="flex:1;">取消</button>
+    <button onclick="execDelRestType()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
+  </div>
 </div></div>
 
 <div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
@@ -1533,8 +1559,7 @@ window.reauthenticateForPinReset = async function() {
     <div id="linkedItems" style="font-size:11px;color:var(--sub);margin-top:4px;"></div>
   </div>
   <button class="btn2 bpri" onclick="addMem()">建立回憶錄</button>
-</div></div></div>
-
+</div></div></div></div>
 
 <div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">類型（選填）</label><select class="fi" id="newRT2" style="padding:8px 10px;"><option value="">選擇類型...</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>海鮮</option><option>其他</option></select></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">推薦餐點（選填）</label><textarea class="fi" id="newDish" rows="2" placeholder="這家店的招牌是..." style="resize:none;"></textarea></div><button onclick="addRest()" class="btn2 bpri" style="width:100%;margin-top:4px;">新增記錄</button></div></div></div>
 
@@ -1937,7 +1962,8 @@ function confirmDelLocation(idx){
   if(nameEl) nameEl.innerHTML = '請輸入「<b style="color:var(--accent);">'+loc+'</b>」確認刪除';
   var inputEl = document.getElementById('delLocationConfirmInput');
   if(inputEl){ inputEl.value=''; inputEl.dataset.target=loc; }
-  openMo('delLocationMo');
+  closeMo('locationMgMo');
+  setTimeout(function(){ openMo('delLocationMo'); }, 250);
 }
 function execDelLocation(){
   var inputEl = document.getElementById('delLocationConfirmInput');
@@ -1951,8 +1977,8 @@ function execDelLocation(){
   locs.splice(_delLocationIdx,1);
   saveCustomLocations(locs);
   closeMo('delLocationMo');
-  renderLocationMgList();
   showToast('已刪除 ✓');
+  setTimeout(function(){ openMo('locationMgMo'); renderLocationMgList(); }, 250);
 }
 function delLocationItem(idx){ confirmDelLocation(idx); }
 function addLocationItem(){
@@ -1990,6 +2016,107 @@ function doConfirm() {
   if(typeof _confirmCallback === 'function') _confirmCallback();
   else if(typeof _confirmCallback === 'string' && window[_confirmCallback]) window[_confirmCallback]();
   _confirmCallback = null;
+}
+
+// ── 餐廳類型管理 ──
+var DEFAULT_REST_TYPES = ['日式','韓式','義式','中式','火鍋','咖啡廳','早午餐','燒烤','海鮮','其他'];
+function getRestTypes() {
+  try { return JSON.parse(localStorage.getItem('beebo_rest_types') || 'null') || DEFAULT_REST_TYPES.slice(); }
+  catch(e) { return DEFAULT_REST_TYPES.slice(); }
+}
+function saveRestTypes(types) { localStorage.setItem('beebo_rest_types', JSON.stringify(types)); }
+function _isRestTypeInUse(type){
+  return (RESTS||[]).some(function(r){ return r.type === type; });
+}
+function openRestTypeMo() { renderRestTypeMg(); openMo('restTypeMo'); }
+function renderRestTypeMg() {
+  var types = getRestTypes();
+  var el = document.getElementById('restTypeList');
+  if(!el) return;
+  el.innerHTML = types.map(function(t, i) {
+    var inUse = _isRestTypeInUse(t);
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;">'
+      + '<span style="flex:1;font-size:13px;">'+t+(inUse?' <span style="font-size:10px;color:var(--sub);">(使用中)</span>':'')+'</span>'
+      + '<button onclick="editRestType('+i+')" style="all:unset;color:var(--accent);cursor:pointer;font-size:12px;padding:2px 6px;background:var(--lt);border-radius:6px;margin-right:4px;">編輯</button>'
+      + (inUse?'':'<button onclick="confirmDelRestType('+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;">×</button>')
+      + '</div>';
+  }).join('');
+  // 同步篩選與新增表單的選單
+  ['newRT2','restTypeFilter'].forEach(function(id){
+    var sel = document.getElementById(id);
+    if(!sel) return;
+    var cur = sel.value;
+    var opts = id==='restTypeFilter' ? ['全部'].concat(types) : [''].concat(types);
+    sel.innerHTML = opts.map(function(t){
+      var label = t==='' ? '選擇類型...' : t;
+      return '<option value="'+t+'"'+(t===cur?' selected':'')+'>'+label+'</option>';
+    }).join('');
+  });
+}
+var _editRestTypeIdx = null;
+function editRestType(idx){
+  var types = getRestTypes();
+  _editRestTypeIdx = idx;
+  var inputEl = document.getElementById('editRestTypeInput');
+  if(inputEl) inputEl.value = types[idx];
+  closeMo('restTypeMo');
+  setTimeout(function(){ openMo('editRestTypeMo'); }, 250);
+}
+function saveEditRestType(){
+  var inputEl = document.getElementById('editRestTypeInput');
+  var newName = inputEl ? inputEl.value.trim() : '';
+  if(!newName){ showToast('請輸入類型名稱'); return; }
+  var types = getRestTypes();
+  var oldName = types[_editRestTypeIdx];
+  if(types.includes(newName) && newName !== oldName){ showToast('類型名稱已存在'); return; }
+  types[_editRestTypeIdx] = newName;
+  saveRestTypes(types);
+  if(window._fsOps && window._coupleId && oldName !== newName){
+    RESTS.forEach(function(r){
+      if(r.type === oldName){
+        var {doc, updateDoc} = window._fsOps;
+        updateDoc(doc(window._db,'couples',window._coupleId,'rests',r.id), {type: newName}).catch(function(){});
+      }
+    });
+  }
+  closeMo('editRestTypeMo');
+  showToast('已更新 ✓');
+  setTimeout(function(){ openMo('restTypeMo'); renderRestTypeMg(); }, 250);
+}
+var _delRestTypeIdx = null;
+function confirmDelRestType(idx){
+  var types = getRestTypes();
+  var t = types[idx];
+  _delRestTypeIdx = idx;
+  var nameEl = document.getElementById('delRestTypeConfirmText');
+  if(nameEl) nameEl.innerHTML = '請輸入「<b style="color:var(--accent);">'+t+'</b>」確認刪除';
+  var inputEl = document.getElementById('delRestTypeConfirmInput');
+  if(inputEl){ inputEl.value=''; inputEl.dataset.target=t; }
+  closeMo('restTypeMo');
+  setTimeout(function(){ openMo('delRestTypeMo'); }, 250);
+}
+function execDelRestType(){
+  var inputEl = document.getElementById('delRestTypeConfirmInput');
+  var target = inputEl ? inputEl.dataset.target : '';
+  if(!inputEl || inputEl.value.trim() !== target){ showToast('請輸入正確的類型名稱'); return; }
+  var types = getRestTypes();
+  types.splice(_delRestTypeIdx,1);
+  saveRestTypes(types);
+  closeMo('delRestTypeMo');
+  showToast('已刪除 ✓');
+  setTimeout(function(){ openMo('restTypeMo'); renderRestTypeMg(); }, 250);
+}
+function addRestTypeItem() {
+  var el = document.getElementById('newRestTypeName');
+  var name = el ? el.value.trim() : '';
+  if(!name) { showToast('請輸入類型名稱'); return; }
+  var types = getRestTypes();
+  if(types.includes(name)) { showToast('類型已存在'); return; }
+  types.push(name);
+  saveRestTypes(types);
+  if(el) el.value = '';
+  renderRestTypeMg();
+  showToast('已新增類型 ✓');
 }
 
 // ── 挑戰分類管理 ──
