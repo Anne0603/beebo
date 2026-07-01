@@ -367,12 +367,6 @@ input[type=file]{display:none;}
   function _startUserDocListener(user) {
     const userRef = doc(db, 'users', user.uid);
     window._userDocUnsub = onSnapshot(userRef, async (snap) => {
-      // 第一次 snapshot 回來才隱藏 loading overlay（防止配對視窗閃爍）
-      if (!window._authLoadingDismissed) {
-        window._authLoadingDismissed = true;
-        var lo = document.getElementById('loadingOverlay');
-        if (lo) lo.style.display = 'none';
-      }
       if (!snap.exists()) return;
       const data = snap.data();
       window.userData = data;
@@ -393,20 +387,32 @@ input[type=file]{display:none;}
         // 已配對 - 如果還沒初始化就初始化
         if (!window._msgUnsubscribe) {
           await window._initAllCoupleFeatures(user.uid, data.partnerId);
+          // 初始化全部完成後才隱藏 loading，此時 pairingMo 絕對不會露出來
+          var lo = document.getElementById('loadingOverlay');
+          if (lo) lo.style.display = 'none';
           const pm = document.getElementById('pairingMo');
           if (pm && pm.classList.contains('open')) {
             window.showToast('配對成功！歡迎使用嗶啵 💚');
             pm.classList.remove('open');
           }
+        } else {
+          // 已初始化（後續 snapshot 更新），直接隱藏 loading（通常已隱藏）
+          var lo2 = document.getElementById('loadingOverlay');
+          if (lo2 && lo2.style.display !== 'none') lo2.style.display = 'none';
         }
       } else {
-        // 未配對
+        // 未配對 - 先隱藏 loading，再顯示配對視窗
+        var lo3 = document.getElementById('loadingOverlay');
+        if (lo3) lo3.style.display = 'none';
         window._coupleId = null;
         const pm = document.getElementById('pairingMo');
         if (pm && !pm.classList.contains('open')) pm.classList.add('open');
       }
     }, (err) => {
       console.error('[userDoc] 監聽錯誤', err.code, err.message);
+      // 監聽失敗也要隱藏 loading，否則卡住
+      var lo = document.getElementById('loadingOverlay');
+      if (lo) lo.style.display = 'none';
     });
   }
 
@@ -450,8 +456,7 @@ onAuthStateChanged(auth, async (user) => {
       }
 
       // 啟動 users doc 監聽（單一狀態來源，處理所有後續判斷）
-      // loading overlay 會在 _startUserDocListener 第一次 onSnapshot 回來後才隱藏
-      window._authLoadingDismissed = false;
+      // loading overlay 在 initAllCoupleFeatures 完成後才隱藏，保證不會閃出配對視窗
       _startUserDocListener(user);
 
       // 記錄本次上線時間（讓對方看到「最後上線」）
