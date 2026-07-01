@@ -669,8 +669,7 @@ window.startPairingCountdown = function(expiry, el) {
     window._db = db;
     window._applyStartDate(window._coupleData.startDate || '');
 
-    // ── 自我修復：舊配對資料可能在 isAdmin 機制上線前就建立，導致兩邊都是 false/未設定 ──
-    // 用 coupleId（已排序的 uid1_uid2）決定性指派，避免兩個裝置同時執行造成衝突
+    // ── 自我修復：舊配對兩邊都沒有 isAdmin=true，把目前這個使用者設為管理員 ──
     try {
       var uids = coupleId.split('_');
       var uidA = uids[0], uidB = uids[1];
@@ -679,9 +678,13 @@ window.startPairingCountdown = function(expiry, el) {
         var dataA = snapA.exists() ? snapA.data() : {};
         var dataB = snapB.exists() ? snapB.data() : {};
         if (dataA.isAdmin !== true && dataB.isAdmin !== true) {
-          await updateDoc(doc(db,'users',uidA), { isAdmin: true });
-          console.log('[自我修復] 兩邊都沒有管理員，已指派給', uidA);
-          if (myUid === uidA && myUserData) myUserData.isAdmin = true;
+          // 只改自己的 user doc（Firestore rules 只允許改自己），誰先登入誰是管理員
+          await updateDoc(doc(db,'users',myUid), { isAdmin: true });
+          console.log('[自我修復] 已將目前使用者設為管理員:', myUid);
+          if (myUserData) myUserData.isAdmin = true;
+          if (window.userData) window.userData.isAdmin = true;
+          var adminWrap = document.getElementById('adminSectionWrap');
+          if (adminWrap) adminWrap.style.display = 'block';
         }
       }
     } catch(e) { console.warn('[isAdmin 自我修復失敗]', e.message); }
@@ -1175,7 +1178,7 @@ window.reauthenticateForPinReset = async function() {
         </select>
       </div>
     </div>
-    <div class="sr" onclick="openDiscordSettingsMo()" style="margin-top:8px;"><div class="sl"><div class="si">💬</div><div class="slb">Discord 通知設定</div></div><div class="sv">›</div></div>
+    <div class="sr" onclick="openDiscordSettingsMo()" style="margin-top:8px;"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z" fill="#4A7A58"/></svg></div><div class="slb">Discord 通知設定</div></div><div class="sv">›</div></div>
 
     <!-- 安全 -->
     <div class="slbl">安全</div>
@@ -1186,8 +1189,8 @@ window.reauthenticateForPinReset = async function() {
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="sr" onclick="showToast('重新整理中...');setTimeout(function(){location.reload();},400);"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M23 4v6h-6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">重新整理頁面 <span style="font-size:10px;color:var(--sub);font-weight:400;">(約需2秒)</span></div></div><div class="sv">›</div></div>
       <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）<div id="lastExportTime" style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">尚未匯出過</div></div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="exportMemoryReport()"><div class="sl"><div class="si">📖</div><div class="slb">匯出回憶錄報告<div style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">含照片，可列印成PDF</div></div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openMo('faqMo')"><div class="sl"><div class="si">❓</div><div class="slb">常見問題</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="exportMemoryReport()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">匯出回憶錄報告<div style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">含照片，可列印成PDF</div></div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('faqMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r=".5" fill="#4A7A58" stroke="#4A7A58" stroke-width="1"/></svg></div><div class="slb">常見問題</div></div><div class="sv">›</div></div>
 
       <div class="sr" onclick="showConfirmMo('確定要登出嗎？',firebaseSignOut)"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
     </div>
@@ -1199,9 +1202,9 @@ window.reauthenticateForPinReset = async function() {
 
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
-      <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si">🏷️</div><div class="slb">管理挑戰分類</div></div></div>
-<div class="sr" onclick="openRestTypeMo()"><div class="sl"><div class="si">🍽️</div><div class="slb">管理餐廳類型</div></div><div class="sv">›</div></div>
-<div class="sr" onclick="openLocationMgMo()"><div class="sl"><div class="si">📍</div><div class="slb">管理常用地點</div></div><div class="sv" id="locationMgSv">›</div></div>
+      <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" fill="#A87848"/></svg></div><div class="slb">管理挑戰分類</div></div></div>
+<div class="sr" onclick="openRestTypeMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">管理餐廳類型</div></div><div class="sv">›</div></div>
+<div class="sr" onclick="openLocationMgMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">管理常用地點</div></div><div class="sv" id="locationMgSv">›</div></div>
 <div class="sr" onclick="openInspireMgMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#A87848" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">靈感題庫管理</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openTransferMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#c62828" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">備用管理員帳號</div></div><div></div></div>
 
@@ -1228,7 +1231,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="sc">
     <div class="slbl">挑戰成就</div>
     <div class="ag">
-      <div id="achList" style="display:flex;flex-direction:column;gap:8px;"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">完成挑戰後會出現這裡 🏆</div></div>
+      <div id="achList" style="display:contents;"><div style="grid-column:1/-1;text-align:center;color:var(--sub);font-size:12px;padding:20px;">完成挑戰後會出現這裡 🏆</div></div>
     </div>
     <div class="slbl" style="margin-top:8px;">系統成就</div>
     <div class="ag">
@@ -2800,7 +2803,7 @@ function _renderSysAch(){
   if(achList){
     var done=CHALS.filter(function(ch){return ch.status==='done';});
     if(!done.length){
-      achList.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">完成挑戰後會出現這裡 🏆</div>';
+      achList.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--sub);font-size:12px;padding:20px;">完成挑戰後會出現這裡 🏆</div>';
     } else {
       achList.innerHTML=done.map(function(ch){
         var dateStr='';
