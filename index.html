@@ -3185,7 +3185,40 @@ function _updateStats() {
     if(statCities) statCities.textContent = places.size;
   })();
 
-  // 更新回顧頁年份（只顯示有資料的年份）
+  // 上傳照片（所有回憶錄的照片總數）
+  var photoEl = document.getElementById('stat-photos');
+  if(photoEl){
+    var totalPhotos = (MEMS||[]).reduce(function(sum,m){ return sum + (m.photos ? m.photos.length : 0); }, 0);
+    photoEl.textContent = totalPhotos;
+  }
+
+  // 今年約會（今年的行事曆活動數）
+  var datesEl = document.getElementById('stat-dates');
+  if(datesEl){
+    var thisYear = new Date().getFullYear();
+    var datesCount = (EVENTS||[]).filter(function(e){
+      return e.dateStart && new Date(e.dateStart).getFullYear() === thisYear;
+    }).length;
+    datesEl.textContent = datesCount;
+  }
+
+  // 連續留言天（計算最近連續有留言的天數）
+  var streakEl = document.getElementById('stat-streak');
+  if(streakEl && window._messages && window._messages.length){
+    var daySet = new Set();
+    window._messages.forEach(function(msg){
+      var t = msg.createdAt && msg.createdAt.seconds ? msg.createdAt.seconds*1000 : (msg.createdAt instanceof Date ? msg.createdAt.getTime() : 0);
+      if(t){ var d = new Date(t); daySet.add(d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()); }
+    });
+    var streak = 0;
+    var checkDate = new Date(); checkDate.setHours(0,0,0,0);
+    while(true){
+      var key = checkDate.getFullYear()+'-'+(checkDate.getMonth()+1)+'-'+checkDate.getDate();
+      if(daySet.has(key)){ streak++; checkDate.setDate(checkDate.getDate()-1); }
+      else break;
+    }
+    streakEl.textContent = streak;
+  }
   var yearSel = document.getElementById('reviewYearSel');
   if(yearSel) {
     var years = new Set();
