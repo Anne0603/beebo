@@ -4730,7 +4730,7 @@ function openMemDetail(id){
 
   // 按鈕
   var btnsHtml='<div style="display:flex;gap:8px;padding-bottom:8px;">'
-    +'<button class="btn2 bpri" onclick="goBack();setTimeout(function(){openEditMemMo(\''+m.id+'\');},250);" style="flex:2;font-size:13px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>編輯</button>'
+    +'<button class="btn2 bpri" onclick="openEditMemMo(\''+m.id+'\')" style="flex:2;font-size:13px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>編輯</button>'
     +'<button class="btn2 bsec" onclick="addMemPhoto(\''+m.id+'\')" style="flex:2;font-size:13px;">新增照片</button>'
     +'<button onclick="goBack();setTimeout(function(){deleteMemConfirm(\''+m.id+'\');},300);" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:\'Noto Sans TC\',sans-serif;">刪除</button>'
     +'</div>';
@@ -4888,9 +4888,14 @@ async function saveEditMem(){
     title:title.trim(), dateStart:d1, dateEnd:d2, note:note, city:city,
     photos:existPhotos, linkedRests:_memLinkedRests, linkedItems:_memLinkedItems
   });
+  var savedId = _editMemId;
+  _editMemId=null;
   closeMo('editMemMo');
   showToast('回憶錄已更新 ✓');
-  _editMemId=null;
+  // 停留在詳情頁，重新渲染最新資料
+  if(curPage==='memdetail'){
+    setTimeout(function(){ openMemDetail(savedId); }, 300);
+  }
 }
 async function execDeleteMem(){
   var inp = document.getElementById('deleteMemConfirmInput');
