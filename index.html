@@ -317,6 +317,20 @@ input[type=file]{display:none;}
     var pm = document.getElementById('pairingMo');
     if (pm) pm.classList.remove('open');
     window.buildNavs();
+
+    // coupleData 已載入，重新確認管理員狀態（備用帳號 backupAdmins 在這裡才能確認）
+    (function(){
+      var adminWrap = document.getElementById('adminSectionWrap');
+      if (!adminWrap) return;
+      var isAdminUser = window.userData && window.userData.isAdmin === true;
+      var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
+      var backupAdmins = (window._coupleData && window._coupleData.backupAdmins) || [];
+      var myUid = window.currentUser && window.currentUser.uid;
+      var myEmail = window.currentUser && window.currentUser.email;
+      var isBackupAdmin = myEmail && backupAdmins.includes(myEmail);
+      adminWrap.style.display = (isAdminUser || adminUids.includes(myUid) || isBackupAdmin) ? 'block' : 'none';
+    })();
+
     setTimeout(function(){ if(typeof window.checkUpcomingReminders==='function') window.checkUpcomingReminders(); }, 1000);
 
     // ── PIN 重置請求監聽（用 time 時間戳記去重複，避免舊狀態被重複觸發）──
@@ -381,8 +395,11 @@ input[type=file]{display:none;}
       var adminWrap = document.getElementById('adminSectionWrap');
       var isAdminUser = data.isAdmin === true;
       var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
+      var backupAdmins = (window._coupleData && window._coupleData.backupAdmins) || [];
       var uid = window.currentUser && window.currentUser.uid;
-      if (adminWrap) adminWrap.style.display = (isAdminUser || adminUids.includes(uid)) ? 'block' : 'none';
+      var email = window.currentUser && window.currentUser.email;
+      var isBackupAdmin = email && backupAdmins.includes(email);
+      if (adminWrap) adminWrap.style.display = (isAdminUser || adminUids.includes(uid) || isBackupAdmin) ? 'block' : 'none';
       var avtMe = document.getElementById('avt-me');
       if (avtMe) avtMe.textContent = data.lastSeen ? window._fmtLastSeen(data.lastSeen) : '剛剛';
 
