@@ -2776,7 +2776,10 @@ function _initNotifications(db, coupleId) {
     renderNotifPage();
     updateNotifBadge();
   }, function(err) {
-    console.warn('[notifications onSnapshot]', err.code);
+    console.error('[notifications onSnapshot] 失敗:', err.code, err.message);
+    if (err.code === 'permission-denied') {
+      console.error('⚠️ Firestore rules 未更新！請在 Firebase Console 加上 notifications collection 規則');
+    }
   });
 }
 window._initNotifications = _initNotifications;
@@ -2798,11 +2801,22 @@ function addNotif(msg, type, skipDiscord) {
         msg: msg,
         type: type || 'info',
         time: Date.now(),
-        readBy: []  // 各自清除：各自把自己 uid 加進來
-      }).catch(function(e) { console.warn('addNotif:', e.message); });
+        readBy: []
+      }).then(function(docRef) {
+        console.log('[addNotif] 寫入成功', docRef ? docRef.id : '');
+      }).catch(function(e) {
+        console.error('[addNotif] 寫入失敗:', e.code, e.message);
+        if (e.code === 'permission-denied') {
+          console.error('[addNotif] ⚠️ Firestore rules 未更新！請去 Firebase Console 加上 notifications collection 規則');
+        }
+      });
+    } else {
+      console.warn('[addNotif] 跳過：_coupleId=', window._coupleId, '_fsOps=', !!window._fsOps);
     }
     if (!skipDiscord) sendDiscordNotif(msg, type);
-  } catch(e) {}
+  } catch(e) {
+    console.error('[addNotif] 例外:', e);
+  }
 }
 
 function getUnreadNotifCount() {
