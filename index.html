@@ -2785,11 +2785,11 @@ function _initNotifications(db, coupleId) {
 window._initNotifications = _initNotifications;
 
 function _myNotifs() {
-  // 只顯示「自己還沒清除」的通知（uid 不在 readBy 裡）
+  // 顯示「自己還沒明確清除」的通知（uid 不在 clearedBy 裡才顯示）
   var uid = window.currentUser && window.currentUser.uid;
   return _notifCache.filter(function(n) {
-    var rb = n.readBy || [];
-    return !uid || !rb.includes(uid);
+    var cb = n.clearedBy || [];
+    return !uid || !cb.includes(uid);
   });
 }
 
@@ -2801,7 +2801,8 @@ function addNotif(msg, type, skipDiscord) {
         msg: msg,
         type: type || 'info',
         time: Date.now(),
-        readBy: []
+        seenBy: [],    // 已讀（影響 badge）
+        clearedBy: [] // 已清除（影響顯示）
       }).then(function(docRef) {
         console.log('[addNotif] 寫入成功', docRef ? docRef.id : '');
       }).catch(function(e) {
@@ -2820,7 +2821,14 @@ function addNotif(msg, type, skipDiscord) {
 }
 
 function getUnreadNotifCount() {
-  return _myNotifs().length;
+  // badge：uid 不在 seenBy 且不在 clearedBy 的通知數量
+  var uid = window.currentUser && window.currentUser.uid;
+  return _notifCache.filter(function(n) {
+    var sb = n.seenBy || [];
+    var cb = n.clearedBy || [];
+    if (uid && cb.includes(uid)) return false; // 已清除的不算
+    return !uid || !sb.includes(uid);
+  }).length;
 }
 
 function updateNotifBadge(){
@@ -2840,16 +2848,19 @@ function updateNotifBadge(){
 }
 
 function markAllNotifsRead() {
+  // 開通知頁：把 uid 加入 seenBy（清 badge），但不影響列表顯示
   var uid = window.currentUser && window.currentUser.uid;
   if (!uid || !window._coupleId || !window._fsOps) return;
   var {doc, updateDoc, arrayUnion} = window._fsOps;
   var toMark = _notifCache.filter(function(n) {
-    return !(n.readBy||[]).includes(uid);
+    var sb = n.seenBy || [];
+    var cb = n.clearedBy || [];
+    return !sb.includes(uid) && !cb.includes(uid);
   });
   toMark.forEach(function(n) {
     updateDoc(
       doc(window._db, 'couples', window._coupleId, 'notifications', n.id),
-      { readBy: arrayUnion(uid) }
+      { seenBy: arrayUnion(uid) }
     ).catch(function(){});
   });
 }
@@ -2876,22 +2887,22 @@ function renderNotifPage(){
 }
 
 function clearNotify(days) {
-  // 把「符合條件」的通知加入 readBy（只對自己生效，不刪除 Firestore）
+  // 把「符合條件」的通知加入 clearedBy（只對自己隱藏，不刪除 Firestore）
   var uid = window.currentUser && window.currentUser.uid;
   if (!uid || !window._coupleId || !window._fsOps) { showToast('請先配對'); return; }
   var {doc, updateDoc, arrayUnion} = window._fsOps;
   var cutoff = days === 0 ? 0 : Date.now() - days * 86400000;
   var toMark = _notifCache.filter(function(n) {
-    var rb = n.readBy || [];
-    if (rb.includes(uid)) return false; // 自己已清除
+    var cb = n.clearedBy || [];
+    if (cb.includes(uid)) return false; // 已清除
     if (days === 0) return true;        // 全清
-    return n.time < cutoff;             // 超過天數的才清
+    return n.time < cutoff;
   });
   if (!toMark.length) { showToast('沒有需要清除的通知'); return; }
   Promise.all(toMark.map(function(n) {
     return updateDoc(
       doc(window._db, 'couples', window._coupleId, 'notifications', n.id),
-      { readBy: arrayUnion(uid) }
+      { clearedBy: arrayUnion(uid) }
     );
   })).then(function() {
     showToast('已清除 ' + toMark.length + ' 則通知（只對你自己生效）');
