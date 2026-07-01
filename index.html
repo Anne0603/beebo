@@ -361,9 +361,6 @@ input[type=file]{display:none;}
   }
 
   // ── 登入狀態監聽（只負責身份確認）──
-  // 先顯示 loading
-  var _lo = document.getElementById('loadingOverlay');
-  if (_lo) _lo.style.display = 'flex';
 
   
   // ── users doc 監聽（核心狀態機）──
@@ -987,7 +984,7 @@ window.reauthenticateForPinReset = async function() {
 <body>
 
 <!-- Loading overlay -->
-<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:999;">
+<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;">
   <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
     <div style="width:36px;height:36px;border:3px solid var(--bdr);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
     <div style="font-size:13px;color:var(--sub);">載入中...</div>
