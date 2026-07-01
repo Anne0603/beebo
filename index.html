@@ -3203,6 +3203,7 @@ var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline
 var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 
 // ── Firestore 清單監聽 ──
+var LIST = []; // 全域宣告，防止初始化前被 renderInspire 呼叫時報 ReferenceError
 function _initList(db, coupleId) {
   var { collection, query, orderBy, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } = window._fsOps;
   var listRef = collection(db, 'couples', coupleId, 'list');
@@ -3374,9 +3375,10 @@ function setStar(n, containerId){
 function renderInspire(){
   var INSPIRE=_getInspireData()||_getDefaultInspire();
   var q=(document.getElementById('inspireSearch')||{value:''}).value.trim().toLowerCase();
+  var safeList = (typeof LIST !== 'undefined' && Array.isArray(LIST)) ? LIST : [];
   var items=INSPIRE.filter(function(i){
-    if(i.chal) return false; // 挑戰靈感不顯示在清單靈感裡
-    if(LIST.find(function(l){return l.n===i.n;})) return false;
+    if(i.chal) return false;
+    if(safeList.find(function(l){return l.n===i.n;})) return false;
     if(q && !i.n.toLowerCase().includes(q) && !i.c.toLowerCase().includes(q)) return false;
     return true;
   });
