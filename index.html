@@ -1235,7 +1235,7 @@ window.reauthenticateForPinReset = async function() {
       <div class="sr" onclick="exportMemoryReport()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">匯出回憶錄報告<div style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">含照片，可列印成PDF</div></div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openMo('faqMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#4A7A58" stroke-width="1.5"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><circle cx="12" cy="17" r=".5" fill="#4A7A58" stroke="#4A7A58" stroke-width="1"/></svg></div><div class="slb">常見問題</div></div><div class="sv">›</div></div>
 
-      <div class="sr" onclick="showConfirmMo('確定要登出嗎？',firebaseSignOut)"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
+      <div class="sr" onclick="firebaseSignOut()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><polyline points="16,17 21,12 16,7" stroke="#c62828" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="21" y1="12" x2="9" y2="12" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb danger">登出</div></div><div></div></div>
     </div>
 
     <!-- 管理員專區 -->
@@ -4370,6 +4370,7 @@ function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
 
 
 function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
+function filterLinkList(q){var items=document.querySelectorAll('#linkListContent label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
 
 // ══════════════════════════════
 // 設定頁功能
@@ -4532,6 +4533,7 @@ function openLinkListForMem(){
     var div=document.createElement('div');
     div.className='mo';div.id='linkListMo';
     div.innerHTML='<div class="mbox"><div class="mh"><span class="mtit">選擇清單／挑戰</span><button class="mcl" onclick="closeMo(\'linkListMo\')">×</button></div>'
+      +'<div style="margin-bottom:8px;"><input oninput="filterLinkList(this.value)" class="fi" placeholder="搜尋清單或挑戰..." style="font-size:12px;padding:7px 10px;"></div>'
       +'<div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkListContent"></div>'
       +'<button onclick="confirmLinkList()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div>';
     document.body.appendChild(div);
@@ -5527,11 +5529,17 @@ function doExportMemoryReport(){
 
   html += '</body></html>';
 
-  var win = window.open('', '_blank');
-  if(!win){ showToast('請允許彈出視窗'); return; }
-  win.document.write(html);
-  win.document.close();
-  showToast('已開啟報告，可用瀏覽器「列印」功能存成 PDF');
+  // 下載 HTML 檔案（手機友善，不用開新視窗）
+  var blob = new Blob([html], {type:'text/html;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'beebo-回憶錄-' + new Date().toLocaleDateString('zh-TW').replace(/\//g,'-') + '.html';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('報告已下載，用瀏覽器開啟可列印成 PDF ✓');
 }
 
 function exportData(){
