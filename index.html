@@ -370,6 +370,12 @@ input[type=file]{display:none;}
   function _startUserDocListener(user) {
     const userRef = doc(db, 'users', user.uid);
     window._userDocUnsub = onSnapshot(userRef, async (snap) => {
+      // 第一次 snapshot 回來才隱藏 loading overlay（防止配對視窗閃爍）
+      if (!window._authLoadingDismissed) {
+        window._authLoadingDismissed = true;
+        var lo = document.getElementById('loadingOverlay');
+        if (lo) lo.style.display = 'none';
+      }
       if (!snap.exists()) return;
       const data = snap.data();
       window.userData = data;
@@ -409,7 +415,8 @@ input[type=file]{display:none;}
 
 onAuthStateChanged(auth, async (user) => {
     const loading = document.getElementById('loadingOverlay');
-    if (loading) loading.style.display = 'none';
+    // 不要馬上隱藏 loading overlay，等 user doc 第一次回來才隱藏
+    // 這樣可以避免「配對視窗閃一下」的問題
 
     if (user) {
       window.currentUser = user;
@@ -446,6 +453,8 @@ onAuthStateChanged(auth, async (user) => {
       }
 
       // 啟動 users doc 監聽（單一狀態來源，處理所有後續判斷）
+      // loading overlay 會在 _startUserDocListener 第一次 onSnapshot 回來後才隱藏
+      window._authLoadingDismissed = false;
       _startUserDocListener(user);
 
       // 記錄本次上線時間（讓對方看到「最後上線」）
@@ -455,7 +464,9 @@ onAuthStateChanged(auth, async (user) => {
       if (typeof buildNavs === 'function') window.buildNavs();
 
     } else {
-      // 未登入
+      // 未登入：隱藏 loading overlay，顯示登入畫面
+      var lo2 = document.getElementById('loadingOverlay');
+      if (lo2) lo2.style.display = 'none';
       window.currentUser = null;
       window.userData = null;
       window._coupleId = null;
