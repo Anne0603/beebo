@@ -1348,8 +1348,25 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M18 8c0 3.3-2.7 6-6 6S6 11.3 6 8V3h12v5z" stroke="#4A7A58" stroke-width="1.5"/><path d="M12 14v7M8 21h8" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>餐廳記錄
   </div>
-  <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;"><div style="display:flex;gap:6px;"><select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option></select></div><div id="foreignFilterRow" style="display:none;gap:6px;"><select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select><select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select></div>
-<div style="display:flex;gap:6px;"><select id="restTypeFilter" onchange="setRT(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部類型</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>其他</option></select></div>
+  <div style="padding:0 13px 8px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;">
+    <div style="display:flex;gap:6px;">
+      <select id="restCityFilter" onchange="setRC(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部縣市</option></select>
+    </div>
+    <div id="foreignFilterRow" style="display:none;gap:6px;">
+      <select id="restForeignCountry" onchange="filterForeignCity(this.value)" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">國家...</option><option>日本</option><option>韓國</option><option>法國</option><option>美國</option><option>泰國</option><option>其他</option></select>
+      <select id="restForeignCity2" style="flex:1;padding:7px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">城市...</option><option>東京</option><option>大阪</option><option>首爾</option><option>巴黎</option><option>曼谷</option><option>紐約</option></select>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <select id="restTypeFilter" onchange="setRT(this.value)" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部類型</option><option>日式</option><option>韓式</option><option>義式</option><option>中式</option><option>火鍋</option><option>咖啡廳</option><option>早午餐</option><option>燒烤</option><option>其他</option></select>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <select id="restYearFilter" onchange="renderRests()" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部年份</option></select>
+      <select id="restMonthFilter" onchange="renderRests()" style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+        <option value="全部">全部月份</option>
+        <option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option>
+        <option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option>
+      </select>
+    </div>
   </div>
   <div class="sc" id="restBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addRestMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -4016,8 +4033,29 @@ function renderRests(){
   var body=document.getElementById('restBody');
   if(!body)return;
   if(!window._coupleId){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">請先登入並配對</div>';return;}
+
+  // 動態更新年份選單
+  var yearSel = document.getElementById('restYearFilter');
+  if(yearSel){
+    var years = new Set();
+    RESTS.forEach(function(r){ if(r.date) years.add(r.date.slice(0,4)); });
+    var curYear = yearSel.value;
+    yearSel.innerHTML = '<option value="全部">全部年份</option>' +
+      Array.from(years).sort().reverse().map(function(y){
+        return '<option value="'+y+'"'+(y===curYear?' selected':'')+'>'+y+'年</option>';
+      }).join('');
+  }
+
+  var filterYear = yearSel ? yearSel.value : '全部';
+  var filterMonth = (document.getElementById('restMonthFilter')||{value:'全部'}).value;
+
   var items=RESTS.filter(function(r){
-    return (restCity==='全部'||r.city===restCity||r.city==='國外')&&(restType==='全部'||r.type===restType);
+    if(restCity !== '全部' && r.city !== restCity && r.city !== '國外') return false;
+    if(restCity === '國外' && r.city !== '國外') return false;
+    if(restType !== '全部' && r.type !== restType) return false;
+    if(filterYear !== '全部' && r.date && r.date.slice(0,4) !== filterYear) return false;
+    if(filterMonth !== '全部' && r.date && parseInt(r.date.slice(5,7)) !== parseInt(filterMonth)) return false;
+    return true;
   });
   // 國外細篩
   if(restCity==='國外'){
@@ -4025,7 +4063,7 @@ function renderRests(){
     var fct=fc?fc.value:'';
     if(fct) items=items.filter(function(r){return r.country===fct;});
   }
-  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">還沒有餐廳記錄，記錄第一家吧！</div>';return;}
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">沒有符合條件的餐廳記錄</div>';return;}
   body.innerHTML=items.map(function(r){
     var stars='';for(var i=0;i<(r.star||0);i++)stars+=STAR_SVG;
     var cityLabel=r.city==='國外'?(r.country||'')+(r.foreignCity?' '+r.foreignCity:''):r.city;
