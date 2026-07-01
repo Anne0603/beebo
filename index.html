@@ -1146,6 +1146,15 @@ window.reauthenticateForPinReset = async function() {
   <div class="bnav" id="bnav-memory"></div>
 </div>
 
+<!-- 回憶錄詳情頁 -->
+<div class="page" id="page-memdetail">
+  <div class="pt">
+    <button onclick="goBack()" style="all:unset;display:flex;align-items:center;gap:4px;font-size:13px;color:var(--sub);cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <span id="memdetailTitle" style="font-weight:700;font-size:15px;color:var(--txt);flex:1;text-align:center;margin-right:22px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></span>
+  </div>
+  <div class="sc" id="memdetailBody" style="gap:14px;"></div>
+</div>
+
 <!-- LIST -->
 <div class="page" id="page-list">
   <div class="pt">
@@ -4643,113 +4652,91 @@ function confirmLinkList(){
   if(typeof _renderEditMemLinkedItems==='function') _renderEditMemLinkedItems();
 }
 
-// ── 回憶錄詳情頁（memDetailMo）──
-async function openMemDetail(id){
+// ── 回憶錄詳情頁（全頁面版）──
+function openMemDetail(id){
   var m=MEMS.find(function(x){return x.id===id;});
   if(!m)return;
-  var modal=document.getElementById('memDetailMo');
-  if(!modal){
-    modal=document.createElement('div');
-    modal.className='mo';modal.id='memDetailMo';
-    document.body.appendChild(modal);
-  }
-  var mbox=document.createElement('div');
-  mbox.className='mbox';mbox.style.maxHeight='90vh';mbox.style.overflowY='auto';
-  var mh=document.createElement('div');mh.className='mh';
-  var title=document.createElement('span');title.className='mtit';title.textContent=m.title||'回憶';
-  var closeBtn=document.createElement('button');closeBtn.className='mcl';closeBtn.textContent='×';
-  closeBtn.onclick=function(){closeMo('memDetailMo');};
-  mh.appendChild(title);mh.appendChild(closeBtn);mbox.appendChild(mh);
 
-  var body=document.createElement('div');
-  body.style.cssText='display:flex;flex-direction:column;gap:12px;';
+  var titleEl=document.getElementById('memdetailTitle');
+  if(titleEl) titleEl.textContent=m.title||'回憶';
 
-  // 日期
+  var body=document.getElementById('memdetailBody');
+  if(!body)return;
+
+  // 日期 + 地點（SVG 圖示）
   var dateStr=m.dateStart||'';
   if(m.dateEnd&&m.dateEnd!==m.dateStart) dateStr+=' → '+m.dateEnd;
-  if(dateStr){var dd=document.createElement('div');dd.style.cssText='font-size:12px;color:var(--sub);';dd.textContent='📅 '+dateStr;body.appendChild(dd);}
-
-  // 地點
   var cityStr=m.city||(m.country?(m.country+(m.foreignCity?' · '+m.foreignCity:'')):'');
-  if(cityStr){var cc=document.createElement('div');cc.style.cssText='font-size:12px;color:var(--sub);';cc.textContent='📍 '+cityStr;body.appendChild(cc);}
 
-  // 照片
+  var calSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="3" y="4" width="18" height="18" rx="2" stroke="var(--accent)" stroke-width="1.5"/><path d="M16 2v4M8 2v4M3 10h18" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  var pinSvg='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="var(--accent)" stroke-width="1.5"/><circle cx="12" cy="10" r="3" stroke="var(--accent)" stroke-width="1.5"/></svg>';
+
+  var metaHtml='<div style="display:flex;flex-direction:column;gap:6px;">'
+    +(dateStr?'<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);">'+calSvg+dateStr+'</div>':'')
+    +(cityStr?'<div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--sub);">'+pinSvg+cityStr+'</div>':'')
+    +'</div>';
+
+  // 照片（2欄 grid，大圖顯示）
+  var photosHtml='';
   if(m.photos&&m.photos.length){
-    var prow=document.createElement('div');
-    prow.style.cssText='display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;';
-    m.photos.forEach(function(p){
-      var img=document.createElement('img');
-      img.src=p;img.style.cssText='height:140px;border-radius:10px;object-fit:cover;flex-shrink:0;cursor:pointer;';
-      img.onclick=function(){window.open(p,'_blank');};
-      prow.appendChild(img);
-    });
-    body.appendChild(prow);
+    photosHtml='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">'
+      +m.photos.map(function(p,i){
+        return '<div style="aspect-ratio:1;border-radius:12px;overflow:hidden;cursor:pointer;" onclick="window.open(\''+p+'\',\'_blank\')">'
+          +'<img src="'+p+'" style="width:100%;height:100%;object-fit:cover;" loading="lazy">'
+          +'</div>';
+      }).join('')
+      +'</div>';
   } else {
-    var noPhoto=document.createElement('div');
-    noPhoto.style.cssText='text-align:center;color:var(--sub);font-size:12px;padding:14px;background:var(--card2);border-radius:10px;';
-    noPhoto.textContent='還沒有照片，點下方新增';
-    body.appendChild(noPhoto);
+    photosHtml='<div style="text-align:center;color:var(--sub);font-size:12px;padding:24px;background:var(--card2);border-radius:14px;">還沒有照片，點「新增照片」加入 📷</div>';
   }
 
   // 心得
-  if(m.note){
-    var note=document.createElement('div');
-    note.style.cssText='font-size:13px;color:var(--txt);line-height:1.7;white-space:pre-wrap;background:var(--card2);padding:10px;border-radius:10px;';
-    note.textContent=m.note;body.appendChild(note);
-  }
+  var noteHtml=m.note?'<div style="font-size:13px;color:var(--txt);line-height:1.8;white-space:pre-wrap;background:var(--card2);padding:12px 14px;border-radius:14px;">'+m.note.replace(/</g,'&lt;')+'</div>':'';
 
   // 關聯餐廳
+  var restHtml='';
   if(m.linkedRests&&m.linkedRests.length){
-    var restDiv=document.createElement('div');
-    restDiv.style.cssText='background:var(--card2);border-radius:10px;padding:10px;';
-    var restTitle=document.createElement('div');
-    restTitle.style.cssText='font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;';
-    restTitle.textContent='關聯餐廳';
-    restDiv.appendChild(restTitle);
-    m.linkedRests.forEach(function(rid){
+    var restItems=m.linkedRests.map(function(rid){
       var r=RESTS.find(function(x){return x.id===rid;});
-      if(r){var d=document.createElement('div');d.style.cssText='font-size:12px;color:var(--txt);padding:3px 0;';d.textContent='🍽 '+r.name+(r.city?' · '+r.city:'');restDiv.appendChild(d);}
-    });
-    if(restDiv.children.length>1) body.appendChild(restDiv);
-  } else if(RESTS.length===0){
-    var noRest=document.createElement('div');
-    noRest.style.cssText='font-size:11px;color:var(--sub);text-align:center;padding:6px;';
-    noRest.textContent='尚未建立餐廳記錄';
-    body.appendChild(noRest);
+      if(!r)return '';
+      return '<div style="font-size:12px;color:var(--txt);padding:5px 0;display:flex;align-items:center;gap:6px;">'
+        +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M3 2h2l2.5 9H18l2-7H6" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="20" r="1.5" fill="var(--accent)"/><circle cx="17" cy="20" r="1.5" fill="var(--accent)"/></svg>'
+        +r.name+(r.city?' · '+r.city:'')+'</div>';
+    }).filter(Boolean).join('');
+    if(restItems) restHtml='<div style="background:var(--card2);border-radius:14px;padding:12px 14px;">'
+      +'<div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;">關聯餐廳</div>'+restItems+'</div>';
   }
 
   // 關聯清單/挑戰
+  var linkedHtml='';
   if(m.linkedItems&&m.linkedItems.length){
-    var listDiv=document.createElement('div');
-    listDiv.style.cssText='background:var(--card2);border-radius:10px;padding:10px;';
-    var listTitle=document.createElement('div');
-    listTitle.style.cssText='font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;';
-    listTitle.textContent='關聯清單／挑戰';
-    listDiv.appendChild(listTitle);
-    m.linkedItems.forEach(function(item){
-      var el=document.createElement('div');el.style.cssText='font-size:12px;color:var(--txt);padding:3px 0;';
-      if(item.startsWith('list:')){var li=LIST.find(function(x){return x.id===item.slice(5);});if(li){el.textContent='✅ '+li.n;listDiv.appendChild(el);}}
-      else if(item.startsWith('chal:')){var ch=CHALS.find(function(x){return x.id===item.slice(5);});if(ch){el.textContent='⭐ '+ch.name;listDiv.appendChild(el);}}
-    });
-    if(listDiv.children.length>1) body.appendChild(listDiv);
+    var linkedItems=m.linkedItems.map(function(item){
+      if(item.startsWith('list:')){
+        var li=LIST.find(function(x){return x.id===item.slice(5);});
+        if(!li)return '';
+        return '<div style="font-size:12px;color:var(--txt);padding:5px 0;display:flex;align-items:center;gap:6px;">'
+          +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="20,6 9,17 4,12" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'+li.n+'</div>';
+      } else if(item.startsWith('chal:')){
+        var ch=CHALS.find(function(x){return x.id===item.slice(5);});
+        if(!ch)return '';
+        return '<div style="font-size:12px;color:var(--txt);padding:5px 0;display:flex;align-items:center;gap:6px;">'
+          +'<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2" stroke="var(--accent)" stroke-width="1.5"/></svg>'+ch.name+'</div>';
+      }
+      return '';
+    }).filter(Boolean).join('');
+    if(linkedItems) linkedHtml='<div style="background:var(--card2);border-radius:14px;padding:12px 14px;">'
+      +'<div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:6px;">關聯清單／挑戰</div>'+linkedItems+'</div>';
   }
 
-  // 按鈕列：編輯、新增照片、刪除
-  var btns=document.createElement('div');btns.style.cssText='display:flex;gap:8px;flex-wrap:wrap;';
-  var editBtn=document.createElement('button');editBtn.className='btn2 bpri';
-  editBtn.style.cssText='flex:1;font-size:12px;';editBtn.textContent='✏️ 編輯';
-  editBtn.onclick=function(){closeMo('memDetailMo');setTimeout(function(){openEditMemMo(m.id);},250);};
-  var addPhotoBtn=document.createElement('button');addPhotoBtn.className='btn2 bsec';
-  addPhotoBtn.style.cssText='flex:1;font-size:12px;';addPhotoBtn.textContent='新增照片';
-  addPhotoBtn.onclick=function(){addMemPhoto(m.id);};
-  var delBtn=document.createElement('button');
-  delBtn.style.cssText="all:unset;flex:1;text-align:center;font-size:12px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;";
-  delBtn.textContent='刪除回憶';delBtn.onclick=function(){closeMo('memDetailMo');setTimeout(function(){deleteMemConfirm(m.id);},300);};
-  btns.appendChild(editBtn);btns.appendChild(addPhotoBtn);btns.appendChild(delBtn);body.appendChild(btns);
+  // 按鈕
+  var btnsHtml='<div style="display:flex;gap:8px;padding-bottom:8px;">'
+    +'<button class="btn2 bpri" onclick="goBack();setTimeout(function(){openEditMemMo(\''+m.id+'\');},250);" style="flex:2;font-size:13px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>編輯</button>'
+    +'<button class="btn2 bsec" onclick="addMemPhoto(\''+m.id+'\')" style="flex:2;font-size:13px;">新增照片</button>'
+    +'<button onclick="goBack();setTimeout(function(){deleteMemConfirm(\''+m.id+'\');},300);" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:\'Noto Sans TC\',sans-serif;">刪除</button>'
+    +'</div>';
 
-  mbox.appendChild(body);
-  modal.innerHTML='';modal.appendChild(mbox);
-  openMo('memDetailMo');
+  body.innerHTML=metaHtml+photosHtml+noteHtml+restHtml+linkedHtml+btnsHtml;
+  goPageX('memdetail');
 }
 async function addMemPhoto(memId){
   var input=document.createElement('input');
@@ -4918,7 +4905,7 @@ async function execDeleteMem(){
   var {doc,deleteDoc} = window._fsOps;
   await deleteDoc(doc(window._db,'couples',window._coupleId,'memories',_deleteMemId));
   closeMo('deleteMemMo');
-  closeMo('memDetailMo');
+  if(typeof goBack==='function') goBack();
   _deleteMemId = null;
   showToast('回憶已刪除');
   var myNmDM=(window.userData&&window.userData.name)||'我';
