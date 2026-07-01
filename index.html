@@ -366,26 +366,12 @@ input[type=file]{display:none;}
   // ── users doc 監聽（核心狀態機）──
   function _startUserDocListener(user) {
     const userRef = doc(db, 'users', user.uid);
-    window._userDocUnsub = onSnapshot(userRef, { includeMetadataChanges: true }, async (snap) => {
-      // 如果資料來自快取且伺服器尚未確認，等真實資料再處理（避免過期快取誤判）
-      const isFromCache = snap.metadata.fromCache;
-      const hasPendingWrites = snap.metadata.hasPendingWrites;
-
-      if (!snap.exists()) {
-        if (!isFromCache) {
-          // 真實伺服器確認 doc 不存在：顯示配對視窗
-          var lo = document.getElementById('loadingOverlay');
-          if (lo) lo.style.display = 'none';
-          const pm = document.getElementById('pairingMo');
-          if (pm && !pm.classList.contains('open')) pm.classList.add('open');
-        }
-        return;
-      }
-
+    window._userDocUnsub = onSnapshot(userRef, async (snap) => {
+      if (!snap.exists()) return;
       const data = snap.data();
       window.userData = data;
 
-      // 更新頭像/名稱（快取/伺服器都更新，視覺無害）
+      // 更新頭像/名稱
       const avnMe = document.getElementById('avn-me');
       if (avnMe) avnMe.textContent = data.name || '我';
       const myAvc = document.getElementById('avc-me');
@@ -398,45 +384,29 @@ input[type=file]{display:none;}
       if (avtMe) avtMe.textContent = data.lastSeen ? window._fmtLastSeen(data.lastSeen) : '剛剛';
 
       if (data.partnerId) {
-        // 已配對
+        // 已配對 - 如果還沒初始化就初始化
         if (!window._msgUnsubscribe) {
           await window._initAllCoupleFeatures(user.uid, data.partnerId);
-          // 初始化完成後才隱藏 loading 並顯示首頁
-          var lo2 = document.getElementById('loadingOverlay');
-          if (lo2) lo2.style.display = 'none';
-          if (typeof goPage === 'function') goPage('home');
-          const pm2 = document.getElementById('pairingMo');
-          if (pm2 && pm2.classList.contains('open')) {
+          const pm = document.getElementById('pairingMo');
+          if (pm && pm.classList.contains('open')) {
             window.showToast('配對成功！歡迎使用嗶啵 💚');
-            pm2.classList.remove('open');
+            pm.classList.remove('open');
           }
-        } else {
-          // 已初始化，隱藏 loading（通常已隱藏）
-          var lo3 = document.getElementById('loadingOverlay');
-          if (lo3 && lo3.style.display !== 'none') lo3.style.display = 'none';
         }
-      } else if (!isFromCache) {
-        // 伺服器確認沒有 partnerId（不是快取）→ 才顯示配對視窗
-        if (!window._initializing && !window._msgUnsubscribe) {
-          var lo4 = document.getElementById('loadingOverlay');
-          if (lo4) lo4.style.display = 'none';
-          window._coupleId = null;
-          const pm3 = document.getElementById('pairingMo');
-          if (pm3 && !pm3.classList.contains('open')) pm3.classList.add('open');
-        }
+      } else if (!window._initializing && !window._msgUnsubscribe) {
+        // 確認未配對（且沒有在初始化進行中）才顯示配對視窗
+        window._coupleId = null;
+        const pm = document.getElementById('pairingMo');
+        if (pm && !pm.classList.contains('open')) pm.classList.add('open');
       }
-      // 如果 isFromCache && !partnerId：保持 loading overlay，等伺服器真實資料
     }, (err) => {
       console.error('[userDoc] 監聽錯誤', err.code, err.message);
-      var lo = document.getElementById('loadingOverlay');
-      if (lo) lo.style.display = 'none';
     });
   }
 
 onAuthStateChanged(auth, async (user) => {
     const loading = document.getElementById('loadingOverlay');
-    // 不要馬上隱藏 loading overlay，等 user doc 第一次回來才隱藏
-    // 這樣可以避免「配對視窗閃一下」的問題
+    if (loading) loading.style.display = 'none';
 
     if (user) {
       window.currentUser = user;
@@ -483,9 +453,7 @@ onAuthStateChanged(auth, async (user) => {
       if (typeof buildNavs === 'function') window.buildNavs();
 
     } else {
-      // 未登入：隱藏 loading overlay，顯示登入畫面
-      var lo2 = document.getElementById('loadingOverlay');
-      if (lo2) lo2.style.display = 'none';
+      // 未登入
       window.currentUser = null;
       window.userData = null;
       window._coupleId = null;
@@ -1006,7 +974,7 @@ window.reauthenticateForPinReset = async function() {
 <body>
 
 <!-- Loading overlay -->
-<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:999;">
+<div id="loadingOverlay" style="position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;z-index:999;">
   <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
     <div style="width:36px;height:36px;border:3px solid var(--bdr);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
     <div style="font-size:13px;color:var(--sub);">載入中...</div>
@@ -1062,7 +1030,7 @@ window.reauthenticateForPinReset = async function() {
 </div>
 
 <!-- HOME -->
-<div class="page" id="page-home">
+<div class="page active" id="page-home">
   <div class="sc" style="padding-top:14px;padding-bottom:80px;">
     <div class="hdr">
       <div class="avb" onclick="openPhoto('partner')">
