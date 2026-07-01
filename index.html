@@ -360,10 +360,8 @@ input[type=file]{display:none;}
     }
   }
 
-  // ── 登入狀態監聽（只負責身份確認）──
-
-  
-  // ── users doc 監聽（核心狀態機）──
+  // ── users doc 監聽（只負責後續 profile 更新 + 新配對偵測）──
+  // 初始配對狀態由 onAuthStateChanged 裡的 getDoc 決定，不靠 onSnapshot
   function _startUserDocListener(user) {
     const userRef = doc(db, 'users', user.uid);
     window._userDocUnsub = onSnapshot(userRef, async (snap) => {
@@ -371,7 +369,7 @@ input[type=file]{display:none;}
       const data = snap.data();
       window.userData = data;
 
-      // 更新頭像/名稱
+      // 更新 UI（頭像/名稱/管理員/上次上線）
       const avnMe = document.getElementById('avn-me');
       if (avnMe) avnMe.textContent = data.name || '我';
       const myAvc = document.getElementById('avc-me');
@@ -383,22 +381,16 @@ input[type=file]{display:none;}
       var avtMe = document.getElementById('avt-me');
       if (avtMe) avtMe.textContent = data.lastSeen ? window._fmtLastSeen(data.lastSeen) : '剛剛';
 
-      if (data.partnerId) {
-        // 已配對 - 如果還沒初始化就初始化
-        if (!window._msgUnsubscribe) {
-          await window._initAllCoupleFeatures(user.uid, data.partnerId);
-          const pm = document.getElementById('pairingMo');
-          if (pm && pm.classList.contains('open')) {
-            window.showToast('配對成功！歡迎使用嗶啵 💚');
-            pm.classList.remove('open');
-          }
-        }
-      } else if (!window._initializing && !window._msgUnsubscribe) {
-        // 確認未配對（且沒有在初始化進行中）才顯示配對視窗
-        window._coupleId = null;
+      // 偵測新配對（partnerId 從無到有，且尚未初始化）
+      if (data.partnerId && !window._msgUnsubscribe && !window._initializing) {
+        await window._initAllCoupleFeatures(user.uid, data.partnerId);
         const pm = document.getElementById('pairingMo');
-        if (pm && !pm.classList.contains('open')) pm.classList.add('open');
+        if (pm && pm.classList.contains('open')) {
+          window.showToast('配對成功！歡迎使用嗶啵 💚');
+          pm.classList.remove('open');
+        }
       }
+      // 不在這裡開 pairingMo，初始狀態由 onAuthStateChanged 的 getDoc 已決定
     }, (err) => {
       console.error('[userDoc] 監聽錯誤', err.code, err.message);
     });
@@ -411,7 +403,7 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
       window.currentUser = user;
       window._db = db;
-      // 頁面載入時重置所有狀態
+      // 重置所有狀態
       window._coupleId = null;
       window._initializing = false;
       if (window._msgUnsubscribe && typeof window._msgUnsubscribe === 'function') {
@@ -427,7 +419,7 @@ onAuthStateChanged(auth, async (user) => {
       var ls = document.getElementById('loginScreen');
       if (ls) ls.style.display = 'none';
 
-      // 建立或讀取 users doc
+      // 讀取 users doc（一次性，作為初始狀態依據）
       const userRef = doc(db, 'users', user.uid);
       let userSnap = await getDoc(userRef);
       if (!userSnap.exists()) {
@@ -440,17 +432,36 @@ onAuthStateChanged(auth, async (user) => {
           isAdmin: false,
           partnerId: null
         });
+        userSnap = await getDoc(userRef);
       }
 
-      // 啟動 users doc 監聽（單一狀態來源，處理所有後續判斷）
-      // loading overlay 在 initAllCoupleFeatures 完成後才隱藏，保證不會閃出配對視窗
+      const initialData = userSnap.data();
+      window.userData = initialData;
+
+      // 根據 getDoc 結果決定初始狀態（可靠，不受 onSnapshot 快取影響）
+      if (initialData.partnerId) {
+        // 已配對 → 直接初始化，pairingMo 從未被開啟
+        await window._initAllCoupleFeatures(user.uid, initialData.partnerId);
+      } else {
+        // 未配對 → 顯示配對視窗
+        const pm = document.getElementById('pairingMo');
+        if (pm) pm.classList.add('open');
+      }
+
+      // 啟動 live listener（負責後續 profile 更新 + 新配對偵測）
       _startUserDocListener(user);
 
-      // 記錄本次上線時間（讓對方看到「最後上線」）
+      // 記錄本次上線時間
       setDoc(doc(db, 'users', user.uid), { lastSeen: new Date() }, { merge: true }).catch(function(){});
 
-      // buildNavs 讓底部 nav 顯示
+      // 更新初始 UI（名稱/頭像）
       if (typeof buildNavs === 'function') window.buildNavs();
+      const avnMe = document.getElementById('avn-me');
+      if (avnMe) avnMe.textContent = initialData.name || '我';
+      const myAvc = document.getElementById('avc-me');
+      if (myAvc && (initialData.photo || user.photoURL)) {
+        myAvc.innerHTML = '<img src="'+(initialData.photo||user.photoURL)+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+      }
 
     } else {
       // 未登入
