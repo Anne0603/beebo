@@ -221,7 +221,7 @@ input[type=file]{display:none;}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, reauthenticateWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB7ItJLps_FErzeQ-1s9WtS7XfercGt4i4",
@@ -659,7 +659,7 @@ window.startPairingCountdown = function(expiry, el) {
   window._db = db;
   window._auth = auth;
   // 暴露 Firestore 操作給非 module script 使用
-  window._fsOps = { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, doc, getDoc, setDoc, deleteDoc, getDocs };
+  window._fsOps = { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, doc, getDoc, setDoc, deleteDoc, getDocs, arrayUnion };
 
   // ── 留言系統 ──
   // Firestore 結構：couples/{coupleId}/messages/{msgId}
@@ -1688,10 +1688,10 @@ window.reauthenticateForPinReset = async function() {
 
 <div class="mo" id="clearNotifyMo"><div class="mbox"><div class="mh"><span class="mtit">清除通知</span><button class="mcl" onclick="closeMo('clearNotifyMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
-  <div style="font-size:13px;color:var(--sub);">選擇要清除的範圍</div>
-  <button onclick="clearNotify(7)" style="all:unset;padding:10px 14px;border-radius:12px;border:1px solid var(--bdr);font-size:13px;color:var(--txt);cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">清除 7 天前的通知</button>
-  <button onclick="clearNotify(30)" style="all:unset;padding:10px 14px;border-radius:12px;border:1px solid var(--bdr);font-size:13px;color:var(--txt);cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">清除 30 天前的通知</button>
-  <button onclick="clearNotify(0)" style="all:unset;padding:10px 14px;border-radius:12px;background:#fdecea;border:1px solid #f5c6cb;font-size:13px;color:#c62828;font-weight:600;cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">徹底清除全部</button>
+  <div style="font-size:12px;color:var(--sub);background:var(--card2);padding:8px 10px;border-radius:10px;">清除後通知在你的裝置上消失，但<b>不影響對方</b>。資料庫真正刪除請由管理員在「通知自動刪除」設定。</div>
+  <button onclick="clearNotify(7);closeMo('clearNotifyMo')" style="all:unset;padding:10px 14px;border-radius:12px;border:1px solid var(--bdr);font-size:13px;color:var(--txt);cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">隱藏 7 天前的通知</button>
+  <button onclick="clearNotify(30);closeMo('clearNotifyMo')" style="all:unset;padding:10px 14px;border-radius:12px;border:1px solid var(--bdr);font-size:13px;color:var(--txt);cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">隱藏 30 天前的通知</button>
+  <button onclick="clearNotify(0);closeMo('clearNotifyMo')" style="all:unset;padding:10px 14px;border-radius:12px;background:#fdecea;border:1px solid #f5c6cb;font-size:13px;color:#c62828;font-weight:600;cursor:pointer;text-align:center;font-family:'Noto Sans TC',sans-serif;">全部隱藏（只對我自己）</button>
 </div></div></div>
 
 <div class="mo" id="editQuoteMo"><div class="mbox">
@@ -2756,15 +2756,16 @@ function checkUpcomingReminders() {
 }
 
 // ── 通知系統 ──
-// ── 通知系統（Firestore 版，雙方共用）──
-var _notifCache = []; // 由 onSnapshot 維護
+// ── 通知系統（Firestore 版，各自清除）──
+// readBy: [] 陣列，存放已清除的 uid，各自加自己的 uid 不影響對方
+var _notifCache = [];
 
 function _initNotifications(db, coupleId) {
   var {collection, query, orderBy, limit, onSnapshot} = window._fsOps;
   var q = query(
     collection(db, 'couples', coupleId, 'notifications'),
     orderBy('time', 'desc'),
-    limit(50)
+    limit(100)
   );
   window._notifUnsub = onSnapshot(q, function(snap) {
     _notifCache = snap.docs.map(function(d) {
@@ -2778,23 +2779,34 @@ function _initNotifications(db, coupleId) {
 }
 window._initNotifications = _initNotifications;
 
+function _myNotifs() {
+  // 只顯示「自己還沒清除」的通知（uid 不在 readBy 裡）
+  var uid = window.currentUser && window.currentUser.uid;
+  return _notifCache.filter(function(n) {
+    var rb = n.readBy || [];
+    return !uid || !rb.includes(uid);
+  });
+}
+
 function addNotif(msg, type, skipDiscord) {
   try {
     if (window._coupleId && window._fsOps) {
-      var {collection, addDoc, serverTimestamp} = window._fsOps;
+      var {collection, addDoc} = window._fsOps;
       addDoc(collection(window._db, 'couples', window._coupleId, 'notifications'), {
         msg: msg,
         type: type || 'info',
         time: Date.now(),
-        read: false
-      }).catch(function(e) { console.warn('addNotif Firestore:', e.message); });
+        readBy: []  // 各自清除：各自把自己 uid 加進來
+      }).catch(function(e) { console.warn('addNotif:', e.message); });
     }
     if (!skipDiscord) sendDiscordNotif(msg, type);
   } catch(e) {}
 }
+
 function getUnreadNotifCount() {
-  return _notifCache.filter(function(n) { return n.read === false; }).length;
+  return _myNotifs().length;
 }
+
 function updateNotifBadge(){
   var count = getUnreadNotifCount();
   var navBtn = document.querySelector('[data-page="notify"]');
@@ -2811,25 +2823,22 @@ function updateNotifBadge(){
     } else if(dot){ dot.remove(); }
   }
 }
+
 function markAllNotifsRead() {
-  if (!window._coupleId || !window._fsOps || !_notifCache.length) return;
-  var {doc, updateDoc} = window._fsOps;
-  _notifCache.forEach(function(n) {
-    if (!n.read) {
-      updateDoc(doc(window._db, 'couples', window._coupleId, 'notifications', n.id), {read: true})
-        .catch(function(){});
-    }
-  });
+  // 開通知頁時不自動清除，讓使用者自己按清除
+  // 只需更新 badge（已在 renderNotifPage 後 updateNotifBadge）
 }
+
 function renderNotifPage(){
   var el = document.getElementById('notifBody');
   if (!el) return;
-  if (!_notifCache.length) {
+  var visible = _myNotifs();
+  if (!visible.length) {
     el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div>';
     return;
   }
   var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅'};
-  el.innerHTML = _notifCache.map(function(n) {
+  el.innerHTML = visible.map(function(n) {
     var d = new Date(n.time);
     var ts = (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
     return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--card);border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
@@ -2840,11 +2849,34 @@ function renderNotifPage(){
       +'</div></div>';
   }).join('');
 }
+
 function clearNotify(days) {
-  if (!window._coupleId || !window._fsOps) {
-    showToast('請先配對'); return;
-  }
-  var {collection, getDocs, deleteDoc, doc} = window._fsOps;
+  // 把「符合條件」的通知加入 readBy（只對自己生效，不刪除 Firestore）
+  var uid = window.currentUser && window.currentUser.uid;
+  if (!uid || !window._coupleId || !window._fsOps) { showToast('請先配對'); return; }
+  var {doc, updateDoc, arrayUnion} = window._fsOps;
+  var cutoff = days === 0 ? 0 : Date.now() - days * 86400000;
+  var toMark = _notifCache.filter(function(n) {
+    var rb = n.readBy || [];
+    if (rb.includes(uid)) return false; // 自己已清除
+    if (days === 0) return true;        // 全清
+    return n.time < cutoff;             // 超過天數的才清
+  });
+  if (!toMark.length) { showToast('沒有需要清除的通知'); return; }
+  Promise.all(toMark.map(function(n) {
+    return updateDoc(
+      doc(window._db, 'couples', window._coupleId, 'notifications', n.id),
+      { readBy: arrayUnion(uid) }
+    );
+  })).then(function() {
+    showToast('已清除 ' + toMark.length + ' 則通知（只對你自己生效）');
+  }).catch(function(e) { showToast('清除失敗：' + e.message); });
+}
+
+function adminDeleteOldNotifs(days) {
+  // 管理員才能真正刪除 Firestore 通知（供通知自動刪除功能使用）
+  if (!window._coupleId || !window._fsOps) return;
+  var {collection, getDocs, deleteDoc} = window._fsOps;
   var colRef = collection(window._db, 'couples', window._coupleId, 'notifications');
   var cutoff = days === 0 ? Infinity : Date.now() - days * 86400000;
   getDocs(colRef).then(function(snap) {
@@ -2852,8 +2884,9 @@ function clearNotify(days) {
       var t = d.data().time || 0;
       if (days === 0 || t < cutoff) deleteDoc(d.ref);
     });
-    showToast('通知已清除');
-  }).catch(function(e) { showToast('清除失敗：' + e.message); });
+    if (days > 0) showToast('已刪除 ' + days + ' 天前的通知資料');
+    else showToast('已從資料庫清除所有通知');
+  }).catch(function(e) { showToast('刪除失敗：' + e.message); });
 }
 
 
@@ -5231,16 +5264,18 @@ function toggleNotif(key, el){
 
 // ── 通知自動刪除 ──
 async function saveNotifyDel(){
-  var days = (document.getElementById('notifyDelDays') || {}).value || '30';
+  var days = parseInt((document.getElementById('notifyDelDays') || {}).value || '30');
   var sv = document.getElementById('notifyDelSv');
   if(window._coupleRef && window._fsOps){
     var {updateDoc} = window._fsOps;
-    try { await updateDoc(window._coupleRef, {notifyDelDays: Number(days)}); } catch(e){}
+    try { await updateDoc(window._coupleRef, {notifyDelDays: days}); } catch(e){}
   }
   localStorage.setItem('beebo_notifyDel', days);
-  if(sv) sv.textContent = (days === '0' ? '永久' : days + ' 天') + ' ›';
+  if(sv) sv.textContent = (days === 0 ? '永久' : days + ' 天') + ' ›';
   closeMo('notifyDelMo');
-  showToast('設定已儲存 ✓');
+  // 立即執行刪除超過天數的通知（真正從 Firestore 刪除）
+  if(days > 0) adminDeleteOldNotifs(days);
+  showToast('設定已儲存，舊通知已清除 ✓');
 };
 
 // ── 帳號綁定 ──
