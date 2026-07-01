@@ -3185,64 +3185,18 @@ function _updateStats() {
     if(statCities) statCities.textContent = places.size;
   })();
 
-  // 上傳照片（所有回憶錄的照片總數）
-  var photoEl = document.getElementById('stat-photos');
-  if(photoEl){
-    var totalPhotos = (MEMS||[]).reduce(function(sum,m){ return sum + (m.photos ? m.photos.length : 0); }, 0);
-    photoEl.textContent = totalPhotos;
-  }
-
-  // 今年約會天數（餐廳記錄 + 回憶錄區間展開的不重複日期數）
-  var datesEl = document.getElementById('stat-dates');
-  if(datesEl){
-    var thisYear = new Date().getFullYear();
-    var dateDays = new Set();
-    // 餐廳記錄：單天
-    (RESTS||[]).forEach(function(r){
-      if(r.date && r.date.startsWith(String(thisYear))) dateDays.add(r.date.slice(0,10));
-    });
-    // 回憶錄：展開起訖日期區間內的每一天
-    (MEMS||[]).forEach(function(m){
-      if(!m.dateStart) return;
-      var start = new Date(m.dateStart);
-      var end = m.dateEnd ? new Date(m.dateEnd) : start;
-      for(var d = new Date(start); d <= end; d.setDate(d.getDate()+1)){
-        if(d.getFullYear() === thisYear){
-          dateDays.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));
-        }
-      }
-    });
-    datesEl.textContent = dateDays.size;
-  }
-
-  // 連續留言天（計算最近連續有留言的天數）
-  var streakEl = document.getElementById('stat-streak');
-  if(streakEl && window._messages && window._messages.length){
-    var daySet = new Set();
-    window._messages.forEach(function(msg){
-      var t = msg.createdAt && msg.createdAt.seconds ? msg.createdAt.seconds*1000 : (msg.createdAt instanceof Date ? msg.createdAt.getTime() : 0);
-      if(t){ var d = new Date(t); daySet.add(d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()); }
-    });
-    var streak = 0;
-    var checkDate = new Date(); checkDate.setHours(0,0,0,0);
-    while(true){
-      var key = checkDate.getFullYear()+'-'+(checkDate.getMonth()+1)+'-'+checkDate.getDate();
-      if(daySet.has(key)){ streak++; checkDate.setDate(checkDate.getDate()-1); }
-      else break;
-    }
-    streakEl.textContent = streak;
-  }
   var yearSel = document.getElementById('reviewYearSel');
   if(yearSel) {
     var years = new Set();
-    (EVENTS||[]).forEach(function(e){ if(e.dateStart) years.add(new Date(e.dateStart).getFullYear()); });
-    (RESTS||[]).forEach(function(r){ if(r.createdAt && r.createdAt.seconds) years.add(new Date(r.createdAt.seconds*1000).getFullYear()); });
-    (MEMS||[]).forEach(function(m){ if(m.year) years.add(m.year); });
+    (RESTS||[]).forEach(function(r){ if(r.date) years.add(parseInt(r.date.slice(0,4))); });
+    (MEMS||[]).forEach(function(m){ if(m.dateStart) years.add(parseInt(m.dateStart.slice(0,4))); if(m.year) years.add(m.year); });
     var cur = yearSel.value;
-    var sortedYears = Array.from(years).sort(function(a,b){return b-a;});
+    var sortedYears = Array.from(years).filter(Boolean).sort(function(a,b){return b-a;});
     yearSel.innerHTML = '<option value="全部">全部時間</option>' +
       sortedYears.map(function(y){return '<option value="'+y+'"'+(String(y)===String(cur)?' selected':'')+'>'+y+' 年</option>';}).join('');
   }
+  // 依選取年份更新所有回顧統計
+  _updateReviewStats((yearSel && yearSel.value) || '全部');
 };
 
 function openVisitedCitiesMo(){
@@ -4496,7 +4450,142 @@ function setRC(city){
   if(typeof renderRests==='function')renderRests();
 }
 function filterForeignCity(country){}
-function setRY(yr){showToast(yr==='全部'?'顯示全部':yr+'年資料');}
+function setRY(yr){
+  _updateReviewStats(yr);
+}
+function _updateReviewStats(yr){
+  var filterYear = (yr && yr !== '全部') ? parseInt(yr) : null;
+
+  // 約會天數（依年份）
+  var datesEl = document.getElementById('stat-dates');
+  if(datesEl){
+    var dateDays = new Set();
+    (RESTS||[]).forEach(function(r){
+      if(!r.date) return;
+      var y = parseInt(r.date.slice(0,4));
+      if(!filterYear || y === filterYear) dateDays.add(r.date.slice(0,10));
+    });
+    (MEMS||[]).forEach(function(m){
+      if(!m.dateStart) return;
+      var start = new Date(m.dateStart);
+      var end = m.dateEnd ? new Date(m.dateEnd) : start;
+      for(var d = new Date(start); d <= end; d.setDate(d.getDate()+1)){
+        if(!filterYear || d.getFullYear() === filterYear){
+          dateDays.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));
+        }
+      }
+    });
+    datesEl.textContent = dateDays.size;
+  }
+
+  // 上傳照片（依年份，用回憶錄 dateStart 年份篩選）
+  var photoEl = document.getElementById('stat-photos');
+  if(photoEl){
+    var totalPhotos = (MEMS||[]).filter(function(m){
+      if(!filterYear) return true;
+      return m.dateStart && parseInt(m.dateStart.slice(0,4)) === filterYear;
+    }).reduce(function(sum,m){ return sum + (m.photos ? m.photos.length : 0); }, 0);
+    photoEl.textContent = totalPhotos;
+  }
+
+  // 記錄餐廳（依年份）
+  var restEl = document.getElementById('stat-rests');
+  if(restEl){
+    var restCount = (RESTS||[]).filter(function(r){
+      if(!filterYear) return true;
+      if(r.date) return parseInt(r.date.slice(0,4)) === filterYear;
+      if(r.createdAt && r.createdAt.seconds) return new Date(r.createdAt.seconds*1000).getFullYear() === filterYear;
+      return false;
+    }).length;
+    restEl.textContent = restCount;
+  }
+
+  // 完成清單（依年份，用 doneAt）
+  var listEl = document.getElementById('stat-listdone');
+  if(listEl){
+    var listCount = (LIST||[]).filter(function(i){
+      if(!i.done) return false;
+      if(!filterYear) return true;
+      if(i.doneAt && i.doneAt.seconds) return new Date(i.doneAt.seconds*1000).getFullYear() === filterYear;
+      return !filterYear;
+    }).length;
+    listEl.textContent = listCount;
+  }
+
+  // 完成挑戰（依年份，用 doneAt）
+  var chalEl = document.getElementById('stat-chaldone');
+  if(chalEl){
+    var chalCount = (CHALS||[]).filter(function(c){
+      if(c.status !== 'done') return false;
+      if(!filterYear) return true;
+      if(c.doneAt && c.doneAt.seconds) return new Date(c.doneAt.seconds*1000).getFullYear() === filterYear;
+      return !filterYear;
+    }).length;
+    chalEl.textContent = chalCount;
+  }
+
+  // 去過縣市（依年份）
+  var places = new Set();
+  (RESTS||[]).forEach(function(r){
+    if(filterYear && r.date && parseInt(r.date.slice(0,4)) !== filterYear) return;
+    var key = (r.city && r.city !== '國外') ? r.city : (r.country && r.foreignCity ? r.country+'・'+r.foreignCity : r.country||'');
+    if(key) places.add(key);
+  });
+  (MEMS||[]).forEach(function(m){
+    if(filterYear && m.dateStart && parseInt(m.dateStart.slice(0,4)) !== filterYear) return;
+    var key = (m.city && m.city !== '國外') ? m.city : (m.country && m.foreignCity ? m.country+'・'+m.foreignCity : m.country||m.location||'');
+    if(key) places.add(key);
+  });
+  var statCities = document.getElementById('stat-cities');
+  if(statCities) statCities.textContent = places.size;
+
+  // 連續留言天（不受年份篩選，永遠從今天往回算）
+  var streakEl = document.getElementById('stat-streak');
+  if(streakEl && window._messages && window._messages.length){
+    var daySet = new Set();
+    window._messages.forEach(function(msg){
+      var t = msg.createdAt && msg.createdAt.seconds ? msg.createdAt.seconds*1000 : (msg.createdAt instanceof Date ? msg.createdAt.getTime() : 0);
+      if(t){ var d = new Date(t); daySet.add(d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()); }
+    });
+    var streak = 0;
+    var checkDate = new Date(); checkDate.setHours(0,0,0,0);
+    while(true){
+      var key = checkDate.getFullYear()+'-'+(checkDate.getMonth()+1)+'-'+checkDate.getDate();
+      if(daySet.has(key)){ streak++; checkDate.setDate(checkDate.getDate()-1); }
+      else break;
+    }
+    streakEl.textContent = streak;
+  }
+
+  // 每月約會圖表
+  var chart = document.getElementById('reviewChart');
+  if(chart){
+    var months = Array(12).fill(0);
+    (RESTS||[]).forEach(function(r){
+      if(!r.date) return;
+      var y = parseInt(r.date.slice(0,4));
+      if(filterYear && y !== filterYear) return;
+      var mo = parseInt(r.date.slice(5,7)) - 1;
+      if(mo >= 0 && mo < 12) months[mo]++;
+    });
+    (MEMS||[]).forEach(function(m){
+      if(!m.dateStart) return;
+      var y = parseInt(m.dateStart.slice(0,4));
+      if(filterYear && y !== filterYear) return;
+      var mo = parseInt(m.dateStart.slice(5,7)) - 1;
+      if(mo >= 0 && mo < 12) months[mo]++;
+    });
+    var max = Math.max.apply(null, months) || 1;
+    var mNames = ['1','2','3','4','5','6','7','8','9','10','11','12'];
+    chart.innerHTML = months.map(function(cnt, i){
+      var h = Math.round((cnt/max)*52);
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;">'
+        +'<div style="font-size:9px;color:var(--sub);">'+(cnt||'')+'</div>'
+        +'<div style="width:100%;height:'+h+'px;background:var(--accent);border-radius:3px 3px 0 0;min-height:'+(cnt?3:0)+'px;"></div>'
+        +'<div style="font-size:9px;color:var(--sub);">'+mNames[i]+'</div></div>';
+    }).join('');
+  }
+}
 
 
 function filterLinkRests(q){var items=document.querySelectorAll('#linkRestList label');items.forEach(function(el){el.style.display=el.textContent.toLowerCase().includes(q.toLowerCase())?'flex':'none';});}
