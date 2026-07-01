@@ -1279,7 +1279,7 @@ window.reauthenticateForPinReset = async function() {
   </div>
   <div class="sc">
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button onclick="calPrevMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">‹</button><div style="font-size:16px;font-weight:700;color:var(--txt);" id="calMonthTitle">約會計畫</div><button onclick="calNextMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">›</button></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button onclick="calPrevMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">‹</button><div style="font-size:16px;font-weight:700;color:var(--txt);cursor:pointer;display:flex;align-items:center;gap:4px;" id="calMonthTitle" onclick="openCalYearPicker()" title="點擊選擇年月">約會計畫 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg></div><button onclick="calNextMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">›</button></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
         <div class="cdow">日</div><div class="cdow">一</div><div class="cdow">二</div><div class="cdow">三</div><div class="cdow">四</div><div class="cdow">五</div><div class="cdow">六</div>
       </div>
@@ -1375,7 +1375,7 @@ window.reauthenticateForPinReset = async function() {
 <div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label>
 <select class="fi" id="evPlace" style="padding:8px 10px;">
   <option value="">選擇地點...</option>
-</select></div><div class="fg"><label class="fl">重複（選填）</label><select class="fi" style="padding:8px 10px;"><option value="">不重複</option><option>每天</option><option>每週</option><option>每月</option><option>每年</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
+</select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="evNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
 <div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div><div style="font-size:11px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="editEvTime1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" id="editEvTime2" style="flex:1;"></div></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="editEvPlace" style="padding:8px 10px;"><option value="">選擇地點...</option></select></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="confirmAction('確定刪除這個行程？',function(){deleteEvent();closeMo('editEventMo');})" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
 <div class="mo" id="dayEventsModal"><div class="mbox">
   <div class="mh"><span class="mtit" id="dayEventsTitle">當天行程</span><button class="mcl" onclick="closeMo('dayEventsModal')">×</button></div>
@@ -3028,10 +3028,25 @@ async function toggleItem(id){
       var it=LIST.find(function(i){return i.id===pendingId;});
       if(!it)return;
       var star=currentStar||0;
+      var noteEl=document.querySelector('#completeListMo textarea');
+      var note=noteEl?noteEl.value.trim():'';
+      var repeatCb=document.querySelector('#completeListMo input[type=checkbox]');
+      var wantRepeat=repeatCb&&repeatCb.checked;
+      var {collection,addDoc,serverTimestamp}=window._fsOps;
       var docRef=doc(window._db,'couples',window._coupleId,'list',pendingId);
-      await updateDoc(docRef,{done:true,star:star,doneAt:window._fsOps.serverTimestamp()});
+      await updateDoc(docRef,{done:true,star:star,note:note,doneAt:window._fsOps.serverTimestamp()});
+      // 想再做一次：新增同名未完成項目
+      if(wantRepeat){
+        await addDoc(collection(window._db,'couples',window._coupleId,'list'),{
+          n:it.n, c:it.c||'', done:false, by:(window.userData&&window.userData.name)||'我',
+          at:new Date().toLocaleDateString('zh-TW'), createdAt:serverTimestamp()
+        });
+        showToast('已完成，並新增一筆未完成 ✓');
+      }
       closeMo('completeListMo');spawnHearts();currentStar=0;
-      document.querySelectorAll('#compStars .strbtn').forEach(function(b){b.classList.remove('on');});
+      document.querySelectorAll('#compStars .strbtn').forEach(function(b){b.classList.remove('on');b.querySelector('path').setAttribute('fill','none');b.querySelector('path').setAttribute('stroke','#4A7A58');});
+      if(noteEl) noteEl.value='';
+      if(repeatCb) repeatCb.checked=false;
     };
     openMo('completeListMo');
   } else {
@@ -4537,7 +4552,7 @@ function renderCalendar() {
   var label = document.getElementById('calMonthTitle');
   if(grid && label) {
     var y = calYear, mo = calMonth;
-    label.textContent = y + '年' + (mo+1) + '月';
+    label.innerHTML = y + '年' + (mo+1) + '月 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg>';
     var first = new Date(y, mo, 1);
     var startDay = first.getDay(); // 0=日
     var daysInMonth = new Date(y, mo+1, 0).getDate();
@@ -4583,14 +4598,27 @@ function renderCalendar() {
     for(var d=1; d<=daysInMonth; d++){
       var isToday = (y===today.getFullYear() && mo===today.getMonth() && d===today.getDate());
       var hasEvent = eventDates[d] > 0;
+      var evCount = eventDates[d] || 0;
       var dateStr = y+'-'+String(mo+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
       var bg = isToday ? 'var(--accent)' : 'transparent';
       var color = isToday ? '#fff' : 'var(--txt)';
-      var dateAttr = dateStr;
-      html += '<div data-date="'+dateAttr+'" onclick="calDayClick(this.dataset.date)" style="text-align:center;padding:5px 0;cursor:pointer;border-radius:50%;background:'+bg+';color:'+color+';font-size:13px;position:relative;">'
-        + d
-        + (hasEvent ? '<div style="width:5px;height:5px;border-radius:50%;background:'+(isToday?'#fff':'var(--accent)')+';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);"></div>' : '')
-        + '</div>';
+      var dotHtml = '';
+      if(evCount === 1){
+        dotHtml = '<div style="width:5px;height:5px;border-radius:50%;background:'+(isToday?'#fff':'var(--accent)')+';position:absolute;bottom:1px;left:50%;transform:translateX(-50%);"></div>';
+      } else if(evCount === 2){
+        dotHtml = '<div style="display:flex;gap:2px;position:absolute;bottom:1px;left:50%;transform:translateX(-50%);">'
+          +'<div style="width:4px;height:4px;border-radius:50%;background:'+(isToday?'#fff':'var(--accent)')+'"></div>'
+          +'<div style="width:4px;height:4px;border-radius:50%;background:'+(isToday?'rgba(255,255,255,.6)':'var(--sub)')+'"></div>'
+          +'</div>';
+      } else if(evCount >= 3){
+        dotHtml = '<div style="display:flex;gap:2px;position:absolute;bottom:1px;left:50%;transform:translateX(-50%);">'
+          +'<div style="width:4px;height:4px;border-radius:50%;background:'+(isToday?'#fff':'var(--accent)')+'"></div>'
+          +'<div style="width:4px;height:4px;border-radius:50%;background:'+(isToday?'rgba(255,255,255,.7)':'var(--sub)')+'"></div>'
+          +'<div style="width:4px;height:4px;border-radius:50%;background:'+(isToday?'rgba(255,255,255,.4)':'#c0a080')+'"></div>'
+          +'</div>';
+      }
+      html += '<div data-date="'+dateStr+'" onclick="calDayClick(this.dataset.date)" style="text-align:center;padding:5px 0;cursor:pointer;border-radius:50%;background:'+bg+';color:'+color+';font-size:13px;position:relative;">'
+        + d + dotHtml + '</div>';
     }
     grid.innerHTML = html;
   }
@@ -4648,10 +4676,16 @@ function renderCalendar() {
       var mo=d.getMonth()+1, dy=d.getDate();
       var wd=['日','一','二','三','四','五','六'][d.getDay()];
       var isSystem = e.system;
+      // 起訖日期顯示
+      var dateLabel = mo+'月'+dy+'日（週'+wd+'）';
+      if(e.dateEnd && e.dateEnd !== e.dateStart){
+        var de=new Date(e.dateEnd);
+        dateLabel += ' ～ '+(de.getMonth()+1)+'月'+de.getDate()+'日';
+      }
       return '<div class="ev" '+(isSystem?'':' data-eid="'+e.id+'" onclick="openEventDetail(this.dataset.eid)"')+' style="cursor:'+(isSystem?'default':'pointer')+';">'
         + '<div class="evd" style="background:'+(isSystem?'#c0a080':'var(--accent)')+'"></div>'
         + '<div style="flex:1;"><div class="evn">'+e.name+'</div>'
-        + '<div class="evm">'+mo+'月'+dy+'日（週'+wd+'）'+(e.place?'・'+e.place:'')+(isSystem?'':('・'+diffTxt))+'</div></div></div>';
+        + '<div class="evm">'+dateLabel+(e.place?'・'+e.place:'')+(isSystem?'':('・'+diffTxt))+'</div></div></div>';
     }).join('');
   }
 
@@ -4683,6 +4717,34 @@ function calNextMonth() {
   calMonth++;
   if(calMonth > 11){ calMonth=0; calYear++; }
   renderCalendar();
+}
+function openCalYearPicker(){
+  var existing = document.getElementById('calYearPickerMo');
+  if(existing) existing.remove();
+  var mo = document.createElement('div');
+  mo.className = 'mo'; mo.id = 'calYearPickerMo';
+  var thisYear = new Date().getFullYear();
+  var years = [];
+  for(var y=thisYear-2; y<=thisYear+3; y++) years.push(y);
+  var months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  mo.innerHTML = '<div class="mbox" style="max-width:320px;">'
+    +'<div class="mh"><span class="mtit">選擇年月</span><button class="mcl" onclick="closeMo(\'calYearPickerMo\')">×</button></div>'
+    +'<div style="display:flex;flex-direction:column;gap:12px;">'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;">'
+    +years.map(function(y){
+      var active = y===calYear;
+      return '<button onclick="calYear='+y+';document.querySelectorAll(\'#calYearPickerMo .ybtn\').forEach(function(b){b.style.background=\'var(--card2)\';b.style.color=\'var(--txt)\';});this.style.background=\'var(--accent)\';this.style.color=\'#fff\';" class="ybtn btn2 bsec" style="flex:1;min-width:60px;padding:8px;'+(active?'background:var(--accent);color:#fff;':'')+'">'+y+'</button>';
+    }).join('')
+    +'</div>'
+    +'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;">'
+    +months.map(function(mn,i){
+      var active = i===calMonth;
+      return '<button onclick="calMonth='+i+';renderCalendar();closeMo(\'calYearPickerMo\');" class="btn2 bsec" style="padding:8px;font-size:13px;'+(active?'background:var(--accent);color:#fff;':'')+'">'+mn+'</button>';
+    }).join('')
+    +'</div>'
+    +'</div></div>';
+  document.body.appendChild(mo);
+  openMo('calYearPickerMo');
 }
 function calDayClick(dateStr) {
   var normDate = function(s){
