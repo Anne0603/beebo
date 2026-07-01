@@ -1510,7 +1510,10 @@ window.reauthenticateForPinReset = async function() {
     <input class="fi" id="cloudinaryPresetInput" placeholder="輸入 Upload Preset 名稱">
   </div>
   <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">Upload Preset 需在 Cloudinary → Settings → Upload → Upload presets 設為 <b>Unsigned</b></div>
-  <button onclick="saveCloudinarySettings()" class="btn2 bpri" style="width:100%;">儲存</button>
+  <div style="display:flex;gap:8px;">
+    <button onclick="clearCloudinarySettings()" class="btn2 bsec" style="flex:1;">清空設定</button>
+    <button onclick="saveCloudinarySettings()" class="btn2 bpri" style="flex:2;">儲存</button>
+  </div>
 </div></div><div class="mbox">
   <div class="mh"><span class="mtit">編輯餐廳記錄</span><button class="mcl" onclick="closeMo('editRestMo')">×</button></div>
   <div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="editRestName"></div>
@@ -2569,7 +2572,6 @@ async function saveCloudinarySettings(){
   if(!window._coupleId||!window._fsOps){ showToast('請先配對'); return; }
   var cloud = (document.getElementById('cloudinaryCloudInput')||{}).value||'';
   var preset = (document.getElementById('cloudinaryPresetInput')||{}).value||'';
-  if(!cloud.trim()||!preset.trim()){ showToast('請填寫 Cloud Name 和 Upload Preset'); return; }
   var {doc, setDoc} = window._fsOps;
   await setDoc(doc(window._db,'couples',window._coupleId), {
     cloudinaryCloud: cloud.trim(),
@@ -2580,7 +2582,24 @@ async function saveCloudinarySettings(){
     window._coupleData.cloudinaryPreset = preset.trim();
   }
   closeMo('cloudinarySettingsMo');
-  showToast('Cloudinary 設定已儲存 ✓（兩人即時生效）');
+  showToast(cloud.trim() ? 'Cloudinary 設定已儲存 ✓' : '已清空，將使用預設帳號');
+}
+async function clearCloudinarySettings(){
+  if(!window._coupleId||!window._fsOps){ showToast('請先配對'); return; }
+  var {doc, setDoc} = window._fsOps;
+  await setDoc(doc(window._db,'couples',window._coupleId), {
+    cloudinaryCloud: '',
+    cloudinaryPreset: ''
+  }, {merge:true});
+  if(window._coupleData){
+    window._coupleData.cloudinaryCloud = '';
+    window._coupleData.cloudinaryPreset = '';
+  }
+  var c = document.getElementById('cloudinaryCloudInput');
+  var p = document.getElementById('cloudinaryPresetInput');
+  if(c) c.value = '';
+  if(p) p.value = '';
+  showToast('設定已清空 ✓');
 }
 
 function openDiscordSettingsMo(){
