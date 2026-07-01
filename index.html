@@ -857,14 +857,17 @@ window.startPairingCountdown = function(expiry, el) {
     }
   };
 
-  // ── Cloudinary 頭像上傳 ──
+  // ── Cloudinary 上傳（cloud name 和 preset 可在設定頁自訂）──
   window._uploadToCloudinary = async function(file) {
+    var coupleData = window._coupleData || {};
+    var cloudName = coupleData.cloudinaryCloud || 'dehesnrjp';
+    var preset = coupleData.cloudinaryPreset || 'beebo_upload';
     var fd = new FormData();
     fd.append('file', file);
-    fd.append('upload_preset', 'beebo_upload');
-    var res = await fetch('https://api.cloudinary.com/v1_1/dehesnrjp/image/upload', {method:'POST',body:fd});
+    fd.append('upload_preset', preset);
+    var res = await fetch('https://api.cloudinary.com/v1_1/' + cloudName + '/image/upload', {method:'POST',body:fd});
     var data = await res.json();
-    if (!data.secure_url) throw new Error('upload failed');
+    if (!data.secure_url) throw new Error(data.error ? data.error.message : 'upload failed');
     return data.secure_url;
   };
 
@@ -1223,6 +1226,7 @@ window.reauthenticateForPinReset = async function() {
       </div>
     </div>
     <div class="sr" onclick="openDiscordSettingsMo()" style="margin-top:8px;"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.317 4.37a19.791 19.791 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03z" fill="#4A7A58"/></svg></div><div class="slb">Discord 通知設定</div></div><div class="sv">›</div></div>
+    <div class="sr" onclick="openCloudinarySettingsMo()" style="margin-top:4px;"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 16.5A4.5 4.5 0 018.5 12H18a3 3 0 010 6H8.5A4.5 4.5 0 014 16.5z" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/><path d="M12 12V7m0 0l-2 2m2-2l2 2" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">Cloudinary 照片設定<div style="font-size:10px;color:var(--sub);font-weight:400;margin-top:1px;">上傳照片用的雲端帳號</div></div></div><div class="sv">›</div></div>
 
     <!-- 安全 -->
     <div class="slbl">安全</div>
@@ -1496,7 +1500,18 @@ window.reauthenticateForPinReset = async function() {
   <button onclick="saveDiscordSettings()" class="btn2 bpri" style="width:100%;margin-top:8px;">儲存設定</button>
 </div></div>
 
-<div class="mo" id="editRestMo"><div class="mbox">
+<div class="mo" id="cloudinarySettingsMo"><div class="mbox">
+  <div class="mh"><span class="mtit">Cloudinary 照片設定</span><button class="mcl" onclick="closeMo('cloudinarySettingsMo')">×</button></div>
+  <div style="font-size:11px;color:var(--sub);margin-bottom:12px;line-height:1.6;">前往 <b>console.cloudinary.com</b> 取得 Cloud Name 和 Upload Preset，填入後兩人共用同一個帳號上傳照片。</div>
+  <div class="fg"><label class="fl">Cloud Name</label>
+    <input class="fi" id="cloudinaryCloudInput" placeholder="例如：dehesnrjp">
+  </div>
+  <div class="fg"><label class="fl">Upload Preset</label>
+    <input class="fi" id="cloudinaryPresetInput" placeholder="例如：beebo_upload">
+  </div>
+  <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">Upload Preset 需在 Cloudinary → Settings → Upload → Upload presets 設為 <b>Unsigned</b></div>
+  <button onclick="saveCloudinarySettings()" class="btn2 bpri" style="width:100%;">儲存</button>
+</div></div><div class="mbox">
   <div class="mh"><span class="mtit">編輯餐廳記錄</span><button class="mcl" onclick="closeMo('editRestMo')">×</button></div>
   <div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="editRestName"></div>
   <div class="fg"><label class="fl">評分（必填）</label>
@@ -2542,6 +2557,32 @@ window.testDiscord = async function() {
 };
 
 // ── Discord Webhook 設定管理 ──
+function openCloudinarySettingsMo(){
+  var cd = window._coupleData || {};
+  var cloudEl = document.getElementById('cloudinaryCloudInput');
+  var presetEl = document.getElementById('cloudinaryPresetInput');
+  if(cloudEl) cloudEl.value = cd.cloudinaryCloud || '';
+  if(presetEl) presetEl.value = cd.cloudinaryPreset || '';
+  openMo('cloudinarySettingsMo');
+}
+async function saveCloudinarySettings(){
+  if(!window._coupleId||!window._fsOps){ showToast('請先配對'); return; }
+  var cloud = (document.getElementById('cloudinaryCloudInput')||{}).value||'';
+  var preset = (document.getElementById('cloudinaryPresetInput')||{}).value||'';
+  if(!cloud.trim()||!preset.trim()){ showToast('請填寫 Cloud Name 和 Upload Preset'); return; }
+  var {doc, setDoc} = window._fsOps;
+  await setDoc(doc(window._db,'couples',window._coupleId), {
+    cloudinaryCloud: cloud.trim(),
+    cloudinaryPreset: preset.trim()
+  }, {merge:true});
+  if(window._coupleData){
+    window._coupleData.cloudinaryCloud = cloud.trim();
+    window._coupleData.cloudinaryPreset = preset.trim();
+  }
+  closeMo('cloudinarySettingsMo');
+  showToast('Cloudinary 設定已儲存 ✓（兩人即時生效）');
+}
+
 function openDiscordSettingsMo(){
   var current = getDiscordWebhook();
   var meEl = document.getElementById('discordWebhookMe');
