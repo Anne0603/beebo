@@ -3192,14 +3192,18 @@ function _updateStats() {
     photoEl.textContent = totalPhotos;
   }
 
-  // 今年約會（今年的行事曆活動數）
+  // 今年約會天數（餐廳記錄 + 回憶錄的不重複日期數，行事曆不算因為只是計畫）
   var datesEl = document.getElementById('stat-dates');
   if(datesEl){
     var thisYear = new Date().getFullYear();
-    var datesCount = (EVENTS||[]).filter(function(e){
-      return e.dateStart && new Date(e.dateStart).getFullYear() === thisYear;
-    }).length;
-    datesEl.textContent = datesCount;
+    var dateDays = new Set();
+    (RESTS||[]).forEach(function(r){
+      if(r.date && r.date.startsWith(String(thisYear))) dateDays.add(r.date.slice(0,10));
+    });
+    (MEMS||[]).forEach(function(m){
+      if(m.dateStart && m.dateStart.startsWith(String(thisYear))) dateDays.add(m.dateStart.slice(0,10));
+    });
+    datesEl.textContent = dateDays.size;
   }
 
   // 連續留言天（計算最近連續有留言的天數）
