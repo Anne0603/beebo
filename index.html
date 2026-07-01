@@ -308,6 +308,7 @@ input[type=file]{display:none;}
     if (typeof window._initQuotes === 'function') window._initQuotes(db, coupleId);
     if (typeof window._initMems === 'function') window._initMems(db, coupleId);
     if (typeof window._initEvents === 'function') window._initEvents(db, coupleId);
+    if (typeof window._initNotifications === 'function') window._initNotifications(db, coupleId);
     window._initMessages(db, coupleId, uid);
 
     window._initializing = false;
@@ -327,6 +328,7 @@ input[type=file]{display:none;}
         if(!window._coupleData) window._coupleData = {};
         window._coupleData.discordWebhook = data.discordWebhook || '';
         if(typeof window.DISCORD_WEBHOOK !== 'undefined') window.DISCORD_WEBHOOK = data.discordWebhook || '';
+        if(data.listCatNames && typeof _applyCatNames === 'function') _applyCatNames(data);
         if(!data.pinResetRequest) return;
         var req = data.pinResetRequest;
         var reqTimeKey = req.time && req.time.seconds ? req.time.seconds : null;
@@ -686,6 +688,7 @@ window.startPairingCountdown = function(expiry, el) {
     window._coupleRef = coupleRef;
     window._db = db;
     window._applyStartDate(window._coupleData.startDate || '');
+    if (typeof _applyCatNames === 'function') _applyCatNames(window._coupleData);
 
     // ── 自我修復：舊配對兩邊都沒有 isAdmin=true，把目前這個使用者設為管理員 ──
     try {
@@ -1224,6 +1227,7 @@ window.reauthenticateForPinReset = async function() {
 
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openCatRenameMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">清單分類改名</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" fill="#A87848"/></svg></div><div class="slb">管理挑戰分類</div></div></div>
 <div class="sr" onclick="openRestTypeMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">管理餐廳類型</div></div><div class="sv">›</div></div>
 <div class="sr" onclick="openLocationMgMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">管理常用地點</div></div><div class="sv" id="locationMgSv">›</div></div>
@@ -1278,8 +1282,8 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>行事曆
   </div>
-  <div class="sc">
-    <div class="card">
+  <div class="sc" id="calBody" style="padding-top:8px;">
+    <div class="card" style="flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button onclick="calPrevMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">‹</button><div style="font-size:16px;font-weight:700;color:var(--txt);cursor:pointer;display:flex;align-items:center;gap:4px;" id="calMonthTitle" onclick="openCalYearPicker()" title="點擊選擇年月">約會計畫 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg></div><button onclick="calNextMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">›</button></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
         <div class="cdow">日</div><div class="cdow">一</div><div class="cdow">二</div><div class="cdow">三</div><div class="cdow">四</div><div class="cdow">五</div><div class="cdow">六</div>
@@ -1287,7 +1291,6 @@ window.reauthenticateForPinReset = async function() {
       <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
     </div>
   </div>
-  <div class="sc" id="calBody" style="padding-top:4px;flex:1;overflow-y:auto;"></div>
   <button class="fab" onclick="openMo('addEventMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 </div>
 
@@ -1611,6 +1614,8 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="execDeleteMem()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
   </div>
 </div></div>
+<div class="mo" id="catRenameMo"><div class="mbox"><div class="mh"><span class="mtit">清單分類改名</span><button class="mcl" onclick="closeMo('catRenameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:11px;color:var(--sub);">修改後兩人都會看到新名稱。舊資料不受影響。</div><div class="fg"><label class="fl">分類 1（原：想去哪）</label><input class="fi" id="catRename1" placeholder="想去哪"></div><div class="fg"><label class="fl">分類 2（原：想吃什麼）</label><input class="fi" id="catRename2" placeholder="想吃什麼"></div><div class="fg"><label class="fl">分類 3（原：想做什麼）</label><input class="fi" id="catRename3" placeholder="想做什麼"></div><div class="fg"><label class="fl">分類 4（原：想看什麼）</label><input class="fi" id="catRename4" placeholder="想看什麼"></div><button class="btn2 bpri" onclick="saveCatNames()">儲存</button></div></div></div>
+
 <div class="mo" id="chalCatMo"><div class="mbox"><div class="mh"><span class="mtit">管理挑戰分類</span><button class="mcl" onclick="closeMo('chalCatMo')">×</button></div>
 <div id="chalCatList" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
 <div style="display:flex;gap:6px;margin-top:10px;">
@@ -2313,6 +2318,31 @@ function getChalCats() {
 }
 function saveChalCats(cats) { localStorage.setItem('beebo_chal_cats', JSON.stringify(cats)); }
 function openChalCatMo() { renderChalCatMg(); openMo('chalCatMo'); }
+function openCatRenameMo(){
+  var keys = _CAT_KEYS;
+  for(var i=0;i<keys.length;i++){
+    var el = document.getElementById('catRename'+(i+1));
+    if(el) el.value = getCatName(keys[i]);
+  }
+  openMo('catRenameMo');
+}
+async function saveCatNames(){
+  if(!window._coupleId||!window._fsOps){ showToast('請先配對'); return; }
+  var keys = _CAT_KEYS;
+  var names = {};
+  for(var i=0;i<keys.length;i++){
+    var el = document.getElementById('catRename'+(i+1));
+    var val = el ? el.value.trim() : '';
+    names[keys[i]] = val || keys[i];
+  }
+  var {doc, setDoc} = window._fsOps;
+  await setDoc(doc(window._db,'couples',window._coupleId), {listCatNames: names}, {merge:true});
+  if(window._coupleData) window._coupleData.listCatNames = names;
+  _catCustomNames = names;
+  _refreshCatUI();
+  closeMo('catRenameMo');
+  showToast('分類名稱已更新 ✓（兩人即時生效）');
+}
 function _isChalCatInUse(cat){
   return (CHALS||[]).some(function(ch){ return ch.cat === cat; });
 }
@@ -2726,22 +2756,44 @@ function checkUpcomingReminders() {
 }
 
 // ── 通知系統 ──
-function addNotif(msg,type,skipDiscord){
-  try{
-    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
-    notifs.unshift({msg:msg,type:type||'info',time:Date.now(),read:false});
-    if(notifs.length>50)notifs=notifs.slice(0,50);
-    localStorage.setItem('beebo_notifs',JSON.stringify(notifs));
+// ── 通知系統（Firestore 版，雙方共用）──
+var _notifCache = []; // 由 onSnapshot 維護
+
+function _initNotifications(db, coupleId) {
+  var {collection, query, orderBy, limit, onSnapshot} = window._fsOps;
+  var q = query(
+    collection(db, 'couples', coupleId, 'notifications'),
+    orderBy('time', 'desc'),
+    limit(50)
+  );
+  window._notifUnsub = onSnapshot(q, function(snap) {
+    _notifCache = snap.docs.map(function(d) {
+      return Object.assign({id: d.id}, d.data());
+    });
     renderNotifPage();
     updateNotifBadge();
-    if(!skipDiscord) sendDiscordNotif(msg,type);
-  }catch(e){}
+  }, function(err) {
+    console.warn('[notifications onSnapshot]', err.code);
+  });
 }
-function getUnreadNotifCount(){
-  try{
-    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
-    return notifs.filter(function(n){return n.read===false;}).length;
-  }catch(e){return 0;}
+window._initNotifications = _initNotifications;
+
+function addNotif(msg, type, skipDiscord) {
+  try {
+    if (window._coupleId && window._fsOps) {
+      var {collection, addDoc, serverTimestamp} = window._fsOps;
+      addDoc(collection(window._db, 'couples', window._coupleId, 'notifications'), {
+        msg: msg,
+        type: type || 'info',
+        time: Date.now(),
+        read: false
+      }).catch(function(e) { console.warn('addNotif Firestore:', e.message); });
+    }
+    if (!skipDiscord) sendDiscordNotif(msg, type);
+  } catch(e) {}
+}
+function getUnreadNotifCount() {
+  return _notifCache.filter(function(n) { return n.read === false; }).length;
 }
 function updateNotifBadge(){
   var count = getUnreadNotifCount();
@@ -2756,28 +2808,30 @@ function updateNotifBadge(){
         navBtn.style.position = 'relative';
         navBtn.appendChild(dot);
       }
-    } else if(dot){
-      dot.remove();
-    }
+    } else if(dot){ dot.remove(); }
   }
 }
-function markAllNotifsRead(){
-  try{
-    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
-    notifs.forEach(function(n){ n.read = true; });
-    localStorage.setItem('beebo_notifs',JSON.stringify(notifs));
-    updateNotifBadge();
-  }catch(e){}
+function markAllNotifsRead() {
+  if (!window._coupleId || !window._fsOps || !_notifCache.length) return;
+  var {doc, updateDoc} = window._fsOps;
+  _notifCache.forEach(function(n) {
+    if (!n.read) {
+      updateDoc(doc(window._db, 'couples', window._coupleId, 'notifications', n.id), {read: true})
+        .catch(function(){});
+    }
+  });
 }
 function renderNotifPage(){
-  var el=document.getElementById('notifBody');
-  if(!el)return;
-  var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
-  if(!notifs.length){el.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div>';return;}
-  var icons={info:'💬',chal:'⭐',list:'✅',mem:'📷',rest:'🍽️'};
-  el.innerHTML=notifs.map(function(n){
-    var d=new Date(n.time);
-    var ts=(d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+  var el = document.getElementById('notifBody');
+  if (!el) return;
+  if (!_notifCache.length) {
+    el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div>';
+    return;
+  }
+  var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅'};
+  el.innerHTML = _notifCache.map(function(n) {
+    var d = new Date(n.time);
+    var ts = (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
     return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--card);border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
       +'<div style="font-size:20px;flex-shrink:0;">'+(icons[n.type]||'🔔')+'</div>'
       +'<div style="flex:1;min-width:0;">'
@@ -2786,16 +2840,22 @@ function renderNotifPage(){
       +'</div></div>';
   }).join('');
 }
-function clearNotify(days){
-  if(days===0){localStorage.removeItem('beebo_notifs');}
-  else{
-    var cutoff=Date.now()-days*86400000;
-    var notifs=JSON.parse(localStorage.getItem('beebo_notifs')||'[]');
-    notifs=notifs.filter(function(n){return n.time>cutoff;});
-    localStorage.setItem('beebo_notifs',JSON.stringify(notifs));
+function clearNotify(days) {
+  if (!window._coupleId || !window._fsOps) {
+    showToast('請先配對'); return;
   }
-  renderNotifPage();showToast('通知已清除');
+  var {collection, getDocs, deleteDoc, doc} = window._fsOps;
+  var colRef = collection(window._db, 'couples', window._coupleId, 'notifications');
+  var cutoff = days === 0 ? Infinity : Date.now() - days * 86400000;
+  getDocs(colRef).then(function(snap) {
+    snap.docs.forEach(function(d) {
+      var t = d.data().time || 0;
+      if (days === 0 || t < cutoff) deleteDoc(d.ref);
+    });
+    showToast('通知已清除');
+  }).catch(function(e) { showToast('清除失敗：' + e.message); });
 }
+
 
 
 
@@ -3043,6 +3103,35 @@ function filterCities(q){
   });
 }
 
+
+// ── 清單分類名稱（可由管理員自訂，預設值同 key）──
+var _CAT_KEYS = ['想去哪','想吃什麼','想做什麼','想看什麼'];
+var _catCustomNames = {}; // 從 Firestore 讀取
+function getCatName(key) {
+  return (_catCustomNames && _catCustomNames[key]) || key;
+}
+function _applyCatNames(coupleData) {
+  if (coupleData && coupleData.listCatNames) {
+    _catCustomNames = coupleData.listCatNames;
+    _refreshCatUI();
+  }
+}
+function _refreshCatUI() {
+  // 更新所有分類下拉選單的顯示名稱
+  var selIds = ['newLC','editListCat','listCatSel'];
+  selIds.forEach(function(sid) {
+    var sel = document.getElementById(sid);
+    if (!sel) return;
+    Array.from(sel.options).forEach(function(opt) {
+      if (_CAT_KEYS.includes(opt.value)) opt.textContent = getCatName(opt.value);
+    });
+  });
+  // 更新幫我決定選單
+  _CAT_KEYS.forEach(function(k, i) {
+    var el = document.getElementById('dc-opt-'+(i+1));
+    if (el) el.textContent = getCatName(k);
+  });
+}
 
 var listTab='pending',listCat='全部',pendingId=null;
 function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
@@ -4785,11 +4874,18 @@ function renderCalendar() {
     return d >= today && d <= cutoff;
   }).sort(function(a,b){ return new Date(a.dateStart)-new Date(b.dateStart); }).slice(0, 20);
 
-  var sectionHdr = '<div class="slbl" style="margin:0 0 4px;">即將到來</div>';
+  // ── 即將到來清單（append 到 calBody，不覆蓋月曆 card）──
+  var upcomingDiv = document.getElementById('calUpcoming');
+  if(!upcomingDiv){
+    upcomingDiv = document.createElement('div');
+    upcomingDiv.id = 'calUpcoming';
+    body.appendChild(upcomingDiv);
+  }
+  var sectionHdr = '<div class="slbl" style="margin:4px 0;">即將到來</div>';
   if (!upcoming.length) {
-    body.innerHTML = sectionHdr + '<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有約會計畫，點下方 + 新增吧！</div>';
+    upcomingDiv.innerHTML = sectionHdr + '<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有約會計畫，點下方 + 新增吧！</div>';
   } else {
-    body.innerHTML = sectionHdr + upcoming.map(function(e) {
+    upcomingDiv.innerHTML = sectionHdr + upcoming.map(function(e) {
       var d = new Date(e.dateStart);
       var diff = Math.floor((d - today) / 86400000);
       var diffTxt = diff===0?'今天':diff===1?'明天':diff+' 天後';
