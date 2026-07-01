@@ -1868,6 +1868,8 @@ function goBack(){
 function openMo(id){
   var el = document.getElementById(id);
   if(!el){ console.error('[openMo] 找不到元素:', id); showToast('找不到視窗: '+id); return; }
+  // 移到 body 最末確保在所有 modal 上層
+  document.body.appendChild(el);
   el.classList.add('open');
   // 日期預設今天
   var today = new Date().toISOString().split('T')[0];
@@ -5344,12 +5346,19 @@ function openBindMo(){
     var myName = (window.userData && window.userData.name) || '我';
     var partnerName = (window.partnerData && window.partnerData.name) || '對方';
     var myEmail = window.currentUser ? window.currentUser.email : '';
-    var myIsAdmin = window.userData && window.userData.isAdmin;
-    var partnerIsAdmin = window.partnerData && window.partnerData.isAdmin;
+    var myUid = window.currentUser && window.currentUser.uid;
+    var myIsAdmin = !!(window.userData && window.userData.isAdmin === true);
+    var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
+    var myIsAdminAlt = adminUids.includes(myUid);
+    var partnerIsAdmin = !!(window.partnerData && window.partnerData.isAdmin === true);
+    var partnerUid = window.userData && window.userData.partnerId;
+    var partnerIsAdminAlt = partnerUid && adminUids.includes(partnerUid);
+    console.log('[openBindMo] myIsAdmin:', myIsAdmin, 'myIsAdminAlt:', myIsAdminAlt, 'partnerIsAdmin:', partnerIsAdmin, 'partnerIsAdminAlt:', partnerIsAdminAlt);
+    var iAmAdmin = myIsAdmin || myIsAdminAlt;
+    var partnerHasAdmin = partnerIsAdmin || partnerIsAdminAlt;
     if(window._coupleId){
-      el.innerHTML = '<b>配對狀態：已配對 ✓</b><br>我：' + myName + '（' + myEmail + '）'+(myIsAdmin?' 🔑':'')+'<br>對方：' + partnerName+(partnerIsAdmin?' 🔑':'') + '<br>配對 ID：' + window._coupleId.slice(-8);
-      // 我是管理員且對方不是 → 顯示授予按鈕
-      if(grantBtn) grantBtn.style.display = (myIsAdmin && !partnerIsAdmin) ? '' : 'none';
+      el.innerHTML = '<b>配對狀態：已配對 ✓</b><br>我：' + myName + '（' + myEmail + '）'+(iAmAdmin?' 🔑':'')+'<br>對方：' + partnerName+(partnerHasAdmin?' 🔑':'') + '<br>配對 ID：' + window._coupleId.slice(-8);
+      if(grantBtn) grantBtn.style.display = (iAmAdmin && !partnerHasAdmin) ? '' : 'none';
     } else {
       el.innerHTML = '<b>配對狀態：未配對</b>';
       if(grantBtn) grantBtn.style.display = 'none';
