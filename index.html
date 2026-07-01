@@ -4805,17 +4805,18 @@ async function saveEditMem(){
   showToast('儲存中...');
   var {doc,updateDoc}=window._fsOps;
 
-  // 先上傳新照片
+  // 先上傳新照片到 Cloudinary
   var m=MEMS.find(function(x){return x.id===_editMemId;});
   var existPhotos=(m&&m.photos)||[];
   if(_memPhotoFiles&&_memPhotoFiles.length){
+    if(!window._uploadToCloudinary){showToast('上傳功能載入中，請稍後再試');return;}
+    showToast('上傳照片中...');
     var newUrls=[];
     for(var i=0;i<_memPhotoFiles.length;i++){
       try{
-        var fr=new FileReader();
-        var url=await new Promise(function(res){fr.onload=function(e){res(e.target.result);};fr.readAsDataURL(_memPhotoFiles[i]);});
+        var url=await window._uploadToCloudinary(_memPhotoFiles[i]);
         newUrls.push(url);
-      }catch(e){}
+      }catch(e){ console.error('Cloudinary upload error',e); showToast('照片上傳失敗'); }
     }
     existPhotos=existPhotos.concat(newUrls);
     _memPhotoFiles=[];
