@@ -341,8 +341,23 @@ input[type=file]{display:none;}
         if(!data) return;
         if(!window._coupleData) window._coupleData = {};
         window._coupleData.discordWebhook = data.discordWebhook || '';
+        window._coupleData.backupAdmins = data.backupAdmins || [];
+        window._coupleData.adminUids = data.adminUids || [];
+        window._coupleData.cloudinaryCloud = data.cloudinaryCloud || '';
+        window._coupleData.cloudinaryPreset = data.cloudinaryPreset || '';
         if(typeof window.DISCORD_WEBHOOK !== 'undefined') window.DISCORD_WEBHOOK = data.discordWebhook || '';
         if(data.listCatNames && typeof _applyCatNames === 'function') _applyCatNames(data);
+        // 重新計算管理員狀態（backupAdmins/adminUids 變動時即時更新）
+        (function(){
+          var adminWrap = document.getElementById('adminSectionWrap');
+          if(!adminWrap) return;
+          var isAdminUser = window.userData && window.userData.isAdmin === true;
+          var adminUids = data.adminUids || [];
+          var backupAdmins = data.backupAdmins || [];
+          var myUid = window.currentUser && window.currentUser.uid;
+          var myEmail = window.currentUser && window.currentUser.email;
+          adminWrap.style.display = (isAdminUser || adminUids.includes(myUid) || (myEmail && backupAdmins.includes(myEmail))) ? 'block' : 'none';
+        })();
         if(!data.pinResetRequest) return;
         var req = data.pinResetRequest;
         var reqTimeKey = req.time && req.time.seconds ? req.time.seconds : null;
