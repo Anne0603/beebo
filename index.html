@@ -1515,7 +1515,7 @@ window.reauthenticateForPinReset = async function() {
     <div style="font-size:14px;color:var(--txt);font-weight:600;" id="confirmMoText">確定嗎？</div>
   </div>
   <div style="display:flex;gap:8px;">
-    <button onclick="closeMo('confirmMo');if(getPinSet())showLockScreen();" class="btn2 bsec" style="flex:1;">取消</button>
+    <button onclick="closeMo('confirmMo');if(getPinSet())showLockScreen();if(window._pendingDateChange){window._pendingDateChange.inp.value=window._pendingDateChange.prev;window._pendingDateChange=null;}" class="btn2 bsec" style="flex:1;">取消</button>
     <button onclick="doConfirm()" class="btn2 bpri" style="flex:1;">確定</button>
   </div>
 </div></div>
@@ -2204,6 +2204,7 @@ function confirmAction(msg, callback, sub) {
 }
 function doConfirm() {
   closeMo('confirmMo');
+  window._pendingDateChange = null;
   if(typeof _confirmCallback === 'function') _confirmCallback();
   else if(typeof _confirmCallback === 'string' && window[_confirmCallback]) window[_confirmCallback]();
   _confirmCallback = null;
@@ -2991,12 +2992,14 @@ function _renderSysAch(){
   var today=new Date();today.setHours(0,0,0,0);
   var days=Math.floor((today-start)/86400000)+1;
   function fmtDate(d){return d.getFullYear()+'.'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'.'+(d.getDate()<10?'0':'')+d.getDate();}
-  var milestoneDays=[30,100,200,365,500,1000];
+  var milestoneDays=[30,100,200,365,500,730,1000,1095,1460,1825,2000,3000,5000,10000];
+  var milestoneLabels={30:'一個月',100:'百日',365:'一週年',730:'兩週年',1000:'千日',1095:'三週年',1460:'四週年',1825:'五週年',10000:'一萬天 💍'};
   var html='';
   milestoneDays.forEach(function(m){
     var unlocked=days>=m;
     var dateStr=unlocked?fmtDate(new Date(start.getTime()+(m-1)*86400000)):'';
-    html+=_achCard('在一起 '+m+' 天',dateStr,!unlocked);
+    var label='在一起 '+m+' 天'+(milestoneLabels[m]?' · '+milestoneLabels[m]:'');
+    html+=_achCard(label,dateStr,!unlocked);
   });
   el.innerHTML=html;
   // 挑戰成就
@@ -4206,7 +4209,17 @@ function resetIdleTimer(){
     }, 100);
   }
 })();
-function confirmDateChange(inp){if(!confirm('修改後天數將重新計算，確定嗎？')){inp.value=(window._coupleData&&window._coupleData.startDate)||'';}}
+function confirmDateChange(inp){
+  var prev = (window._coupleData&&window._coupleData.startDate)||'';
+  var newVal = inp.value;
+  if(!newVal) return;
+  // 先暫存新值，取消時還原
+  confirmAction('修改在一起日期後天數將重新計算，確定嗎？', function(){
+    // 確定：新值已在 inp.value，不需做什麼
+  });
+  // 如果使用者取消（按取消按鈕），在 confirmMo 的取消按鈕那邊處理
+  window._pendingDateChange = { inp: inp, prev: prev };
+}
 // INIT
 try{buildNavs();}catch(err){console.error('buildNavs:',err);}
 try{renderList();}catch(err){console.error('renderList:',err);}
