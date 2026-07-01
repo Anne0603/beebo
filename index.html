@@ -387,9 +387,10 @@ input[type=file]{display:none;}
         // 已配對 - 如果還沒初始化就初始化
         if (!window._msgUnsubscribe) {
           await window._initAllCoupleFeatures(user.uid, data.partnerId);
-          // 初始化全部完成後才隱藏 loading，此時 pairingMo 絕對不會露出來
+          // 初始化全部完成後才隱藏 loading、顯示首頁
           var lo = document.getElementById('loadingOverlay');
           if (lo) lo.style.display = 'none';
+          if(typeof goPage === 'function') goPage('home');
           const pm = document.getElementById('pairingMo');
           if (pm && pm.classList.contains('open')) {
             window.showToast('配對成功！歡迎使用嗶啵 💚');
@@ -400,8 +401,8 @@ input[type=file]{display:none;}
           var lo2 = document.getElementById('loadingOverlay');
           if (lo2 && lo2.style.display !== 'none') lo2.style.display = 'none';
         }
-      } else {
-        // 未配對 - 先隱藏 loading，再顯示配對視窗
+      } else if (!window._initializing && !window._msgUnsubscribe) {
+        // 確認未配對（且沒有在初始化中） - 先隱藏 loading，再顯示配對視窗
         var lo3 = document.getElementById('loadingOverlay');
         if (lo3) lo3.style.display = 'none';
         window._coupleId = null;
@@ -1045,7 +1046,7 @@ window.reauthenticateForPinReset = async function() {
 </div>
 
 <!-- HOME -->
-<div class="page active" id="page-home">
+<div class="page" id="page-home">
   <div class="sc" style="padding-top:14px;padding-bottom:80px;">
     <div class="hdr">
       <div class="avb" onclick="openPhoto('partner')">
