@@ -1083,7 +1083,7 @@ window.reauthenticateForPinReset = async function() {
     <div class="quad">
       <div class="qc" onclick="goPageX('achievements')"><div class="qt">我們的成就</div><div class="qn" id="achCount">0</div><div class="qs">完成挑戰數</div></div>
       <div class="qc" onclick="goPageX('review')"><div class="qt">我們的回顧</div><div class="qn" id="dayCount2">—</div><div class="qs">在一起天數</div></div>
-      <div class="qc" onclick="goPageX('calendar')"><div class="qt">行事曆</div><div class="qn" id="calNext">—</div><div class="qs">查看約會計畫</div></div>
+      <div class="qc" onclick="goPageX('calendar')"><div class="qt">行事曆</div><div class="qn" id="calNext">—</div><div class="qs" id="calNextSub">查看約會計畫</div></div>
       <div class="qc" onclick="goPageX('restaurants')"><div class="qt">餐廳記錄</div><div class="qn" id="restCount">0</div><div class="qs">去過的餐廳</div></div>
     </div>
   </div>
@@ -1501,7 +1501,10 @@ window.reauthenticateForPinReset = async function() {
     <div><b style="color:var(--accent);">Q: 資料存在哪裡？安全嗎？</b><br>所有資料都存在你們專屬的 Firebase 雲端資料庫，只有配對成功的兩人能看到，不會被第三方存取。</div>
     <div><b style="color:var(--accent);">Q: 怎麼跟另一半配對？</b><br>一方在「設定」產生邀請碼，分享給另一半，對方輸入邀請碼即可完成配對。</div>
     <div><b style="color:var(--accent);">Q: 忘記隱私鎖 PIN 怎麼辦？</b><br>在鎖定畫面點「忘記 PIN？」，送出請求後等待另一半同意，同意後即可重新設定。</div>
-    <div><b style="color:var(--accent);">Q: 怎麼收到通知？</b><br>APP 內建通知頁會記錄所有動態。也可以在設定中貼上 Discord Webhook，讓重要通知同步發送到 Discord。</div>
+    <div><b style="color:var(--accent);">Q: 怎麼收到通知？</b><br>
+      <b>APP 內通知：</b>所有動態（新增挑戰/餐廳/回憶、打勾、完成等）都會自動記錄在通知頁（🔔），有未讀時 nav bar 會顯示紅點。<br>
+      <b>Discord 通知：</b>在設定 → Discord 通知設定中貼上你的 Webhook URL 並儲存，往後新增/更新重要內容時會自動推送訊息到你的 Discord 頻道。<br>
+      <b>提前提醒：</b>紀念日、生日、行事曆活動、挑戰到期都可以在「通知偏好」設定提前幾天提醒，每天打開 APP 時自動檢查。</div>
     <div><b style="color:var(--accent);">Q: 可以匯出資料備份嗎？</b><br>可以，設定頁「匯出資料」會下載一份 JSON 檔案，包含清單、挑戰、餐廳、回憶錄等所有紀錄。</div>
     <div><b style="color:var(--accent);">Q: 解除配對會怎樣？</b><br>解除配對後雙方需重新配對才能繼續共享功能，已有的資料不會被刪除。</div>
   </div>
@@ -1691,7 +1694,30 @@ window.reauthenticateForPinReset = async function() {
 </div></div></div>
 <div class="mo" id="addListMo"><div class="mbox"><div class="mh"><span class="mtit">新增清單項目</span><button class="mcl" onclick="closeMo('addListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱</label><input class="fi" id="newLN" placeholder="想去哪裡？想吃什麼？"></div><div class="fg"><label class="fl">分類</label><select class="fsel" id="newLC"><option>想去哪</option><option>想吃什麼</option><option>想做什麼</option><option>想看什麼</option></select></div><button class="btn2 bpri" onclick="addListItem()">新增</button></div></div></div>
 <div class="mo" id="completeListMo"><div class="mbox"><div class="mh"><span class="mtit" id="compTitle">完成！</span><button class="mcl" onclick="closeMo('completeListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">評分（選填）</label><div style="display:flex;gap:6px;" id="compStars"><div class="strbtn" onclick="setStar(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setStar(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">心得（選填）</label><textarea class="fi" rows="2" placeholder="寫下感想..." style="resize:none;"></textarea></div><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);width:16px;height:16px;">想再去／做一次（自動新增一筆）</label><button class="btn2 bpri" id="compDoneBtn">完成</button></div></div></div>
-<div class="mo" id="addMemMo"><div class="mbox" style="max-height:90vh;overflow-y:auto;"><div class="mh"><span class="mtit">新增回憶錄</span><button class="mcl" onclick="closeMo('addMemMo')">×</button></div>
+<div class="mo" id="editMemMo"><div class="mbox" style="max-height:90vh;overflow-y:auto;"><div class="mh"><span class="mtit">編輯回憶錄</span><button class="mcl" onclick="closeMo('editMemMo')">×</button></div>
+<div style="display:flex;flex-direction:column;gap:12px;">
+  <div class="fg"><label class="fl">名稱（必填）</label><input class="fi" id="editMemTitle" placeholder="這次去哪？做了什麼？"></div>
+  <div class="fg"><label class="fl">日期區間</label><div style="display:flex;gap:6px;"><input class="fi" type="date" id="editMemDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;align-self:center;">至</span><input class="fi" type="date" id="editMemDate2" style="flex:1;"></div></div>
+  <div class="fg"><label class="fl">地點</label><select class="fsel" id="editMemCity" style="padding:8px 10px;width:100%;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">選擇地點...</option></select></div>
+  <div class="fg"><label class="fl">心得記錄（選填）</label><textarea class="fi" id="editMemNote" rows="3" style="resize:none;"></textarea></div>
+  <div class="fg"><label class="fl">現有照片</label><div id="editMemPhotoPrev" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;"></div></div>
+  <div class="fg"><label class="fl">新增照片（選填）</label>
+    <div id="editMemPhotoPreview" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;"></div>
+    <button onclick="document.getElementById('editMemPhotoFile').click()" class="btn2 bsec" style="width:100%;font-size:12px;">選擇新照片</button>
+    <input type="file" id="editMemPhotoFile" accept="image/*" multiple style="display:none;" onchange="previewEditMemPhotos(event)">
+  </div>
+  <div class="fg"><label class="fl">關聯餐廳</label>
+    <button onclick="openLinkRestForMem()" class="btn2 bsec" style="width:100%;font-size:12px;">選擇關聯餐廳</button>
+    <div id="editLinkedRests" style="font-size:11px;color:var(--sub);margin-top:4px;">未選擇</div>
+  </div>
+  <div class="fg"><label class="fl">關聯清單／挑戰</label>
+    <button onclick="openLinkListForMem()" class="btn2 bsec" style="width:100%;font-size:12px;">選擇清單或挑戰</button>
+    <div id="editLinkedItems" style="font-size:11px;color:var(--sub);margin-top:4px;">未選擇</div>
+  </div>
+  <button class="btn2 bpri" onclick="saveEditMem()">儲存變更</button>
+</div></div></div>
+
+<div class="mo" id="addMemMo"><div class="mbox" style="max-height:90vh;overflow-y:auto;"><div class="mh"><span class="mtit">新增回憶錄</span>
 <div style="display:flex;flex-direction:column;gap:12px;">
   <div class="fg"><label class="fl">名稱（必填）</label><input class="fi" id="newMemTitle" placeholder="這次去哪？做了什麼？"></div>
   <div class="fg"><label class="fl">日期區間</label><div style="display:flex;gap:6px;"><input class="fi" type="date" id="newMemDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;align-self:center;">至</span><input class="fi" type="date" id="newMemDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div>
@@ -3476,6 +3502,13 @@ function renderMemory(){
       card.style.backgroundImage="url('" + m.photos[0] + "')";
       card.style.backgroundSize='cover';
       card.style.backgroundPosition='center';
+    } else {
+      // 無照片時顯示 SVG 佔位圖
+      card.style.background='linear-gradient(135deg,var(--lt),var(--card2))';
+      card.innerHTML='<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;">'
+        +'<svg width="36" height="36" viewBox="0 0 24 24" fill="none"><rect x="3" y="5" width="18" height="14" rx="2" stroke="var(--accent)" stroke-width="1.3" opacity=".5"/><circle cx="8.5" cy="10.5" r="1.5" stroke="var(--accent)" stroke-width="1.3" opacity=".5"/><path d="M3 15l5-4 4 3.5 3-2.5 6 5" stroke="var(--accent)" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/></svg>'
+        +'<div style="font-size:10px;color:var(--sub);opacity:.7;">尚無照片</div>'
+        +'</div>';
     }
     var label=document.createElement('div');
     label.style.cssText='position:absolute;bottom:0;left:0;right:0;padding:8px 8px 6px;background:linear-gradient(transparent,rgba(0,0,0,.6));border-radius:0 0 14px 14px;';
@@ -4096,6 +4129,22 @@ function previewMemPhotos(e){
     preview.appendChild(div);
   });
 }
+function previewEditMemPhotos(e){
+  var files=Array.from(e.target.files);
+  _memPhotoFiles=(_memPhotoFiles||[]).concat(files);
+  var preview=document.getElementById('editMemPhotoPreview');
+  if(!preview)return;
+  preview.innerHTML='';
+  _memPhotoFiles.forEach(function(f,i){
+    var url=URL.createObjectURL(f);
+    var div=document.createElement('div');
+    div.style.cssText='position:relative;width:60px;height:60px;border-radius:8px;overflow:hidden;';
+    div.innerHTML='<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;">'
+      +'<button onclick="_memPhotoFiles.splice('+i+',1);previewEditMemPhotos({target:{files:[]}});" '
+      +'style="position:absolute;top:2px;right:2px;all:unset;background:rgba(0,0,0,.5);color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;text-align:center;cursor:pointer;line-height:16px;">×</button>';
+    preview.appendChild(div);
+  });
+}
 
 function openLinkRestForMem(){
   if(!RESTS.length){
@@ -4129,6 +4178,8 @@ function confirmLinkRest(){
     }
   }
   closeMo('linkRestMo');
+  // 若是從編輯 modal 開的，更新編輯 modal 顯示
+  if(typeof _renderEditMemLinkedRests==='function') _renderEditMemLinkedRests();
 }
 
 function openLinkListForMem(){
@@ -4169,6 +4220,7 @@ function confirmLinkList(){
   var el=document.getElementById('linkedItems');
   if(el) el.textContent=_memLinkedItems.length?'已選 '+_memLinkedItems.length+' 個項目':'';
   closeMo('linkListMo');
+  if(typeof _renderEditMemLinkedItems==='function') _renderEditMemLinkedItems();
 }
 
 // ── 回憶錄詳情頁（memDetailMo）──
@@ -4262,15 +4314,18 @@ async function openMemDetail(id){
     if(listDiv.children.length>1) body.appendChild(listDiv);
   }
 
-  // 按鈕
-  var btns=document.createElement('div');btns.style.cssText='display:flex;gap:8px;';
+  // 按鈕列：編輯、新增照片、刪除
+  var btns=document.createElement('div');btns.style.cssText='display:flex;gap:8px;flex-wrap:wrap;';
+  var editBtn=document.createElement('button');editBtn.className='btn2 bpri';
+  editBtn.style.cssText='flex:1;font-size:12px;';editBtn.textContent='✏️ 編輯';
+  editBtn.onclick=function(){closeMo('memDetailMo');setTimeout(function(){openEditMemMo(m.id);},250);};
   var addPhotoBtn=document.createElement('button');addPhotoBtn.className='btn2 bsec';
-  addPhotoBtn.style.flex='1';addPhotoBtn.style.fontSize='12px';addPhotoBtn.textContent='新增照片';
+  addPhotoBtn.style.cssText='flex:1;font-size:12px;';addPhotoBtn.textContent='新增照片';
   addPhotoBtn.onclick=function(){addMemPhoto(m.id);};
   var delBtn=document.createElement('button');
   delBtn.style.cssText="all:unset;flex:1;text-align:center;font-size:12px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;";
   delBtn.textContent='刪除回憶';delBtn.onclick=function(){closeMo('memDetailMo');setTimeout(function(){deleteMemConfirm(m.id);},300);};
-  btns.appendChild(addPhotoBtn);btns.appendChild(delBtn);body.appendChild(btns);
+  btns.appendChild(editBtn);btns.appendChild(addPhotoBtn);btns.appendChild(delBtn);body.appendChild(btns);
 
   mbox.appendChild(body);
   modal.innerHTML='';modal.appendChild(mbox);
@@ -4331,6 +4386,103 @@ function deleteMemConfirm(id){
   var inp = document.getElementById('deleteMemConfirmInput');
   if(inp) inp.value = '';
   openMo('deleteMemMo');
+}
+
+// ── 回憶錄編輯 ──
+var _editMemId = null;
+function openEditMemMo(id){
+  var m = MEMS.find(function(x){return x.id===id;});
+  if(!m) return;
+  _editMemId = id;
+  _memLinkedRests = (m.linkedRests||[]).slice();
+  _memLinkedItems = (m.linkedItems||[]).slice();
+  _memPhotoFiles = [];
+
+  // 填入現有值
+  var t=document.getElementById('editMemTitle'); if(t) t.value=m.title||'';
+  var d1=document.getElementById('editMemDate1'); if(d1) d1.value=m.dateStart||'';
+  var d2=document.getElementById('editMemDate2'); if(d2) d2.value=m.dateEnd||'';
+  var note=document.getElementById('editMemNote'); if(note) note.value=m.note||'';
+
+  // 地點選單
+  fillLocationSelect('editMemCity', true);
+  setTimeout(function(){
+    var city=document.getElementById('editMemCity');
+    if(city) city.value = m.city||m.location||'';
+  }, 80);
+
+  // 關聯顯示
+  _renderEditMemLinkedRests();
+  _renderEditMemLinkedItems();
+
+  // 現有照片預覽
+  var prev = document.getElementById('editMemPhotoPrev');
+  if(prev){
+    prev.innerHTML = (m.photos||[]).map(function(p,i){
+      return '<div style="position:relative;display:inline-block;">'
+        +'<img src="'+p+'" style="height:64px;width:64px;object-fit:cover;border-radius:8px;margin-right:4px;">'
+        +'<button onclick="_removeExistingMemPhoto(\''+id+'\','+i+')" style="position:absolute;top:1px;right:5px;all:unset;background:rgba(0,0,0,.5);color:#fff;border-radius:50%;width:16px;height:16px;font-size:10px;text-align:center;cursor:pointer;line-height:16px;">×</button>'
+        +'</div>';
+    }).join('');
+  }
+  openMo('editMemMo');
+}
+function _renderEditMemLinkedRests(){
+  var el=document.getElementById('editLinkedRests');
+  if(!el) return;
+  el.textContent=_memLinkedRests.length ? _memLinkedRests.map(function(rid){var r=RESTS.find(function(x){return x.id===rid;});return r?r.name:'?';}).join('、') : '未選擇';
+}
+function _renderEditMemLinkedItems(){
+  var el=document.getElementById('editLinkedItems');
+  if(!el) return;
+  el.textContent=_memLinkedItems.length ? _memLinkedItems.map(function(s){
+    if(s.startsWith('list:')){var li=LIST.find(function(x){return x.id===s.slice(5);});return li?li.n:'?';}
+    if(s.startsWith('chal:')){var ch=CHALS.find(function(x){return x.id===s.slice(5);});return ch?ch.name:'?';}
+    return '?';
+  }).join('、') : '未選擇';
+}
+async function _removeExistingMemPhoto(memId, idx){
+  var m=MEMS.find(function(x){return x.id===memId;}); if(!m) return;
+  var photos=(m.photos||[]).slice(); photos.splice(idx,1);
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{photos:photos});
+  showToast('照片已移除');
+  openEditMemMo(memId);
+}
+async function saveEditMem(){
+  if(!_editMemId||!window._fsOps) return;
+  var title=(document.getElementById('editMemTitle')||{}).value||'';
+  if(!title.trim()){showToast('請填寫名稱');return;}
+  var d1=(document.getElementById('editMemDate1')||{}).value||'';
+  var d2=(document.getElementById('editMemDate2')||{}).value||'';
+  var note=(document.getElementById('editMemNote')||{}).value||'';
+  var city=(document.getElementById('editMemCity')||{}).value||'';
+  showToast('儲存中...');
+  var {doc,updateDoc}=window._fsOps;
+
+  // 先上傳新照片
+  var m=MEMS.find(function(x){return x.id===_editMemId;});
+  var existPhotos=(m&&m.photos)||[];
+  if(_memPhotoFiles&&_memPhotoFiles.length){
+    var newUrls=[];
+    for(var i=0;i<_memPhotoFiles.length;i++){
+      try{
+        var fr=new FileReader();
+        var url=await new Promise(function(res){fr.onload=function(e){res(e.target.result);};fr.readAsDataURL(_memPhotoFiles[i]);});
+        newUrls.push(url);
+      }catch(e){}
+    }
+    existPhotos=existPhotos.concat(newUrls);
+    _memPhotoFiles=[];
+  }
+
+  await updateDoc(doc(window._db,'couples',window._coupleId,'memories',_editMemId),{
+    title:title.trim(), dateStart:d1, dateEnd:d2, note:note, city:city,
+    photos:existPhotos, linkedRests:_memLinkedRests, linkedItems:_memLinkedItems
+  });
+  closeMo('editMemMo');
+  showToast('回憶錄已更新 ✓');
+  _editMemId=null;
 }
 async function execDeleteMem(){
   var inp = document.getElementById('deleteMemConfirmInput');
@@ -4509,13 +4661,17 @@ function renderCalendar() {
 
   // 更新 calNext（主頁行事曆卡）
   var calEl = document.getElementById('calNext');
+  var calSub = document.getElementById('calNextSub');
   if (calEl && upcoming.length) {
     var nx = upcoming[0];
     var d = new Date(nx.dateStart);
     var diff = Math.floor((d-today)/86400000);
-    calEl.textContent = diff===0?'今天':diff+' 天後';
+    var diffLabel = diff===0?'今天':diff===1?'明天':diff+' 天後';
+    calEl.textContent = diffLabel;
+    if(calSub) calSub.textContent = nx.name || '';
   } else if(calEl) {
     calEl.textContent = '—';
+    if(calSub) calSub.textContent = '目前沒有計畫';
   }
 }
 
