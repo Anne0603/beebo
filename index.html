@@ -221,7 +221,7 @@ input[type=file]{display:none;}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, reauthenticateWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB7ItJLps_FErzeQ-1s9WtS7XfercGt4i4",
@@ -657,7 +657,7 @@ window.startPairingCountdown = function(expiry, el) {
   window._db = db;
   window._auth = auth;
   // 暴露 Firestore 操作給非 module script 使用
-  window._fsOps = { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, doc, getDoc, setDoc, deleteDoc };
+  window._fsOps = { collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, doc, getDoc, setDoc, deleteDoc, getDocs };
 
   // ── 留言系統 ──
   // Firestore 結構：couples/{coupleId}/messages/{msgId}
@@ -1220,6 +1220,7 @@ window.reauthenticateForPinReset = async function() {
     <div class="slbl" style="display:flex;align-items:center;gap:6px;">管理員專區 <span class="abadge">管理員</span></div>
     <div style="display:flex;flex-direction:column;gap:6px;">
       <div class="sr" onclick="exportData()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">匯出資料（JSON）<div id="lastExportTime" style="font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">尚未匯出過</div></div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openMo('importDataMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><polyline points="7,10 12,15 17,10" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" transform="rotate(180 12 12)"/><line x1="12" y1="9" x2="12" y2="21" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">還原資料（JSON 匯入）<div style="font-size:10px;color:#c62828;font-weight:400;margin-top:2px;">⚠️ 將覆蓋現有資料</div></div></div><div class="sv">›</div></div>
 
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
@@ -1285,10 +1286,7 @@ window.reauthenticateForPinReset = async function() {
       </div>
       <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
     </div>
-    <div class="slbl">即將到來</div>
-    
-
-    
+    <div class="slbl" style="margin-top:4px;">即將到來</div>
   </div>
   <div class="sc" id="calBody" style="padding-top:0;"></div>
   <button class="fab" onclick="openMo('addEventMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -1409,8 +1407,12 @@ window.reauthenticateForPinReset = async function() {
 
 <div class="mo" id="importInspireMo"><div class="mbox">
   <div class="mh"><span class="mtit">JSON 匯入靈感題庫</span><button class="mcl" onclick="closeMo('importInspireMo');setTimeout(function(){openMo('inspireMgMo');},250);">×</button></div>
-  <div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6;">格式範例：[{"n":"吃火鍋","c":"想吃什麼"}, {"n":"看夜景","c":"想去哪"}]<br>分類需為：想去哪／想吃什麼／想做什麼／想看什麼</div>
-  <textarea class="fi" id="importInspireText" rows="8" placeholder='貼上 JSON 內容...' style="font-family:monospace;font-size:12px;margin-bottom:12px;"></textarea>
+  <div style="font-size:11px;color:var(--sub);margin-bottom:6px;line-height:1.6;">
+    每筆格式：<code style="background:var(--card2);padding:1px 4px;border-radius:4px;">{"n":"吃火鍋","c":"想吃什麼"}</code><br>
+    分類：想去哪／想吃什麼／想做什麼／想看什麼
+  </div>
+  <button onclick="copyInspireTemplate()" class="btn2 bsec" style="width:100%;font-size:12px;margin-bottom:8px;">📋 複製範本（填入後貼上）</button>
+  <textarea class="fi" id="importInspireText" rows="7" placeholder='貼上 JSON 內容...' style="font-family:monospace;font-size:12px;margin-bottom:12px;resize:vertical;"></textarea>
   <button onclick="execImportInspire()" class="btn2 bpri" style="width:100%;">匯入（將覆蓋現有題庫）</button>
 </div></div>
 
@@ -1515,9 +1517,10 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="doConfirm()" class="btn2 bpri" style="flex:1;">確定</button>
   </div>
 </div></div>
-<div class="mo" id="visitedCitiesMo"><div class="mbox" style="max-height:85vh;overflow-y:auto;">
-  <div class="mh"><span class="mtit">去過的地方</span><button class="mcl" onclick="closeMo('visitedCitiesMo')">×</button></div>
-  <div id="visitedCitiesBody" style="display:flex;flex-direction:column;gap:8px;"></div>
+<div class="mo" id="visitedCitiesMo" style="align-items:stretch;"><div style="background:var(--bg);width:100%;height:100%;display:flex;flex-direction:column;">
+  <div class="pt" style="flex-shrink:0;position:relative;justify-content:center;"><button onclick="closeMo('visitedCitiesMo')" style="position:absolute;left:0;all:unset;font-size:12px;color:var(--sub);cursor:pointer;padding:0 4px;">✕ 關閉</button><span style="font-weight:700;font-size:15px;color:var(--txt);">去過的地方</span></div>
+  <div style="padding:0 16px 8px;flex-shrink:0;"><input id="citiesSearchInput" class="fi" placeholder="🔍 搜尋城市..." oninput="filterCities(this.value)" style="width:100%;box-sizing:border-box;"></div>
+  <div id="visitedCitiesBody" class="sc" style="flex:1;overflow-y:auto;"></div>
 </div></div>
 
 <div class="mo" id="annivMo"><div class="mbox"><div class="mh"><span class="mtit">紀念日倒數</span><button class="mcl" onclick="closeMo('annivMo')">×</button></div>
@@ -1578,6 +1581,8 @@ window.reauthenticateForPinReset = async function() {
     </div>
   </div>
 </div>
+<div class="mo" id="importDataMo"><div class="mbox"><div class="mh"><span class="mtit">還原資料（JSON 匯入）</span><button class="mcl" onclick="closeMo('importDataMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:#c62828;background:#fdecea;padding:10px;border-radius:10px;">⚠️ 匯入將覆蓋 Firestore 中現有的清單、挑戰、餐廳記錄資料，無法復原。請確認後再操作。</div><div style="font-size:12px;color:var(--sub);">請貼上由「匯出資料（JSON）」下載的 JSON 內容。</div><textarea class="fi" id="importDataText" rows="8" placeholder='貼上 JSON 內容...' style="font-family:monospace;font-size:11px;resize:vertical;"></textarea><button class="btn2 bpri" style="background:#c62828;" onclick="execImportData()">⚠️ 確認還原（覆蓋現有資料）</button></div></div></div>
+
 <div class="mo" id="exportMemFilterMo"><div class="mbox"><div class="mh"><span class="mtit">匯出回憶錄報告</span><button class="mcl" onclick="closeMo('exportMemFilterMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">可選擇只匯出特定時間範圍的回憶，留空表示全部匯出。</div><div class="fg"><label class="fl">開始日期（選填）</label><input class="fi" type="date" id="exportMemFrom"></div><div class="fg"><label class="fl">結束日期（選填）</label><input class="fi" type="date" id="exportMemTo"></div><button class="btn2 bpri" onclick="doExportMemoryReport()">📖 產生報告</button></div></div></div>
 <div class="mo" id="exportMo"><div class="mbox"><div class="mh"><span class="mtit">匯出資料</span><button class="mcl" onclick="closeMo('exportMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">照片 ZIP 下載</div><div style="font-size:11px;color:var(--sub);">由管理員後台產生下載連結，需先在電腦端操作</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">回憶錄 PDF 匯出</div><div style="font-size:11px;color:var(--sub);">封面＋照片網格＋餐廳清單，可選單筆或全部</div></div><div class="card c14"><div style="font-size:13px;font-weight:700;color:var(--txt);margin-bottom:3px;">清單／餐廳／紀念日 Excel</div><div style="font-size:11px;color:var(--sub);">所有文字資料匯出為 Excel 試算表</div></div></div></div></div>
 
@@ -2600,18 +2605,39 @@ function execImportInspire() {
   if(!text) { showToast('請貼上 JSON 內容'); return; }
   try {
     var data = JSON.parse(text);
-    if(!Array.isArray(data)) throw new Error('格式錯誤');
-    var valid = data.every(function(item){ return item.n && item.c; });
-    if(!valid) throw new Error('每筆需包含 n（名稱）和 c（分類）');
+    if(!Array.isArray(data)) throw new Error('最外層必須是陣列 [...]');
+    // 支援 {n,c} 和 {text,cat} 兩種格式
+    data = data.map(function(item){
+      if(item.text && item.cat) return { n: item.text, c: item.cat };
+      if(item.n && item.c) return item;
+      throw new Error('每筆需包含 n（名稱）和 c（分類），或 text 和 cat');
+    });
     var validCats = ['想去哪','想吃什麼','想做什麼','想看什麼'];
     var bad = data.filter(function(item){ return !validCats.includes(item.c); });
-    if(bad.length) { showToast('分類需為：想去哪/想吃什麼/想做什麼/想看什麼'); return; }
+    if(bad.length) { showToast('分類需為：想去哪/想吃什麼/想做什麼/想看什麼，錯誤：' + bad[0].c); return; }
     _saveInspireData(data);
     closeMo('importInspireMo');
     showToast('匯入成功！共 '+data.length+' 筆 ✓');
     setTimeout(function(){ openMo('inspireMgMo'); renderInspireMg('list'); }, 250);
   } catch(e) {
     showToast('JSON 格式錯誤：' + e.message);
+  }
+}
+function copyInspireTemplate(){
+  var template = JSON.stringify([
+    {"n":"一起去夜市掃攤","c":"想吃什麼"},
+    {"n":"找一間沒去過的咖啡廳","c":"想去哪"},
+    {"n":"在家一起做一道新料理","c":"想做什麼"},
+    {"n":"租一部電影在家看","c":"想看什麼"},
+    {"n":"騎車去海邊看日落","c":"想去哪"}
+  ], null, 2);
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(template).then(function(){
+      showToast('範本已複製！貼上並修改內容後再匯入');
+    });
+  } else {
+    var ta = document.getElementById('importInspireText');
+    if(ta){ ta.value = template; showToast('範本已填入，修改後按匯入'); }
   }
 }
 
@@ -2997,7 +3023,7 @@ function openVisitedCitiesMo(){
               +'</div>';
           }).join('');
         }
-        return '<div style="background:var(--card);border-radius:14px;padding:12px 14px;border:1px solid var(--bdr);">'
+        return '<div data-city="'+city+'" style="background:var(--card);border-radius:14px;padding:12px 14px;border:1px solid var(--bdr);">'
           +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
           +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" fill="var(--accent)" fill-opacity=".15" stroke="var(--accent)" stroke-width="1.5"/><circle cx="12" cy="10" r="3" fill="var(--accent)"/></svg>'
           +'<span style="font-size:14px;font-weight:700;color:var(--txt);">'+city+'</span>'
@@ -3007,6 +3033,12 @@ function openVisitedCitiesMo(){
     }
   }
   openMo('visitedCitiesMo');
+}
+function filterCities(q){
+  var cards = document.querySelectorAll('#visitedCitiesBody > div[data-city]');
+  cards.forEach(function(card){
+    card.style.display = card.dataset.city.includes(q) ? '' : 'none';
+  });
 }
 
 
@@ -5258,6 +5290,40 @@ function exportData(){
   localStorage.setItem('beebo_last_export', Date.now());
   updateLastExportDisplay();
   showToast('資料已匯出 ✓');
+}
+async function execImportData(){
+  if(!window._coupleId||!window._fsOps){ showToast('請先配對'); return; }
+  var ta = document.getElementById('importDataText');
+  var text = ta ? ta.value.trim() : '';
+  if(!text){ showToast('請貼上 JSON 內容'); return; }
+  try {
+    var data = JSON.parse(text);
+    var {collection, addDoc, serverTimestamp, doc, setDoc, deleteDoc, getDocs, query} = window._fsOps;
+    var {getDocs: gd} = window._fsOps || {};
+    showToast('匯入中，請稍候...');
+    var base = 'couples/'+window._coupleId+'/';
+    var colMap = { list:'list', rests:'rests', challenges:'challenges' };
+    for(var colKey in colMap){
+      if(!Array.isArray(data[colKey])) continue;
+      var colName = colMap[colKey];
+      var colRef = collection(window._db,'couples',window._coupleId,colName);
+      // 刪除現有
+      var snap = await window._fsOps.getDocs ? await window._fsOps.getDocs(colRef) : null;
+      if(snap) snap.forEach(function(d){ deleteDoc(d.ref); });
+      // 寫入備份資料（移除 id 欄位讓 Firestore 重新生成）
+      for(var i=0;i<data[colKey].length;i++){
+        var item = Object.assign({}, data[colKey][i]);
+        delete item.id;
+        if(item.createdAt) delete item.createdAt;
+        await addDoc(colRef, Object.assign(item, {createdAt: serverTimestamp(), restoredAt: serverTimestamp()}));
+      }
+    }
+    closeMo('importDataMo');
+    showToast('還原完成 ✓，共匯入 '+(data.list||[]).length+' 筆清單、'+(data.rests||[]).length+' 筆餐廳、'+(data.challenges||[]).length+' 筆挑戰');
+  } catch(e) {
+    showToast('匯入失敗：'+e.message);
+    console.error('[execImportData]',e);
+  }
 }
 function updateLastExportDisplay(){
   var el = document.getElementById('lastExportTime');
