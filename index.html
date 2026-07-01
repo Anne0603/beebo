@@ -117,7 +117,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .cday.has{background:var(--lt);color:var(--accent);font-weight:700;}
 .cday.today{background:var(--accent);color:#fff;font-weight:700;}
 .cday.om{color:var(--bdr);}
-.ev{background:var(--card);border-radius:12px;padding:10px 13px;border:1px solid var(--bdr);box-shadow:0 2px 6px var(--shd);display:flex;gap:10px;align-items:flex-start;}
+.ev{background:var(--card);border-radius:12px;padding:8px 12px;border:1px solid var(--bdr);box-shadow:0 1px 4px var(--shd);display:flex;gap:8px;align-items:flex-start;}
 .evd{width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:3px;}
 .evn{font-size:13px;font-weight:600;color:var(--txt);}
 .evm{font-size:10px;color:var(--sub);margin-top:2px;}
@@ -1849,6 +1849,7 @@ function goPage(p){
       renderNotifPage();
       markAllNotifsRead();
     }
+    if(p==='list' && typeof _refreshCatUI==='function') _refreshCatUI();
     if(p==='restaurants' && typeof fillRestCityFilter==='function') fillRestCityFilter();
     curPage=p;
     buildNavs();
@@ -2810,8 +2811,7 @@ function getUnreadNotifCount() {
 
 function updateNotifBadge(){
   var count = getUnreadNotifCount();
-  var navBtn = document.querySelector('[data-page="notify"]');
-  if(navBtn){
+  document.querySelectorAll('[data-page="notify"]').forEach(function(navBtn){
     var dot = navBtn.querySelector('.nav-notif-dot');
     if(count > 0){
       if(!dot){
@@ -2822,12 +2822,22 @@ function updateNotifBadge(){
         navBtn.appendChild(dot);
       }
     } else if(dot){ dot.remove(); }
-  }
+  });
 }
 
 function markAllNotifsRead() {
-  // 開通知頁時不自動清除，讓使用者自己按清除
-  // 只需更新 badge（已在 renderNotifPage 後 updateNotifBadge）
+  var uid = window.currentUser && window.currentUser.uid;
+  if (!uid || !window._coupleId || !window._fsOps) return;
+  var {doc, updateDoc, arrayUnion} = window._fsOps;
+  var toMark = _notifCache.filter(function(n) {
+    return !(n.readBy||[]).includes(uid);
+  });
+  toMark.forEach(function(n) {
+    updateDoc(
+      doc(window._db, 'couples', window._coupleId, 'notifications', n.id),
+      { readBy: arrayUnion(uid) }
+    ).catch(function(){});
+  });
 }
 
 function renderNotifPage(){
@@ -3221,7 +3231,7 @@ function renderList(){
       var da = item.doneAt.toDate();
       doneAtStr = ' · 完成於 '+da.getFullYear()+'/'+(da.getMonth()+1)+'/'+(da.getDate()<10?'0':'')+da.getDate();
     }
-    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+item.c+'</div><div class="lby">'+(item.by||'我')+'・'+(item.at||'')+doneAtStr+'</div></div>';
+    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+getCatName(item.c)+'</div><div class="lby">'+(item.by||'我')+'・'+(item.at||'')+doneAtStr+'</div></div>';
     var stars='';
     if(item.done&&item.star){for(var si=0;si<item.star;si++)stars+=STAR_I;}
     if(stars)stars='<div style="display:flex;gap:1px;">'+stars+'</div>';
@@ -3711,7 +3721,7 @@ function reroll(){
   var pick=pool[Math.floor(Math.random()*pool.length)];
   drawn.push(pick.id);
   if(rnameEl) rnameEl.textContent=pick.n;
-  if(rcatEl) rcatEl.textContent=pick.c;
+  if(rcatEl) rcatEl.textContent=getCatName(pick.c);
 };
 
 // MEMORY
@@ -4925,6 +4935,7 @@ function renderCalendar() {
   if(!upcomingDiv){
     upcomingDiv = document.createElement('div');
     upcomingDiv.id = 'calUpcoming';
+    upcomingDiv.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
     body.appendChild(upcomingDiv);
   }
   var sectionHdr = '<div class="slbl" style="margin:4px 0;">即將到來</div>';
