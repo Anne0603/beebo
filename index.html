@@ -1372,7 +1372,7 @@ window.reauthenticateForPinReset = async function() {
   </div>
   <button onclick="closeMo('chalDetailMo');goPage('challenges')" class="btn2 bsec" style="width:100%;">查看所有挑戰</button>
 </div></div></div>
-<div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label>
+<div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;" onchange="var d2=document.getElementById('evDate2');if(d2&&(!d2.value||d2.value<this.value))d2.value=this.value;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label>
 <select class="fi" id="evPlace" style="padding:8px 10px;">
   <option value="">選擇地點...</option>
 </select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="evNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
@@ -1858,7 +1858,7 @@ function openMo(id){
   var today = new Date().toISOString().split('T')[0];
   var dateMap = {
     'addChalMo': ['newChalDeadline'],
-    'addEventMo': ['evDate1','evDate2'],
+    'addEventMo': ['evDate1'],
     'addRestMo': ['newRD'],
     'addMemMo': ['newMemDate1'],
     'addQuoteMo': ['quoteDate']
@@ -2913,37 +2913,22 @@ function _updateStats() {
   if (chalEl) chalEl.textContent = doneCnt;
   var achCountEl = document.getElementById('achCount');
   if (achCountEl) achCountEl.textContent = doneCnt + ' 個';
-  // 更新去過的地點列表
-  var visitedEl = document.getElementById('visitedLocations');
-  if(visitedEl) {
+  // 更新去過的地點計數（地點詳情在 openVisitedCitiesMo 彈窗顯示）
+  (function(){
     var places = new Set();
     (RESTS||[]).forEach(function(r){
-      if(r.city && r.city !== '國外') places.add(r.city);
-      if(r.city === '國外' && r.country && r.foreignCity) places.add(r.country + '・' + r.foreignCity);
-      else if(r.city === '國外' && r.country) places.add(r.country);
+      var key = (r.city && r.city !== '國外') ? r.city
+        : (r.country && r.foreignCity ? r.country+'・'+r.foreignCity : r.country||'');
+      if(key) places.add(key);
     });
     (MEMS||[]).forEach(function(m){
-      if(m.city && m.city !== '國外') places.add(m.city);
-      if(m.city === '國外' && m.country && m.foreignCity) places.add(m.country + '・' + m.foreignCity);
-      else if(m.city === '國外' && m.country) places.add(m.country);
-      if(m.location) places.add(m.location);
+      var key = (m.city && m.city !== '國外') ? m.city
+        : (m.country && m.foreignCity ? m.country+'・'+m.foreignCity : m.country||m.location||'');
+      if(key) places.add(key);
     });
-    (RESTS||[]).forEach(function(r){ if(r.location) places.add(r.location); });
-    // 行事曆地點
-    (EVENTS||[]).forEach(function(e){ if(e.place) places.add(e.place); });
-    
-    var placesArr = Array.from(places).sort();
     var statCities = document.getElementById('stat-cities');
-    if(statCities) statCities.textContent = placesArr.length;
-    
-    if(!placesArr.length) {
-      visitedEl.innerHTML = '<div style="font-size:12px;color:var(--sub);">還沒有記錄</div>';
-    } else {
-      visitedEl.innerHTML = placesArr.map(function(p){
-        return '<div style="padding:4px 10px;background:var(--lt);border-radius:20px;font-size:12px;color:var(--accent);font-weight:600;cursor:pointer;" onclick="goToLocationFilter(\''+p+'\')">'+p+'</div>';
-      }).join('');
-    }
-  }
+    if(statCities) statCities.textContent = places.size;
+  })();
 
   // 更新回顧頁年份（只顯示有資料的年份）
   var yearSel = document.getElementById('reviewYearSel');
@@ -2961,18 +2946,16 @@ function _updateStats() {
 
 function openVisitedCitiesMo(){
   var places = {};
-  // 從餐廳記錄收集
   (RESTS||[]).forEach(function(r){
-    var key = r.city === '國外'
+    var key = r.city === '国外' || r.city === '國外'
       ? (r.country && r.foreignCity ? r.country+'・'+r.foreignCity : r.country||'國外')
       : (r.city||'');
     if(!key) return;
     if(!places[key]) places[key] = {rests:[], mems:[]};
     places[key].rests.push(r);
   });
-  // 從回憶錄收集
   (MEMS||[]).forEach(function(m){
-    var key = m.city === '國外'
+    var key = m.city === '国外' || m.city === '國外'
       ? (m.country && m.foreignCity ? m.country+'・'+m.foreignCity : m.country||'國外')
       : (m.city||m.location||'');
     if(!key) return;
@@ -2981,6 +2964,9 @@ function openVisitedCitiesMo(){
   });
 
   var keys = Object.keys(places).sort();
+  var statCities = document.getElementById('stat-cities');
+  if(statCities) statCities.textContent = keys.length;
+
   var body = document.getElementById('visitedCitiesBody');
   if(body){
     if(!keys.length){
@@ -2990,29 +2976,39 @@ function openVisitedCitiesMo(){
         var d = places[city];
         var rows = '';
         if(d.rests.length){
-          rows += '<div style="font-size:11px;font-weight:700;color:var(--sub);margin:6px 0 4px;">餐廳記錄（'+d.rests.length+'）</div>';
+          rows += '<div style="font-size:11px;font-weight:700;color:var(--sub);padding:6px 0 3px;border-top:1px solid var(--bdr);margin-top:8px;">🍽 餐廳記錄（'+d.rests.length+'）</div>';
           rows += d.rests.map(function(r){
-            var stars = r.star ? '★'.repeat(r.star) : '';
-            return '<div style="font-size:12px;color:var(--txt);padding:5px 8px;background:var(--card2);border-radius:8px;display:flex;justify-content:space-between;">'
-              +'<span>'+r.name+(r.type?'・'+r.type:'')+'</span>'
-              +'<span style="color:#E6A800;font-size:11px;">'+stars+'</span></div>';
+            var stars = r.star ? '<span style="color:#E6A800;">'+'★'.repeat(r.star)+'</span>' : '';
+            var dateStr = r.date || '';
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bdr);">'
+              +'<div style="flex:1;min-width:0;">'
+              +'<div style="font-size:12px;color:var(--txt);font-weight:600;">'+r.name+(r.type?' · <span style=\"color:var(--sub);font-weight:400;\">'+r.type+'</span>':'')+'</div>'
+              +(dateStr?'<div style="font-size:10px;color:var(--sub);">'+dateStr+'</div>':'')
+              +'</div>'
+              +'<div style="flex-shrink:0;margin-left:8px;font-size:12px;">'+stars+'</div></div>';
           }).join('');
         }
         if(d.mems.length){
-          rows += '<div style="font-size:11px;font-weight:700;color:var(--sub);margin:6px 0 4px;">回憶錄（'+d.mems.length+'）</div>';
+          rows += '<div style="font-size:11px;font-weight:700;color:var(--sub);padding:6px 0 3px;border-top:1px solid var(--bdr);margin-top:8px;">📷 回憶錄（'+d.mems.length+'）</div>';
           rows += d.mems.map(function(m){
-            return '<div style="font-size:12px;color:var(--txt);padding:5px 8px;background:var(--card2);border-radius:8px;">'
-              +'📷 '+m.title+(m.dateStart?' · '+m.dateStart:'')+'</div>';
+            return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bdr);">'
+              +'<div style="font-size:12px;color:var(--txt);font-weight:600;">'+m.title+'</div>'
+              +(m.dateStart?'<div style="font-size:10px;color:var(--sub);flex-shrink:0;margin-left:8px;">'+m.dateStart+'</div>':'')
+              +'</div>';
           }).join('');
         }
         return '<div style="background:var(--card);border-radius:14px;padding:12px 14px;border:1px solid var(--bdr);">'
-          +'<div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:6px;">📍 '+city+'</div>'
+          +'<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">'
+          +'<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" fill="var(--accent)" fill-opacity=".15" stroke="var(--accent)" stroke-width="1.5"/><circle cx="12" cy="10" r="3" fill="var(--accent)"/></svg>'
+          +'<span style="font-size:14px;font-weight:700;color:var(--txt);">'+city+'</span>'
+          +'<span style="font-size:11px;color:var(--sub);margin-left:auto;">'+(d.rests.length+d.mems.length)+' 筆</span></div>'
           +rows+'</div>';
       }).join('');
     }
   }
   openMo('visitedCitiesMo');
 }
+
 
 var listTab='pending',listCat='全部',pendingId=null;
 function setListTab(t,el){listTab=t;document.querySelectorAll('#page-list .tabs:first-of-type .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderList();}
