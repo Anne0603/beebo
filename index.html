@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="嗶啵">
 <title>嗶啵</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%234A7A58'/><rect x='10' y='24' width='44' height='30' rx='6' fill='white' opacity='0.95'/><rect x='22' y='18' width='12' height='8' rx='3' fill='white' opacity='0.95'/><circle cx='32' cy='38' r='9' fill='%23C8E4D0'/><path d='M32 43 C32 43 24 37 24 32 C24 28.5 26.5 27 29 27 C30.5 27 31.5 27.8 32 29 C32.5 27.8 33.5 27 35 27 C37.5 27 40 28.5 40 32 C40 37 32 43 32 43Z' fill='%234A7A58'/><circle cx='50' cy='29' r='3' fill='%23C8E4D0' opacity='0.8'/></svg>">
-<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%234A7A58'/><rect x='10' y='24' width='44' height='30' rx='6' fill='white' opacity='0.95'/><rect x='22' y='18' width='12' height='8' rx='3' fill='white' opacity='0.95'/><circle cx='32' cy='38' r='9' fill='%23C8E4D0'/><path d='M32 43 C32 43 24 37 24 32 C24 28.5 26.5 27 29 27 C30.5 27 31.5 27.8 32 29 C32.5 27.8 33.5 27 35 27 C37.5 27 40 28.5 40 32 C40 37 32 43 32 43Z' fill='%234A7A58'/><circle cx='50' cy='29' r='3' fill='%23C8E4D0' opacity='0.8'/></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%234A7A58'/><rect x='10' y='24' width='44' height='30' rx='6' fill='white' opacity='0.95'/><rect x='22' y='18' width='12' height='8' rx='3' fill='white' opacity='0.95'/><circle cx='32' cy='38' r='9' fill='%23C8E4D0'/><path d='M32 46 C32 46 24 40 24 35 C24 31.5 26.5 30 29 30 C30.5 30 31.5 30.8 32 32 C32.5 30.8 33.5 30 35 30 C37.5 30 40 31.5 40 35 C40 40 32 46 32 46Z' fill='%234A7A58'/><circle cx='50' cy='29' r='3' fill='%23C8E4D0' opacity='0.8'/></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='16' fill='%234A7A58'/><rect x='10' y='24' width='44' height='30' rx='6' fill='white' opacity='0.95'/><rect x='22' y='18' width='12' height='8' rx='3' fill='white' opacity='0.95'/><circle cx='32' cy='38' r='9' fill='%23C8E4D0'/><path d='M32 46 C32 46 24 40 24 35 C24 31.5 26.5 30 29 30 C30.5 30 31.5 30.8 32 32 C32.5 30.8 33.5 30 35 30 C37.5 30 40 31.5 40 35 C40 40 32 46 32 46Z' fill='%234A7A58'/><circle cx='50' cy='29' r='3' fill='%23C8E4D0' opacity='0.8'/></svg>">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -2969,31 +2969,31 @@ function checkUpcomingReminders() {
   if(prefs.anniv !== false && window._coupleData && window._coupleData.startDate) {
     var sd = window._coupleData.startDate.split('-');
     if(parseInt(sd[1])===cm && parseInt(sd[2])===cd)
-      reminders.push({ msg:'💑 交往紀念日還有 ' + advDays + ' 天！', type:'info' });
+      reminders.push({ msg:'💑 交往紀念日還有 ' + advDays + ' 天！', type:'reminder' });
   }
   // 生日
   if(prefs.bday !== false) {
     if(window.userData && window.userData.birthday) {
       var bd = window.userData.birthday.split('-');
       if(parseInt(bd[1])===cm && parseInt(bd[2])===cd)
-        reminders.push({ msg:'🎂 你的生日還有 ' + advDays + ' 天！', type:'info' });
+        reminders.push({ msg:'🎂 你的生日還有 ' + advDays + ' 天！', type:'reminder' });
     }
     if(window.partnerData && window.partnerData.birthday) {
       var pbd = window.partnerData.birthday.split('-');
       if(parseInt(pbd[1])===cm && parseInt(pbd[2])===cd)
-        reminders.push({ msg:'🎂 ' + (window.partnerData.name||'對方') + ' 的生日還有 ' + advDays + ' 天！', type:'info' });
+        reminders.push({ msg:'🎂 ' + (window.partnerData.name||'對方') + ' 的生日還有 ' + advDays + ' 天！', type:'reminder' });
     }
   }
   // 節日（不需要開關，固定提醒）
   var hMap = {'2-14':'情人節 💕','3-14':'白色情人節 🤍','8-10':'七夕情人節 🌠','12-25':'聖誕節 🎄'};
-  if(hMap[cm+'-'+cd]) reminders.push({ msg:hMap[cm+'-'+cd] + ' 即將到來（' + advDays + '天後）！', type:'info' });
+  if(hMap[cm+'-'+cd]) reminders.push({ msg:hMap[cm+'-'+cd] + ' 即將到來（' + advDays + '天後）！', type:'reminder' });
   // 行事曆活動（獨立開關 notif-event）
   if(prefs.event !== false && window.EVENTS) {
     window.EVENTS.forEach(function(e){
       if(e.dateStart){
         var ed = new Date(e.dateStart);
         if(ed.getFullYear()===checkDate.getFullYear() && ed.getMonth()+1===cm && ed.getDate()===cd)
-          reminders.push({ msg:'📅 「' + e.name + '」即將到來（' + advDays + '天後）！', type:'cal' });
+          reminders.push({ msg:'📅 「' + e.name + '」即將到來（' + advDays + '天後）！', type:'reminder' });
       }
     });
   }
@@ -3004,7 +3004,7 @@ function checkUpcomingReminders() {
         var dl = new Date(ch.deadline); dl.setHours(0,0,0,0);
         var daysLeft = Math.floor((dl - today) / 86400000);
         if(daysLeft === advDays)
-          reminders.push({ msg:'⭐ 挑戰「' + ch.name + '」還有 ' + advDays + ' 天到期，加油！', type:'chal' });
+          reminders.push({ msg:'⭐ 挑戰「' + ch.name + '」還有 ' + advDays + ' 天到期，加油！', type:'reminder' });
         // 截止日期已過 → 自動設為失敗
         if(daysLeft < 0 && window._coupleId && window._fsOps){
           var {doc,updateDoc}=window._fsOps;
@@ -3137,11 +3137,13 @@ function renderNotifPage(){
     el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div>';
     return;
   }
-  var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅'};
+  var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅', reminder:'🔔'};
   el.innerHTML = visible.map(function(n) {
     var d = new Date(n.time);
     var ts = (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
-    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--card);border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
+    var isReminder = n.type === 'reminder';
+    var bg = isReminder ? 'background:#FFF8E1;border:1px solid #FFE082;' : 'background:var(--card);';
+    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;'+bg+'border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
       +'<div style="font-size:20px;flex-shrink:0;">'+(icons[n.type]||'🔔')+'</div>'
       +'<div style="flex:1;min-width:0;">'
       +'<div style="font-size:13px;color:var(--txt);line-height:1.4;">'+n.msg+'</div>'
