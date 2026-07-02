@@ -1174,26 +1174,28 @@ window.reauthenticateForPinReset = async function() {
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>我們的清單
     <div style="margin-left:auto;"><button onclick="openMo('inspireMo')" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button></div>
   </div>
-  <div style="padding:0 13px;flex-shrink:0;">
-    <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <input id="listSearch" class="fi" placeholder="🔍 搜尋清單..." oninput="renderList()" style="flex:2;padding:10px 10px;font-size:12px;">
-      <select id="listMonthFilter" onchange="renderList()" style="flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
-        <option value="">全部時間</option>
-      </select>
-    </div>
-    <div style="display:flex;gap:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0 -13px;padding:0 13px;">
+  <div style="flex-shrink:0;">
+    <!-- Tab 在最上面 -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0;">
       <button id="listTabPending" onclick="setListTab('pending',this)" style="flex:1;padding:10px;font-size:14px;font-weight:700;color:var(--accent);border:none;background:none;border-bottom:2px solid var(--accent);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">未完成</button>
       <button id="listTabDone" onclick="setListTab('done',this)" style="flex:1;padding:10px;font-size:14px;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">已完成</button>
     </div>
-    <div id="catTabs" style="margin-top:2px;">
-    <select id="listCatSel" onchange="setListCatSel(this.value)" style="width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
-      <option value="全部">全部分類</option>
-      <option value="想去哪">想去哪</option>
-      <option value="想吃什麼">想吃什麼</option>
-      <option value="想做什麼">想做什麼</option>
-      <option value="想看什麼">想看什麼</option>
-    </select>
-  </div>
+    <!-- 篩選在下面 -->
+    <div style="padding:8px 13px 4px;display:flex;flex-direction:column;gap:6px;">
+      <input id="listSearch" class="fi" placeholder="🔍 搜尋清單..." oninput="renderList()" style="font-size:13px;">
+      <div style="display:flex;gap:6px;">
+        <select id="listCatSel" onchange="setListCatSel(this.value)" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+          <option value="全部">全部分類</option>
+          <option value="想去哪">想去哪</option>
+          <option value="想吃什麼">想吃什麼</option>
+          <option value="想做什麼">想做什麼</option>
+          <option value="想看什麼">想看什麼</option>
+        </select>
+        <select id="listMonthFilter" onchange="renderList()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+          <option value="">全部時間</option>
+        </select>
+      </div>
+    </div>
   </div>
   <div class="sc" id="listBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addListMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -1206,18 +1208,20 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰
   </div>
-  <div style="padding:0 13px;flex-shrink:0;">
-    <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <input id="chalSearch" class="fi" placeholder="🔍 搜尋挑戰..." oninput="renderChal()" style="flex:1;padding:10px 10px;font-size:12px;">
-    </div>
-    <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <select id="chalYearFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部年份</option></select>
-      <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
-    </div>
-    <div style="display:flex;gap:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0 -13px;padding:0 13px;align-items:stretch;">
+  <div style="flex-shrink:0;">
+    <!-- Tab 在最上面 -->
+    <div style="display:flex;gap:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0;">
       <button id="chalTabActive" onclick="setChalTab('active',this)" style="flex:1;padding:10px;font-size:14px;font-weight:700;color:var(--accent);border:none;background:none;border-bottom:2px solid var(--accent);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">進行中</button>
       <button id="chalTabDone" onclick="setChalTab('done',this)" style="flex:1;padding:10px;font-size:14px;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">已完成</button>
-      <button id="chalTabFailed" onclick="setChalTab('failed',this)" style="padding:10px 14px;font-size:13px;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;white-space:nowrap;">已失敗</button>
+      <button id="chalTabFailed" onclick="setChalTab('failed',this)" style="flex:1;padding:10px;font-size:14px;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">已失敗</button>
+    </div>
+    <!-- 篩選在下面 -->
+    <div style="padding:8px 13px 4px;display:flex;flex-direction:column;gap:6px;">
+      <input id="chalSearch" class="fi" placeholder="🔍 搜尋挑戰..." oninput="renderChal()" style="font-size:13px;">
+      <div style="display:flex;gap:6px;">
+        <select id="chalYearFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部年份</option></select>
+        <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+      </div>
     </div>
   </div>
   <div class="sc" id="chalBody" style="padding-top:6px;"></div>
