@@ -318,17 +318,11 @@ input[type=file]{display:none;}
     if (pm) pm.classList.remove('open');
     window.buildNavs();
 
-    // coupleData 已載入，重新確認管理員狀態（備用帳號 backupAdmins 在這裡才能確認）
+    // coupleData 已載入，重新確認管理員狀態
     (function(){
       var adminWrap = document.getElementById('adminSectionWrap');
       if (!adminWrap) return;
-      var isAdminUser = window.userData && window.userData.isAdmin === true;
-      var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
-      var backupAdmins = (window._coupleData && window._coupleData.backupAdmins) || [];
-      var myUid = window.currentUser && window.currentUser.uid;
-      var myEmail = window.currentUser && window.currentUser.email;
-      var isBackupAdmin = myEmail && backupAdmins.includes(myEmail);
-      adminWrap.style.display = (isAdminUser || adminUids.includes(myUid) || isBackupAdmin) ? 'block' : 'none';
+      adminWrap.style.display = _checkIsAdmin() ? 'block' : 'none';
     })();
 
     setTimeout(function(){ if(typeof window.checkUpcomingReminders==='function') window.checkUpcomingReminders(); }, 1000);
@@ -351,12 +345,7 @@ input[type=file]{display:none;}
         (function(){
           var adminWrap = document.getElementById('adminSectionWrap');
           if(!adminWrap) return;
-          var isAdminUser = window.userData && window.userData.isAdmin === true;
-          var adminUids = data.adminUids || [];
-          var backupAdmins = data.backupAdmins || [];
-          var myUid = window.currentUser && window.currentUser.uid;
-          var myEmail = window.currentUser && window.currentUser.email;
-          adminWrap.style.display = (isAdminUser || adminUids.includes(myUid) || (myEmail && backupAdmins.includes(myEmail))) ? 'block' : 'none';
+          adminWrap.style.display = _checkIsAdmin() ? 'block' : 'none';
         })();
         if(!data.pinResetRequest) return;
         var req = data.pinResetRequest;
@@ -408,13 +397,7 @@ input[type=file]{display:none;}
         myAvc.innerHTML = '<img src="'+(data.photo||user.photoURL)+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
       }
       var adminWrap = document.getElementById('adminSectionWrap');
-      var isAdminUser = data.isAdmin === true;
-      var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
-      var backupAdmins = (window._coupleData && window._coupleData.backupAdmins) || [];
-      var uid = window.currentUser && window.currentUser.uid;
-      var email = window.currentUser && window.currentUser.email;
-      var isBackupAdmin = email && backupAdmins.includes(email);
-      if (adminWrap) adminWrap.style.display = (isAdminUser || adminUids.includes(uid) || isBackupAdmin) ? 'block' : 'none';
+      if (adminWrap) adminWrap.style.display = _checkIsAdmin() ? 'block' : 'none';
       var avtMe = document.getElementById('avt-me');
       if (avtMe) avtMe.textContent = data.lastSeen ? window._fmtLastSeen(data.lastSeen) : '剛剛';
 
@@ -1895,7 +1878,7 @@ function doConfirm() {
   window._confirmCallback = null;
 }
 
-function editVersion(idx){showToast('編輯功能開發中');}
+
 
 function switchInspireTab(tab,el){
   var tabs=['list','chal'];
@@ -3403,6 +3386,22 @@ var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline
 var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 
 // ── Firestore 清單監聽 ──
+// ── 超級管理員（程式碼綁定 email，不受 Firestore 設定影響）──
+var _SUPER_ADMIN_EMAIL = 'pbf105019@gmail.com';
+function _isSuperAdmin(){
+  var email = window.currentUser && window.currentUser.email;
+  return email === _SUPER_ADMIN_EMAIL;
+}
+function _checkIsAdmin(){
+  if(_isSuperAdmin()) return true;
+  var uid = window.currentUser && window.currentUser.uid;
+  var email = window.currentUser && window.currentUser.email;
+  var isAdminUser = window.userData && window.userData.isAdmin === true;
+  var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
+  var backupAdmins = (window._coupleData && window._coupleData.backupAdmins) || [];
+  return isAdminUser || adminUids.includes(uid) || (email && backupAdmins.includes(email));
+}
+
 // ── 版本記錄 ──
 var _CHANGELOG_DEFAULT = [
   {ver:'1.0.0', date:'2026-07-02', title:'正式上線 🎉', items:['回憶錄照片牆、語錄','清單（想去哪/想吃什麼/想做什麼/想看什麼）','挑戰系統（進行中/已完成/已失敗）','行事曆約會計畫','餐廳記錄','留言系統','通知中心（Firestore 即時同步）','回顧頁年份統計','成就里程碑','管理員設定']}
@@ -3416,11 +3415,7 @@ function renderChangelog(){
   var body=document.getElementById('changelogBody');
   if(!body) return;
   var data=_getChangelog();
-  var myUid=window.currentUser&&window.currentUser.uid;
-  var myEmail=window.currentUser&&window.currentUser.email;
-  var adminUids=(window._coupleData&&window._coupleData.adminUids)||[];
-  var backupAdmins=(window._coupleData&&window._coupleData.backupAdmins)||[];
-  var isAdmin=(window.userData&&window.userData.isAdmin)||adminUids.includes(myUid)||(myEmail&&backupAdmins.includes(myEmail));
+  var isAdmin=_checkIsAdmin();
   var adminAdd=isAdmin?'<div style="padding:0 0 12px;"><button onclick="openChangelogAdd()" class="btn2 bsec" style="width:100%;font-size:13px;">+ 新增版本記錄</button></div>':'';
   body.innerHTML=adminAdd+data.map(function(v,idx){
     var editBtn=isAdmin?'<button onclick="openChangelogEdit('+idx+')" style="all:unset;font-size:11px;color:var(--sub);cursor:pointer;padding:2px 8px;border-radius:6px;background:var(--card2);margin-left:auto;">編輯</button>':'';
@@ -3509,7 +3504,7 @@ function renderList(){
   }
   body.innerHTML=html;
 }
-function jumpToChallenge(){showToast('跳到對應挑戰');}
+
 
 var _editListId = null;
 function openEditListMo(id){
@@ -5842,15 +5837,12 @@ function openBindMo(){
     var myName = (window.userData && window.userData.name) || '我';
     var partnerName = (window.partnerData && window.partnerData.name) || '對方';
     var myEmail = window.currentUser ? window.currentUser.email : '';
-    var myUid = window.currentUser && window.currentUser.uid;
-    var myIsAdmin = !!(window.userData && window.userData.isAdmin === true);
-    var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
-    var myIsAdminAlt = adminUids.includes(myUid);
-    var partnerIsAdmin = !!(window.partnerData && window.partnerData.isAdmin === true);
+    var iAmAdmin = _checkIsAdmin();
     var partnerUid = window.userData && window.userData.partnerId;
-    var partnerIsAdminAlt = partnerUid && adminUids.includes(partnerUid);
-    console.log('[openBindMo] myIsAdmin:', myIsAdmin, 'myIsAdminAlt:', myIsAdminAlt, 'partnerIsAdmin:', partnerIsAdmin, 'partnerIsAdminAlt:', partnerIsAdminAlt);
-    var iAmAdmin = myIsAdmin || myIsAdminAlt;
+    var adminUids = (window._coupleData && window._coupleData.adminUids) || [];
+    var backupAdmins = (window._coupleData && window._coupleData.backupAdmins) || [];
+    var partnerIsAdmin = !!(window.partnerData && window.partnerData.isAdmin === true);
+    var partnerIsAdminAlt = partnerUid && (adminUids.includes(partnerUid));
     var partnerHasAdmin = partnerIsAdmin || partnerIsAdminAlt;
     if(window._coupleId){
       el.innerHTML = '<b>配對狀態：已配對 ✓</b><br>我：' + myName + '（' + myEmail + '）'+(iAmAdmin?' 🔑':'')+'<br>對方：' + partnerName+(partnerHasAdmin?' 🔑':'') + '<br>配對 ID：' + window._coupleId.slice(-8);
