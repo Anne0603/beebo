@@ -1196,10 +1196,10 @@ window.reauthenticateForPinReset = async function() {
 
 <!-- CHALLENGES -->
 <div class="page" id="page-challenges">
-  <div class="pt" style="position:relative;justify-content:center;">
-    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰
-    <div style="position:absolute;right:0;"><button onclick="openChalInspireMo()" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button></div>
+  <div class="pt">
+    <button onclick="goBack()" style="all:unset;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <span style="font-weight:700;font-size:15px;color:var(--txt);display:flex;align-items:center;gap:6px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰</span>
+    <button onclick="openChalInspireMo()" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;margin-left:auto;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button>
   </div>
   <div style="flex-shrink:0;">
     <!-- Tab 在最上面 -->
@@ -1937,9 +1937,26 @@ function switchInspireTab(tab,el){
   tabs.forEach(function(t){
     var btn=document.getElementById('itab-'+t);
     var body=document.getElementById('inspire'+t.charAt(0).toUpperCase()+t.slice(1)+'Mg');
-    if(btn){btn.style.background=t===tab?'var(--accent)':'var(--card2)';btn.style.color=t===tab?'#fff':'var(--sub)';}
+    if(btn){
+      btn.style.background=t===tab?'var(--accent)':'var(--card2)';
+      btn.style.color=t===tab?'#fff':'var(--sub)';
+      btn.classList.toggle('itab-on', t===tab);
+    }
     if(body){body.style.display=t===tab?'flex':'none';}
   });
+  // 重新渲染靈感列表讓按鈕文字正確（加入清單 vs 加入挑戰）
+  if(typeof renderInspire==='function') renderInspire();
+}
+
+function addChalFromInspire(name){
+  // 把靈感名稱帶入新增挑戰表單，再開啟
+  closeMo('inspireMo');
+  setTimeout(function(){
+    var inp = document.getElementById('newChalName');
+    if(inp) inp.value = name;
+    openMo('addChalMo');
+  }, 250);
+  showToast('請設定截止日期後新增 📅');
 }
 
 var PAGES=['home','memory','list','notify','settings'];
@@ -3692,11 +3709,16 @@ function renderInspire(){
   var list=document.getElementById('inspireList');
   if(!list) return;
   if(!items.length){list.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">沒有符合的靈感</div>';return;}
-  list.innerHTML=items.map(i=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);">
-      <div><div style="font-size:13px;font-weight:600;color:var(--txt);">${i.n}</div><div style="font-size:10px;color:var(--sub);">${i.c}</div></div>
-      <button onclick="addFromInspire('${i.n}','${i.c}')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">加入</button>
-    </div>`).join('');
+  list.innerHTML=items.map(function(i){
+    var isChalTab = document.getElementById('itab-chal') &&
+      document.getElementById('itab-chal').classList.contains('itab-on');
+    var btn = isChalTab
+      ? '<button onclick="addChalFromInspire(\''+i.n.replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;">加入挑戰</button>'
+      : '<button onclick="addFromInspire(\''+i.n.replace(/'/g,'\\\'')+'\',' + '\''+i.c.replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;">加入清單</button>';
+    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);">'
+      +'<div><div style="font-size:13px;font-weight:600;color:var(--txt);">'+i.n+'</div><div style="font-size:10px;color:var(--sub);">'+i.c+'</div></div>'
+      +btn+'</div>';
+  }).join('');
 }
 async function addFromInspire(n,cat){
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
