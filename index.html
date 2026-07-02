@@ -1535,18 +1535,41 @@ window.reauthenticateForPinReset = async function() {
   <button onclick="saveDiscordSettings()" class="btn2 bpri" style="width:100%;margin-top:8px;">儲存設定</button>
 </div></div>
 
-<div class="mo" id="cloudinarySettingsMo"><div class="mbox">
+<div class="mo" id="cloudinarySettingsMo"><div class="mbox" style="max-height:90vh;overflow-y:auto;">
   <div class="mh"><span class="mtit">Cloudinary 照片設定</span><button class="mcl" onclick="closeMo('cloudinarySettingsMo')">×</button></div>
-  <div style="font-size:11px;color:var(--sub);margin-bottom:12px;line-height:1.6;">前往 <b>console.cloudinary.com</b> 取得 Cloud Name 和 Upload Preset，填入後兩人共用同一個帳號上傳照片。</div>
+
+  <!-- 說明區 -->
+  <div style="background:var(--lt);border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.8;color:var(--txt);">
+    <div style="font-weight:700;color:var(--accent);margin-bottom:6px;">📷 什麼是 Cloudinary？</div>
+    照片存在 Cloudinary 雲端，不佔用 Firebase 空間。免費方案有 <b>25 GB</b> 儲存空間，大約可放 <b>5,000～12,000 張</b>照片，上傳後 Cloudinary 會自動壓縮。
+  </div>
+
+  <!-- 設定步驟 -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:700;color:var(--txt);margin-bottom:8px;">📋 設定步驟（第一次使用）</div>
+    <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--txt);">
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">1</span><span>前往 <b>cloudinary.com</b> 免費註冊帳號</span></div>
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">2</span><span>登入後，右上角 Dashboard 可看到 <b>Cloud Name</b>（一串英文字）</span></div>
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">3</span><span>點上方 <b>Settings → Upload → Upload presets</b>，新增一個 Preset，模式設為 <b>Unsigned</b>，記下 Preset Name</span></div>
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">4</span><span>把 Cloud Name 和 Preset Name 填入下方，儲存即可</span></div>
+    </div>
+  </div>
+
+  <!-- 查看使用量 -->
+  <div style="background:var(--card2);border-radius:12px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--sub);line-height:1.7;">
+    <b style="color:var(--txt);">📊 查看儲存使用量</b><br>
+    登入 Cloudinary → 左側點 <b>Home</b> → 點 <b>Go to Usage Reports</b> → 看 <b>Storage</b> 數字（MB）<br>
+    免費上限：25,000 MB（25 GB）
+  </div>
+
   <div class="fg"><label class="fl">Cloud Name</label>
     <input class="fi" id="cloudinaryCloudInput" placeholder="輸入 Cloud Name">
   </div>
-  <div class="fg"><label class="fl">Upload Preset</label>
+  <div class="fg"><label class="fl">Upload Preset Name</label>
     <input class="fi" id="cloudinaryPresetInput" placeholder="輸入 Upload Preset 名稱">
   </div>
-  <div style="font-size:10px;color:var(--sub);margin-bottom:8px;">Upload Preset 需在 Cloudinary → Settings → Upload → Upload presets 設為 <b>Unsigned</b></div>
-  <div style="display:flex;gap:8px;">
-    <button onclick="clearCloudinarySettings()" class="btn2 bsec" style="flex:1;">清空設定</button>
+  <div style="display:flex;gap:8px;margin-top:4px;">
+    <button onclick="clearCloudinarySettings()" class="btn2 bsec" style="flex:1;">清空</button>
     <button onclick="saveCloudinarySettings()" class="btn2 bpri" style="flex:2;">儲存</button>
   </div>
 </div></div>
