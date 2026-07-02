@@ -1398,9 +1398,16 @@ window.reauthenticateForPinReset = async function() {
       </select>
     </div>
   </div>
+  <!-- 待評分橫幅 -->
+  <div id="restRatingBanner" style="display:none;margin:0 13px 6px;background:#FFF8E1;border:1px solid #FFE082;border-radius:12px;padding:10px 14px;align-items:center;justify-content:space-between;flex-shrink:0;">
+    <span class="banner-txt" style="font-size:13px;font-weight:600;color:#856404;"></span>
+    <button onclick="scrollToFirstUnrated()" style="all:unset;font-size:12px;color:#856404;cursor:pointer;font-weight:700;font-family:'Noto Sans TC',sans-serif;">去評 →</button>
+  </div>
   <div class="sc" id="restBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addRestMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 </div>
+
+<div class="mo" id="restDetailMo"><div class="mbox"><div class="mh"><span class="mtit" id="restDetailTitle">餐廳評分</span><button class="mcl" onclick="closeMo('restDetailMo')">×</button></div><div id="restDetailBody" style="display:flex;flex-direction:column;gap:12px;"></div></div></div>
 
 <!-- MODALS -->
 
@@ -3019,6 +3026,13 @@ function checkUpcomingReminders() {
   reminders.forEach(function(r){ addNotif(r.msg, r.type, true); });
   console.log('[提醒] 找到', reminders.length, '個提醒:', reminders.map(function(r){return r.msg;}));
   if(reminders.length > 0) showToast('📬 ' + reminders.length + ' 個提醒通知已發送');
+  // 每 7 天提醒未評分餐廳
+  var lastRR=localStorage.getItem('beebo_last_rating_reminder');
+  var daysSinceRR=lastRR?Math.floor((today-new Date(lastRR))/86400000):999;
+  if(daysSinceRR>=7){
+    var uc=_unratedCount();
+    if(uc>0){addNotif('🍽️ 你有 '+uc+' 家餐廳還沒評分，去回想一下吧！','reminder',true);localStorage.setItem('beebo_last_rating_reminder',todayStr);}
+  }
 }
 
 // ── 通知系統 ──
@@ -3486,6 +3500,12 @@ function setListTab(t,el){
 function setListCat(c,el){listCat=c;renderList();}
 function setListCatSel(v){listCat=v;renderList();}
 var STAR_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+var STAR_EMPTY_SVG='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+var STAR_HALF_SVG='<svg width="12" height="12" viewBox="0 0 24 24"><defs><linearGradient id="hg" x1="0" x2="1" y1="0" y2="0"><stop offset="50%" stop-color="#F4C430"/><stop offset="50%" stop-color="#E0E0E0"/></linearGradient></defs><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="url(#hg)" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+function _calcAvgStar(ratings){var vals=ratings?Object.values(ratings).filter(function(v){return typeof v==='number'&&v>0;}):[]; return vals.length?vals.reduce(function(a,b){return a+b;},0)/vals.length:0;}
+function _renderStars(avg,size){var s=size||12;var full=Math.floor(avg);var half=(avg-full)>=0.5;var empty=5-full-(half?1:0);function rs(svg){return svg.replace(/width="12"/g,'width="'+s+'"').replace(/height="12"/g,'height="'+s+'"');}return rs(STAR_SVG).repeat(full)+(half?rs(STAR_HALF_SVG):'')+rs(STAR_EMPTY_SVG).repeat(empty<0?0:empty);}
+function _myRating(r){var uid=window.currentUser&&window.currentUser.uid;return uid&&r.ratings&&typeof r.ratings[uid]==='number'?r.ratings[uid]:null;}
+function _unratedCount(){var uid=window.currentUser&&window.currentUser.uid;if(!uid)return 0;return RESTS.filter(function(r){return !r.ratings||typeof r.ratings[uid]!=='number';}).length;}
 var EDIT_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>';
 var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#c62828" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#c62828" stroke-width="1.5"/></svg>';
 var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
@@ -4368,17 +4388,28 @@ function renderRests(){
     if(fct) items=items.filter(function(r){return r.country===fct;});
   }
   if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:14px;">沒有符合條件的餐廳記錄</div>';return;}
+  // 未評分橫幅
+  var banner=document.getElementById('restRatingBanner');
+  var uc=_unratedCount();
+  if(banner){banner.style.display=uc>0?'flex':'none';var bt=banner.querySelector('.banner-txt');if(bt)bt.textContent='📍 你有 '+uc+' 家餐廳待評分';}
+  var myUid=window.currentUser&&window.currentUser.uid;
   body.innerHTML=items.map(function(r){
-    var stars='';for(var i=0;i<(r.star||0);i++)stars+=STAR_SVG;
+    var avg=r.ratings?_calcAvgStar(r.ratings):(r.star||0);
+    var starsHtml=_renderStars(avg);
+    var rCnt=r.ratings?Object.values(r.ratings).filter(function(v){return typeof v==='number';}).length:1;
+    var myRated=myUid&&r.ratings&&typeof r.ratings[myUid]==='number';
+    var pendingBadge=!myRated?'<span style="font-size:9px;background:#FFF3CD;color:#856404;border:1px solid #FFE082;border-radius:6px;padding:1px 5px;margin-left:4px;">待評</span>':'';
     var cityLabel=r.city==='國外'?(r.country||'')+(r.foreignCity?' '+r.foreignCity:''):r.city;
-    var editBtn='<button onclick="editRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:var(--accent);cursor:pointer;border-radius:8px;background:var(--lt);margin-right:4px;">編輯</button>';
+    var avgLabel=avg>0?'<span style="font-size:10px;color:var(--sub);margin-left:2px;">('+avg.toFixed(1)+'/'+rCnt+')</span>':'';
+    var detailBtn='<button data-rid="'+r.id+'" onclick="openRestDetail(this.dataset.rid)" style="all:unset;padding:4px 8px;font-size:11px;color:var(--accent);cursor:pointer;border-radius:8px;background:var(--lt);margin-right:4px;">詳情</button>';
     var delBtn='<button onclick="confirmDeleteRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:#c62828;cursor:pointer;border-radius:8px;background:#fdecea;">刪除</button>';
     return '<div class="ri">'+
-      '<div class="ri-top"><div class="ri-name">'+(r.name||'')+'</div><div style="display:flex;gap:1px;">'+stars+'</div></div>'+
+      '<div class="ri-top"><div class="ri-name">'+(r.name||'')+'</div>'+
+      '<div style="display:flex;align-items:center;gap:2px;">'+starsHtml+avgLabel+pendingBadge+'</div></div>'+
       '<div class="ri-meta">'+(r.type||'')+'・'+(r.date||'')+(r.dish?'・'+r.dish:'')+'</div>'+
       (r.note?'<div style="font-size:10px;color:var(--sub);margin-top:2px;">'+r.note+'</div>':'')+
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">'+
-      '<span class="ri-city">'+(cityLabel||'')+'</span><div>'+editBtn+delBtn+'</div></div></div>';
+      '<span class="ri-city">'+(cityLabel||'')+'</span><div>'+detailBtn+delBtn+'</div></div></div>';
   }).join('');
 }
 
@@ -4391,6 +4422,80 @@ function renderLinkRests(){
       '<input type="checkbox" value="'+r.id+'" style="accent-color:var(--accent);">'+
       r.name+'・'+(r.city||'')+'・'+Array(r.star+1).join('★')+'</label>';
   }).join('');
+}
+
+// ── 餐廳詳情與雙人評分 ──
+var _rateRestId=null,_rateRestStar=0;
+function openRestDetail(id){
+  var r=RESTS.find(function(x){return x.id===id;});if(!r)return;
+  _rateRestId=id;_rateRestStar=_myRating(r)||0;
+  var ti=document.getElementById('restDetailTitle');if(ti)ti.textContent=r.name||'餐廳評分';
+  var body=document.getElementById('restDetailBody');if(!body)return;
+  var myUid=window.currentUser&&window.currentUser.uid;
+  var partnerUid=window.userData&&window.userData.partnerId;
+  var myName=(window.userData&&window.userData.name)||'我';
+  var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
+  var myR=_myRating(r);
+  var partnerR=r.ratings&&partnerUid&&typeof r.ratings[partnerUid]==='number'?r.ratings[partnerUid]:null;
+  var avg=r.ratings?_calcAvgStar(r.ratings):(r.star||0);
+  var rCnt=r.ratings?Object.values(r.ratings).filter(function(v){return typeof v==='number';}).length:(r.star?1:0);
+  function makePicker(initVal){
+    return [1,2,3,4,5].map(function(n){
+      var f=n<=(initVal||0);
+      return '<svg data-n="'+n+'" onclick="setRestRating('+n+')" width="28" height="28" viewBox="0 0 24 24" style="cursor:pointer;"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="'+(f?'#F4C430':'none')+'" stroke="'+(f?'#E6A800':'#C8C8C8')+'" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+    }).join('');
+  }
+  body.innerHTML=
+    '<div style="font-size:12px;color:var(--sub);">'+(r.type||'')+(r.date?' · '+r.date:'')+(r.dish?' · '+r.dish:'')+'</div>'+
+    (r.note?'<div style="font-size:13px;color:var(--txt);background:var(--card2);padding:10px;border-radius:10px;">'+r.note+'</div>':'')+
+    '<div style="background:var(--card2);border-radius:14px;padding:12px;">'
+      +'<div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:10px;">評分</div>'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+        +'<span style="font-size:12px;width:36px;">'+myName+'</span>'
+        +'<div id="myRestStarPicker" style="display:flex;gap:2px;">'+makePicker(myR)+'</div>'
+        +(myR!==null?'<span style="font-size:11px;color:var(--sub);">'+myR+'★</span>':'<span style="font-size:11px;color:#856404;">待評</span>')
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
+        +'<span style="font-size:12px;width:36px;">'+partnerName+'</span>'
+        +(partnerR!==null?'<div style="display:flex;gap:2px;">'+_renderStars(partnerR,20)+'</div><span style="font-size:11px;color:var(--sub);">'+partnerR+'★</span>':'<span style="font-size:11px;color:var(--sub);">未評分</span>')
+      +'</div>'
+      +(avg>0?'<div style="display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--bdr);">'
+        +'<span style="font-size:12px;color:var(--sub);">平均</span>'
+        +'<div style="display:flex;gap:1px;">'+_renderStars(avg,18)+'</div>'
+        +'<span style="font-size:12px;font-weight:700;color:var(--txt);">'+avg.toFixed(1)+' ('+rCnt+'/2)</span></div>':'')
+    +'</div>'
+    +'<div style="display:flex;gap:8px;">'
+      +'<button onclick="saveRestRating()" class="btn2 bpri" style="flex:2;">儲存評分</button>'
+      +'<button data-rid="'+id+'" onclick="closeMo(\'restDetailMo\');setTimeout(function(){editRest(\''+id+'\');},250);" class="btn2 bsec" style="flex:1;">編輯</button>'
+    +'</div>';
+  openMo('restDetailMo');
+}
+function setRestRating(val){
+  _rateRestStar=val;
+  document.querySelectorAll('#myRestStarPicker svg').forEach(function(s,i){
+    var f=(i+1)<=val;
+    var p=s.querySelector('path');
+    if(p){p.setAttribute('fill',f?'#F4C430':'none');p.setAttribute('stroke',f?'#E6A800':'#C8C8C8');}
+  });
+}
+async function saveRestRating(){
+  if(!_rateRestId||!_rateRestStar){showToast('請先選擇星星');return;}
+  if(!window._fsOps||!window._coupleId)return;
+  var myUid=window.currentUser&&window.currentUser.uid;if(!myUid)return;
+  var r=RESTS.find(function(x){return x.id===_rateRestId;});
+  var ratings=Object.assign({},r&&r.ratings||{});
+  ratings[myUid]=_rateRestStar;
+  var avg=_calcAvgStar(ratings);
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'rests',_rateRestId),{ratings:ratings,star:Math.round(avg*2)/2});
+  showToast('評分已儲存 ✓');
+  closeMo('restDetailMo');
+}
+function scrollToFirstUnrated(){
+  var myUid=window.currentUser&&window.currentUser.uid;if(!myUid)return;
+  var first=RESTS.find(function(r){return !r.ratings||typeof r.ratings[myUid]!=='number';});
+  if(!first){showToast('都已評分了！');return;}
+  openRestDetail(first.id);
 }
 
 async function confirmDeleteRest(id){
@@ -4483,16 +4588,13 @@ async function addRest(){
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
   var location=(document.getElementById('newRC2')||{}).value||'';
   var {collection,addDoc,serverTimestamp}=window._fsOps;
+  var myUid2=window.currentUser&&window.currentUser.uid;
+  var initRatings={};if(myUid2)initRatings[myUid2]=restStar;
   await addDoc(collection(window._db,'couples',window._coupleId,'rests'),{
-    name: n,
-    type: (document.getElementById('newRT2')||{}).value||'',
-    location: location,
-    city: location,
-    star: restStar,
+    name: n, type: (document.getElementById('newRT2')||{}).value||'',
+    location: location, city: location, star: restStar, ratings: initRatings,
     date: (document.getElementById('newRD')||{}).value||new Date().toLocaleDateString('zh-TW'),
-    dish: (document.getElementById('newDish')||{}).value||'',
-    note: '',
-    createdAt: serverTimestamp()
+    dish: (document.getElementById('newDish')||{}).value||'', note: '', createdAt: serverTimestamp()
   });
   // 清空表單
   ['newRN','newDish','newFCity'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
