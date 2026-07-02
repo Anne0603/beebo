@@ -1131,17 +1131,25 @@ window.reauthenticateForPinReset = async function() {
 <div class="page" id="page-memory">
   <div class="pt">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="#4A7A58" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 6l1.5-2.5h5L16 6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>回憶錄
-    <div style="margin-left:auto;display:flex;gap:6px;">
-      <select id="memYear" onchange="renderMemory()" style="font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部年份</option></select>
-      <select id="memMonth" onchange="renderMemory()" style="font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
-    </div>
   </div>
   <div style="display:flex;gap:0;flex-shrink:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0;">
-  <button id="memTab-photo" onclick="switchMemTab('photo')" style="flex:1;padding:9px;font-size:13px;font-weight:700;color:var(--accent);border:none;background:none;border-bottom:2px solid var(--accent);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">照片牆</button>
-  <button id="memTab-quote" onclick="switchMemTab('quote')" style="flex:1;padding:9px;font-size:13px;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">語錄</button>
-</div>
-<div class="sc" id="memBody"></div>
-<div class="sc" id="quoteBody" style="display:none;"></div>
+    <button id="memTab-photo" onclick="switchMemTab('photo')" style="flex:1;padding:9px;font-size:13px;font-weight:700;color:var(--accent);border:none;background:none;border-bottom:2px solid var(--accent);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">照片牆</button>
+    <button id="memTab-quote" onclick="switchMemTab('quote')" style="flex:1;padding:9px;font-size:13px;color:var(--sub);border:none;background:none;border-bottom:2px solid transparent;cursor:pointer;font-family:'Noto Sans TC',sans-serif;">語錄</button>
+  </div>
+  <!-- 照片牆篩選（只在照片牆 tab 顯示）-->
+  <div id="memPhotoFilters" style="padding:8px 13px 4px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+    <input id="memSearch" oninput="renderMemory()" class="fi" placeholder="🔍 搜尋回憶錄標題或地點..." style="font-size:13px;">
+    <div style="display:flex;gap:6px;">
+      <select id="memYear" onchange="renderMemory()" style="flex:1;font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card2);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部年份</option></select>
+      <select id="memMonth" onchange="renderMemory()" style="flex:1;font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card2);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    </div>
+  </div>
+  <!-- 語錄搜尋（只在語錄 tab 顯示）-->
+  <div id="memQuoteFilters" style="padding:8px 13px 4px;display:none;flex-shrink:0;">
+    <input id="quoteSearch" oninput="renderQuotes()" class="fi" placeholder="🔍 搜尋語錄內容...">
+  </div>
+  <div class="sc" id="memBody"></div>
+  <div class="sc" id="quoteBody" style="display:none;"></div>
   <button class="fab" onclick="memTab==='photo'?openMo('addMemMo'):openMo('addQuoteMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
   <div class="bnav" id="bnav-memory"></div>
 </div>
@@ -1153,6 +1161,7 @@ window.reauthenticateForPinReset = async function() {
     <span id="memdetailTitle" style="font-weight:700;font-size:15px;color:var(--txt);flex:1;text-align:center;margin-right:22px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></span>
   </div>
   <div class="sc" id="memdetailBody" style="gap:14px;"></div>
+  <div class="bnav" id="bnav-memdetail"></div>
 </div>
 
 <!-- LIST -->
@@ -1192,10 +1201,11 @@ window.reauthenticateForPinReset = async function() {
   </div>
   <div style="padding:0 13px;flex-shrink:0;">
     <div style="display:flex;gap:6px;margin-bottom:6px;">
-      <input id="chalSearch" class="fi" placeholder="🔍 搜尋挑戰..." oninput="renderChal()" style="flex:2;padding:10px 10px;font-size:12px;">
-      <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:10px 8px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
-        <option value="">全部時間</option>
-      </select>
+      <input id="chalSearch" class="fi" placeholder="🔍 搜尋挑戰..." oninput="renderChal()" style="flex:1;padding:10px 10px;font-size:12px;">
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:6px;">
+      <select id="chalYearFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部年份</option></select>
+      <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
     </div>
     <div class="tabs"><div class="tab on" onclick="setChalTab('active',this)">進行中</div><div class="tab" onclick="setChalTab('done',this)">已完成</div><div class="tab" onclick="setChalTab('failed',this)">已失敗</div></div>
   </div>
@@ -1907,13 +1917,16 @@ var NAVSVG=[
 ];
 var curPage='home', pageHist=[];
 function buildNavs(){
-  PAGES.forEach(p=>{
-    const el=document.getElementById('bnav-'+p);
+  var allNavPages=[...PAGES,'memdetail'];
+  allNavPages.forEach(function(p){
+    var el=document.getElementById('bnav-'+p);
     if(!el)return;
-    el.innerHTML=PAGES.map((pg,i)=>{
-      const on=pg===p,c=on?'#4A7A58':'#A0C0A8',f=on?'#C8E4D0':'none';
-      const icon=i===0?NAVSVG[i](c,f):NAVSVG[i](c);
-      return `<button class="nb" data-page="${pg}" onclick="goPage('${pg}')">${icon}<span class="nl ${on?'on':''}">${NAVL[i]}</span>${on?'<div class="ndot"></div>':''}</button>`;
+    var activePg=p==='memdetail'?'memory':p;
+    el.innerHTML=PAGES.map(function(pg,i){
+      var on=pg===activePg,cv=on?'#4A7A58':'#A0C0A8',fv=on?'#C8E4D0':'none';
+      var icon=i===0?NAVSVG[i](cv,fv):NAVSVG[i](cv);
+      var onclick2='onclick="goPage(\'' + pg + '\')"';
+      return '<button class="nb" data-page="'+pg+'" '+onclick2+'>'+icon+'<span class="nl '+(on?'on':'')+'">'+NAVL[i]+'</span>'+(on?'<div class="ndot"></div>':'')+'</button>';
     }).join('');
   });
   if(typeof updateNotifBadge==='function') updateNotifBadge();
@@ -2111,16 +2124,22 @@ function switchMemTab(tab){
   // toggle bodies
   pBody.style.display = tab==='photo' ? 'flex' : 'none';
   qBody.style.display = tab==='quote' ? 'flex' : 'none';
+  var pf=document.getElementById('memPhotoFilters');
+  var qf=document.getElementById('memQuoteFilters');
+  if(pf) pf.style.display = tab==='photo' ? 'flex' : 'none';
+  if(qf) qf.style.display = tab==='quote' ? 'block' : 'none';
   if(tab==='quote') renderQuotes();
   else if(tab==='photo') renderMemory();
 }
 function renderQuotes(){
   var body = document.getElementById('quoteBody');
   if(!body) return;
-  if(!QUOTES.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">還沒有語錄，記下第一句話吧 💬</div>';return;}
+  var q2 = (document.getElementById('quoteSearch')||{value:''}).value.trim().toLowerCase();
+  var items = q2 ? QUOTES.filter(function(q){ return (q.text||'').toLowerCase().includes(q2); }) : QUOTES;
+  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">'+(q2?'找不到相符的語錄':'還沒有語錄，記下第一句話吧 💬')+'</div>';return;}
   var myName=(window.userData&&window.userData.name)||'我';
   var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
-  body.innerHTML = QUOTES.map(function(q){
+  body.innerHTML = items.map(function(q){
     var by = q.senderUid===( window.currentUser&&window.currentUser.uid) ? myName : partnerName;
     var dateStr = q.dateLabel || (q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'}) : '');
     return '<div class="card" style="border-radius:14px;width:100%;box-sizing:border-box;">'+
@@ -2794,12 +2813,16 @@ function copyInspireTemplate(){
 window._fmtLastSeen = function(lastSeen) {
   if(!lastSeen) return '';
   var ts = lastSeen.toDate ? lastSeen.toDate() : new Date(lastSeen);
-  var diff = Math.floor((Date.now() - ts.getTime()) / 1000); // seconds
+  var diff = Math.floor((Date.now() - ts.getTime()) / 1000);
   if(diff < 60) return '剛剛';
   if(diff < 3600) return Math.floor(diff/60) + ' 分鐘前';
   if(diff < 86400) return Math.floor(diff/3600) + ' 小時前';
-  if(diff < 86400*30) return Math.floor(diff/86400) + ' 天前';
-  return ts.getFullYear()+'/'+(ts.getMonth()+1)+'/'+ts.getDate();
+  var days = Math.floor(diff/86400);
+  if(days === 1) return '昨天';
+  if(days < 7) return days + ' 天前';
+  if(days < 30) return Math.floor(days/7) + ' 週前';
+  if(days < 365) return Math.floor(days/30) + ' 個月前';
+  return Math.floor(days/365) + ' 年前';
 };
 
 // ── 提前通知天數設定 ──
@@ -3579,7 +3602,32 @@ function renderChal(){
   var myUid = window.currentUser ? window.currentUser.uid : '';
   var myName = (window.userData && window.userData.name) || '我';
   var partnerName = (window.partnerData && window.partnerData.name) || '對方';
-  var items=CHALS.filter(function(c){return c.status===chalTab;}).sort(function(a,b){
+  var sq = ((document.getElementById('chalSearch')||{value:''}).value||'').toLowerCase();
+  var fy = (document.getElementById('chalYearFilter')||{value:''}).value;
+  var fm = (document.getElementById('chalMonthFilter')||{value:''}).value;
+  // 動態更新年份選單（用 doneAt 或 createdAt）
+  var yearSel = document.getElementById('chalYearFilter');
+  if(yearSel){
+    var years = new Set();
+    CHALS.forEach(function(c){
+      var t = c.doneAt&&c.doneAt.seconds ? new Date(c.doneAt.seconds*1000) : (c.createdAt&&c.createdAt.seconds ? new Date(c.createdAt.seconds*1000) : null);
+      if(t) years.add(t.getFullYear());
+    });
+    var curY = yearSel.value;
+    yearSel.innerHTML='<option value="">全部年份</option>'+Array.from(years).sort().reverse().map(function(y){return '<option value="'+y+'"'+(String(y)===curY?' selected':'')+'>'+y+'年</option>';}).join('');
+  }
+  var items=CHALS.filter(function(c){
+    if(c.status!==chalTab) return false;
+    if(sq && !(c.name||'').toLowerCase().includes(sq)) return false;
+    if(fy || fm){
+      var t = c.doneAt&&c.doneAt.seconds ? new Date(c.doneAt.seconds*1000) : (c.createdAt&&c.createdAt.seconds ? new Date(c.createdAt.seconds*1000) : null);
+      if(t){
+        if(fy && String(t.getFullYear())!==fy) return false;
+        if(fm && String(t.getMonth()+1)!==fm) return false;
+      } else if(fy||fm) return false;
+    }
+    return true;
+  }).sort(function(a,b){
     if(chalTab!=='active') return 0;
     if(!a.deadline&&!b.deadline) return 0;
     if(!a.deadline) return 1; if(!b.deadline) return -1;
@@ -3885,18 +3933,33 @@ function renderMemory(){
   if(!body)return;
   var yr=parseInt((document.getElementById('memYear')||{value:'0'}).value)||0;
   var mo=parseInt((document.getElementById('memMonth')||{value:'0'}).value)||0;
+  var sq=((document.getElementById('memSearch')||{value:''}).value||'').trim().toLowerCase();
   var items=MEMS.filter(function(m){
-    if(yr&&m.year&&m.year!==yr)return false;
-    if(mo&&m.month&&m.month!==mo)return false;
+    if(yr){
+      var myear = m.year || (m.dateStart ? parseInt(m.dateStart.slice(0,4)) : 0);
+      if(myear && myear!==yr) return false;
+    }
+    if(mo){
+      var mmonth = m.month || (m.dateStart ? parseInt(m.dateStart.slice(5,7)) : 0);
+      if(mmonth && mmonth!==mo) return false;
+    }
+    if(sq){
+      var title=(m.title||'').toLowerCase();
+      var city=(m.city||m.location||'').toLowerCase();
+      var note=(m.note||'').toLowerCase();
+      if(!title.includes(sq)&&!city.includes(sq)&&!note.includes(sq)) return false;
+    }
     return true;
   });
-  // 年份選單
-  var years=[...new Set(MEMS.map(function(m){return m.year;}).filter(Boolean))].sort(function(a,b){return b-a;});
+  // 年份選單（從 dateStart 讀取）
+  var years=[...new Set(MEMS.map(function(m){
+    return m.year || (m.dateStart ? parseInt(m.dateStart.slice(0,4)) : null);
+  }).filter(Boolean))].sort(function(a,b){return b-a;});
   var yrEl=document.getElementById('memYear');
   if(yrEl){
     var curYr=yrEl.value;
-    yrEl.innerHTML='<option value="0">全部</option>'+years.map(function(y){
-      return '<option value="'+y+'"'+(String(y)===String(curYr)?' selected':'')+'>'+y+'</option>';
+    yrEl.innerHTML='<option value="0">全部年份</option>'+years.map(function(y){
+      return '<option value="'+y+'"'+(String(y)===String(curYr)?' selected':'')+'>'+y+'年</option>';
     }).join('');
   }
   body.innerHTML='';
@@ -4933,6 +4996,9 @@ async function addMemPhoto(memId){
     var newPhotos=existing.concat(urls);
     var {doc,updateDoc}=window._fsOps;
     await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{photos:newPhotos});
+    // 立即更新本地 MEMS 快取（不等 onSnapshot），讓詳情頁立刻顯示新照片
+    var idx = MEMS.findIndex(function(x){return x.id===memId;});
+    if(idx>=0) MEMS[idx].photos = newPhotos;
     showToast('照片已上傳 ✓');
     openMemDetail(memId);
   };
@@ -5518,6 +5584,9 @@ async function saveEvent() {
   showToast('已儲存 ✓');
   var myNmSE=(window.userData&&window.userData.name)||'我';
   addNotif(myNmSE+' 編輯了行程：「'+name.trim()+'」','chal',true);
+  // 重開詳情 modal
+  var savedEvId = _editEventId;
+  setTimeout(function(){ openEventDetail(savedEvId); }, 300);
 }
 
 async function deleteEvent(id) {
