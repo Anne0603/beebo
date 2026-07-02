@@ -5202,22 +5202,31 @@ function openLinkListForMem(){
       +'<button onclick="confirmLinkList()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div>';
     document.body.appendChild(div);
   }
-  // 渲染清單 + 挑戰
+  // 渲染清單（只顯示已完成）+ 挑戰（只顯示已完成）
   var content=document.getElementById('linkListContent');
   if(content){
-    var html='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;">清單項目</div>';
-    html+=LIST.filter(function(i){return !i.done;}).map(function(i){
-      var chk=_memLinkedItems.includes('list:'+i.id)?'checked':'';
-      return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;">'
-        +'<input type="checkbox" value="list:'+i.id+'" '+chk+' style="accent-color:var(--accent);">'+i.n+'</label>';
-    }).join('');
-    html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;margin-top:6px;">進行中挑戰</div>';
-    html+=CHALS.filter(function(c){return c.status==='active';}).map(function(ch){
-      var chk=_memLinkedItems.includes('chal:'+ch.id)?'checked':'';
-      return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--accent);">'
-        +'<input type="checkbox" value="chal:'+ch.id+'" '+chk+' style="accent-color:var(--accent);">'+ch.name+'</label>';
-    }).join('');
-    if(!LIST.length&&!CHALS.length) html='<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">還沒有清單或挑戰</div>';
+    var doneLists=LIST.filter(function(i){return i.done;});
+    var doneChals=CHALS.filter(function(c){return c.status==='done';});
+    var html='';
+    if(doneLists.length){
+      html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;">✅ 已完成清單</div>';
+      html+=doneLists.map(function(i){
+        var chk=_memLinkedItems.includes('list:'+i.id)?'checked':'';
+        return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;">'
+          +'<input type="checkbox" value="list:'+i.id+'" '+chk+' style="accent-color:var(--accent);">'+i.n+'</label>';
+      }).join('');
+    }
+    if(doneChals.length){
+      html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;margin-top:6px;">⭐ 已完成挑戰</div>';
+      html+=doneChals.map(function(ch){
+        var chk=_memLinkedItems.includes('chal:'+ch.id)?'checked':'';
+        return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--accent);">'
+          +'<input type="checkbox" value="chal:'+ch.id+'" '+chk+' style="accent-color:var(--accent);">'+ch.name+'</label>';
+      }).join('');
+    }
+    if(!doneLists.length&&!doneChals.length){
+      html='<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">還沒有已完成的清單或挑戰<br><span style="font-size:11px;">先去打勾完成，再來建立回憶錄</span></div>';
+    }
     content.innerHTML=html;
   }
   openMo('linkListMo');
