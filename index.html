@@ -1522,9 +1522,27 @@ window.reauthenticateForPinReset = async function() {
   </div>
 </div></div>
 
-<div class="mo" id="discordSettingsMo"><div class="mbox">
+<div class="mo" id="discordSettingsMo"><div class="mbox" style="max-height:90vh;overflow-y:auto;">
   <div class="mh"><span class="mtit">Discord 通知設定</span><button class="mcl" onclick="closeMo('discordSettingsMo')">×</button></div>
-  <div style="font-size:11px;color:var(--sub);margin-bottom:12px;line-height:1.6;">在你們共用的 Discord 頻道建立 Webhook，貼上網址即可讓雙方都收到通知。</div>
+
+  <!-- 說明區 -->
+  <div style="background:var(--lt);border-radius:12px;padding:12px;margin-bottom:14px;font-size:12px;line-height:1.8;color:var(--txt);">
+    <div style="font-weight:700;color:var(--accent);margin-bottom:6px;">🔔 什麼是 Discord 通知？</div>
+    設定後，APP 裡的操作（新增清單、完成挑戰、新增回憶錄等）會同步發送通知到你們指定的 Discord 頻道，就算沒開 APP 也能看到對方的動態。
+  </div>
+
+  <!-- 設定步驟 -->
+  <div style="margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:700;color:var(--txt);margin-bottom:8px;">📋 設定步驟</div>
+    <div style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--txt);">
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">1</span><span>在 Discord 建立一個你們兩人的共用伺服器（或使用現有的）</span></div>
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">2</span><span>選一個頻道（如 #通知），點頻道名稱旁的 <b>⚙️ 編輯頻道</b></span></div>
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">3</span><span>點左側 <b>整合 → Webhooks → 建立 Webhook</b></span></div>
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">4</span><span>點 <b>複製 Webhook URL</b>，貼到下方欄位，按儲存</span></div>
+      <div style="display:flex;gap:8px;"><span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">5</span><span>按 <b>🔔 測試</b> 確認頻道有收到訊息</span></div>
+    </div>
+  </div>
+
   <div class="fg"><label class="fl">Webhook URL</label>
     <input class="fi" id="discordWebhookMe" placeholder="https://discord.com/api/webhooks/...">
   </div>
