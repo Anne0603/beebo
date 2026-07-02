@@ -1145,8 +1145,12 @@ window.reauthenticateForPinReset = async function() {
     </div>
   </div>
   <!-- 語錄搜尋（只在語錄 tab 顯示）-->
-  <div id="memQuoteFilters" style="padding:8px 13px 4px;display:none;flex-shrink:0;">
+  <div id="memQuoteFilters" style="padding:8px 13px 4px;display:none;flex-shrink:0;display:flex;flex-direction:column;gap:6px;">
     <input id="quoteSearch" oninput="renderQuotes()" class="fi" placeholder="🔍 搜尋語錄內容...">
+    <div style="display:flex;gap:6px;">
+      <select id="quoteYear" onchange="renderQuotes()" style="flex:1;font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card2);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部年份</option></select>
+      <select id="quoteMonth" onchange="renderQuotes()" style="flex:1;font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card2);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
+    </div>
   </div>
   <div class="sc" id="memBody"></div>
   <div class="sc" id="quoteBody" style="display:none;"></div>
@@ -2127,7 +2131,7 @@ function switchMemTab(tab){
   var pf=document.getElementById('memPhotoFilters');
   var qf=document.getElementById('memQuoteFilters');
   if(pf) pf.style.display = tab==='photo' ? 'flex' : 'none';
-  if(qf) qf.style.display = tab==='quote' ? 'block' : 'none';
+  if(qf) qf.style.display = tab==='quote' ? 'flex' : 'none';
   if(tab==='quote') renderQuotes();
   else if(tab==='photo') renderMemory();
 }
@@ -2135,13 +2139,45 @@ function renderQuotes(){
   var body = document.getElementById('quoteBody');
   if(!body) return;
   var q2 = (document.getElementById('quoteSearch')||{value:''}).value.trim().toLowerCase();
-  var items = q2 ? QUOTES.filter(function(q){ return (q.text||'').toLowerCase().includes(q2); }) : QUOTES;
-  if(!items.length){body.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">'+(q2?'找不到相符的語錄':'還沒有語錄，記下第一句話吧 💬')+'</div>';return;}
+  var yr = parseInt((document.getElementById('quoteYear')||{value:'0'}).value)||0;
+  var mo = parseInt((document.getElementById('quoteMonth')||{value:'0'}).value)||0;
+
+  // 動態更新年份選單
+  var yrEl = document.getElementById('quoteYear');
+  if(yrEl){
+    var years = new Set();
+    QUOTES.forEach(function(q){
+      var t = q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate() : null;
+      if(t) years.add(t.getFullYear());
+    });
+    var curYr = yrEl.value;
+    yrEl.innerHTML = '<option value="0">全部年份</option>' +
+      Array.from(years).sort().reverse().map(function(y){
+        return '<option value="'+y+'"'+(String(y)===curYr?' selected':'')+'>'+y+'年</option>';
+      }).join('');
+  }
+
+  var items = QUOTES.filter(function(q){
+    if(q2 && !(q.text||'').toLowerCase().includes(q2)) return false;
+    if(yr || mo){
+      var t = q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate() : null;
+      if(!t) return !(yr||mo);
+      if(yr && t.getFullYear()!==yr) return false;
+      if(mo && (t.getMonth()+1)!==mo) return false;
+    }
+    return true;
+  });
+
+  if(!items.length){
+    body.innerHTML='<div style="text-align:center;color:var(--sub);padding:24px 0;font-size:13px;">'
+      +((q2||yr||mo)?'找不到相符的語錄':'還沒有語錄，記下第一句話吧 💬')+'</div>';
+    return;
+  }
   var myName=(window.userData&&window.userData.name)||'我';
   var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
   body.innerHTML = items.map(function(q){
-    var by = q.senderUid===( window.currentUser&&window.currentUser.uid) ? myName : partnerName;
-    var dateStr = q.dateLabel || (q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'}) : '');
+    var by = q.senderUid===(window.currentUser&&window.currentUser.uid) ? myName : partnerName;
+    var dateStr = q.dateLabel || (q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('zh-TW',{year:'numeric',month:'numeric',day:'numeric'}) : '');
     return '<div class="card" style="border-radius:14px;width:100%;box-sizing:border-box;">'+
       '<div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「'+(q.text||'')+'」</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;">'+
