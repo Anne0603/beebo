@@ -1241,7 +1241,7 @@ window.reauthenticateForPinReset = async function() {
 
     <!-- 外觀 -->
     <div class="slbl">外觀</div>
-    <div class="card c14"><div class="cl2" style="margin-bottom:8px;">主題色系（各自設定）</div><div style="display:flex;gap:8px;"><div class="tdot on" style="background:#B8CEBC;" onclick="setTheme('green',this)"></div><div class="tdot" style="background:#D4C0BC;" onclick="setTheme('rose',this)"></div><div class="tdot" style="background:#AABCCC;" onclick="setTheme('blue',this)"></div><div class="tdot" style="background:#D0B898;" onclick="setTheme('clay',this)"></div><div class="tdot" style="background:#BCBCB4;" onclick="setTheme('mist',this)"></div></div></div>
+    <div class="card c14"><div class="cl2" style="margin-bottom:8px;">主題色系（各自設定）</div><div style="display:flex;gap:8px;"><div class="tdot" data-theme="green" style="background:#B8CEBC;" onclick="setTheme('green',this)"></div><div class="tdot" data-theme="rose" style="background:#D4C0BC;" onclick="setTheme('rose',this)"></div><div class="tdot" data-theme="blue" style="background:#AABCCC;" onclick="setTheme('blue',this)"></div><div class="tdot" data-theme="clay" style="background:#D0B898;" onclick="setTheme('clay',this)"></div><div class="tdot" data-theme="mist" style="background:#BCBCB4;" onclick="setTheme('mist',this)"></div></div></div>
 
     <!-- 通知偏好 -->
     <div class="slbl">通知偏好</div>
@@ -3859,7 +3859,7 @@ function renderChal(){
       '</div>'
     ].join('');
 
-    var retryBtn=ch.status==='failed'?'<button class="btn2 bsec" style="margin-top:8px;border:1px solid var(--bdr);width:100%;" onclick="retryChallenge(\'' + ch.id + '\')">重新挑戰</button>':'';
+    var retryBtn=ch.status==='failed'?'<button class="btn2 bsec" style="margin-top:8px;border:1px solid var(--bdr);width:100%;" onclick="retryChallenge(\'' + ch.id + '\')">重新挑戰</button>':ch.status==='done'?'<button class="btn2 bsec" style="margin-top:6px;border:1px solid var(--bdr);width:100%;font-size:12px;color:var(--sub);" onclick="restoreChallenge(\'' + ch.id + '\')">↩ 恢復進行中（誤觸？）</button>':'';
     var editBtn=ch.status==='active'?'<button onclick="openChalEdit(\'' + ch.id + '\')" style="all:unset;font-size:11px;color:var(--sub);cursor:pointer;padding:4px 8px;border-radius:8px;background:var(--card2);">編輯</button>':'';
     var abandonBtn='';
 
@@ -3943,8 +3943,16 @@ async function retryChallenge(id){
   if(!id||!window._fsOps)return;
   confirmAction('重新開始這個挑戰？', async function(){
     var {doc,updateDoc}=window._fsOps;
-    await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[]});
+    await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[],doneAt:null});
     showToast('挑戰重新開始！加油 💪');
+  });
+}
+async function restoreChallenge(id){
+  if(!id||!window._fsOps)return;
+  confirmAction('恢復為進行中？勾選的進度也會清除。', async function(){
+    var {doc,updateDoc}=window._fsOps;
+    await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[],doneAt:null});
+    showToast('已恢復進行中 ✓');
   });
 }
 
@@ -6174,12 +6182,14 @@ function initSettingsPage(){
   if(el) el.value = String(days);
   var sv = document.getElementById('notifyDelSv');
   if(sv) sv.textContent = (days == 0 ? '永久' : days + ' 天') + ' ›';
-  // 管理員專區：只有 isAdmin 為 true 才顯示
+  // 主題色系：更新 dot 的選中狀態
+  var savedTheme = localStorage.getItem('beebo_theme') || 'green';
+  document.querySelectorAll('.tdot[data-theme]').forEach(function(d){
+    d.classList.toggle('on', d.dataset.theme === savedTheme);
+  });
+  // 管理員專區
   var adminWrap = document.getElementById('adminSectionWrap');
-  if(adminWrap) {
-    var isAdminUser = window.userData && window.userData.isAdmin === true;
-    adminWrap.style.display = isAdminUser ? 'block' : 'none';
-  }
+  if(adminWrap) adminWrap.style.display = _checkIsAdmin() ? 'block' : 'none';
   updateLastExportDisplay();
 };
 
