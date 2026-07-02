@@ -1444,7 +1444,7 @@ window.reauthenticateForPinReset = async function() {
 <select class="fi" id="evPlace" style="padding:8px 10px;">
   <option value="">選擇地點...</option>
 </select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="evNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
-<div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div><div style="font-size:11px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="editEvTime1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" id="editEvTime2" style="flex:1;"></div></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="editEvPlace" style="padding:8px 10px;"><option value="">選擇地點...</option></select></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="confirmAction('確定刪除這個行程？',function(){deleteEvent();closeMo('editEventMo');})" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
+<div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div><div style="font-size:11px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="editEvTime1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" id="editEvTime2" style="flex:1;"></div></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="editEvPlace" style="padding:8px 10px;"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="editEvNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="confirmAction('確定刪除這個行程？',function(){deleteEvent();closeMo('editEventMo');})" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
 <div class="mo" id="dayEventsModal"><div class="mbox">
   <div class="mh"><span class="mtit" id="dayEventsTitle">當天行程</span><button class="mcl" onclick="closeMo('dayEventsModal')">×</button></div>
   <div id="dayEventsList" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -2953,8 +2953,9 @@ function saveAdvanceDays(days) {
 function checkUpcomingReminders() {
   var lastCheck = localStorage.getItem('beebo_last_reminder_check');
   var today = new Date(); today.setHours(0,0,0,0);
-  var todayStr = today.toISOString().split('T')[0];
-  if(lastCheck === todayStr) return; // 今天已檢查過
+  var todayStr = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
+  console.log('[提醒] 今天:', todayStr, '上次檢查:', lastCheck, 'CHALS數:', (typeof CHALS!=='undefined'?CHALS.length:'undefined'));
+  if(lastCheck === todayStr) { console.log('[提醒] 今天已檢查過，跳過'); return; }
   localStorage.setItem('beebo_last_reminder_check', todayStr);
 
   var advDays = getAdvanceDays();
@@ -3016,6 +3017,8 @@ function checkUpcomingReminders() {
   }
 
   reminders.forEach(function(r){ addNotif(r.msg, r.type, true); });
+  console.log('[提醒] 找到', reminders.length, '個提醒:', reminders.map(function(r){return r.msg;}));
+  if(reminders.length > 0) showToast('📬 ' + reminders.length + ' 個提醒通知已發送');
 }
 
 // ── 通知系統 ──
@@ -5804,6 +5807,8 @@ function editThisEvent() {
   if(d2El) d2El.value=ev.dateEnd||'';
   if(t1El) t1El.value=ev.timeStart||'';
   if(t2El) t2El.value=ev.timeEnd||'';
+  var noteEl=document.getElementById('editEvNote');
+  if(noteEl) noteEl.value=ev.note||'';
   fillLocationSelect('editEvPlace', true);
   setTimeout(function(){
     var plEl=document.getElementById('editEvPlace');
@@ -5825,7 +5830,8 @@ async function saveEvent() {
     dateEnd:(document.getElementById('editEvDate2')||{}).value||'',
     timeStart:(document.getElementById('editEvTime1')||{}).value||'',
     timeEnd:(document.getElementById('editEvTime2')||{}).value||'',
-    place:(document.getElementById('editEvPlace')||{}).value||''
+    place:(document.getElementById('editEvPlace')||{}).value||'',
+    note:(document.getElementById('editEvNote')||{}).value||''
   });
   closeMo('editEventMo');
   showToast('已儲存 ✓');
