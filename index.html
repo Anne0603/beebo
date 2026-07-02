@@ -3064,9 +3064,7 @@ function checkUpcomingReminders() {
   var lastCheck = localStorage.getItem('beebo_last_reminder_check');
   var today = new Date(); today.setHours(0,0,0,0);
   var todayStr = today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');
-  console.log('[提醒] 今天:', todayStr, '上次檢查:', lastCheck, 'CHALS數:', (typeof CHALS!=='undefined'?CHALS.length:'undefined'));
-  if(lastCheck === todayStr) { console.log('[提醒] 今天已檢查過，跳過'); return; }
-  localStorage.setItem('beebo_last_reminder_check', todayStr);
+  if(lastCheck === todayStr) return;
 
   var advDays = getAdvanceDays();
   var checkDate = new Date(today); checkDate.setDate(checkDate.getDate() + advDays);
@@ -3127,8 +3125,6 @@ function checkUpcomingReminders() {
   }
 
   reminders.forEach(function(r){ addNotif(r.msg, r.type, true); });
-  console.log('[提醒] 找到', reminders.length, '個提醒:', reminders.map(function(r){return r.msg;}));
-  if(reminders.length > 0) showToast('📬 ' + reminders.length + ' 個提醒通知已發送');
   // 每 7 天提醒未評分餐廳
   var lastRR=localStorage.getItem('beebo_last_rating_reminder');
   var daysSinceRR=lastRR?Math.floor((today-new Date(lastRR))/86400000):999;
@@ -3440,37 +3436,17 @@ function _renderSysAch(){
 function _updateStats() {
   // 系統成就（根據在一起天數動態計算）
   _renderSysAch();
+  // 留言總數
   var msgEl = document.getElementById('stat-msgs');
   if (msgEl && window._messages) msgEl.textContent = window._messages.length;
-  var restEl = document.getElementById('stat-rests');
-  if (restEl) restEl.textContent = RESTS.length;
+  // 主頁小統計
   var restCountEl = document.getElementById('restCount');
   if (restCountEl) restCountEl.textContent = RESTS.length + ' 家';
   var chalCountEl = document.getElementById('chalCount');
   if (chalCountEl) chalCountEl.textContent = '共 ' + CHALS.filter(function(c){return c.status==='active';}).length + ' 個';
-  var listEl = document.getElementById('stat-listdone');
-  if (listEl) listEl.textContent = LIST.filter(function(i){return i.done;}).length;
   var doneCnt = CHALS.filter(function(c){return c.status==='done';}).length;
-  var chalEl = document.getElementById('stat-chaldone');
-  if (chalEl) chalEl.textContent = doneCnt;
   var achCountEl = document.getElementById('achCount');
   if (achCountEl) achCountEl.textContent = doneCnt + ' 個';
-  // 更新去過的地點計數（地點詳情在 openVisitedCitiesMo 彈窗顯示）
-  (function(){
-    var places = new Set();
-    (RESTS||[]).forEach(function(r){
-      var key = (r.city && r.city !== '國外') ? r.city
-        : (r.country && r.foreignCity ? r.country+'・'+r.foreignCity : r.country||'');
-      if(key) places.add(key);
-    });
-    (MEMS||[]).forEach(function(m){
-      var key = (m.city && m.city !== '國外') ? m.city
-        : (m.country && m.foreignCity ? m.country+'・'+m.foreignCity : m.country||m.location||'');
-      if(key) places.add(key);
-    });
-    var statCities = document.getElementById('stat-cities');
-    if(statCities) statCities.textContent = places.size;
-  })();
 
   var yearSel = document.getElementById('reviewYearSel');
   if(yearSel) {
@@ -4138,6 +4114,16 @@ async function retryChallenge(id){
 }
 async function restoreChallenge(id){
   if(!id||!window._fsOps)return;
+  var ch=CHALS.find(function(c){return c.id===id;});
+  if(!ch)return;
+  // 如果截止日期已過，不能恢復進行中
+  if(ch.deadline){
+    var today=new Date(); today.setHours(0,0,0,0);
+    if(new Date(ch.deadline)<today){
+      showToast('截止日期已過，無法恢復進行中，請先修改截止日期');
+      return;
+    }
+  }
   confirmAction('恢復為進行中？勾選的進度也會清除。', async function(){
     var {doc,updateDoc}=window._fsOps;
     await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',id),{status:'active',checkedBy:[],doneAt:null});
@@ -4556,7 +4542,9 @@ function openRestDetail(id){
   function makePicker(initVal){
     return [1,2,3,4,5].map(function(n){
       var f=n<=(initVal||0);
-      return '<svg data-n="'+n+'" onclick="setRestRating('+n+')" width="28" height="28" viewBox="0 0 24 24" style="cursor:pointer;"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="'+(f?'#F4C430':'none')+'" stroke="'+(f?'#E6A800':'#C8C8C8')+'" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+      return '<button data-n="'+n+'" onclick="setRestRating('+n+')" style="all:unset;cursor:pointer;padding:2px;-webkit-tap-highlight-color:transparent;">'
+        +'<svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="'+(f?'#F4C430':'none')+'" stroke="'+(f?'#E6A800':'#C8C8C8')+'" stroke-width="1.5" stroke-linejoin="round"/></svg>'
+        +'</button>';
     }).join('');
   }
   body.innerHTML=
@@ -4586,9 +4574,9 @@ function openRestDetail(id){
 }
 function setRestRating(val){
   _rateRestStar=val;
-  document.querySelectorAll('#myRestStarPicker svg').forEach(function(s,i){
+  document.querySelectorAll('#myRestStarPicker button').forEach(function(btn,i){
+    var p=btn.querySelector('path');
     var f=(i+1)<=val;
-    var p=s.querySelector('path');
     if(p){p.setAttribute('fill',f?'#F4C430':'none');p.setAttribute('stroke',f?'#E6A800':'#C8C8C8');}
   });
 }
