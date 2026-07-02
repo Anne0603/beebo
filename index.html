@@ -4713,7 +4713,9 @@ async function addRest(){
   showToast('餐廳記錄已新增 ✓');
   var myNmR=(window.userData&&window.userData.name)||'我';
   addNotif(myNmR+' 新增了餐廳記錄：「'+n+'」','rest');
-  // onSnapshot 會自動更新，但加個保底
+  // 提醒對方去評分
+  var partnerName=(window.partnerData&&window.partnerData.name)||'對方';
+  addNotif('🍽️ ' + myNmR + ' 新增了「'+n+'」，記得去評分！','reminder',true);
   setTimeout(function(){if(typeof renderRests==='function')renderRests();},500);
 }
 
