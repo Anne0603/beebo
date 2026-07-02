@@ -1160,6 +1160,7 @@ window.reauthenticateForPinReset = async function() {
 
 <!-- 回憶錄詳情頁 -->
 <div class="page" id="page-memdetail">
+  <input type="file" id="memDetailPhotoInput" accept="image/*" multiple style="display:none;" onchange="handleMemDetailPhotoChange(event)">
   <div class="pt">
     <button onclick="goBack()" style="all:unset;display:flex;align-items:center;gap:4px;font-size:13px;color:var(--sub);cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <span id="memdetailTitle" style="font-weight:700;font-size:15px;color:var(--txt);flex:1;text-align:center;margin-right:22px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;"></span>
@@ -5026,40 +5027,41 @@ function openMemDetail(id){
   // 按鈕
   var btnsHtml='<div style="display:flex;gap:8px;padding-bottom:8px;">'
     +'<button class="btn2 bpri" onclick="openEditMemMo(\''+m.id+'\')" style="flex:2;font-size:13px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>編輯</button>'
-    +'<button class="btn2 bsec" onclick="addMemPhoto(\''+m.id+'\')" style="flex:2;font-size:13px;">新增照片</button>'
+    +'<button class="btn2 bsec" onclick="triggerMemDetailPhoto(\''+m.id+'\')" style="flex:2;font-size:13px;">新增照片</button>'
     +'<button onclick="goBack();setTimeout(function(){deleteMemConfirm(\''+m.id+'\');},300);" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:\'Noto Sans TC\',sans-serif;">刪除</button>'
     +'</div>';
 
   body.innerHTML=metaHtml+photosHtml+noteHtml+restHtml+linkedHtml+btnsHtml;
   goPageX('memdetail');
 }
+var _memDetailPhotoMemId = null;
+function triggerMemDetailPhoto(memId){
+  _memDetailPhotoMemId = memId;
+  var inp = document.getElementById('memDetailPhotoInput');
+  if(inp){ inp.value=''; inp.click(); }
+}
+async function handleMemDetailPhotoChange(e){
+  var files = Array.from(e.target.files||[]);
+  if(!files.length || !_memDetailPhotoMemId) return;
+  var memId = _memDetailPhotoMemId;
+  showToast('上傳中...');
+  var urls=[];
+  for(var i=0;i<files.length;i++){
+    try{ urls.push(await window._uploadToCloudinary(files[i])); }
+    catch(err){ console.error(err); }
+  }
+  if(!urls.length){ showToast('上傳失敗'); return; }
+  var m=MEMS.find(function(x){return x.id===memId;});
+  var newPhotos=(m&&m.photos?m.photos:[]).concat(urls);
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{photos:newPhotos});
+  var idx=MEMS.findIndex(function(x){return x.id===memId;});
+  if(idx>=0) MEMS[idx].photos=newPhotos;
+  showToast('照片已上傳 ✓');
+  openMemDetail(memId);
+}
 async function addMemPhoto(memId){
-  var input=document.createElement('input');
-  input.type='file';input.accept='image/*';input.multiple=true;
-  input.onchange=async function(e){
-    var files=Array.from(e.target.files);
-    if(!files.length)return;
-    showToast('上傳中...');
-    var urls=[];
-    for(var i=0;i<files.length;i++){
-      try{
-        var url=await window._uploadToCloudinary(files[i]);
-        urls.push(url);
-      }catch(err){console.error(err);}
-    }
-    if(!urls.length){showToast('上傳失敗');return;}
-    var m=MEMS.find(function(x){return x.id===memId;});
-    var existing=m&&m.photos?m.photos:[];
-    var newPhotos=existing.concat(urls);
-    var {doc,updateDoc}=window._fsOps;
-    await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{photos:newPhotos});
-    // 立即更新本地 MEMS 快取（不等 onSnapshot），讓詳情頁立刻顯示新照片
-    var idx = MEMS.findIndex(function(x){return x.id===memId;});
-    if(idx>=0) MEMS[idx].photos = newPhotos;
-    showToast('照片已上傳 ✓');
-    openMemDetail(memId);
-  };
-  input.click();
+  triggerMemDetailPhoto(memId);
 }
 
 var _editQuoteId = null;
@@ -5394,7 +5396,9 @@ function renderCalendar() {
       return '<div class="ev" '+(isSystem?'':' data-eid="'+e.id+'" onclick="openEventDetail(this.dataset.eid)"')+' style="cursor:'+(isSystem?'default':'pointer')+';">'
         + '<div class="evd" style="background:'+(isSystem?'#c0a080':'var(--accent)')+'"></div>'
         + '<div style="flex:1;"><div class="evn">'+e.name+'</div>'
-        + '<div class="evm">'+dateLabel+(e.place?'・'+e.place:'')+(isSystem?'':('・'+diffTxt))+'</div></div></div>';
+        + '<div class="evm">'+dateLabel+(e.place?'・'+e.place:'')+(isSystem?'':('・'+diffTxt))+'</div>'
+        + (e.note?'<div style="font-size:10px;color:var(--sub);margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">'+e.note+'</div>':'')
+        + '</div></div>';
     }).join('');
   }
 
@@ -5584,6 +5588,12 @@ function openEventDetail(id) {
     pDiv.style.cssText='font-size:13px;color:var(--sub);display:flex;align-items:center;';
     pDiv.innerHTML=pinSvg+ev.place;
     body.appendChild(pDiv);
+  }
+  if(ev.note){
+    var nDiv=document.createElement('div');
+    nDiv.style.cssText='font-size:12px;color:var(--txt);background:var(--card2);padding:10px 12px;border-radius:10px;line-height:1.6;white-space:pre-wrap;';
+    nDiv.textContent=ev.note;
+    body.appendChild(nDiv);
   }
   var btns=document.createElement('div'); btns.style.cssText='display:flex;gap:8px;margin-top:4px;';
   var editBtn=document.createElement('button'); editBtn.className='btn2 bsec'; editBtn.style.flex='1'; editBtn.textContent='編輯';
