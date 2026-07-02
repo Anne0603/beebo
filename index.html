@@ -3033,12 +3033,17 @@ function execImportInspire() {
       if(item.n && item.c) return item;
       throw new Error('每筆需包含 n（名稱）和 c（分類），或 text 和 cat');
     });
-    var validCats = ['想去哪','想吃什麼','想做什麼','想看什麼'];
+    var validCats = ['想去哪','想吃什麼','想做什麼','想看什麼','探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
     var bad = data.filter(function(item){ return !validCats.includes(item.c); });
-    if(bad.length) { showToast('分類需為：想去哪/想吃什麼/想做什麼/想看什麼，錯誤：' + bad[0].c); return; }
-    _saveInspireData(data);
+    if(bad.length) { showToast('分類錯誤：' + bad[0].c + '\n請用清單分類（想去哪等）或挑戰分類（探索類等）'); return; }
+    // 新增模式：合併到現有資料，去除重複（以名稱判斷）
+    var existing = _getInspireData() || _getDefaultInspire();
+    var existingNames = new Set(existing.map(function(i){ return i.n; }));
+    var newItems = data.filter(function(i){ return !existingNames.has(i.n); });
+    var merged = existing.concat(newItems);
+    _saveInspireData(merged);
     closeMo('importInspireMo');
-    showToast('匯入成功！共 '+data.length+' 筆 ✓');
+    showToast('匯入成功！新增 '+newItems.length+' 筆，共 '+merged.length+' 筆 ✓');
     setTimeout(function(){ openMo('inspireMgMo'); renderInspireMg('list'); }, 250);
   } catch(e) {
     showToast('JSON 格式錯誤：' + e.message);
