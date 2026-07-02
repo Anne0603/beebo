@@ -3750,12 +3750,20 @@ function _initChals(db, coupleId) {
   var {collection, query, orderBy, onSnapshot} = window._fsOps;
   var chalRef = collection(db, 'couples', coupleId, 'challenges');
   var q = query(chalRef, orderBy('createdAt', 'desc'));
+  var _chalFirstLoad = true;
   onSnapshot(q, function(snap) {
     CHALS = [];
     snap.forEach(function(d){ CHALS.push(Object.assign({id: d.id}, d.data())); });
     renderChal();
     _updateHomeChal();
     if (typeof window._updateStats === 'function') window._updateStats();
+    // 資料載入後才執行提醒檢查（避免 CHALS 還是空陣列時就跑了）
+    if(_chalFirstLoad){
+      _chalFirstLoad = false;
+      if(typeof window.checkUpcomingReminders === 'function'){
+        window.checkUpcomingReminders();
+      }
+    }
   });
 };
 
