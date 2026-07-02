@@ -1196,10 +1196,10 @@ window.reauthenticateForPinReset = async function() {
 
 <!-- CHALLENGES -->
 <div class="page" id="page-challenges">
-  <div class="pt">
-    <button onclick="goBack()" style="all:unset;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
-    <span style="font-weight:700;font-size:15px;color:var(--txt);display:flex;align-items:center;gap:6px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰</span>
-    <button onclick="openChalInspireMo()" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;margin-left:auto;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button>
+  <div class="pt" style="position:relative;">
+    <button onclick="goBack()" style="all:unset;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <span style="position:absolute;left:50%;transform:translateX(-50%);font-weight:700;font-size:15px;color:var(--txt);display:flex;align-items:center;gap:6px;white-space:nowrap;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰</span>
+    <button onclick="openChalInspireMo()" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;margin-left:auto;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button>
   </div>
   <div style="flex-shrink:0;">
     <!-- Tab 在最上面 -->
@@ -3602,15 +3602,14 @@ function renderList(){
       var da = item.doneAt.toDate();
       doneAtStr = ' · 完成於 '+da.getFullYear()+'/'+(da.getMonth()+1)+'/'+(da.getDate()<10?'0':'')+da.getDate();
     }
-    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+getCatName(item.c)+'</div><div class="lby">'+(item.by||'我')+'・'+(item.at||'')+doneAtStr+'</div></div>';
-    var stars='';
-    if(item.done&&item.star){for(var si=0;si<item.star;si++)stars+=STAR_I;}
-    if(stars)stars='<div style="display:flex;gap:1px;">'+stars+'</div>';
+    var lt='<div class="lt" style="flex:1;min-width:0;"><div class="ln '+(item.done?'done':'')+'">' +item.n+'</div><div class="lcat">'+getCatName(item.c)+'</div><div class="lby">'+(item.by||'我')+'・'+(item.at||'')+doneAtStr+'</div>'
+      +(item.done&&item.note?'<div style="font-size:10px;color:var(--sub);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">💬 '+item.note+'</div>':'')
+      +'</div>';
     var act='<div style="display:flex;gap:4px;align-items:center;flex-shrink:0;">'
       +(item.done?'':'<button onclick="openEditListMo(\''+item.id+'\')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--card2);cursor:pointer;">'+EDIT_I+'</button>')
       +'<button onclick="deleteItem(\''+item.id+'\')" style="all:unset;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:#fdecea;cursor:pointer;">'+DEL_I+'</button>'
       +'</div>';
-    html+='<div class="li" id="li-'+item.id+'">'+chk+lt+'<div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">'+stars+act+'</div></div>';
+    html+='<div class="li" id="li-'+item.id+'">'+chk+lt+act+'</div>';
   }
   body.innerHTML=html;
 }
