@@ -1618,13 +1618,15 @@ window.reauthenticateForPinReset = async function() {
     <div style="font-size:12px;color:var(--sub);">登入 Cloudinary → 左側點 <b style="color:var(--txt);">Home</b> → 點 <b style="color:var(--txt);">Go to Usage Reports</b> → 看 <b style="color:var(--txt);">Storage</b> 數字（MB）<br>免費上限：25,000 MB（25 GB）</div>
   </div>
 
-  <div class="fg"><label class="fl">Cloud Name</label>
-    <input class="fi" id="cloudinaryCloudInput" placeholder="輸入 Cloud Name">
+  <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
+    <div class="fg" style="margin:0;"><label class="fl">Cloud Name</label>
+      <input class="fi" id="cloudinaryCloudInput" placeholder="輸入 Cloud Name">
+    </div>
+    <div class="fg" style="margin:0;"><label class="fl">Upload Preset Name</label>
+      <input class="fi" id="cloudinaryPresetInput" placeholder="輸入 Upload Preset 名稱">
+    </div>
   </div>
-  <div class="fg"><label class="fl">Upload Preset Name</label>
-    <input class="fi" id="cloudinaryPresetInput" placeholder="輸入 Upload Preset 名稱">
-  </div>
-  <div style="display:flex;gap:8px;margin-top:8px;">
+  <div style="display:flex;gap:8px;">
     <button onclick="clearCloudinarySettings()" class="btn2 bsec" style="flex:1;">清空</button>
     <button onclick="saveCloudinarySettings()" class="btn2 bpri" style="flex:2;">儲存</button>
   </div>
