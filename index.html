@@ -1207,6 +1207,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="pt" style="position:relative;justify-content:center;">
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg>挑戰
+    <div style="position:absolute;right:0;"><button onclick="openChalInspireMo()" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button></div>
   </div>
   <div style="flex-shrink:0;">
     <!-- Tab 在最上面 -->
@@ -1433,35 +1434,8 @@ window.reauthenticateForPinReset = async function() {
   </div>
 </div></div></div>
 
-<div class="mo" id="addChalMo"><div class="mbox"><div class="mh"><span class="mtit">新增挑戰</span><button class="mcl" onclick="closeMo('addChalMo')">×</button></div>
-<div style="display:flex;flex-direction:column;gap:10px;">
-  <div class="fg"><label class="fl">挑戰名稱（必填）</label><input class="fi" id="newChalName" placeholder="e.g. 一起去看星星"></div>
-  <div class="fg"><label class="fl">分類</label>
-    <select class="fi" id="newChalCat" style="padding:8px 10px;">
-      <option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>感情類</option><option>娛樂類</option><option>學習類</option><option>其他</option>
-    </select>
-  </div>
-  <div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="newChalDeadline"></div>
-  <div class="fg"><label class="fl">說明（選填）</label><textarea class="fi" rows="2" style="resize:none;" placeholder="挑戰說明..."></textarea></div>
-  <button onclick="addChal()" class="btn2 bpri" style="width:100%;">新增</button>
-</div></div></div>
-<div class="mo" id="chalDetailMo"><div class="mbox"><div class="mh"><span class="mtit">挑戰詳細</span><button class="mcl" onclick="closeMo('chalDetailMo')">×</button></div>
-<div style="display:flex;flex-direction:column;gap:10px;">
-  <div style="background:var(--lt);border-radius:12px;padding:12px;">
-    <div style="font-size:15px;font-weight:700;color:var(--txt);margin-bottom:4px;">一起騎腳踏車環湖</div>
-    <div style="font-size:12px;color:var(--sub);">探索類・截止 6/30</div>
-    <div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
-      <div style="flex:1;height:6px;background:var(--bdr);border-radius:3px;"><div style="width:50%;height:100%;background:var(--accent);border-radius:3px;"></div></div>
-      <span style="font-size:11px;color:var(--sub);">1/2 已完成</span>
-    </div>
-  </div>
-  <div class="fg"><label class="fl">修改截止日期</label><input class="fi" type="date" id="chalNewDate" value="2025-06-30"></div>
-  <div style="display:flex;gap:8px;">
-    <button onclick="saveChalDetailEdit()" class="btn2 bsec" style="flex:1;">更新日期</button>
-    <button onclick="abandonChalFromDetail()" class="btn2" style="flex:1;background:#fdecea;color:#c62828;border:1px solid #f5c6cb;">放棄挑戰</button>
-  </div>
-  <button onclick="closeMo('chalDetailMo');goPage('challenges')" class="btn2 bsec" style="width:100%;">查看所有挑戰</button>
-</div></div></div>
+
+
 <div class="mo" id="addEventMo"><div class="mbox"><div class="mh"><span class="mtit">新增約會計畫</span><button class="mcl" onclick="closeMo('addEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="evName" placeholder="這次要做什麼？"></div><div class="fg"><label class="fl">日期（必填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="evDate1" style="flex:1;" onchange="var d2=document.getElementById('evDate2');if(d2&&(!d2.value||d2.value<this.value))d2.value=this.value;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="evDate2" style="flex:1;"></div><div style="font-size:10px;color:var(--sub);margin-top:2px;">單日活動只填開始日期即可</div></div><div class="fg"><label class="fl">時間（選填）</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="evTime1" style="flex:1;" placeholder="開始"><span style="color:var(--sub);font-size:12px;">至</span><input class="fi" type="time" id="evTime2" style="flex:1;" placeholder="結束"></div></div><div class="fg"><label class="fl">地點（選填）</label>
 <select class="fi" id="evPlace" style="padding:8px 10px;">
   <option value="">選擇地點...</option>
@@ -2008,13 +1982,22 @@ function openMo(id){
   if(id === 'addRestMo') fillLocationSelect('newRC2', true);
   if(id === 'addMemMo') fillLocationSelect('newMemCity', true);
   if(id==='msgMo'){
-    // 重新渲染確保最新 + 捲到底
     if(window._messages && window.currentUser){
       window._renderMsgList(window._messages, window.currentUser.uid);
     }
-    // 清除未讀紅點
+    // 清除未讀紅點 + 標記最新訊息已讀（寫入 Firestore）
     var dot=document.getElementById('msgUnreadDot');
     if(dot) dot.style.display='none';
+    if(window._messages && window._messages.length && window._fsOps && window._coupleId && window.currentUser){
+      var latestMsg = window._messages[window._messages.length-1];
+      var myUid2 = window.currentUser.uid;
+      if(latestMsg && !(latestMsg.readBy||[]).includes(myUid2)){
+        var {doc, updateDoc, arrayUnion} = window._fsOps;
+        updateDoc(doc(window._db,'couples',window._coupleId,'messages',latestMsg.id),{
+          readBy: arrayUnion(myUid2)
+        }).catch(function(){});
+      }
+    }
   }
 };
 var openMo = window.openMo;
@@ -5681,6 +5664,15 @@ function deleteEventFromDay(){deleteEvent();closeMo('calDayMo');}
 
 // ── chalDetailMo ──
 var _detailChalId=null;
+function openChalInspireMo(){
+  // 切換到挑戰靈感 tab 再開靈感視窗
+  openMo('inspireMo');
+  setTimeout(function(){
+    var chalTab = document.getElementById('itab-chal');
+    if(chalTab) chalTab.click();
+  }, 100);
+}
+
 function openChalDetail(id){
   _detailChalId=id;
   var ch=CHALS.find(function(c){return c.id===id;});
