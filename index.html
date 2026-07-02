@@ -1211,7 +1211,13 @@ window.reauthenticateForPinReset = async function() {
       <select id="chalYearFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部年份</option></select>
       <select id="chalMonthFilter" onchange="renderChal()" style="flex:1;padding:8px 10px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
     </div>
-    <div class="tabs"><div class="tab on" onclick="setChalTab('active',this)">進行中</div><div class="tab" onclick="setChalTab('done',this)">已完成</div><div class="tab" onclick="setChalTab('failed',this)">已失敗</div></div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+      <div class="tabs" style="flex-shrink:0;">
+        <div class="tab on" id="chalTabActive" onclick="setChalTab('active',this)">進行中</div>
+        <div class="tab" id="chalTabDone" onclick="setChalTab('done',this)">已完成</div>
+      </div>
+      <button id="chalTabFailed" onclick="setChalTab('failed',document.getElementById('chalTabFailed'))" style="all:unset;font-size:12px;color:var(--sub);cursor:pointer;padding:4px 10px;border-radius:20px;border:1px solid transparent;white-space:nowrap;" data-active="false">已失敗</button>
+    </div>
   </div>
   <div class="sc" id="chalBody" style="padding-top:6px;"></div>
   <button class="fab" onclick="openMo('addChalMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
@@ -3629,7 +3635,32 @@ function _updateHomeChal(){
   if(pfEl)   pfEl.style.width = (checked*50)+'%';
 }
 
-function setChalTab(t,el){chalTab=t;document.querySelectorAll('#page-challenges .tab').forEach(e=>e.classList.remove('on'));el.classList.add('on');renderChal();}
+function setChalTab(t,el){
+  chalTab=t;
+  // 重置大 tab 按鈕
+  document.querySelectorAll('#page-challenges .tab').forEach(function(e){ e.classList.remove('on'); });
+  // 重置已失敗小按鈕
+  var failedBtn = document.getElementById('chalTabFailed');
+  if(failedBtn){
+    failedBtn.style.color='var(--sub)';
+    failedBtn.style.border='1px solid transparent';
+    failedBtn.style.background='none';
+    failedBtn.style.fontWeight='400';
+  }
+  if(t==='failed'){
+    // 已失敗：高亮小按鈕，取消所有大 tab
+    if(failedBtn){
+      failedBtn.style.color='#c62828';
+      failedBtn.style.border='1px solid #f5c6cb';
+      failedBtn.style.background='#fdecea';
+      failedBtn.style.fontWeight='600';
+    }
+  } else {
+    // 進行中/已完成：高亮對應大 tab
+    if(el && el.classList) el.classList.add('on');
+  }
+  renderChal();
+}
 
 function renderChal(){
   var body=document.getElementById('chalBody');
