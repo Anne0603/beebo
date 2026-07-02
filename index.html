@@ -1407,7 +1407,7 @@ window.reauthenticateForPinReset = async function() {
 <div class="toast" id="toast"></div>
 
 <div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="confirmLinkRest()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
-<div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit" id="editChalName">挑戰名稱</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="saveChalEdit()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(_editChalId)abandonChal(_editChalId).then(()=>closeMo('editChalMo'))" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
+<div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit">編輯挑戰</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">挑戰名稱</label><input class="fi" id="editChalNameInput" placeholder="挑戰名稱"></div><div class="fg"><label class="fl">分類</label><select class="fi" id="editChalCatInput" style="padding:8px 10px;"><option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>感情類</option><option>娛樂類</option><option>學習類</option><option>其他</option></select></div><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="saveChalEdit()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(_editChalId)abandonChal(_editChalId)" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
 <div class="mo" id="calDayMo"><div class="mbox"><div class="mh"><span class="mtit" id="calDayTitle">約會詳情</span><button class="mcl" onclick="closeMo('calDayMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:8px;">
   <div id="calDayContent" style="display:flex;flex-direction:column;gap:8px;"></div>
@@ -2968,19 +2968,19 @@ function checkUpcomingReminders() {
   if(prefs.anniv !== false && window._coupleData && window._coupleData.startDate) {
     var sd = window._coupleData.startDate.split('-');
     if(parseInt(sd[1])===cm && parseInt(sd[2])===cd)
-      reminders.push({ msg:'💑 交往紀念日即將到來（' + advDays + '天後）！', type:'info' });
+      reminders.push({ msg:'💑 交往紀念日還有 ' + advDays + ' 天！', type:'info' });
   }
   // 生日
   if(prefs.bday !== false) {
     if(window.userData && window.userData.birthday) {
       var bd = window.userData.birthday.split('-');
       if(parseInt(bd[1])===cm && parseInt(bd[2])===cd)
-        reminders.push({ msg:'🎂 你的生日即將到來（' + advDays + '天後）！', type:'info' });
+        reminders.push({ msg:'🎂 你的生日還有 ' + advDays + ' 天！', type:'info' });
     }
     if(window.partnerData && window.partnerData.birthday) {
       var pbd = window.partnerData.birthday.split('-');
       if(parseInt(pbd[1])===cm && parseInt(pbd[2])===cd)
-        reminders.push({ msg:'🎂 ' + (window.partnerData.name||'對方') + ' 的生日即將到來（' + advDays + '天後）！', type:'info' });
+        reminders.push({ msg:'🎂 ' + (window.partnerData.name||'對方') + ' 的生日還有 ' + advDays + ' 天！', type:'info' });
     }
   }
   // 節日（不需要開關，固定提醒）
@@ -3004,6 +3004,13 @@ function checkUpcomingReminders() {
         var daysLeft = Math.floor((dl - today) / 86400000);
         if(daysLeft === advDays)
           reminders.push({ msg:'⭐ 挑戰「' + ch.name + '」還有 ' + advDays + ' 天到期，加油！', type:'chal' });
+        // 截止日期已過 → 自動設為失敗
+        if(daysLeft < 0 && window._coupleId && window._fsOps){
+          var {doc,updateDoc}=window._fsOps;
+          updateDoc(doc(window._db,'couples',window._coupleId,'challenges',ch.id),{status:'failed'})
+            .then(function(){ addNotif('⏰ 挑戰「'+ch.name+'」已到期，移至已失敗','chal',true); })
+            .catch(function(){});
+        }
       }
     });
   }
@@ -3934,18 +3941,31 @@ function openChalEdit(id){
   _editChalId=id;
   var ch=CHALS.find(function(c){return c.id===id;});
   if(!ch)return;
-  document.getElementById('editChalName').textContent=ch.name;
+  var ni=document.getElementById('editChalNameInput'); if(ni) ni.value=ch.name||'';
+  var ci=document.getElementById('editChalCatInput'); if(ci) ci.value=ch.cat||'探索類';
   document.getElementById('editChalDeadline').value=ch.deadline||'';
   openMo('editChalMo');
 }
 
 async function saveChalEdit(){
   if(!_editChalId||!window._fsOps)return;
+  var name=(document.getElementById('editChalNameInput')||{}).value||'';
+  var cat=(document.getElementById('editChalCatInput')||{}).value||'';
   var newDate=document.getElementById('editChalDeadline').value;
+  if(!name.trim()){showToast('請填寫挑戰名稱');return;}
+  // 截止日期不可早於今天
+  if(newDate){
+    var today=new Date(); today.setHours(0,0,0,0);
+    if(new Date(newDate)<today){showToast('截止日期不可早於今天');return;}
+  }
   var {doc,updateDoc}=window._fsOps;
-  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_editChalId),{deadline:newDate});
+  await updateDoc(doc(window._db,'couples',window._coupleId,'challenges',_editChalId),{
+    name:name.trim(), cat:cat, deadline:newDate
+  });
+  var myNm=(window.userData&&window.userData.name)||'我';
+  addNotif(myNm+' 更新了挑戰：「'+name.trim()+'」'+(newDate?' 截止 '+newDate:''),'chal');
   closeMo('editChalMo');
-  showToast('截止日期已更新 ✓');
+  showToast('挑戰已更新 ✓');
 }
 
 function abandonChal(id){
@@ -4037,6 +4057,10 @@ async function addChal(){
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
   var cat=(document.getElementById('newChalCat')||{}).value||'其他';
   var deadline=(document.getElementById('newChalDeadline')||{}).value||'';
+  if(deadline){
+    var today2=new Date(); today2.setHours(0,0,0,0);
+    if(new Date(deadline)<today2){showToast('截止日期不可早於今天');return;}
+  }
   var {collection,addDoc,serverTimestamp}=window._fsOps;
   await addDoc(collection(window._db,'couples',window._coupleId,'challenges'),{
     name:n, cat:cat, deadline:deadline, status:'active',
@@ -5337,6 +5361,8 @@ async function saveEditMem(){
   var savedId = _editMemId;
   _editMemId=null;
   closeMo('editMemMo');
+  var myNmEM=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmEM+' 編輯了回憶錄：「'+title.trim()+'」','mem',true);
   showToast('回憶錄已更新 ✓');
   // 停留在詳情頁，重新渲染最新資料
   if(curPage==='memdetail'){
