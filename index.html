@@ -3402,51 +3402,36 @@ function _checkIsAdmin(){
   return isAdminUser || adminUids.includes(uid) || (email && backupAdmins.includes(email));
 }
 
-// ── 版本記錄 ──
+// ── 版本記錄（純程式碼，由開發者更新，所有人都能看到）──
 var _CHANGELOG_DEFAULT = [
-  {ver:'1.0.0', date:'2026-07-02', title:'正式上線 🎉', items:['回憶錄照片牆、語錄','清單（想去哪/想吃什麼/想做什麼/想看什麼）','挑戰系統（進行中/已完成/已失敗）','行事曆約會計畫','餐廳記錄','留言系統','通知中心（Firestore 即時同步）','回顧頁年份統計','成就里程碑','管理員設定']}
+  {ver:'1.0.0', date:'2026-07-02', title:'正式上線 🎉', items:[
+    '回憶錄照片牆、語錄（含搜尋和年月篩選）',
+    '清單（想去哪/想吃什麼/想做什麼/想看什麼，支援靈感推薦）',
+    '挑戰系統（進行中/已完成/已失敗，含年月篩選）',
+    '行事曆約會計畫（月曆+即將到來，含年月跳轉）',
+    '餐廳記錄（縣市/類型/年月篩選，連結回憶錄）',
+    '留言系統（即時同步）',
+    '通知中心（Firestore 雙方共用，各自清除）',
+    '回顧頁年份統計（約會天數/上傳照片/完成挑戰等）',
+    '成就里程碑（共14個節點）',
+    '管理員設定（Cloudinary/Discord/備用帳號/版本記錄）'
+  ]}
 ];
-function _getChangelog(){
-  try{ return JSON.parse(localStorage.getItem('beebo_changelog'))||_CHANGELOG_DEFAULT; }
-  catch(e){ return _CHANGELOG_DEFAULT; }
-}
-function _saveChangelog(data){ localStorage.setItem('beebo_changelog',JSON.stringify(data)); }
 function renderChangelog(){
   var body=document.getElementById('changelogBody');
   if(!body) return;
-  var data=_getChangelog();
-  var isAdmin=_checkIsAdmin();
-  var adminAdd=isAdmin?'<div style="padding:0 0 12px;"><button onclick="openChangelogAdd()" class="btn2 bsec" style="width:100%;font-size:13px;">+ 新增版本記錄</button></div>':'';
-  body.innerHTML=adminAdd+data.map(function(v,idx){
-    var editBtn=isAdmin?'<button onclick="openChangelogEdit('+idx+')" style="all:unset;font-size:11px;color:var(--sub);cursor:pointer;padding:2px 8px;border-radius:6px;background:var(--card2);margin-left:auto;">編輯</button>':'';
+  body.innerHTML=_CHANGELOG_DEFAULT.map(function(v){
     return '<div style="padding:14px 0;border-bottom:1px solid var(--bdr);">'
       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">'
       +'<span style="font-size:12px;font-weight:700;background:var(--accent);color:#fff;padding:2px 10px;border-radius:20px;">v'+v.ver+'</span>'
       +'<span style="font-size:12px;color:var(--sub);">'+v.date+'</span>'
       +'<span style="font-size:13px;font-weight:600;color:var(--txt);">'+v.title+'</span>'
-      +editBtn+'</div>'
-      +(v.items&&v.items.length?'<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:3px;">'
-        +v.items.map(function(item){return '<li style="font-size:13px;color:var(--txt);line-height:1.5;">'+item+'</li>';}).join('')
+      +'</div>'
+      +(v.items&&v.items.length?'<ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px;">'
+        +v.items.map(function(item){return '<li style="font-size:13px;color:var(--txt);line-height:1.6;">'+item+'</li>';}).join('')
         +'</ul>':'')
       +'</div>';
   }).join('');
-}
-function openChangelogAdd(){
-  var ver=prompt('版本號（如 1.1.0）:');if(!ver)return;
-  var title=prompt('版本標題:');if(!title)return;
-  var itemsStr=prompt('更新內容（每項用換行分開）:');if(!itemsStr)return;
-  var items=itemsStr.split('\n').map(function(s){return s.trim();}).filter(Boolean);
-  var data=_getChangelog();
-  data.unshift({ver:ver.trim(),date:new Date().toISOString().slice(0,10),title:title.trim(),items:items});
-  _saveChangelog(data);renderChangelog();showToast('已新增 ✓');
-}
-function openChangelogEdit(idx){
-  var data=_getChangelog();var v=data[idx];if(!v)return;
-  var title=prompt('版本標題:',v.title);if(title===null)return;
-  var itemsStr=prompt('更新內容:',(v.items||[]).join('\n'));if(itemsStr===null)return;
-  data[idx].title=title.trim();
-  data[idx].items=itemsStr.split('\n').map(function(s){return s.trim();}).filter(Boolean);
-  _saveChangelog(data);renderChangelog();showToast('已更新 ✓');
 }
 
 var LIST = []; // 全域宣告，防止初始化前被 renderInspire 呼叫時報 ReferenceError
