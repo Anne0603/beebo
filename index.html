@@ -5202,30 +5202,69 @@ function openLinkListForMem(){
       +'<button onclick="confirmLinkList()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div>';
     document.body.appendChild(div);
   }
+  // 計算回憶錄日期範圍（±5天）
+  var rangeStart=null, rangeEnd=null;
+  var editMem = typeof _editMemId!=='undefined'&&_editMemId ? MEMS.find(function(x){return x.id===_editMemId;}) : null;
+  // 從目前正在新增/編輯的回憶錄取日期
+  var ds=document.getElementById('editMemDate1')||document.getElementById('newMemDate1');
+  var de=document.getElementById('editMemDate2')||document.getElementById('newMemDate2');
+  var dsVal=ds?ds.value:''; var deVal=de?de.value:'';
+  if(!dsVal&&editMem) dsVal=editMem.dateStart||'';
+  if(!deVal&&editMem) deVal=editMem.dateEnd||'';
+  if(dsVal){
+    rangeStart=new Date(dsVal); rangeStart.setDate(rangeStart.getDate()-5); rangeStart.setHours(0,0,0,0);
+    rangeEnd=new Date(deVal||dsVal); rangeEnd.setDate(rangeEnd.getDate()+5); rangeEnd.setHours(23,59,59,999);
+  }
+  function inRange(dateVal){
+    if(!rangeStart||!rangeEnd||!dateVal) return true; // 沒有日期範圍就全部顯示
+    var d=new Date(dateVal); return d>=rangeStart&&d<=rangeEnd;
+  }
+  function doneAtDate(item){
+    if(item.doneAt&&item.doneAt.seconds) return new Date(item.doneAt.seconds*1000).toISOString().slice(0,10);
+    return item.at||'';
+  }
+  function chalDoneDate(ch){
+    if(ch.doneAt&&ch.doneAt.seconds) return new Date(ch.doneAt.seconds*1000).toISOString().slice(0,10);
+    return '';
+  }
+
   // 渲染清單（只顯示已完成）+ 挑戰（只顯示已完成）
   var content=document.getElementById('linkListContent');
   if(content){
     var doneLists=LIST.filter(function(i){return i.done;});
     var doneChals=CHALS.filter(function(c){return c.status==='done';});
+    // 依日期範圍分組
+    var inLists=doneLists.filter(function(i){return inRange(doneAtDate(i));});
+    var outLists=doneLists.filter(function(i){return !inRange(doneAtDate(i));});
+    var inChals=doneChals.filter(function(c){return inRange(chalDoneDate(c));});
+    var outChals=doneChals.filter(function(c){return !inRange(chalDoneDate(c));});
+    var hasOut=outLists.length||outChals.length;
     var html='';
-    if(doneLists.length){
+    function makeItem(val, label, color){
+      var chk=_memLinkedItems.includes(val)?'checked':'';
+      return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;'+(color?'color:'+color+';':'')+'"><input type="checkbox" value="'+val+'" '+chk+' style="accent-color:var(--accent);">'+label+'</label>';
+    }
+    if(inLists.length){
       html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;">✅ 已完成清單</div>';
-      html+=doneLists.map(function(i){
-        var chk=_memLinkedItems.includes('list:'+i.id)?'checked':'';
-        return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;">'
-          +'<input type="checkbox" value="list:'+i.id+'" '+chk+' style="accent-color:var(--accent);">'+i.n+'</label>';
-      }).join('');
+      html+=inLists.map(function(i){return makeItem('list:'+i.id,i.n,'');}).join('');
     }
-    if(doneChals.length){
+    if(inChals.length){
       html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;margin-top:6px;">⭐ 已完成挑戰</div>';
-      html+=doneChals.map(function(ch){
-        var chk=_memLinkedItems.includes('chal:'+ch.id)?'checked':'';
-        return '<label style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:12px;color:var(--accent);">'
-          +'<input type="checkbox" value="chal:'+ch.id+'" '+chk+' style="accent-color:var(--accent);">'+ch.name+'</label>';
-      }).join('');
+      html+=inChals.map(function(c){return makeItem('chal:'+c.id,c.name,'var(--accent)');}).join('');
     }
-    if(!doneLists.length&&!doneChals.length){
+    if(!inLists.length&&!inChals.length&&!hasOut){
       html='<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">還沒有已完成的清單或挑戰<br><span style="font-size:11px;">先去打勾完成，再來建立回憶錄</span></div>';
+    }
+    if(!inLists.length&&!inChals.length&&hasOut){
+      html='<div style="text-align:center;color:var(--sub);padding:12px;font-size:12px;">這段時間附近沒有完成的項目</div>';
+    }
+    // 超出範圍的摺疊區
+    if(hasOut){
+      html+='<details style="margin-top:8px;"><summary style="font-size:11px;color:var(--sub);cursor:pointer;padding:4px 0;list-style:none;">▸ 顯示其他已完成（'+( outLists.length+outChals.length)+'）</summary>'
+        +'<div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">';
+      if(outLists.length) html+=outLists.map(function(i){return makeItem('list:'+i.id,i.n,'');}).join('');
+      if(outChals.length) html+=outChals.map(function(c){return makeItem('chal:'+c.id,c.name,'var(--accent)');}).join('');
+      html+='</div></details>';
     }
     content.innerHTML=html;
   }
