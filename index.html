@@ -227,7 +227,7 @@ input[type=file]{display:none;}
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup, reauthenticateWithPopup, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc, getDocs, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, limit, updateDoc, deleteDoc, getDocs, arrayUnion, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyB7ItJLps_FErzeQ-1s9WtS7XfercGt4i4",
@@ -243,6 +243,11 @@ input[type=file]{display:none;}
   // 明確設定本地持久化，避免 iOS Safari ITP 清除登入狀態
   setPersistence(auth, browserLocalPersistence).catch(function(){});
   const db = getFirestore(app);
+  // 啟用離線快取（斷線後仍可看到舊資料）
+  enableIndexedDbPersistence(db).catch(function(err){
+    if(err.code === 'failed-precondition') console.warn('[Firestore] 多個分頁開啟，離線快取只在單分頁有效');
+    else if(err.code === 'unimplemented') console.warn('[Firestore] 此瀏覽器不支援離線快取');
+  });
   const provider = new GoogleAuthProvider();
 
   let authResolved = false;
@@ -1414,6 +1419,10 @@ window.reauthenticateForPinReset = async function() {
 <!-- MODALS -->
 
 <div class="toast" id="toast"></div>
+<!-- 離線提示橫幅 -->
+<div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#616161;color:#fff;text-align:center;padding:8px;font-size:12px;font-family:'Noto Sans TC',sans-serif;">
+  📵 目前離線中，顯示的是上次的資料
+</div>
 
 <div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="confirmLinkRest()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
 <div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit">編輯挑戰</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">挑戰名稱</label><input class="fi" id="editChalNameInput" placeholder="挑戰名稱"></div><div class="fg"><label class="fl">分類</label><select class="fi" id="editChalCatInput" style="padding:8px 10px;"><option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>感情類</option><option>娛樂類</option><option>學習類</option><option>其他</option></select></div><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="saveChalEdit()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(_editChalId)abandonChal(_editChalId)" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
@@ -3605,7 +3614,19 @@ var DEL_I='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polyline
 var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#F4C430" stroke="#E6A800" stroke-width="1.5" stroke-linejoin="round"/></svg>';
 
 // ── Firestore 清單監聽 ──
-// ── 超級管理員（程式碼綁定 email，不受 Firestore 設定影響）──
+// ── 離線狀態偵測 ──
+(function(){
+  var banner = document.getElementById('offlineBanner');
+  function updateOnlineStatus(){
+    if(!banner) return;
+    banner.style.display = navigator.onLine ? 'none' : 'block';
+    // 離線橫幅顯示時，頁面內容往下推
+    document.body.style.paddingTop = navigator.onLine ? '' : '36px';
+  }
+  window.addEventListener('online', updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus(); // 初始檢查
+})();
 var _SUPER_ADMIN_EMAIL = 'pbf105019@gmail.com';
 function _isSuperAdmin(){
   var email = window.currentUser && window.currentUser.email;
