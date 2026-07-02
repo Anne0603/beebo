@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#4A7A58">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="嗶啵">
 <title>嗶啵</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234A7A58'/%3E%3Ccircle cx='24' cy='28' r='6' fill='%23C8E4D0'/%3E%3Ccircle cx='40' cy='28' r='6' fill='%23C8E4D0'/%3E%3Cpath d='M20 38 Q32 48 44 38' stroke='%23C8E4D0' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M26 20 Q32 14 38 20' stroke='%23A0C8B0' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%234A7A58'/%3E%3Ccircle cx='24' cy='28' r='6' fill='%23C8E4D0'/%3E%3Ccircle cx='40' cy='28' r='6' fill='%23C8E4D0'/%3E%3Cpath d='M20 38 Q32 48 44 38' stroke='%23C8E4D0' stroke-width='3' fill='none' stroke-linecap='round'/%3E%3Cpath d='M26 20 Q32 14 38 20' stroke='%23A0C8B0' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
@@ -341,6 +347,7 @@ input[type=file]{display:none;}
         window._coupleData.cloudinaryPreset = data.cloudinaryPreset || '';
         if(typeof window.DISCORD_WEBHOOK !== 'undefined') window.DISCORD_WEBHOOK = data.discordWebhook || '';
         if(data.listCatNames && typeof _applyCatNames === 'function') _applyCatNames(data);
+        if(data.appName && typeof _applyAppName === 'function') _applyAppName(data.appName);
         // 重新計算管理員狀態（backupAdmins/adminUids 變動時即時更新）
         (function(){
           var adminWrap = document.getElementById('adminSectionWrap');
@@ -707,6 +714,7 @@ window.startPairingCountdown = function(expiry, el) {
     window._db = db;
     window._applyStartDate(window._coupleData.startDate || '');
     if (typeof _applyCatNames === 'function') _applyCatNames(window._coupleData);
+    if (typeof _applyAppName === 'function') _applyAppName(window._coupleData.appName || '');
 
     // ── 自我修復：舊配對兩邊都沒有 isAdmin=true，把目前這個使用者設為管理員 ──
     try {
@@ -1018,7 +1026,7 @@ window.reauthenticateForPinReset = async function() {
 
 <!-- Login screen -->
 <div id="loginScreen" style="display:none;position:fixed;inset:0;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:20px;z-index:100;padding:24px;">
-  <div style="font-size:32px;font-weight:700;color:var(--accent);">嗶啵 💚</div>
+  <div style="font-size:32px;font-weight:700;color:var(--accent);"><span class="app-name"><span class="app-name">嗶啵</span></span> 💚</div>
   <div style="font-size:13px;color:var(--sub);">兩人的專屬小天地</div>
   <button id="googleLoginBtn" onclick="googleLogin()" style="display:flex;align-items:center;gap:10px;padding:12px 24px;border-radius:14px;border:1.5px solid var(--bdr);background:var(--card);font-size:14px;font-weight:600;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;box-shadow:0 2px 8px var(--shd);">
     <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
@@ -1033,7 +1041,7 @@ window.reauthenticateForPinReset = async function() {
 <div class="mo" id="pairingMo">
   <div class="mbox" style="max-width:340px;">
     <div style="text-align:center;padding:8px 0 16px;">
-      <div style="font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px;">歡迎來到嗶啵 💚</div>
+      <div style="font-size:22px;font-weight:700;color:var(--accent);margin-bottom:4px;">歡迎來到<span class="app-name">嗶啵</span> 💚</div>
       <div style="font-size:12px;color:var(--sub);">先和另一半配對，才能共享所有功能</div>
     </div>
 
@@ -1285,6 +1293,7 @@ window.reauthenticateForPinReset = async function() {
 
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openAppNameMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">APP 名稱設定</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openCatRenameMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">清單分類改名</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" fill="#A87848"/></svg></div><div class="slb">管理挑戰分類</div></div></div>
 <div class="sr" onclick="openRestTypeMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">管理餐廳類型</div></div><div class="sv">›</div></div>
@@ -1302,7 +1311,7 @@ window.reauthenticateForPinReset = async function() {
       </div>
     </div>
     </div>
-    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')">嗶啵 v1.0.0 · 版本記錄 ›</div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.0.0 · 版本記錄 ›</div>
   </div>
   <div class="bnav" id="bnav-settings"></div>
 </div>
@@ -1677,7 +1686,7 @@ window.reauthenticateForPinReset = async function() {
 <div class="mo" id="lockScreen" style="z-index:200;background:var(--bg);">
   <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:24px;">
     <div style="font-size:40px;">🔒</div>
-    <div style="font-size:15px;font-weight:600;color:var(--txt);">嗶啵已鎖定</div>
+    <div style="font-size:15px;font-weight:600;color:var(--txt);"><span class="app-name">嗶啵</span>已鎖定</div>
     <div style="display:flex;gap:14px;">
       <div class="pindot" id="pd0"></div>
       <div class="pindot" id="pd1"></div>
@@ -1730,6 +1739,8 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="execDeleteMem()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
   </div>
 </div></div>
+<div class="mo" id="appNameMo"><div class="mbox"><div class="mh"><span class="mtit">APP 名稱設定</span><button class="mcl" onclick="closeMo('appNameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">修改後兩人的 APP 名稱都會即時更新。</div><div class="fg"><label class="fl">APP 名稱</label><input class="fi" id="appNameInput" placeholder="嗶啵" maxlength="10"></div><button class="btn2 bpri" onclick="saveAppName()">儲存</button></div></div></div>
+
 <div class="mo" id="catRenameMo"><div class="mbox"><div class="mh"><span class="mtit">清單分類改名</span><button class="mcl" onclick="closeMo('catRenameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:11px;color:var(--sub);">修改後兩人都會看到新名稱。舊資料不受影響。</div><div class="fg"><label class="fl">分類 1（原：想去哪）</label><input class="fi" id="catRename1" placeholder="想去哪"></div><div class="fg"><label class="fl">分類 2（原：想吃什麼）</label><input class="fi" id="catRename2" placeholder="想吃什麼"></div><div class="fg"><label class="fl">分類 3（原：想做什麼）</label><input class="fi" id="catRename3" placeholder="想做什麼"></div><div class="fg"><label class="fl">分類 4（原：想看什麼）</label><input class="fi" id="catRename4" placeholder="想看什麼"></div><button class="btn2 bpri" onclick="saveCatNames()">儲存</button></div></div></div>
 
 <div class="mo" id="chalCatMo"><div class="mbox"><div class="mh"><span class="mtit">管理挑戰分類</span><button class="mcl" onclick="closeMo('chalCatMo')">×</button></div>
@@ -2476,6 +2487,30 @@ function getChalCats() {
 }
 function saveChalCats(cats) { localStorage.setItem('beebo_chal_cats', JSON.stringify(cats)); }
 function openChalCatMo() { renderChalCatMg(); openMo('chalCatMo'); }
+// ── APP 名稱自訂 ──
+function _applyAppName(name){
+  var n = name || '嗶啵';
+  document.title = n;
+  document.querySelectorAll('.app-name').forEach(function(el){ el.textContent = n; });
+}
+function openAppNameMo(){
+  var cur = (window._coupleData && window._coupleData.appName) || '嗶啵';
+  var inp = document.getElementById('appNameInput');
+  if(inp) inp.value = cur;
+  openMo('appNameMo');
+}
+async function saveAppName(){
+  if(!window._coupleId||!window._fsOps){ showToast('請先配對'); return; }
+  var name = (document.getElementById('appNameInput')||{}).value||'';
+  if(!name.trim()){ showToast('請輸入名稱'); return; }
+  var {doc, setDoc} = window._fsOps;
+  await setDoc(doc(window._db,'couples',window._coupleId),{appName:name.trim()},{merge:true});
+  if(window._coupleData) window._coupleData.appName = name.trim();
+  _applyAppName(name.trim());
+  closeMo('appNameMo');
+  showToast('APP 名稱已更新 ✓（兩人即時生效）');
+}
+
 function openCatRenameMo(){
   var keys = _CAT_KEYS;
   for(var i=0;i<keys.length;i++){
