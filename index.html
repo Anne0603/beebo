@@ -3529,6 +3529,8 @@ async function devResetExecute(){
     // 刪除兩人 users doc
     await deleteDoc(doc(db,'users',myUid));
     if(partnerId) await deleteDoc(doc(db,'users',partnerId));
+    // 清除相關 localStorage（PIN、提醒記錄、舊版changelog）
+    ['beebo_pin','beebo_last_reminder_check','beebo_last_rating_reminder','beebo_changelog','beebo_pinResetSent'].forEach(function(k){ localStorage.removeItem(k); });
     // 登出
     if(window._auth) await window._auth.signOut();
     showToast('清除完成，即將重新整理...');
