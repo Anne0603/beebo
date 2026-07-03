@@ -740,7 +740,25 @@ window.startPairingCountdown = function(expiry, el) {
     const coupleRef = doc(db, 'couples', coupleId);
     let coupleSnap = await getDoc(coupleRef);
     if (!coupleSnap.exists()) {
-      // 第一次：任何一方都可建立 couple document
+      // couples doc 不存在 → 可能是資料被清除了
+      // 先確認對方的 users doc 是否還有 partnerId（還在配對中才重建）
+      let partnerStillPaired = false;
+      try {
+        const partnerSnap = await getDoc(doc(db, 'users', myUserData.partnerId));
+        partnerStillPaired = partnerSnap.exists() && partnerSnap.data().partnerId === myUid;
+      } catch(e) {}
+
+      if (!partnerStillPaired) {
+        // 對方已解除配對（資料被清除）→ 清空自己的 partnerId，跳回配對頁
+        try { await updateDoc(doc(db, 'users', myUid), {partnerId: null}); } catch(e) {}
+        window.currentUser = user;
+        window.userData = {...myUserData, partnerId: null};
+        const pm = document.getElementById('pairingMo');
+        if(pm){ const ls=document.getElementById('loginScreen'); if(ls)ls.style.display='none'; openMo('pairingMo'); }
+        return;
+      }
+
+      // 第一次配對：建立 couple document
       try {
         await setDoc(coupleRef, {
           members: [myUid, myUserData.partnerId],
