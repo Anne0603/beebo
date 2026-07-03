@@ -436,34 +436,40 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
       // ── 白名單檢查（超級管理員永遠通過）──
-      const SUPER_EMAIL = 'pbf105019@gmail.com'; // 直接 hardcode，不依賴 main script
+      const SUPER_EMAIL = 'pbf105019@gmail.com';
       if (user.email !== SUPER_EMAIL) {
         try {
-          const wlSnap = await getDoc(doc(db, 'config', 'whitelist'));
-          if (wlSnap.exists()) {
-            const allowedEmails = wlSnap.data().emails || [];
-            if (!allowedEmails.includes(user.email)) {
-              await signOut(auth);
-              var ls2 = document.getElementById('loginScreen');
-              if (ls2) {
-                ls2.style.display = 'flex';
-                var errEl = document.getElementById('loginError');
-                if (!errEl) {
-                  errEl = document.createElement('div');
-                  errEl.id = 'loginError';
-                  errEl.style.cssText = 'color:#c62828;font-size:12px;text-align:center;padding:10px 14px;background:#fdecea;border-radius:10px;margin-top:12px;line-height:1.6;';
-                  var mbox = ls2.querySelector('.mbox');
-                  if (mbox) mbox.appendChild(errEl);
+          // 先看這個用戶有沒有已配對的記錄
+          const userDocSnap = await getDoc(doc(db, 'users', user.uid));
+          const alreadyPaired = userDocSnap.exists() && userDocSnap.data().partnerId;
+          if (!alreadyPaired) {
+            // 沒有配對記錄 → 檢查白名單
+            const wlSnap = await getDoc(doc(db, 'config', 'whitelist'));
+            if (wlSnap.exists()) {
+              const allowedEmails = wlSnap.data().emails || [];
+              if (!allowedEmails.includes(user.email)) {
+                await signOut(auth);
+                var ls2 = document.getElementById('loginScreen');
+                if (ls2) {
+                  ls2.style.display = 'flex';
+                  var errEl = document.getElementById('loginError');
+                  if (!errEl) {
+                    errEl = document.createElement('div');
+                    errEl.id = 'loginError';
+                    errEl.style.cssText = 'color:#c62828;font-size:12px;text-align:center;padding:10px 14px;background:#fdecea;border-radius:10px;margin-top:12px;line-height:1.6;';
+                    var mbox = ls2.querySelector('.mbox');
+                    if (mbox) mbox.appendChild(errEl);
+                  }
+                  errEl.textContent = '⛔ 此帳號（' + user.email + '）無使用權限，請聯絡管理員。';
                 }
-                errEl.textContent = '⛔ 此帳號（' + user.email + '）無使用權限，請聯絡管理員。';
+                return;
               }
-              return;
             }
+            // whitelist doc 不存在 → 尚未設定，放行
           }
-          // 如果 whitelist doc 不存在 → 尚未設定白名單 → 放行（讓超級管理員先去設定）
+          // 已配對的用戶直接放行，不需要在白名單
         } catch(e) {
-          console.warn('[whitelist] 讀取失敗，放行讓用戶繼續:', e);
-          // 讀取失敗不踢出，避免網路問題誤殺合法用戶
+          console.warn('[whitelist] 讀取失敗，放行:', e);
         }
       }
 
