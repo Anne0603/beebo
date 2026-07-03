@@ -1633,14 +1633,35 @@ window.reauthenticateForPinReset = async function() {
 </div></div>
 
 <div class="mo" id="importInspireMo"><div class="mbox">
-  <div class="mh"><span class="mtit">JSON 匯入靈感題庫</span><button class="mcl" onclick="closeMo('importInspireMo');setTimeout(function(){openMo('inspireMgMo');},250);">×</button></div>
-  <div style="font-size:11px;color:var(--sub);margin-bottom:6px;line-height:1.6;">
-    每筆格式：<code style="background:var(--card2);padding:1px 4px;border-radius:4px;">{"n":"吃火鍋","c":"想吃什麼"}</code><br>
-    分類：想去哪／想吃什麼／想做什麼／想看什麼
+  <div class="mh"><span class="mtit">匯入靈感</span><button class="mcl" onclick="closeMo('importInspireMo');setTimeout(function(){openMo('inspireMgMo');},250);">×</button></div>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div class="fg" style="margin:0;">
+      <label class="fl">選擇分類</label>
+      <select class="fi" id="importInspireCat" style="padding:8px 10px;" onchange="updateImportCatOptions()">
+        <optgroup label="清單靈感">
+          <option value="想去哪">想去哪</option>
+          <option value="想吃什麼">想吃什麼</option>
+          <option value="想做什麼">想做什麼</option>
+          <option value="想看什麼">想看什麼</option>
+        </optgroup>
+        <optgroup label="挑戰靈感">
+          <option value="探索類">探索類</option>
+          <option value="飲食類">飲食類</option>
+          <option value="運動類">運動類</option>
+          <option value="創作類">創作類</option>
+          <option value="感情類">感情類</option>
+          <option value="娛樂類">娛樂類</option>
+          <option value="學習類">學習類</option>
+          <option value="其他">其他</option>
+        </optgroup>
+      </select>
+    </div>
+    <div class="fg" style="margin:0;">
+      <label class="fl">靈感名稱（每行一個）</label>
+      <textarea class="fi" id="importInspireText" rows="7" placeholder="一起去看煙火&#10;騎腳踏車環湖&#10;一起去看表演..." style="font-size:13px;resize:vertical;line-height:1.8;"></textarea>
+    </div>
+    <button onclick="execImportInspire()" class="btn2 bpri" style="width:100%;">匯入</button>
   </div>
-  <button onclick="copyInspireTemplate()" class="btn2 bsec" style="width:100%;font-size:12px;margin-bottom:8px;">📋 複製範本（填入後貼上）</button>
-  <textarea class="fi" id="importInspireText" rows="7" placeholder='貼上 JSON 內容...' style="font-family:monospace;font-size:12px;margin-bottom:12px;resize:vertical;"></textarea>
-  <button onclick="execImportInspire()" class="btn2 bpri" style="width:100%;">匯入（將覆蓋現有題庫）</button>
 </div></div>
 
 <div class="mo" id="restTypeMo"><div class="mbox">
@@ -1932,7 +1953,7 @@ window.reauthenticateForPinReset = async function() {
   <button onclick="switchInspireTab('chal',this)" style="flex:1;padding:7px;border:none;background:var(--card2);color:var(--sub);font-size:12px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-chal">挑戰靈感</button>
 </div>
 <div style="display:flex;gap:6px;margin-bottom:10px;">
-  <button onclick="openImportInspireMo()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📥 JSON 匯入</button>
+  <button onclick="openImportInspireMo()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📥 匯入靈感</button>
   <button onclick="exportInspireJSON()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📤 匯出</button>
 </div>
 <div id="inspireListMg" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
@@ -2766,6 +2787,19 @@ async function removeFromWhitelist(email){
   showToast('已移除 ✓');
 }
 
+function updateImportCatOptions(){
+  // 用 getCatName 更新清單分類的顯示名稱
+  var sel=document.getElementById('importInspireCat');
+  if(!sel||typeof getCatName!=='function') return;
+  var listKeys=['想去哪','想吃什麼','想做什麼','想看什麼'];
+  sel.querySelectorAll('option').forEach(function(opt){
+    if(listKeys.includes(opt.value)) opt.textContent=getCatName(opt.value);
+  });
+}
+function openImportInspireMo(){
+  openMo('importInspireMo');
+  setTimeout(updateImportCatOptions, 50);
+}
 function openCatRenameMo(){
   var keys = _CAT_KEYS;
   for(var i=0;i<keys.length;i++){
@@ -3127,40 +3161,27 @@ function exportInspireJSON() {
   URL.revokeObjectURL(url);
   showToast('已匯出 ✓');
 }
-function openImportInspireMo() {
-  var ta = document.getElementById('importInspireText');
-  if(ta) ta.value = '';
-  closeMo('inspireMgMo');
-  setTimeout(function(){ openMo('importInspireMo'); }, 250);
-}
-function execImportInspire() {
-  var ta = document.getElementById('importInspireText');
-  var text = ta ? ta.value.trim() : '';
-  if(!text) { showToast('請貼上 JSON 內容'); return; }
-  try {
-    var data = JSON.parse(text);
-    if(!Array.isArray(data)) throw new Error('最外層必須是陣列 [...]');
-    // 支援 {n,c} 和 {text,cat} 兩種格式
-    data = data.map(function(item){
-      if(item.text && item.cat) return { n: item.text, c: item.cat };
-      if(item.n && item.c) return item;
-      throw new Error('每筆需包含 n（名稱）和 c（分類），或 text 和 cat');
-    });
-    var validCats = ['想去哪','想吃什麼','想做什麼','想看什麼','探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
-    var bad = data.filter(function(item){ return !validCats.includes(item.c); });
-    if(bad.length) { showToast('分類錯誤：' + bad[0].c + '\n請用清單分類（想去哪等）或挑戰分類（探索類等）'); return; }
-    // 新增模式：合併到現有資料，去除重複（以名稱判斷）
-    var existing = _getInspireData() || _getDefaultInspire();
-    var existingNames = new Set(existing.map(function(i){ return i.n; }));
-    var newItems = data.filter(function(i){ return !existingNames.has(i.n); });
-    var merged = existing.concat(newItems);
-    _saveInspireData(merged);
-    closeMo('importInspireMo');
-    showToast('匯入成功！新增 '+newItems.length+' 筆，共 '+merged.length+' 筆 ✓');
-    setTimeout(function(){ openMo('inspireMgMo'); renderInspireMg('list'); }, 250);
-  } catch(e) {
-    showToast('JSON 格式錯誤：' + e.message);
-  }
+function execImportInspire(){
+  var ta=document.getElementById('importInspireText');
+  var cat=document.getElementById('importInspireCat');
+  var text=(ta?ta.value:'').trim();
+  var catVal=cat?cat.value:'';
+  if(!text){showToast('請輸入靈感名稱');return;}
+  if(!catVal){showToast('請選擇分類');return;}
+  // 每行一個名稱
+  var names=text.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  if(!names.length){showToast('請輸入至少一個名稱');return;}
+  var newItems=names.map(function(n){return {n:n, c:catVal};});
+  // 合併到現有資料，去除重複
+  var existing=_getInspireData()||_getDefaultInspire();
+  var existingNames=new Set(existing.map(function(i){return i.n;}));
+  var toAdd=newItems.filter(function(i){return !existingNames.has(i.n);});
+  var merged=existing.concat(toAdd);
+  _saveInspireData(merged);
+  if(ta) ta.value='';
+  closeMo('importInspireMo');
+  showToast('已新增 '+toAdd.length+' 筆到「'+catVal+'」✓');
+  setTimeout(function(){ openMo('inspireMgMo'); renderInspireMg('list'); }, 250);
 }
 function copyInspireTemplate(){
   var tab = document.getElementById('itab-chal') && document.getElementById('itab-chal').classList.contains('itab-on') ? 'chal' : 'list';
