@@ -2154,7 +2154,7 @@ function switchInspireTab(tab,el){
         return '<option value="'+c[0]+'">'+display+'</option>';
       }).join('');
     } else {
-      var chalCats=['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
+      var chalCats=typeof getChalCats==='function'?getChalCats():['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
       catSel.innerHTML=chalCats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
     }
   }
@@ -2798,13 +2798,20 @@ async function removeFromWhitelist(email){
 }
 
 function updateImportCatOptions(){
-  // 用 getCatName 更新清單分類的顯示名稱
   var sel=document.getElementById('importInspireCat');
-  if(!sel||typeof getCatName!=='function') return;
-  var listKeys=['想去哪','想吃什麼','想做什麼','想看什麼'];
-  sel.querySelectorAll('option').forEach(function(opt){
-    if(listKeys.includes(opt.value)) opt.textContent=getCatName(opt.value);
-  });
+  if(!sel) return;
+  var listCats=[['想去哪','想去哪'],['想吃什麼','想吃什麼'],['想做什麼','想做什麼'],['想看什麼','想看什麼']];
+  var chalCats=typeof getChalCats==='function'?getChalCats():['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
+  sel.innerHTML=
+    '<optgroup label="清單靈感">'
+    +listCats.map(function(c){
+      var display=typeof getCatName==='function'?getCatName(c[0]):c[1];
+      return '<option value="'+c[0]+'">'+display+'</option>';
+    }).join('')
+    +'</optgroup>'
+    +'<optgroup label="挑戰靈感">'
+    +chalCats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('')
+    +'</optgroup>';
 }
 function openImportInspireMo(){
   openMo('importInspireMo');
