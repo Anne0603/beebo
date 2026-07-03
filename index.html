@@ -1948,21 +1948,27 @@ window.reauthenticateForPinReset = async function() {
 <button onclick="closeMo('chalCatMo')" class="btn2 bsec" style="width:100%;margin-top:8px;">完成</button>
 </div></div>
 <div class="mo" id="inspireMgMo"><div class="mbox"><div class="mh"><span class="mtit">靈感題庫管理</span><button class="mcl" onclick="closeMo('inspireMgMo')">×</button></div>
-<div style="display:flex;gap:0;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:10px;">
+<div style="display:flex;gap:0;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;margin-bottom:12px;">
   <button onclick="switchInspireTab('list',this)" style="flex:1;padding:7px;border:none;background:var(--accent);color:#fff;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-list">清單靈感</button>
   <button onclick="switchInspireTab('chal',this)" style="flex:1;padding:7px;border:none;background:var(--card2);color:var(--sub);font-size:12px;font-family:'Noto Sans TC',sans-serif;cursor:pointer;" id="itab-chal">挑戰靈感</button>
 </div>
-<div style="display:flex;gap:6px;margin-bottom:10px;">
+<div style="display:flex;gap:6px;margin-bottom:14px;">
   <button onclick="openImportInspireMo()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📥 匯入靈感</button>
   <button onclick="exportInspireJSON()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📤 匯出</button>
 </div>
-<div id="inspireListMg" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
-<div id="inspireChalMg" style="display:none;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
-<div style="border-top:1px solid var(--bdr);margin-top:10px;padding-top:10px;display:flex;flex-direction:column;gap:6px;">
-  <div style="font-size:11px;font-weight:700;color:var(--sub);">快速新增靈感</div>
-  <input class="fi" id="newInspireName" placeholder="靈感名稱..." style="font-size:12px;">
-  <select class="fi" id="newInspireCat" style="font-size:12px;padding:8px 10px;"></select>
-  <button onclick="addInspireItem()" class="btn2 bpri" style="font-size:12px;">新增</button>
+<div style="display:flex;flex-direction:column;gap:8px;">
+  <div style="font-size:12px;font-weight:700;color:var(--txt);">快速新增靈感</div>
+  <input class="fi" id="newInspireName" placeholder="靈感名稱..." style="font-size:13px;">
+  <select class="fi" id="newInspireCat" style="font-size:13px;padding:8px 10px;">
+    <option value="想去哪">想去哪</option>
+    <option value="想吃什麼">想吃什麼</option>
+    <option value="想做什麼">想做什麼</option>
+    <option value="想看什麼">想看什麼</option>
+  </select>
+  <button onclick="addInspireItem()" class="btn2 bpri" style="font-size:13px;">新增</button>
+</div>
+<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr);">
+  <button onclick="clearAllInspire()" style="all:unset;font-size:11px;color:var(--sub);cursor:pointer;">🗑 清空全部靈感（恢復預設）</button>
 </div>
 </div></div>
 <div class="mo" id="bindMo"><div class="mbox"><div class="mh"><span class="mtit">帳號綁定管理</span><button class="mcl" onclick="closeMo('bindMo')">×</button></div><div style="display:flex;flex-direction:column;gap:14px;"><div id="bindStatus" style="background:var(--lt);border-radius:12px;padding:14px;font-size:13px;line-height:1.8;">載入中...</div><button class="btn2 bsec" onclick="grantPartnerAdmin()" id="grantAdminBtn" style="display:none;">授予對方管理員權限</button><button class="btn2" style="background:#c62828;color:#fff;width:100%;" onclick="unpairAccount()">解除配對</button><div style="font-size:11px;color:var(--sub);text-align:center;">解除後雙方資料保留，需重新配對才能共享功能</div><button class="btn2 bsec" onclick="closeMo('bindMo')">關閉</button></div></div></div>
@@ -2123,17 +2129,23 @@ function doConfirm() {
 
 
 
+function clearAllInspire(){
+  confirmAction('清空所有靈感？下次開啟將恢復預設 50 筆。', function(){
+    localStorage.removeItem('beebo_inspire');
+    showToast('已清空，重新開啟靈感頁即可看到預設靈感');
+    closeMo('inspireMgMo');
+  });
+}
+
 function switchInspireTab(tab,el){
   var tabs=['list','chal'];
   tabs.forEach(function(t){
     var btn=document.getElementById('itab-'+t);
-    var body=document.getElementById('inspire'+t.charAt(0).toUpperCase()+t.slice(1)+'Mg');
     if(btn){
       btn.style.background=t===tab?'var(--accent)':'var(--card2)';
       btn.style.color=t===tab?'#fff':'var(--sub)';
       btn.classList.toggle('itab-on', t===tab);
     }
-    if(body){body.style.display=t===tab?'flex':'none';}
   });
   // 更新分類選單
   var catSel=document.getElementById('newInspireCat');
@@ -2149,7 +2161,6 @@ function switchInspireTab(tab,el){
       catSel.innerHTML=chalCats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
     }
   }
-  // 重新渲染靈感列表
   if(typeof renderInspire==='function') renderInspire();
 }
 
