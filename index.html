@@ -1938,14 +1938,9 @@ window.reauthenticateForPinReset = async function() {
 <div id="inspireListMg" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
 <div id="inspireChalMg" style="display:none;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
 <div style="border-top:1px solid var(--bdr);margin-top:10px;padding-top:10px;display:flex;flex-direction:column;gap:6px;">
-  <div style="font-size:11px;font-weight:700;color:var(--sub);">新增靈感</div>
+  <div style="font-size:11px;font-weight:700;color:var(--sub);">快速新增靈感</div>
   <input class="fi" id="newInspireName" placeholder="靈感名稱..." style="font-size:12px;">
-  <select class="fsel" id="newInspireCat" style="font-size:12px;">
-    <option value="想去哪">想去哪</option>
-    <option value="想吃什麼">想吃什麼</option>
-    <option value="想做什麼">想做什麼</option>
-    <option value="想看什麼">想看什麼</option>
-  </select>
+  <select class="fi" id="newInspireCat" style="font-size:12px;padding:8px 10px;"></select>
   <button onclick="addInspireItem()" class="btn2 bpri" style="font-size:12px;">新增</button>
 </div>
 </div></div>
@@ -2119,7 +2114,21 @@ function switchInspireTab(tab,el){
     }
     if(body){body.style.display=t===tab?'flex':'none';}
   });
-  // 重新渲染靈感列表讓按鈕文字正確（加入清單 vs 加入挑戰）
+  // 更新分類選單
+  var catSel=document.getElementById('newInspireCat');
+  if(catSel){
+    if(tab==='list'){
+      var listCats=[['想去哪','想去哪'],['想吃什麼','想吃什麼'],['想做什麼','想做什麼'],['想看什麼','想看什麼']];
+      catSel.innerHTML=listCats.map(function(c){
+        var display=typeof getCatName==='function'?getCatName(c[0]):c[1];
+        return '<option value="'+c[0]+'">'+display+'</option>';
+      }).join('');
+    } else {
+      var chalCats=['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
+      catSel.innerHTML=chalCats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
+    }
+  }
+  // 重新渲染靈感列表
   if(typeof renderInspire==='function') renderInspire();
 }
 
@@ -2906,8 +2915,8 @@ function _saveInspireData(d){ localStorage.setItem('beebo_inspire',JSON.stringif
 function openInspireMgMo(){
   var data=_getInspireData()||_getDefaultInspire();
   if(!_getInspireData()) _saveInspireData(data);
-  renderInspireMg('list');
   openMo('inspireMgMo');
+  setTimeout(function(){ switchInspireTab('list',document.getElementById('itab-list')); renderInspireMg('list'); },50);
 }
 function renderInspireMg(tab){
   var data=_getInspireData()||_getDefaultInspire();
@@ -3530,7 +3539,7 @@ async function devResetExecute(){
     await deleteDoc(doc(db,'users',myUid));
     if(partnerId) await deleteDoc(doc(db,'users',partnerId));
     // 清除相關 localStorage（PIN、提醒記錄、舊版changelog）
-    ['beebo_pin','beebo_last_reminder_check','beebo_last_rating_reminder','beebo_changelog','beebo_pinResetSent'].forEach(function(k){ localStorage.removeItem(k); });
+    ['beebo_pin','beebo_last_reminder_check','beebo_last_rating_reminder','beebo_changelog','beebo_pinResetSent','beebo_inspire'].forEach(function(k){ localStorage.removeItem(k); });
     // 登出
     if(window._auth) await window._auth.signOut();
     showToast('清除完成，即將重新整理...');
