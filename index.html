@@ -1967,9 +1967,6 @@ window.reauthenticateForPinReset = async function() {
   </select>
   <button onclick="addInspireItem()" class="btn2 bpri" style="font-size:13px;">新增</button>
 </div>
-<div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr);">
-  <button onclick="clearAllInspire()" style="all:unset;font-size:11px;color:var(--sub);cursor:pointer;">🗑 清空全部靈感（恢復預設）</button>
-</div>
 </div></div>
 <div class="mo" id="bindMo"><div class="mbox"><div class="mh"><span class="mtit">帳號綁定管理</span><button class="mcl" onclick="closeMo('bindMo')">×</button></div><div style="display:flex;flex-direction:column;gap:14px;"><div id="bindStatus" style="background:var(--lt);border-radius:12px;padding:14px;font-size:13px;line-height:1.8;">載入中...</div><button class="btn2 bsec" onclick="grantPartnerAdmin()" id="grantAdminBtn" style="display:none;">授予對方管理員權限</button><button class="btn2" style="background:#c62828;color:#fff;width:100%;" onclick="unpairAccount()">解除配對</button><div style="font-size:11px;color:var(--sub);text-align:center;">解除後雙方資料保留，需重新配對才能共享功能</div><button class="btn2 bsec" onclick="closeMo('bindMo')">關閉</button></div></div></div>
 <div class="mo" id="devResetMo"><div class="mbox">
