@@ -1657,8 +1657,8 @@ window.reauthenticateForPinReset = async function() {
       </select>
     </div>
     <div class="fg" style="margin:0;">
-      <label class="fl">靈感名稱（每行一個）</label>
-      <textarea class="fi" id="importInspireText" rows="7" placeholder="一起去看煙火&#10;騎腳踏車環湖&#10;一起去看表演..." style="font-size:13px;resize:vertical;line-height:1.8;"></textarea>
+      <label class="fl">靈感名稱（每行一個）<span style="font-size:10px;color:var(--sub);font-weight:400;"> 或貼上匯出的 JSON</span></label>
+      <textarea class="fi" id="importInspireText" rows="7" placeholder="每行一個名稱：&#10;一起去看煙火&#10;騎腳踏車環湖&#10;&#10;或貼上朋友匯出的 JSON 內容" style="font-size:13px;resize:vertical;line-height:1.8;"></textarea>
     </div>
     <button onclick="execImportInspire()" class="btn2 bpri" style="width:100%;">匯入</button>
   </div>
@@ -3167,12 +3167,28 @@ function execImportInspire(){
   var text=(ta?ta.value:'').trim();
   var catVal=cat?cat.value:'';
   if(!text){showToast('請輸入靈感名稱');return;}
-  if(!catVal){showToast('請選擇分類');return;}
-  // 每行一個名稱
-  var names=text.split('\n').map(function(s){return s.trim();}).filter(Boolean);
-  if(!names.length){showToast('請輸入至少一個名稱');return;}
-  var newItems=names.map(function(n){return {n:n, c:catVal};});
-  // 合併到現有資料，去除重複
+  var newItems=[];
+  // 自動判斷：JSON 格式還是純文字
+  if(text.startsWith('[')){
+    // JSON 格式（匯出的資料）
+    try{
+      var data=JSON.parse(text);
+      if(!Array.isArray(data)) throw new Error('格式錯誤');
+      newItems=data.map(function(item){
+        if(item.n&&item.c) return {n:item.n.trim(), c:item.c.trim()};
+        if(item.text&&item.cat) return {n:item.text.trim(), c:item.cat.trim()};
+        throw new Error('每筆需有 n 和 c 欄位');
+      });
+      showToast('偵測到 JSON 格式，直接匯入...');
+    }catch(e){showToast('JSON 格式錯誤：'+e.message);return;}
+  } else {
+    // 純文字：每行一個名稱，套用選好的分類
+    if(!catVal){showToast('請選擇分類');return;}
+    var names=text.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    if(!names.length){showToast('請輸入至少一個名稱');return;}
+    newItems=names.map(function(n){return {n:n, c:catVal};});
+  }
+  // 合併，去除重複
   var existing=_getInspireData()||_getDefaultInspire();
   var existingNames=new Set(existing.map(function(i){return i.n;}));
   var toAdd=newItems.filter(function(i){return !existingNames.has(i.n);});
@@ -3180,7 +3196,7 @@ function execImportInspire(){
   _saveInspireData(merged);
   if(ta) ta.value='';
   closeMo('importInspireMo');
-  showToast('已新增 '+toAdd.length+' 筆到「'+catVal+'」✓');
+  showToast('已新增 '+toAdd.length+' 筆 ✓');
   setTimeout(function(){ openMo('inspireMgMo'); renderInspireMg('list'); }, 250);
 }
 function copyInspireTemplate(){
