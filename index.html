@@ -2816,7 +2816,18 @@ function updateImportCatOptions(){
 }
 function openImportInspireMo(){
   openMo('importInspireMo');
-  setTimeout(updateImportCatOptions, 50);
+  setTimeout(function(){
+    updateImportCatOptions();
+    // 根據目前 inspire tab 預選分類
+    var isChalTab = document.getElementById('itab-chal') &&
+      document.getElementById('itab-chal').classList.contains('itab-on');
+    var sel = document.getElementById('importInspireCat');
+    if(sel && isChalTab){
+      // 預選第一個挑戰分類
+      var chalCats=typeof getChalCats==='function'?getChalCats():['探索類'];
+      sel.value = chalCats[0];
+    }
+  }, 50);
 }
 function openCatRenameMo(){
   var keys = _CAT_KEYS;
