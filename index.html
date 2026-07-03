@@ -512,8 +512,23 @@ onAuthStateChanged(auth, async (user) => {
 
       // 根據 getDoc 結果決定初始狀態（可靠，不受 onSnapshot 快取影響）
       if (initialData.partnerId) {
-        // 已配對 → 直接初始化，pairingMo 從未被開啟
-        await window._initAllCoupleFeatures(user.uid, initialData.partnerId);
+        // 先確認對方是否還與我配對（防止清除後對方沒有被登出的情況）
+        let partnerValid = false;
+        try {
+          const partnerSnap = await getDoc(doc(db, 'users', initialData.partnerId));
+          partnerValid = partnerSnap.exists() && partnerSnap.data().partnerId === user.uid;
+        } catch(e) { partnerValid = true; } // 讀取失敗就假設有效，避免誤清
+
+        if (!partnerValid) {
+          // 對方已解除配對 → 清空自己的 partnerId，顯示配對頁
+          try { await setDoc(doc(db, 'users', user.uid), {partnerId: null}, {merge: true}); } catch(e) {}
+          window.userData = {...initialData, partnerId: null};
+          const pm = document.getElementById('pairingMo');
+          if (pm) pm.classList.add('open');
+        } else {
+          // 已配對且有效 → 直接初始化
+          await window._initAllCoupleFeatures(user.uid, initialData.partnerId);
+        }
       } else {
         // 未配對 → 顯示配對視窗
         const pm = document.getElementById('pairingMo');
