@@ -3656,8 +3656,8 @@ async function devResetExecute(){
     }
     // 刪除 couples doc
     try{ await deleteDoc(doc(db,'couples',coupleId)); }catch(e){ console.warn('刪couples doc失敗:',e); }
-    // 清空自己的 partnerId（只更新自己的 doc）
-    try{ await updateDoc(doc(db,'users',myUid),{partnerId:null}); }catch(e){ console.warn('更新自己users失敗:',e); }
+    // 清空自己的 partnerId 和個人資料（只更新自己的 doc）
+    try{ await updateDoc(doc(db,'users',myUid),{partnerId:null, birthday:null, isAdmin:false}); }catch(e){ console.warn('更新自己users失敗:',e); }
     // 嘗試清空對方的 partnerId（可能因權限失敗，不影響流程）
     if(partnerId){ try{ await updateDoc(doc(db,'users',partnerId),{partnerId:null}); }catch(e){} }
     // 清除 localStorage
