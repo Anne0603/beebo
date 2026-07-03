@@ -3516,7 +3516,7 @@ async function devResetExecute(){
     var getDocs2 = fsModule.getDocs;
 
     // 刪除子 collections
-    var subCols=['messages','list','rests','challenges','quotes'];
+    var subCols=['messages','list','rests','challenges','quotes','memories','events','notifications'];
     for(var si=0;si<subCols.length;si++){
       var colRef=collection(db,'couples',coupleId,subCols[si]);
       var snap=await getDocs2(colRef);
