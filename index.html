@@ -2161,8 +2161,8 @@ function switchInspireTab(tab,el){
   if(typeof renderInspire==='function') renderInspire();
 }
 
-function addChalFromInspire(name){
-  // 確保 localStorage 有資料（若沒有先存預設值）
+function addChalFromInspire(name, cat){
+  // 確保 localStorage 有資料
   var inspire=_getInspireData();
   if(!inspire){ inspire=_getDefaultInspire(); _saveInspireData(inspire); }
   _saveInspireData(inspire.filter(function(i){return i.n!==name;}));
@@ -2170,6 +2170,9 @@ function addChalFromInspire(name){
   setTimeout(function(){
     var inp = document.getElementById('newChalName');
     if(inp) inp.value = name;
+    // 預填分類
+    var catSel = document.getElementById('newChalCat');
+    if(catSel && cat) catSel.value = cat;
     openMo('addChalMo');
   }, 250);
   showToast('請設定截止日期後新增 📅');
@@ -4077,7 +4080,7 @@ function renderInspire(){
     var isChalTab = document.getElementById('itab-chal') &&
       document.getElementById('itab-chal').classList.contains('itab-on');
     var btn = isChalTab
-      ? '<button onclick="addChalFromInspire(\''+i.n.replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;">加入挑戰</button>'
+      ? '<button onclick="addChalFromInspire(\''+i.n.replace(/'/g,'\\\'')+'\',' + '\''+i.c.replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;">加入挑戰</button>'
       : '<button onclick="addFromInspire(\''+i.n.replace(/'/g,'\\\'')+'\',' + '\''+i.c.replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;">加入清單</button>';
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);">'
       +'<div><div style="font-size:13px;font-weight:600;color:var(--txt);">'+i.n+'</div><div style="font-size:10px;color:var(--sub);">'+i.c+'</div></div>'
