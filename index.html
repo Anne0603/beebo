@@ -2154,7 +2154,9 @@ function switchInspireTab(tab,el){
 }
 
 function addChalFromInspire(name){
-  // 把靈感名稱帶入新增挑戰表單，再開啟
+  // 從靈感題庫移除已使用的項目
+  var inspire=_getInspireData()||_getDefaultInspire();
+  _saveInspireData(inspire.filter(function(i){return i.n!==name;}));
   closeMo('inspireMo');
   setTimeout(function(){
     var inp = document.getElementById('newChalName');
@@ -3179,12 +3181,15 @@ function execImportInspire(){
         if(item.text&&item.cat) return {n:item.text.trim(), c:item.cat.trim()};
         throw new Error('每筆需有 n 和 c 欄位');
       });
-      showToast('偵測到 JSON 格式，直接匯入...');
     }catch(e){showToast('JSON 格式錯誤：'+e.message);return;}
   } else {
-    // 純文字：每行一個名稱，套用選好的分類
+    // 純文字：支援換行、\r\n、頓號、逗號
     if(!catVal){showToast('請選擇分類');return;}
-    var names=text.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+    var names=text.split(/[\r\n、，,]+/).map(function(s){return s.trim();}).filter(Boolean);
+    if(names.length===1 && text.indexOf(' ')>0 && text.length>30){
+      // iOS可能把換行變成空格，嘗試用空格切
+      names=text.split(' ').map(function(s){return s.trim();}).filter(Boolean);
+    }
     if(!names.length){showToast('請輸入至少一個名稱');return;}
     newItems=names.map(function(n){return {n:n, c:catVal};});
   }
@@ -4047,8 +4052,11 @@ async function addFromInspire(n,cat){
   await addDoc(collection(window._db,'couples',window._coupleId,'list'),{
     n:n,c:cat,done:false,by:myName,at:at,createdAt:serverTimestamp()
   });
+  // 從靈感題庫移除已使用的項目
+  var inspire=_getInspireData()||_getDefaultInspire();
+  _saveInspireData(inspire.filter(function(i){return i.n!==n;}));
   showToast('已加入清單 ✓');
-
+  if(typeof renderInspire==='function') renderInspire();
 }
 
 // CHALLENGES
