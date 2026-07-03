@@ -521,7 +521,7 @@ onAuthStateChanged(auth, async (user) => {
 
         if (!partnerValid) {
           // 對方已解除配對 → 清空自己的 partnerId，顯示配對頁
-          try { await setDoc(doc(db, 'users', user.uid), {partnerId: null}, {merge: true}); } catch(e) {}
+          try { await updateDoc(doc(db, 'users', user.uid), {partnerId: null}); } catch(e) {}
           window.userData = {...initialData, partnerId: null};
           const pm = document.getElementById('pairingMo');
           if (pm) pm.classList.add('open');
@@ -1141,7 +1141,8 @@ window.reauthenticateForPinReset = async function() {
       <div style="font-size:12px;color:var(--sub);margin-bottom:12px;">產生邀請碼後，將它傳給另一半輸入</div>
       <button onclick="genInvitePairing()" class="btn2 bsec" style="width:100%;margin-bottom:10px;">產生邀請碼</button>
       <div id="pairingCodeDisplay" style="display:none;font-size:28px;font-weight:700;color:var(--accent);letter-spacing:6px;text-align:center;padding:12px;background:var(--lt);border-radius:12px;margin-bottom:6px;"></div>
-      <div id="pairingTimer" style="font-size:11px;color:var(--sub);text-align:center;"></div>
+      <div id="pairingTimer" style="font-size:11px;color:var(--sub);text-align:center;margin-bottom:10px;"></div>
+      <button onclick="closePairingTemp()" style="all:unset;width:100%;text-align:center;font-size:12px;color:var(--sub);cursor:pointer;padding:8px 0;">先去逛逛，等另一半輸入後會自動配對 ›</button>
     </div>
 
     <div style="border-top:1px solid var(--bdr);margin-top:16px;padding-top:12px;text-align:center;">
@@ -2860,6 +2861,12 @@ function openImportInspireMo(){
     if(sel) sel.value = ''; // 重置回請選擇
   }, 50);
 }
+function closePairingTemp(){
+  var pm = document.getElementById('pairingMo');
+  if(pm) pm.classList.remove('open');
+  showToast('等另一半輸入邀請碼後會自動配對 💚');
+}
+
 function openCatRenameMo(){
   var keys = _CAT_KEYS;
   for(var i=0;i<keys.length;i++){
