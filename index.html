@@ -1416,6 +1416,104 @@ window.reauthenticateForPinReset = async function() {
 
 <div class="mo" id="restDetailMo"><div class="mbox"><div class="mh"><span class="mtit" id="restDetailTitle">餐廳評分</span><button class="mcl" onclick="closeMo('restDetailMo')">×</button></div><div id="restDetailBody" style="display:flex;flex-direction:column;gap:12px;"></div></div></div>
 
+<div class="page" id="page-faq">
+  <div class="pt">
+    <button onclick="goBack()" style="all:unset;display:flex;align-items:center;gap:4px;font-size:13px;color:var(--sub);cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <span style="font-weight:700;font-size:15px;color:var(--txt);">常見問題 ＆ 操作說明</span>
+    <span></span>
+  </div>
+  <div class="sc" style="gap:12px;font-size:13px;color:var(--txt);line-height:1.7;padding-bottom:24px;">
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">🔗 第一次使用：怎麼配對？</b><br>
+      1. 一方進入「設定 → 個人資料 → 配對資訊」產生邀請碼<br>
+      2. 把邀請碼分享給另一半<br>
+      3. 另一半在同頁面輸入邀請碼完成配對<br>
+      4. 配對成功後所有功能即時共享
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">📝 清單怎麼用？</b><br>
+      1. 清單頁點「＋」新增想做的事，選擇分類<br>
+      2. 勾選 ✅ 完成後可填寫心得<br>
+      3. 完成的項目才可以關聯到回憶錄<br>
+      💡 「幫我決定」可從未完成清單隨機抽一個
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">💡 靈感題庫怎麼用？</b><br>
+      <b>清單靈感：</b>清單頁右上角「💡靈感」→ 選清單靈感 → 點「加入清單」<br>
+      <b>挑戰靈感：</b>挑戰頁右上角「💡靈感」→ 選挑戰靈感 → 點「加入挑戰」→ 表單自動帶入名稱，填截止日期後新增<br>
+      <b>自訂靈感：</b>設定 → 管理員專區 → 靈感題庫管理 → 點「匯入靈感」<br>
+      匯入格式（JSON 陣列）：<br>
+      <code style="background:var(--card2);padding:4px 8px;border-radius:6px;font-size:11px;display:block;margin-top:4px;">清單：[{"n":"項目名稱","c":"想去哪"}]<br>挑戰：[{"n":"挑戰名稱","c":"探索類"}]</code><br>
+      清單分類：想去哪／想吃什麼／想做什麼／想看什麼<br>
+      挑戰分類：探索類／飲食類／運動類／創作類／感情類／娛樂類／學習類／其他
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">⭐ 挑戰怎麼用？</b><br>
+      1. 挑戰頁點「＋」新增挑戰，填入名稱和截止日期<br>
+      2. 兩人都需勾選才算完成（進度條顯示 0/2、1/2、2/2）<br>
+      3. 已完成的挑戰才可以關聯到回憶錄<br>
+      💡 截止日過了會自動移至「已失敗」；誤觸可在已完成頁「恢復進行中」（截止日未過才能恢復）
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">📷 回憶錄怎麼建立？</b><br>
+      1. 先把相關清單打勾完成、挑戰標記完成<br>
+      2. 回憶錄頁點「＋」新增，填入名稱、日期、地點<br>
+      3. 點「選擇清單或挑戰」→ 系統自動顯示日期範圍（前後5天）內已完成的項目<br>
+      4. 點「選擇關聯餐廳」→ 連結那次去的餐廳<br>
+      5. 建立後可在詳情頁「新增照片」上傳照片<br>
+      💡 超出日期範圍的項目點「顯示其他已完成」展開
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">🍽️ 餐廳雙人評分怎麼用？</b><br>
+      1. 新增餐廳時先填自己的評分（1-5星）<br>
+      2. 對方收到通知 → 進入餐廳頁 → 點「詳情」→ 選星星 → 儲存評分<br>
+      3. 列表顯示兩人平均分（支援半顆星）<br>
+      4. 還沒評分的餐廳會顯示「待評」標籤，頁面頂部橫幅顯示待評數量<br>
+      💡 每人可隨時點「詳情」修改自己的評分
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">🔔 通知怎麼運作？</b><br>
+      <b>APP 通知：</b>所有動態自動記錄在通知頁（🔔），有未讀時顯示紅點<br>
+      <b>提醒通知（暖黃色）：</b>紀念日、生日、挑戰到期、行事曆 → 在「設定 → 通知偏好」設定提前幾天<br>
+      <b>Discord 通知：</b>設定 → Discord 通知設定，貼上 Webhook URL 即可<br>
+      💡 清除通知只影響自己，不影響對方的通知頁
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">📸 照片存在哪裡？</b><br>
+      照片存在 Cloudinary 雲端，免費方案有 25 GB（約 5,000～12,000 張）。<br>
+      設定方式：設定 → Cloudinary 照片設定 → 填入 Cloud Name 和 Upload Preset<br>
+      查看使用量：登入 cloudinary.com → Home → Go to Usage Reports → 看 Storage
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">🎨 主題色系和 APP 名稱可以改嗎？</b><br>
+      <b>主題色系：</b>設定頁「外觀」各自設定，不影響對方<br>
+      <b>APP 名稱：</b>管理員設定 → APP 名稱設定（兩人即時同步）<br>
+      💡 主畫面捷徑名稱不會自動更新，需刪除後重新加入主畫面
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">🔒 忘記隱私鎖 PIN 怎麼辦？</b><br>
+      鎖定畫面點「忘記 PIN？」→ 送出請求 → 等另一半在通知頁同意 → 重新設定
+    </div>
+
+    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
+      <b style="color:var(--accent);">💾 可以備份資料嗎？</b><br>
+      設定 → 管理員專區 → 匯出資料 → 下載 JSON 檔案<br>
+      如需還原：管理員專區 → 還原資料 → 上傳 JSON 檔案
+    </div>
+
+  </div>
+  <div class="bnav" id="bnav-faq"></div>
+</div>
 <!-- MODALS -->
 
 <div class="toast" id="toast"></div>
@@ -1660,104 +1758,7 @@ window.reauthenticateForPinReset = async function() {
   <button onclick="saveRestEdit()" class="btn2 bpri" style="width:100%;margin-top:4px;">儲存</button>
 </div></div>
 
-<div class="page" id="page-faq">
-  <div class="pt">
-    <button onclick="goBack()" style="all:unset;display:flex;align-items:center;gap:4px;font-size:13px;color:var(--sub);cursor:pointer;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
-    <span style="font-weight:700;font-size:15px;color:var(--txt);">常見問題 ＆ 操作說明</span>
-    <span></span>
-  </div>
-  <div class="sc" style="gap:12px;font-size:13px;color:var(--txt);line-height:1.7;padding-bottom:24px;">
 
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">🔗 第一次使用：怎麼配對？</b><br>
-      1. 一方進入「設定 → 個人資料 → 配對資訊」產生邀請碼<br>
-      2. 把邀請碼分享給另一半<br>
-      3. 另一半在同頁面輸入邀請碼完成配對<br>
-      4. 配對成功後所有功能即時共享
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">📝 清單怎麼用？</b><br>
-      1. 清單頁點「＋」新增想做的事，選擇分類<br>
-      2. 勾選 ✅ 完成後可填寫心得<br>
-      3. 完成的項目才可以關聯到回憶錄<br>
-      💡 「幫我決定」可從未完成清單隨機抽一個
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">💡 靈感題庫怎麼用？</b><br>
-      <b>清單靈感：</b>清單頁右上角「💡靈感」→ 選清單靈感 → 點「加入清單」<br>
-      <b>挑戰靈感：</b>挑戰頁右上角「💡靈感」→ 選挑戰靈感 → 點「加入挑戰」→ 表單自動帶入名稱，填截止日期後新增<br>
-      <b>自訂靈感：</b>設定 → 管理員專區 → 靈感題庫管理 → 點「匯入靈感」<br>
-      匯入格式（JSON 陣列）：<br>
-      <code style="background:var(--card2);padding:4px 8px;border-radius:6px;font-size:11px;display:block;margin-top:4px;">清單：[{"n":"項目名稱","c":"想去哪"}]<br>挑戰：[{"n":"挑戰名稱","c":"探索類"}]</code><br>
-      清單分類：想去哪／想吃什麼／想做什麼／想看什麼<br>
-      挑戰分類：探索類／飲食類／運動類／創作類／感情類／娛樂類／學習類／其他
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">⭐ 挑戰怎麼用？</b><br>
-      1. 挑戰頁點「＋」新增挑戰，填入名稱和截止日期<br>
-      2. 兩人都需勾選才算完成（進度條顯示 0/2、1/2、2/2）<br>
-      3. 已完成的挑戰才可以關聯到回憶錄<br>
-      💡 截止日過了會自動移至「已失敗」；誤觸可在已完成頁「恢復進行中」（截止日未過才能恢復）
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">📷 回憶錄怎麼建立？</b><br>
-      1. 先把相關清單打勾完成、挑戰標記完成<br>
-      2. 回憶錄頁點「＋」新增，填入名稱、日期、地點<br>
-      3. 點「選擇清單或挑戰」→ 系統自動顯示日期範圍（前後5天）內已完成的項目<br>
-      4. 點「選擇關聯餐廳」→ 連結那次去的餐廳<br>
-      5. 建立後可在詳情頁「新增照片」上傳照片<br>
-      💡 超出日期範圍的項目點「顯示其他已完成」展開
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">🍽️ 餐廳雙人評分怎麼用？</b><br>
-      1. 新增餐廳時先填自己的評分（1-5星）<br>
-      2. 對方收到通知 → 進入餐廳頁 → 點「詳情」→ 選星星 → 儲存評分<br>
-      3. 列表顯示兩人平均分（支援半顆星）<br>
-      4. 還沒評分的餐廳會顯示「待評」標籤，頁面頂部橫幅顯示待評數量<br>
-      💡 每人可隨時點「詳情」修改自己的評分
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">🔔 通知怎麼運作？</b><br>
-      <b>APP 通知：</b>所有動態自動記錄在通知頁（🔔），有未讀時顯示紅點<br>
-      <b>提醒通知（暖黃色）：</b>紀念日、生日、挑戰到期、行事曆 → 在「設定 → 通知偏好」設定提前幾天<br>
-      <b>Discord 通知：</b>設定 → Discord 通知設定，貼上 Webhook URL 即可<br>
-      💡 清除通知只影響自己，不影響對方的通知頁
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">📸 照片存在哪裡？</b><br>
-      照片存在 Cloudinary 雲端，免費方案有 25 GB（約 5,000～12,000 張）。<br>
-      設定方式：設定 → Cloudinary 照片設定 → 填入 Cloud Name 和 Upload Preset<br>
-      查看使用量：登入 cloudinary.com → Home → Go to Usage Reports → 看 Storage
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">🎨 主題色系和 APP 名稱可以改嗎？</b><br>
-      <b>主題色系：</b>設定頁「外觀」各自設定，不影響對方<br>
-      <b>APP 名稱：</b>管理員設定 → APP 名稱設定（兩人即時同步）<br>
-      💡 主畫面捷徑名稱不會自動更新，需刪除後重新加入主畫面
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">🔒 忘記隱私鎖 PIN 怎麼辦？</b><br>
-      鎖定畫面點「忘記 PIN？」→ 送出請求 → 等另一半在通知頁同意 → 重新設定
-    </div>
-
-    <div style="background:var(--lt);border-radius:10px;padding:12px 14px;">
-      <b style="color:var(--accent);">💾 可以備份資料嗎？</b><br>
-      設定 → 管理員專區 → 匯出資料 → 下載 JSON 檔案<br>
-      如需還原：管理員專區 → 還原資料 → 上傳 JSON 檔案
-    </div>
-
-  </div>
-  <div class="bnav" id="bnav-faq"></div>
-</div>
 
 <div class="mo" id="confirmMo"><div class="mbox" style="max-width:280px;">
   <div style="text-align:center;padding:8px 0 16px;">
