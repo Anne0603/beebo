@@ -703,15 +703,15 @@ window.startPairingCountdown = function(expiry, el) {
         return;
       }
 
-      // 安全：原子寫入雙方 partnerId
-      await Promise.all([
-        setDoc(myRef, { partnerId: invite.createdBy, isAdmin: false }, { merge: true }),
-        setDoc(partnerRef, { partnerId: window.currentUser.uid, isAdmin: true }, { merge: true }),
-        setDoc(inviteRef, { used: true }, { merge: true })
-      ]);
-
-      // onSnapshot 偵測到 partnerId 變化後自動初始化
-      if (typeof showToast === 'function') window.showToast('配對中，請稍候...');
+      // 寫入自己的 partnerId
+      await setDoc(myRef, { partnerId: invite.createdBy }, { merge: true });
+      // 嘗試寫入對方的 partnerId（可能因 Rules 失敗，對方的 listener 會自己偵測）
+      try {
+        await setDoc(partnerRef, { partnerId: window.currentUser.uid }, { merge: true });
+      } catch(e) { console.warn('無法直接寫入對方 partnerId，等待對方自行偵測'); }
+      // 標記邀請碼已使用
+      await setDoc(inviteRef, { used: true }, { merge: true });
+      if (typeof showToast === 'function') window.showToast('配對成功！🎉');
     } catch(e) {
       console.error(e);
       if(typeof showToast==='function') window.showToast('配對失敗，請再試');
