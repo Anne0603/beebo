@@ -2804,7 +2804,8 @@ function updateImportCatOptions(){
   var listCats=[['想去哪','想去哪'],['想吃什麼','想吃什麼'],['想做什麼','想做什麼'],['想看什麼','想看什麼']];
   var chalCats=typeof getChalCats==='function'?getChalCats():['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
   sel.innerHTML=
-    '<optgroup label="清單靈感">'
+    '<option value="" disabled selected>── 請選擇分類 ──</option>'
+    +'<optgroup label="清單靈感">'
     +listCats.map(function(c){
       var display=typeof getCatName==='function'?getCatName(c[0]):c[1];
       return '<option value="'+c[0]+'">'+display+'</option>';
@@ -2818,15 +2819,8 @@ function openImportInspireMo(){
   openMo('importInspireMo');
   setTimeout(function(){
     updateImportCatOptions();
-    // 根據目前 inspire tab 預選分類
-    var isChalTab = document.getElementById('itab-chal') &&
-      document.getElementById('itab-chal').classList.contains('itab-on');
     var sel = document.getElementById('importInspireCat');
-    if(sel && isChalTab){
-      // 預選第一個挑戰分類
-      var chalCats=typeof getChalCats==='function'?getChalCats():['探索類'];
-      sel.value = chalCats[0];
-    }
+    if(sel) sel.value = ''; // 重置回請選擇
   }, 50);
 }
 function openCatRenameMo(){
