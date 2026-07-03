@@ -436,33 +436,34 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
       // ── 白名單檢查（超級管理員永遠通過）──
-      if (user.email !== _SUPER_ADMIN_EMAIL) {
+      const SUPER_EMAIL = 'pbf105019@gmail.com'; // 直接 hardcode，不依賴 main script
+      if (user.email !== SUPER_EMAIL) {
         try {
           const wlSnap = await getDoc(doc(db, 'config', 'whitelist'));
-          const allowedEmails = wlSnap.exists() ? (wlSnap.data().emails || []) : [];
-          if (!allowedEmails.includes(user.email)) {
-            await signOut(auth);
-            var ls2 = document.getElementById('loginScreen');
-            if (ls2) {
-              ls2.style.display = 'flex';
-              var errDiv = document.getElementById('loginError');
-              if (!errDiv) {
-                errDiv = document.createElement('div');
-                errDiv.id = 'loginError';
-                errDiv.style.cssText = 'color:#c62828;font-size:13px;text-align:center;padding:10px;background:#fdecea;border-radius:10px;margin-top:12px;';
-                ls2.querySelector('.mbox')?.appendChild(errDiv);
+          if (wlSnap.exists()) {
+            const allowedEmails = wlSnap.data().emails || [];
+            if (!allowedEmails.includes(user.email)) {
+              await signOut(auth);
+              var ls2 = document.getElementById('loginScreen');
+              if (ls2) {
+                ls2.style.display = 'flex';
+                var errEl = document.getElementById('loginError');
+                if (!errEl) {
+                  errEl = document.createElement('div');
+                  errEl.id = 'loginError';
+                  errEl.style.cssText = 'color:#c62828;font-size:12px;text-align:center;padding:10px 14px;background:#fdecea;border-radius:10px;margin-top:12px;line-height:1.6;';
+                  var mbox = ls2.querySelector('.mbox');
+                  if (mbox) mbox.appendChild(errEl);
+                }
+                errEl.textContent = '⛔ 此帳號（' + user.email + '）無使用權限，請聯絡管理員。';
               }
-              errDiv.textContent = '⛔ 此帳號（' + user.email + '）無使用權限，請聯絡管理員。';
+              return;
             }
-            return;
           }
+          // 如果 whitelist doc 不存在 → 尚未設定白名單 → 放行（讓超級管理員先去設定）
         } catch(e) {
-          // Firestore 讀取失敗（可能是第一次還沒有 config/whitelist）
-          // 若 whitelist doc 不存在，預設只有超級管理員可以登入
-          await signOut(auth);
-          var ls3 = document.getElementById('loginScreen');
-          if (ls3) ls3.style.display = 'flex';
-          return;
+          console.warn('[whitelist] 讀取失敗，放行讓用戶繼續:', e);
+          // 讀取失敗不踢出，避免網路問題誤殺合法用戶
         }
       }
 
