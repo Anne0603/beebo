@@ -4052,9 +4052,16 @@ function renderInspire(){
   var INSPIRE=_getInspireData()||_getDefaultInspire();
   var q=(document.getElementById('inspireSearch')||{value:''}).value.trim().toLowerCase();
   var safeList = (typeof LIST !== 'undefined' && Array.isArray(LIST)) ? LIST : [];
+  var isChalTab = document.getElementById('itab-chal') &&
+    document.getElementById('itab-chal').classList.contains('itab-on');
+  var listCats=['想去哪','想吃什麼','想做什麼','想看什麼'];
+  var chalCats=typeof getChalCats==='function'?getChalCats():['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
   var items=INSPIRE.filter(function(i){
-    if(i.chal) return false;
-    if(safeList.find(function(l){return l.n===i.n;})) return false;
+    // 依 tab 過濾分類
+    if(isChalTab && listCats.includes(i.c)) return false;
+    if(!isChalTab && !listCats.includes(i.c)) return false;
+    // 清單 tab：已在清單的項目不顯示
+    if(!isChalTab && safeList.find(function(l){return l.n===i.n;})) return false;
     if(q && !i.n.toLowerCase().includes(q) && !i.c.toLowerCase().includes(q)) return false;
     return true;
   });
