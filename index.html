@@ -3599,37 +3599,40 @@ async function devResetExecute(){
     var coupleId=window._coupleId;
     var myUid=window.currentUser.uid;
     var partnerId=window.userData&&window.userData.partnerId;
-    var {doc,deleteDoc,collection,getDocs} = window._fsOps;
-    // 取得 getDocs（需要額外暴露）
-    var fsModule = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
-    var getDocs2 = fsModule.getDocs;
+    var {doc,deleteDoc,collection,updateDoc}=window._fsOps;
+    var fsModule=await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
+    var getDocs2=fsModule.getDocs;
 
     // 刪除子 collections
     var subCols=['messages','list','rests','challenges','quotes','memories','events','notifications'];
     for(var si=0;si<subCols.length;si++){
-      var colRef=collection(db,'couples',coupleId,subCols[si]);
-      var snap=await getDocs2(colRef);
-      var dels=[];
-      snap.forEach(function(d){dels.push(deleteDoc(d.ref));});
-      await Promise.all(dels);
+      try{
+        var colRef=collection(db,'couples',coupleId,subCols[si]);
+        var snap=await getDocs2(colRef);
+        var dels=[];
+        snap.forEach(function(d){dels.push(deleteDoc(d.ref));});
+        await Promise.all(dels);
+      }catch(e){ console.warn('刪子集合失敗:',subCols[si],e); }
     }
     // 刪除 couples doc
-    await deleteDoc(doc(db,'couples',coupleId));
-    // 清除兩人 users doc 的配對資料（無法刪除，改為更新清空）
-    var {updateDoc} = window._fsOps;
-    await updateDoc(doc(db,'users',myUid),{partnerId:null, isAdmin:false});
-    if(partnerId) {
-      try { await updateDoc(doc(db,'users',partnerId),{partnerId:null, isAdmin:false}); } catch(e){}
-    }
-    // 清除相關 localStorage（PIN、提醒記錄、舊版changelog）
+    try{ await deleteDoc(doc(db,'couples',coupleId)); }catch(e){ console.warn('刪couples doc失敗:',e); }
+    // 清空自己的 partnerId（只更新自己的 doc）
+    try{ await updateDoc(doc(db,'users',myUid),{partnerId:null}); }catch(e){ console.warn('更新自己users失敗:',e); }
+    // 嘗試清空對方的 partnerId（可能因權限失敗，不影響流程）
+    if(partnerId){ try{ await updateDoc(doc(db,'users',partnerId),{partnerId:null}); }catch(e){} }
+    // 清除 localStorage
     ['beebo_pin','beebo_last_reminder_check','beebo_last_rating_reminder','beebo_changelog','beebo_pinResetSent','beebo_inspire'].forEach(function(k){ localStorage.removeItem(k); });
     // 登出
-    if(window._auth) await window._auth.signOut();
+    try{ if(window._auth) await window._auth.signOut(); }catch(e){}
     showToast('清除完成，即將重新整理...');
     setTimeout(function(){location.reload();},1500);
   } catch(e) {
     console.error(e);
-    showToast('清除失敗：'+e.message);
+    // 即使有錯誤也強制登出重整
+    ['beebo_pin','beebo_last_reminder_check','beebo_last_rating_reminder','beebo_changelog','beebo_pinResetSent','beebo_inspire'].forEach(function(k){ localStorage.removeItem(k); });
+    try{ if(window._auth) await window._auth.signOut(); }catch(e2){}
+    showToast('部分清除完成，即將重新整理...');
+    setTimeout(function(){location.reload();},1500);
   }
 }
 // ══════════════════════════════════════════
