@@ -2162,8 +2162,9 @@ function switchInspireTab(tab,el){
 }
 
 function addChalFromInspire(name){
-  // 從靈感題庫移除已使用的項目
-  var inspire=_getInspireData()||_getDefaultInspire();
+  // 確保 localStorage 有資料（若沒有先存預設值）
+  var inspire=_getInspireData();
+  if(!inspire){ inspire=_getDefaultInspire(); _saveInspireData(inspire); }
   _saveInspireData(inspire.filter(function(i){return i.n!==name;}));
   closeMo('inspireMo');
   setTimeout(function(){
@@ -4081,7 +4082,8 @@ async function addFromInspire(n,cat){
     n:n,c:cat,done:false,by:myName,at:at,createdAt:serverTimestamp()
   });
   // 從靈感題庫移除已使用的項目
-  var inspire=_getInspireData()||_getDefaultInspire();
+  var inspire=_getInspireData();
+  if(!inspire){ inspire=_getDefaultInspire(); _saveInspireData(inspire); }
   _saveInspireData(inspire.filter(function(i){return i.n!==n;}));
   showToast('已加入清單 ✓');
   if(typeof renderInspire==='function') renderInspire();
