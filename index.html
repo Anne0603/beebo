@@ -2956,30 +2956,43 @@ function openInspireMgMo(){
 }
 function renderInspireMg(tab){
   var data=_getInspireData()||_getDefaultInspire();
-  var el=document.getElementById('inspireMgBody');
-  if(!el) return;
-  var cats=['想去哪','想吃什麼','想做什麼','想看什麼'];
-  el.innerHTML=cats.map(function(cat){
-    var items=data.filter(function(i){return i.c===cat;});
-    return '<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;">'+cat+'</div>'
-      +items.map(function(item,idx){
-        return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--card2);border-radius:8px;margin-bottom:4px;">'
-          +'<span style="flex:1;font-size:12px;">'+item.n+'</span>'
-          +'<button onclick="delInspireItem(this)" data-cat="'+cat+'" data-idx="'+idx+'" style="all:unset;color:#c62828;cursor:pointer;font-size:14px;">×</button>'
-          +'</div>';
-      }).join('')
-      +'</div>';
-  }).join('');
+  // 清單靈感
+  var listEl=document.getElementById('inspireListMg');
+  if(listEl){
+    var listCats=['想去哪','想吃什麼','想做什麼','想看什麼'];
+    listEl.innerHTML=listCats.map(function(cat){
+      var items=data.filter(function(i){return i.c===cat;});
+      if(!items.length) return '';
+      var display=typeof getCatName==='function'?getCatName(cat):cat;
+      return '<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;">'+display+'</div>'
+        +items.map(function(item){
+          return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--card2);border-radius:8px;margin-bottom:4px;">'
+            +'<span style="flex:1;font-size:12px;">'+item.n+'</span>'
+            +'<button onclick="delInspireItem(\''+item.n.replace(/'/g,"\\'")+'\')" style="all:unset;color:#c62828;cursor:pointer;font-size:18px;padding:0 4px;">×</button>'
+            +'</div>';
+        }).join('')+'</div>';
+    }).join('');
+  }
+  // 挑戰靈感
+  var chalEl=document.getElementById('inspireChalMg');
+  if(chalEl){
+    var chalCats=['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
+    chalEl.innerHTML=chalCats.map(function(cat){
+      var items=data.filter(function(i){return i.c===cat;});
+      if(!items.length) return '';
+      return '<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;">'+cat+'</div>'
+        +items.map(function(item){
+          return '<div style="display:flex;align-items:center;gap:6px;padding:6px 8px;background:var(--card2);border-radius:8px;margin-bottom:4px;">'
+            +'<span style="flex:1;font-size:12px;">'+item.n+'</span>'
+            +'<button onclick="delInspireItem(\''+item.n.replace(/'/g,"\\'")+'\')" style="all:unset;color:#c62828;cursor:pointer;font-size:18px;padding:0 4px;">×</button>'
+            +'</div>';
+        }).join('')+'</div>';
+    }).join('');
+  }
 }
-function delInspireItem(btn) {
-  var cat = btn.dataset.cat;
-  var idx = parseInt(btn.dataset.idx);
+function delInspireItem(name){
   var data=_getInspireData()||_getDefaultInspire();
-  var catItems=data.filter(function(i){return i.c===cat;});
-  var target=catItems[idx];
-  if(!target) return;
-  var newData=data.filter(function(i){return !(i.c===cat&&i.n===target.n);});
-  _saveInspireData(newData);
+  _saveInspireData(data.filter(function(i){return i.n!==name;}));
   renderInspireMg('list');
 }
 function addInspireItem() {
