@@ -2162,7 +2162,6 @@ function switchInspireTab(tab,el){
 }
 
 function addChalFromInspire(name, cat){
-  // 確保 localStorage 有資料
   var inspire=_getInspireData();
   if(!inspire){ inspire=_getDefaultInspire(); _saveInspireData(inspire); }
   _saveInspireData(inspire.filter(function(i){return i.n!==name;}));
@@ -2170,10 +2169,12 @@ function addChalFromInspire(name, cat){
   setTimeout(function(){
     var inp = document.getElementById('newChalName');
     if(inp) inp.value = name;
-    // 預填分類
-    var catSel = document.getElementById('newChalCat');
-    if(catSel && cat) catSel.value = cat;
     openMo('addChalMo');
+    // 在 openMo 之後設定分類，避免被重置
+    setTimeout(function(){
+      var catSel = document.getElementById('newChalCat');
+      if(catSel && cat) catSel.value = cat;
+    }, 50);
   }, 250);
   showToast('請設定截止日期後新增 📅');
 }
