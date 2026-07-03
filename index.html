@@ -435,6 +435,37 @@ onAuthStateChanged(auth, async (user) => {
     if (loading) loading.style.display = 'none';
 
     if (user) {
+      // ── 白名單檢查（超級管理員永遠通過）──
+      if (user.email !== _SUPER_ADMIN_EMAIL) {
+        try {
+          const wlSnap = await getDoc(doc(db, 'config', 'whitelist'));
+          const allowedEmails = wlSnap.exists() ? (wlSnap.data().emails || []) : [];
+          if (!allowedEmails.includes(user.email)) {
+            await signOut(auth);
+            var ls2 = document.getElementById('loginScreen');
+            if (ls2) {
+              ls2.style.display = 'flex';
+              var errDiv = document.getElementById('loginError');
+              if (!errDiv) {
+                errDiv = document.createElement('div');
+                errDiv.id = 'loginError';
+                errDiv.style.cssText = 'color:#c62828;font-size:13px;text-align:center;padding:10px;background:#fdecea;border-radius:10px;margin-top:12px;';
+                ls2.querySelector('.mbox')?.appendChild(errDiv);
+              }
+              errDiv.textContent = '⛔ 此帳號（' + user.email + '）無使用權限，請聯絡管理員。';
+            }
+            return;
+          }
+        } catch(e) {
+          // Firestore 讀取失敗（可能是第一次還沒有 config/whitelist）
+          // 若 whitelist doc 不存在，預設只有超級管理員可以登入
+          await signOut(auth);
+          var ls3 = document.getElementById('loginScreen');
+          if (ls3) ls3.style.display = 'flex';
+          return;
+        }
+      }
+
       window.currentUser = user;
       window._db = db;
       // 重置所有狀態
@@ -1300,6 +1331,7 @@ window.reauthenticateForPinReset = async function() {
 
       <div class="sr" onclick="openMo('notifyDelMo')"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="3,6 5,6 21,6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">通知自動刪除</div></div><div class="sv" id="notifyDelSv">30 天 ›</div></div>
       <div class="sr" onclick="openBindMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">帳號綁定管理</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openWhitelistMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="7" r="4" stroke="#A87848" stroke-width="1.5"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">使用者白名單</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openAppNameMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">APP 名稱設定</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openCatRenameMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">清單分類改名</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" fill="#A87848"/></svg></div><div class="slb">管理挑戰分類</div></div></div>
@@ -1864,6 +1896,15 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="execDeleteMem()" style="flex:1;all:unset;text-align:center;padding:10px;border-radius:14px;background:#c62828;color:#fff;font-size:13px;font-weight:600;font-family:'Noto Sans TC',sans-serif;cursor:pointer;">確認刪除</button>
   </div>
 </div></div>
+<div class="mo" id="whitelistMo"><div class="mbox"><div class="mh"><span class="mtit">使用者白名單</span><button class="mcl" onclick="closeMo('whitelistMo')">×</button></div>
+  <div style="font-size:12px;color:var(--sub);margin-bottom:10px;">只有名單內的 email 才能登入。超級管理員（<b style="color:var(--accent);">pbf105019@gmail.com</b>）永遠可以登入，不需加入名單。</div>
+  <div id="whitelistBody" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px;max-height:40vh;overflow-y:auto;"></div>
+  <div style="display:flex;gap:8px;">
+    <input class="fi" id="whitelistInput" placeholder="輸入 email..." style="flex:1;font-size:13px;">
+    <button onclick="addToWhitelist()" class="btn2 bpri" style="flex-shrink:0;">新增</button>
+  </div>
+</div></div>
+
 <div class="mo" id="appNameMo"><div class="mbox"><div class="mh"><span class="mtit">APP 名稱設定</span><button class="mcl" onclick="closeMo('appNameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">修改後兩人的 APP 名稱都會即時更新。</div><div style="font-size:11px;background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:8px 10px;color:#856404;">⚠️ 主畫面捷徑的名稱不會自動更新，如需更改請刪除後重新加入主畫面。</div><div class="fg"><label class="fl">APP 名稱</label><input class="fi" id="appNameInput" placeholder="嗶啵" maxlength="10"></div><button class="btn2 bpri" onclick="saveAppName()">儲存</button></div></div></div>
 
 <div class="mo" id="catRenameMo"><div class="mbox"><div class="mh"><span class="mtit">清單分類改名</span><button class="mcl" onclick="closeMo('catRenameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:11px;color:var(--sub);">修改後兩人都會看到新名稱。舊資料不受影響。</div><div class="fg"><label class="fl">分類 1（原：想去哪）</label><input class="fi" id="catRename1" placeholder="想去哪"></div><div class="fg"><label class="fl">分類 2（原：想吃什麼）</label><input class="fi" id="catRename2" placeholder="想吃什麼"></div><div class="fg"><label class="fl">分類 3（原：想做什麼）</label><input class="fi" id="catRename3" placeholder="想做什麼"></div><div class="fg"><label class="fl">分類 4（原：想看什麼）</label><input class="fi" id="catRename4" placeholder="想看什麼"></div><button class="btn2 bpri" onclick="saveCatNames()">儲存</button></div></div></div>
@@ -2652,6 +2693,59 @@ async function saveAppName(){
   _applyAppName(name.trim());
   closeMo('appNameMo');
   showToast('APP 名稱已更新 ✓（兩人即時生效）');
+}
+
+// ── 白名單管理 ──
+async function openWhitelistMo(){
+  if(!window._fsOps||!window._db){showToast('請先登入');return;}
+  var body=document.getElementById('whitelistBody');
+  if(body) body.innerHTML='<div style="color:var(--sub);font-size:12px;">載入中...</div>';
+  openMo('whitelistMo');
+  try{
+    var {doc,getDoc}=window._fsOps;
+    var snap=await getDoc(doc(window._db,'config','whitelist'));
+    var emails=snap.exists()?(snap.data().emails||[]):[];
+    renderWhitelist(emails);
+  }catch(e){
+    var body2=document.getElementById('whitelistBody');
+    if(body2) body2.innerHTML='<div style="color:var(--sub);font-size:12px;">尚未設定白名單（所有人皆無法登入）</div>';
+  }
+}
+function renderWhitelist(emails){
+  var body=document.getElementById('whitelistBody');
+  if(!body) return;
+  if(!emails.length){body.innerHTML='<div style="color:var(--sub);font-size:12px;text-align:center;padding:12px;">白名單是空的</div>';return;}
+  body.innerHTML=emails.map(function(email){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px;background:var(--card2);border-radius:10px;">'
+      +'<span style="font-size:13px;color:var(--txt);">'+email+'</span>'
+      +'<button onclick="removeFromWhitelist(\''+email+'\')" style="all:unset;font-size:11px;color:#c62828;cursor:pointer;padding:3px 8px;border-radius:6px;background:#fdecea;">移除</button>'
+      +'</div>';
+  }).join('');
+}
+async function addToWhitelist(){
+  var inp=document.getElementById('whitelistInput');
+  var email=(inp?inp.value:'').trim().toLowerCase();
+  if(!email||!email.includes('@')){showToast('請輸入有效的 email');return;}
+  if(!window._fsOps||!window._db)return;
+  var {doc,getDoc,setDoc}=window._fsOps;
+  var snap=await getDoc(doc(window._db,'config','whitelist'));
+  var emails=snap.exists()?(snap.data().emails||[]):[];
+  if(emails.includes(email)){showToast('此 email 已在名單中');return;}
+  emails.push(email);
+  await setDoc(doc(window._db,'config','whitelist'),{emails:emails});
+  if(inp) inp.value='';
+  renderWhitelist(emails);
+  showToast('已新增 ✓');
+}
+async function removeFromWhitelist(email){
+  if(!window._fsOps||!window._db)return;
+  var {doc,getDoc,setDoc}=window._fsOps;
+  var snap=await getDoc(doc(window._db,'config','whitelist'));
+  var emails=snap.exists()?(snap.data().emails||[]):[];
+  emails=emails.filter(function(e){return e!==email;});
+  await setDoc(doc(window._db,'config','whitelist'),{emails:emails});
+  renderWhitelist(emails);
+  showToast('已移除 ✓');
 }
 
 function openCatRenameMo(){
