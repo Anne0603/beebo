@@ -787,10 +787,13 @@ window.startPairingCountdown = function(expiry, el) {
         var [snapA, snapB] = await Promise.all([getDoc(doc(db,'users',uidA)), getDoc(doc(db,'users',uidB))]);
         var dataA = snapA.exists() ? snapA.data() : {};
         var dataB = snapB.exists() ? snapB.data() : {};
-        if (dataA.isAdmin !== true && dataB.isAdmin !== true) {
+        // 超管存在時不自動賦予對方管理員
+        var superEmail = 'pbf105019@gmail.com';
+        var superIsInPair = (dataA.email === superEmail || dataB.email === superEmail ||
+          user.email === superEmail);
+        if (!superIsInPair && dataA.isAdmin !== true && dataB.isAdmin !== true) {
           // 只改自己的 user doc（Firestore rules 只允許改自己），誰先登入誰是管理員
           await updateDoc(doc(db,'users',myUid), { isAdmin: true });
-          console.log('[自我修復] 已將目前使用者設為管理員:', myUid);
           if (myUserData) myUserData.isAdmin = true;
           if (window.userData) window.userData.isAdmin = true;
           var adminWrap = document.getElementById('adminSectionWrap');
