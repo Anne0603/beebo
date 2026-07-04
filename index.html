@@ -840,9 +840,14 @@ window.startPairingCountdown = function(expiry, el) {
     if (val <= today) val.setFullYear(val.getFullYear()+1);
     var valEl = document.getElementById('annivValDays');
     if (valEl) valEl.textContent = Math.floor((val-today)/86400000) + '天後';
-    // 七夕 (農曆7/7 → 今年約8/8~9/2區間，用固定估算)
-    var qxi = new Date(today.getFullYear(), 7, 29); // 粗略：8/29
-    if (qxi <= today) qxi.setFullYear(qxi.getFullYear()+1);
+    // 七夕（農曆7/7，每年不同，用對照表）
+    var qxiMap = {2024:'2024-08-10',2025:'2025-08-29',2026:'2026-08-18',2027:'2027-08-06',2028:'2028-08-25',2029:'2029-08-14',2030:'2030-09-02'};
+    var qxiStr = qxiMap[today.getFullYear()]||qxiMap[today.getFullYear()+1]||'';
+    var qxi = qxiStr ? new Date(qxiStr) : new Date(today.getFullYear(), 7, 18);
+    if (qxi <= today) {
+      var nextQxi = qxiMap[today.getFullYear()+1];
+      qxi = nextQxi ? new Date(nextQxi) : new Date(today.getFullYear()+1, 7, 18);
+    }
     var qxiEl = document.getElementById('annivQxiDays');
     if (qxiEl) qxiEl.textContent = Math.floor((qxi-today)/86400000) + '天後';
     // 聖誕
@@ -3358,7 +3363,7 @@ function checkUpcomingReminders() {
     }
   }
   // 節日（不需要開關，固定提醒）
-  var hMap = {'2-14':'情人節 💕','3-14':'白色情人節 🤍','8-10':'七夕情人節 🌠','12-25':'聖誕節 🎄'};
+  var hMap = {'2-14':'情人節 💕','3-14':'白色情人節 🤍','8-10':'七夕情人節 🌠','8-18':'七夕情人節 🌠','8-29':'七夕情人節 🌠','8-6':'七夕情人節 🌠','8-25':'七夕情人節 🌠','12-25':'聖誕節 🎄'};
   if(hMap[cm+'-'+cd]) reminders.push({ msg:hMap[cm+'-'+cd] + ' 即將到來（' + advDays + '天後）！', type:'reminder' });
   // 行事曆活動（獨立開關 notif-event）
   if(prefs.event !== false && window.EVENTS) {
@@ -6057,8 +6062,8 @@ function renderCalendar() {
     {id:'h-vday2', name:"情人節 💕", dateStart: nextYear+'-02-14', system:true},
     {id:'h-white', name:"白色情人節 🤍", dateStart: year+'-03-14', system:true},
     {id:'h-white2', name:"白色情人節 🤍", dateStart: nextYear+'-03-14', system:true},
-    {id:'h-qixi', name:"七夕情人節 🌠", dateStart: year+'-08-10', system:true},
-    {id:'h-qixi2', name:"七夕情人節 🌠", dateStart: nextYear+'-08-10', system:true},
+    {id:'h-qixi', name:"七夕情人節 🌠", dateStart: ({2024:'2024-08-10',2025:'2025-08-29',2026:'2026-08-18',2027:'2027-08-06',2028:'2028-08-25',2029:'2029-08-14',2030:'2030-09-02'})[year]||year+'-08-18', system:true},
+    {id:'h-qixi2', name:"七夕情人節 🌠", dateStart: ({2024:'2024-08-10',2025:'2025-08-29',2026:'2026-08-18',2027:'2027-08-06',2028:'2028-08-25',2029:'2029-08-14',2030:'2030-09-02'})[nextYear]||nextYear+'-08-18', system:true},
     {id:'h-xmas', name:"聖誕節 🎄", dateStart: year+'-12-25', system:true},
     {id:'h-xmas2', name:"聖誕節 🎄", dateStart: nextYear+'-12-25', system:true},
     {id:'h-ny', name:"新年快樂 🎊", dateStart: nextYear+'-01-01', system:true},
@@ -6226,7 +6231,7 @@ function calDayClick(dateStr) {
   var d = new Date(dateStr);
   var m = d.getMonth()+1, day = d.getDate();
   var holidays = [];
-  var hMap = {'2-14':'情人節 💕','3-14':'白色情人節 🤍','8-10':'七夕情人節 🌠','12-25':'聖誕節 🎄','1-1':'新年快樂 🎊'};
+  var hMap = {'2-14':'情人節 💕','3-14':'白色情人節 🤍','8-10':'七夕情人節 🌠','8-18':'七夕情人節 🌠','8-29':'七夕情人節 🌠','8-6':'七夕情人節 🌠','8-25':'七夕情人節 🌠','12-25':'聖誕節 🎄','1-1':'新年快樂 🎊'};
   if(hMap[m+'-'+day]) holidays.push(hMap[m+'-'+day]);
   if(window._coupleData&&window._coupleData.startDate){var sd=window._coupleData.startDate.split('-');if(parseInt(sd[1])===m&&parseInt(sd[2])===day)holidays.push('交往紀念日 💑');}
   if(window.userData&&window.userData.birthday){var bd=window.userData.birthday.split('-');if(parseInt(bd[1])===m&&parseInt(bd[2])===day)holidays.push('我的生日 🎂');}
