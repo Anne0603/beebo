@@ -855,6 +855,8 @@ window.startPairingCountdown = function(expiry, el) {
     if (xmas <= today) xmas.setFullYear(xmas.getFullYear()+1);
     var xmasEl = document.getElementById('annivXmasDays');
     if (xmasEl) xmasEl.textContent = Math.floor((xmas-today)/86400000) + '天後';
+    // 更新主頁成就數
+    if(typeof _updateStats === 'function') setTimeout(_updateStats, 100);
   };
 
   // ── 個人資料：開啟時填入真實資料 ──
