@@ -3881,6 +3881,36 @@ var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d=
   window.addEventListener('offline', updateOnlineStatus);
   updateOnlineStatus(); // 初始檢查
 })();
+// ── 切回 APP 時自動更新日期和對方頭像 ──
+(function(){
+  var lastDate = new Date().toDateString();
+  document.addEventListener('visibilitychange', function(){
+    if(document.hidden) return;
+    var today = new Date().toDateString();
+    // 日期跨天→重算所有倒數
+    if(today !== lastDate){
+      lastDate = today;
+      if(typeof window._applyStartDate==='function' && window._coupleData)
+        window._applyStartDate(window._coupleData.startDate||'');
+    }
+    // 更新對方頭像（重新讀 Firestore）
+    if(window._fsOps && window._db && window.userData && window.userData.partnerId){
+      var pDoc = window._fsOps.doc(window._db,'users',window.userData.partnerId);
+      window._fsOps.getDoc(pDoc).then(function(snap){
+        if(!snap.exists()) return;
+        var data = snap.data();
+        if(data.photo && window.partnerData && data.photo !== window.partnerData.photo){
+          window.partnerData.photo = data.photo;
+          var el = document.getElementById('avc-partner');
+          if(el) el.innerHTML = '<img src="'+data.photo+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+          var el2 = document.getElementById('pimg1');
+          if(el2) el2.src = data.photo;
+        }
+      }).catch(function(){});
+    }
+  });
+})();
+
 var _SUPER_ADMIN_EMAIL = 'pbf105019@gmail.com';
 function _isSuperAdmin(){
   var email = window.currentUser && window.currentUser.email;
