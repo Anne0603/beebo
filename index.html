@@ -856,7 +856,7 @@ window.startPairingCountdown = function(expiry, el) {
     var xmasEl = document.getElementById('annivXmasDays');
     if (xmasEl) xmasEl.textContent = Math.floor((xmas-today)/86400000) + '天後';
     // 更新主頁成就數
-    if(typeof _updateStats === 'function') setTimeout(_updateStats, 100);
+    if(typeof window._updateStats === 'function') setTimeout(window._updateStats, 100);
   };
 
   // ── 個人資料：開啟時填入真實資料 ──
@@ -3714,7 +3714,6 @@ function _renderSysAch(){
   }
 }
 function _updateStats() {
-  // 系統成就（根據在一起天數動態計算）
   _renderSysAch();
   // 留言總數
   var msgEl = document.getElementById('stat-msgs');
@@ -3749,7 +3748,8 @@ function _updateStats() {
   }
   // 依選取年份更新所有回顧統計
   _updateReviewStats((yearSel && yearSel.value) || '全部');
-};
+}
+window._updateStats = _updateStats;;
 
 function openVisitedCitiesMo(){
   var places = {};
