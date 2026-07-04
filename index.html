@@ -855,8 +855,15 @@ window.startPairingCountdown = function(expiry, el) {
     if (xmas <= today) xmas.setFullYear(xmas.getFullYear()+1);
     var xmasEl = document.getElementById('annivXmasDays');
     if (xmasEl) xmasEl.textContent = Math.floor((xmas-today)/86400000) + '天後';
-    // 更新主頁成就數
-    if(typeof window._updateStats === 'function') setTimeout(window._updateStats, 100);
+    // 直接更新主頁成就數（系統里程碑）
+    var milestoneDays2=[30,100,200,365,500,730,1000,1095,1460,1825,2000,3000,5000,10000];
+    var sysCnt2 = milestoneDays2.filter(function(m){return days>=m;}).length;
+    var achEl = document.getElementById('achCount');
+    if(achEl){
+      var chalDone = (typeof CHALS!=='undefined') ? CHALS.filter(function(c){return c.status==='done';}).length : 0;
+      achEl.textContent = (sysCnt2 + chalDone) + ' 個';
+    }
+    if(typeof window._updateStats === 'function') setTimeout(window._updateStats, 200);
   };
 
   // ── 個人資料：開啟時填入真實資料 ──
