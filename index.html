@@ -520,9 +520,9 @@ onAuthStateChanged(auth, async (user) => {
         } catch(e) { partnerValid = true; } // 讀取失敗就假設有效，避免誤清
 
         if (!partnerValid) {
-          // 對方已解除配對 → 清空自己的 partnerId，顯示配對頁
-          try { await updateDoc(doc(db, 'users', user.uid), {partnerId: null}); } catch(e) {}
-          window.userData = {...initialData, partnerId: null};
+          // 對方已解除配對 → 清空自己的 partnerId 和個人資料，顯示配對頁
+          try { await updateDoc(doc(db, 'users', user.uid), {partnerId: null, birthday: null}); } catch(e) {}
+          window.userData = {...initialData, partnerId: null, birthday: null};
           const pm = document.getElementById('pairingMo');
           if (pm) pm.classList.add('open');
         } else {
