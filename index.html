@@ -519,13 +519,26 @@ onAuthStateChanged(auth, async (user) => {
           partnerValid = partnerSnap.exists() && partnerSnap.data().partnerId === user.uid;
         } catch(e) { partnerValid = true; } // 讀取失敗就假設有效，避免誤清
 
-        if (!partnerValid) {
-          // 對方已解除配對 → 清空自己的 partnerId 和個人資料，顯示配對頁
+      if (!partnerValid) {
+        // 先確認 couples doc 是否存在（存在就信任配對有效，不做額外驗證）
+        let couplesExists = false;
+        try {
+          const coupleId2 = [user.uid, initialData.partnerId].sort().join('_');
+          const coupleSnap2 = await getDoc(doc(db, 'couples', coupleId2));
+          couplesExists = coupleSnap2.exists();
+        } catch(e) { couplesExists = true; } // 讀取失敗就假設有效
+
+        if (couplesExists) {
+          // couples doc 存在 → 配對有效，直接初始化
+          await window._initAllCoupleFeatures(user.uid, initialData.partnerId);
+        } else {
+          // couples doc 不存在且對方 partnerId 已清空 → 資料被清除，重置
           try { await updateDoc(doc(db, 'users', user.uid), {partnerId: null, birthday: null}); } catch(e) {}
           window.userData = {...initialData, partnerId: null, birthday: null};
           const pm = document.getElementById('pairingMo');
           if (pm) pm.classList.add('open');
-        } else {
+        }
+      } else {
           // 已配對且有效 → 直接初始化
           await window._initAllCoupleFeatures(user.uid, initialData.partnerId);
         }
