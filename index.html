@@ -4833,7 +4833,7 @@ function openRestDetail(id){
     return [1,2,3,4,5].map(function(n){
       var f=n<=(initVal||0);
       return '<button data-n="'+n+'" onclick="setRestRating('+n+')" style="all:unset;cursor:pointer;padding:2px;-webkit-tap-highlight-color:transparent;">'
-        +'<svg width="28" height="28" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="'+(f?'#F4C430':'none')+'" stroke="'+(f?'#E6A800':'#C8C8C8')+'" stroke-width="1.5" stroke-linejoin="round"/></svg>'
+        +'<svg width="24" height="24" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="'+(f?'#F4C430':'none')+'" stroke="'+(f?'#E6A800':'#C8C8C8')+'" stroke-width="1.5" stroke-linejoin="round"/></svg>'
         +'</button>';
     }).join('');
   }
@@ -4854,7 +4854,7 @@ function openRestDetail(id){
       +'</div>'
       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
         +'<span style="font-size:12px;width:40px;">'+partnerName+'</span>'
-        +(partnerR!==null?'<div style="display:flex;gap:2px;">'+_renderStars(partnerR,20)+'</div><span style="font-size:11px;color:var(--sub);">'+partnerR+'★</span>':'<span style="font-size:11px;color:var(--sub);">未評分</span>')
+        +(partnerR!==null?'<div style="display:flex;gap:2px;">'+_renderStars(partnerR,24)+'</div><span style="font-size:11px;color:var(--sub);">'+partnerR+'★</span>':'<span style="font-size:11px;color:var(--sub);">未評分</span>')
       +'</div>'
       +(avg>0?'<div style="display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--bdr);">'
         +'<span style="font-size:12px;color:var(--sub);">平均</span>'
