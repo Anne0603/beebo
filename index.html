@@ -2290,7 +2290,14 @@ function openMo(id){
     });
   }
   // 地點選單填充
-  if(id === 'addRestMo') fillLocationSelect('newRC2', true);
+  if(id === 'addRestMo'){
+    var rt2=document.getElementById('newRT2');
+    if(rt2 && typeof getRestTypes==='function'){
+      var types2=[''].concat(getRestTypes());
+      rt2.innerHTML=types2.map(function(t){return '<option value="'+t+'">'+(t===''?'選擇類型...':t)+'</option>';}).join('');
+    }
+    fillLocationSelect('newRC2', true);
+  }
   if(id === 'addMemMo') fillLocationSelect('newMemCity', true);
   if(id==='msgMo'){
     if(window._messages && window.currentUser){
@@ -4836,7 +4843,7 @@ function openRestDetail(id){
       +'<div style="font-size:12px;color:var(--sub);">'+(r.type||'')+( cityLabel2?' · '+cityLabel2:'')+'</div>'
       +'<div style="font-size:12px;color:var(--sub);">'+(r.date||'')+'</div>'
     +'</div>'
-    +(r.dish?'<div style="margin-bottom:12px;"><div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M7 2v20M21 15a6 6 0 00-6-6V2" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/><path d="M15 22v-4" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round"/></svg>推薦餐點</div><div style="font-size:13px;color:var(--txt);white-space:pre-wrap;line-height:1.7;">'+r.dish+'</div></div>':'')
+    +(r.dish?'<div style="margin-bottom:12px;"><div style="display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--sub);margin-bottom:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8zM6 1v3M10 1v3M14 1v3" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>推薦餐點</div><div style="font-size:13px;color:var(--txt);white-space:pre-wrap;line-height:1.7;">'+r.dish+'</div></div>':'')
     +(r.note?'<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:3px;">備註</div><div style="font-size:13px;color:var(--txt);background:var(--card2);padding:10px;border-radius:10px;line-height:1.6;">'+r.note+'</div></div>':'')
     +'<div style="background:var(--card2);border-radius:14px;padding:12px;">'
       +'<div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:10px;">評分</div>'
