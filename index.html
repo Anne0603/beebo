@@ -999,23 +999,46 @@ window.startPairingCountdown = function(expiry, el) {
       list.innerHTML = '<div style="text-align:center;color:var(--sub);font-size:13px;padding:40px 20px;">還沒有留言，先說句話吧 💬</div>';
       return;
     }
+    function getDateStr(createdAt) {
+      if(!createdAt) return '';
+      var d = createdAt.seconds ? new Date(createdAt.seconds*1000) : new Date(createdAt);
+      var today = new Date(); today.setHours(0,0,0,0);
+      var yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+      d.setHours(0,0,0,0);
+      if(d.getTime()===today.getTime()) return '今天';
+      if(d.getTime()===yesterday.getTime()) return '昨天';
+      return (d.getMonth()+1)+'月'+d.getDate()+'日';
+    }
+    var lastDate = '';
     list.innerHTML = msgs.map(m => {
       const isMine = m.senderUid === myUid;
       const name = isMine ? '我' : (window.partnerData ? window.partnerData.name : '對方');
       const timeStr = window._fmtTime(m.createdAt);
       const text = (m.text || '').replace(/</g,'&lt;').replace(/\n/g,'<br>');
+      const dateStr = getDateStr(m.createdAt);
+      var dateSep = '';
+      if(dateStr && dateStr !== lastDate){
+        lastDate = dateStr;
+        dateSep = '<div style="display:flex;align-items:center;gap:8px;margin:12px 0 8px;padding:0 4px;">'
+          +'<div style="flex:1;height:1px;background:var(--bdr);"></div>'
+          +'<div style="font-size:11px;color:var(--sub);white-space:nowrap;">'+dateStr+'</div>'
+          +'<div style="flex:1;height:1px;background:var(--bdr);"></div>'
+          +'</div>';
+      }
+      var bubble = '';
       if(isMine){
-        return '<div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:10px;padding:0 4px;">'
+        bubble = '<div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:6px;padding:0 4px;">'
           +'<div style="background:#C8D8C0;color:var(--txt);padding:10px 14px;border-radius:18px 18px 4px 18px;max-width:75%;font-size:14px;line-height:1.5;word-break:break-word;">'+text+'</div>'
           +'<div style="font-size:10px;color:var(--sub);margin-top:3px;">'+timeStr+'</div>'
           +'</div>';
       } else {
-        return '<div style="display:flex;flex-direction:column;align-items:flex-start;margin-bottom:10px;padding:0 4px;">'
+        bubble = '<div style="display:flex;flex-direction:column;align-items:flex-start;margin-bottom:6px;padding:0 4px;">'
           +'<div style="font-size:11px;color:var(--sub);margin-bottom:3px;">'+name+'</div>'
           +'<div style="background:var(--card);color:var(--txt);padding:10px 14px;border-radius:18px 18px 18px 4px;max-width:75%;font-size:14px;line-height:1.5;word-break:break-word;box-shadow:0 1px 3px var(--shd);">'+text+'</div>'
           +'<div style="font-size:10px;color:var(--sub);margin-top:3px;">'+timeStr+'</div>'
           +'</div>';
       }
+      return dateSep + bubble;
     }).join('');
     list.scrollTop = list.scrollHeight;
   };
