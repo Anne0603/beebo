@@ -1387,7 +1387,7 @@ window.reauthenticateForPinReset = async function() {
 
     </div>
     </div>
-    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.0.0 · 版本記錄 ›</div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.1.0 · 版本記錄 ›</div>
   </div>
   <div class="bnav" id="bnav-settings"></div>
 </div>
@@ -3831,7 +3831,19 @@ function _checkIsAdmin(){
 
 // ── 版本記錄（純程式碼，由開發者更新，所有人都能看到）──
 var _CHANGELOG_DEFAULT = [
-  {ver:'1.0.0', date:'2026-07-02', title:'正式上線 🎉', items:[
+  {ver:'1.1.0', date:'2026-07-05', title:'正式上線 🚀', items:[
+    '🍽️ 餐廳雙人評分（半顆星、待評標籤、評分橫幅、7天提醒）',
+    '💡 靈感題庫重設計（清單/挑戰分類、匯入匯出、加入後自動移除）',
+    '⭐ 挑戰改版（編輯名稱+分類、截止日驗證、到期自動失敗、誤觸可恢復）',
+    '📷 回憶錄關聯只顯示已完成項目（日期±5天自動篩選）',
+    '🔒 白名單系統（管理員控制誰能登入）',
+    '📴 離線支援（IndexedDB 快取、離線提示橫幅）',
+    '🗓️ 七夕正確農曆日期（2024-2075年對照表）',
+    '🏆 主頁成就含系統里程碑計算',
+    '📋 常見問題改為全頁面、加入靈感匯入說明',
+    '🔔 提醒通知暖黃底色、切回APP自動更新日期和頭像'
+  ]},
+  {ver:'1.0.0', date:'2026-07-02', title:'初始版本', items:[
     '回憶錄照片牆、語錄（含搜尋和年月篩選）',
     '清單（想去哪/想吃什麼/想做什麼/想看什麼，支援靈感推薦）',
     '挑戰系統（進行中/已完成/已失敗，含年月篩選）',
