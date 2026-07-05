@@ -4765,18 +4765,34 @@ function renderRests(){
     var starsHtml=_renderStars(avg);
     var rCnt=r.ratings?Object.values(r.ratings).filter(function(v){return typeof v==='number';}).length:1;
     var myRated=myUid&&r.ratings&&typeof r.ratings[myUid]==='number';
-    var pendingBadge=!myRated?'<span style="font-size:9px;background:#FFF3CD;color:#856404;border:1px solid #FFE082;border-radius:6px;padding:1px 5px;margin-left:4px;">待評</span>':'';
+    var pendingBadge=!myRated?'<span style="font-size:9px;background:#FFF3CD;color:#856404;border:1px solid #FFE082;border-radius:6px;padding:1px 5px;">待評</span>':'';
     var cityLabel=r.city==='國外'?(r.country||'')+(r.foreignCity?' '+r.foreignCity:''):r.city;
     var avgLabel=avg>0?'<span style="font-size:10px;color:var(--sub);margin-left:2px;">('+avg.toFixed(1)+'/'+rCnt+')</span>':'';
-    var detailBtn='<button data-rid="'+r.id+'" onclick="openRestDetail(this.dataset.rid)" style="all:unset;padding:4px 8px;font-size:11px;color:var(--accent);cursor:pointer;border-radius:8px;background:var(--lt);margin-right:4px;">詳情</button>';
-    var delBtn='<button onclick="confirmDeleteRest(\''+r.id+'\')" style="all:unset;padding:4px 8px;font-size:11px;color:#c62828;cursor:pointer;border-radius:8px;background:#fdecea;">刪除</button>';
-    return '<div class="ri">'+
-      '<div class="ri-top"><div class="ri-name">'+(r.name||'')+'</div>'+
-      '<div style="display:flex;align-items:center;gap:2px;">'+starsHtml+avgLabel+pendingBadge+'</div></div>'+
-      '<div class="ri-meta">'+(r.type||'')+'・'+(r.date||'')+(r.dish?'・'+r.dish:'')+'</div>'+
-      (r.note?'<div style="font-size:10px;color:var(--sub);margin-top:2px;">'+r.note+'</div>':'')+
-      '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">'+
-      '<span class="ri-city">'+(cityLabel||'')+'</span><div>'+detailBtn+delBtn+'</div></div></div>';
+    var detailBtn='<button data-rid="'+r.id+'" onclick="openRestDetail(this.dataset.rid)" style="all:unset;padding:4px 10px;font-size:11px;color:var(--accent);cursor:pointer;border-radius:8px;background:var(--lt);margin-right:4px;">詳情</button>';
+    var delBtn='<button onclick="confirmDeleteRest(\''+r.id+'\')" style="all:unset;padding:4px 10px;font-size:11px;color:#c62828;cursor:pointer;border-radius:8px;background:#fdecea;">刪除</button>';
+    // 類型和地點
+    var metaParts = [r.type, cityLabel].filter(Boolean).join(' · ');
+    return '<div class="ri">'
+      // 第一行：名稱 + 星星
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'
+        +'<div class="ri-name" style="font-size:15px;">'+(r.name||'')+'</div>'
+        +'<div style="display:flex;align-items:center;gap:2px;">'+starsHtml+avgLabel+'</div>'
+      +'</div>'
+      // 第二行：類型・地點（左）+ 日期（右）
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;">'
+        +'<span style="font-size:11px;color:var(--sub);">'+metaParts+'</span>'
+        +'<span style="font-size:11px;color:var(--sub);">'+(r.date||'')+'</span>'
+      +'</div>'
+      // 第三行：推薦餐點（若有）
+      +(r.dish?'<div style="font-size:11px;color:var(--txt);margin-bottom:2px;">🍽 '+r.dish+'</div>':'')
+      // 備註（若有）
+      +(r.note?'<div style="font-size:10px;color:var(--sub);margin-bottom:4px;">'+r.note+'</div>':'')
+      // 底部：待評標籤 + 按鈕
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">'
+        +'<div>'+pendingBadge+'</div>'
+        +'<div>'+detailBtn+delBtn+'</div>'
+      +'</div>'
+      +'</div>';
   }).join('');
 }
 
@@ -4814,26 +4830,31 @@ function openRestDetail(id){
         +'</button>';
     }).join('');
   }
+  var cityLabel2=r.city==='國外'?(r.country||'')+(r.foreignCity?' '+r.foreignCity:''):r.city;
   body.innerHTML=
-    '<div style="font-size:12px;color:var(--sub);">'+(r.type||'')+(r.date?' · '+r.date:'')+(r.dish?' · '+r.dish:'')+'</div>'+
-    (r.note?'<div style="font-size:13px;color:var(--txt);background:var(--card2);padding:10px;border-radius:10px;">'+r.note+'</div>':'')+
-    '<div style="background:var(--card2);border-radius:14px;padding:12px;">'
+    '<div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:10px;border-bottom:1px solid var(--bdr);margin-bottom:12px;">'
+      +'<div style="font-size:12px;color:var(--sub);">'+(r.type||'')+( cityLabel2?' · '+cityLabel2:'')+'</div>'
+      +'<div style="font-size:12px;color:var(--sub);">'+(r.date||'')+'</div>'
+    +'</div>'
+    +(r.dish?'<div style="margin-bottom:10px;"><div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:3px;">推薦餐點</div><div style="font-size:13px;color:var(--txt);">'+r.dish+'</div></div>':'')
+    +(r.note?'<div style="margin-bottom:12px;"><div style="font-size:11px;font-weight:700;color:var(--sub);margin-bottom:3px;">備註</div><div style="font-size:13px;color:var(--txt);background:var(--card2);padding:10px;border-radius:10px;line-height:1.6;">'+r.note+'</div></div>':'')
+    +'<div style="background:var(--card2);border-radius:14px;padding:12px;">'
       +'<div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:10px;">評分</div>'
       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
-        +'<span style="font-size:12px;width:36px;">'+myName+'</span>'
+        +'<span style="font-size:12px;width:40px;">'+myName+'</span>'
         +'<div id="myRestStarPicker" style="display:flex;gap:2px;">'+makePicker(myR)+'</div>'
         +(myR!==null?'<span style="font-size:11px;color:var(--sub);">'+myR+'★</span>':'<span style="font-size:11px;color:#856404;">待評</span>')
       +'</div>'
       +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
-        +'<span style="font-size:12px;width:36px;">'+partnerName+'</span>'
+        +'<span style="font-size:12px;width:40px;">'+partnerName+'</span>'
         +(partnerR!==null?'<div style="display:flex;gap:2px;">'+_renderStars(partnerR,20)+'</div><span style="font-size:11px;color:var(--sub);">'+partnerR+'★</span>':'<span style="font-size:11px;color:var(--sub);">未評分</span>')
       +'</div>'
       +(avg>0?'<div style="display:flex;align-items:center;gap:6px;padding-top:8px;border-top:1px solid var(--bdr);">'
         +'<span style="font-size:12px;color:var(--sub);">平均</span>'
         +'<div style="display:flex;gap:1px;">'+_renderStars(avg,18)+'</div>'
-        +'<span style="font-size:12px;font-weight:700;color:var(--txt);">'+avg.toFixed(1)+' ('+rCnt+'/2)</span></div>':'')
+        +'<span style="font-size:13px;font-weight:700;color:var(--txt);">'+avg.toFixed(1)+' ('+rCnt+'/2)</span></div>':'')
     +'</div>'
-    +'<div style="display:flex;gap:8px;">'
+    +'<div style="display:flex;gap:8px;margin-top:12px;">'
       +'<button onclick="saveRestRating()" class="btn2 bpri" style="flex:2;">儲存評分</button>'
       +'<button data-rid="'+id+'" onclick="closeMo(\'restDetailMo\');setTimeout(function(){editRest(\''+id+'\');},250);" class="btn2 bsec" style="flex:1;">編輯</button>'
     +'</div>';
