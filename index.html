@@ -3721,7 +3721,7 @@ function openVisitedCitiesMo(){
             var dateStr = r.date || '';
             return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--bdr);">'
               +'<div style="flex:1;min-width:0;">'
-              +'<div style="font-size:12px;color:var(--txt);font-weight:600;">'+r.name+(r.type?' · <span style=\"color:var(--sub);font-weight:400;\">'+r.type+'</span>':'')+'</div>'
+              +'<div style="font-size:12px;color:var(--txt);font-weight:600;">'+r.name+'</div>'
               +(dateStr?'<div style="font-size:10px;color:var(--sub);">'+dateStr+'</div>':'')
               +'</div>'
               +'<div style="flex-shrink:0;margin-left:8px;font-size:12px;">'+stars+'</div></div>';
