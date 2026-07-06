@@ -1243,7 +1243,7 @@ window.reauthenticateForPinReset = async function() {
   </div>
   <!-- 照片牆篩選（只在照片牆 tab 顯示）-->
   <div id="memPhotoFilters" style="padding:8px 13px 4px;display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
-    <input id="memSearch" oninput="renderMemory()" class="fi" placeholder="🔍 搜尋回憶錄標題或地點..." style="font-size:13px;">
+    <input id="memSearch" oninput="renderMemory()" class="fi" placeholder="🔍 搜尋標題、地點、餐廳、清單..." style="font-size:13px;">
     <div style="display:flex;gap:6px;">
       <select id="memYear" onchange="renderMemory()" style="flex:1;font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card2);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部年份</option></select>
       <select id="memMonth" onchange="renderMemory()" style="flex:1;font-size:13px;border:1px solid var(--bdr);border-radius:10px;padding:6px 10px;background:var(--card2);color:var(--txt);font-family:'Noto Sans TC',sans-serif;outline:none;"><option value="0">全部月份</option><option value="1">1月</option><option value="2">2月</option><option value="3">3月</option><option value="4">4月</option><option value="5">5月</option><option value="6">6月</option><option value="7">7月</option><option value="8">8月</option><option value="9">9月</option><option value="10">10月</option><option value="11">11月</option><option value="12">12月</option></select>
@@ -4597,7 +4597,26 @@ function renderMemory(){
       var title=(m.title||'').toLowerCase();
       var city=(m.city||m.location||'').toLowerCase();
       var note=(m.note||'').toLowerCase();
-      if(!title.includes(sq)&&!city.includes(sq)&&!note.includes(sq)) return false;
+      // 關聯餐廳名稱
+      var restNames='';
+      if(m.linkedRests&&m.linkedRests.length){
+        restNames=m.linkedRests.map(function(rid){
+          var r=RESTS.find(function(x){return x.id===rid;});
+          return r?r.name:'';
+        }).join(' ').toLowerCase();
+      }
+      // 關聯清單/挑戰名稱
+      var itemNames='';
+      if(m.linkedItems&&m.linkedItems.length){
+        itemNames=m.linkedItems.map(function(key){
+          var parts=key.split(':');
+          var type=parts[0], id=parts[1];
+          if(type==='list'){var l=LIST.find(function(x){return x.id===id;});return l?l.n:'';}
+          if(type==='chal'){var c=CHALS.find(function(x){return x.id===id;});return c?c.name:'';}
+          return '';
+        }).join(' ').toLowerCase();
+      }
+      if(!title.includes(sq)&&!city.includes(sq)&&!note.includes(sq)&&!restNames.includes(sq)&&!itemNames.includes(sq)) return false;
     }
     return true;
   });
