@@ -5804,12 +5804,13 @@ async function handleMemDetailPhotoChange(e){
   var files = Array.from(e.target.files||[]);
   if(!files.length || !_memDetailPhotoMemId) return;
   var memId = _memDetailPhotoMemId;
-  showToast('上傳中...');
+  showUploadOverlay();
   var urls=[];
   for(var i=0;i<files.length;i++){
     try{ urls.push(await window._uploadToCloudinary(files[i])); }
     catch(err){ console.error(err); }
   }
+  hideUploadOverlay();
   if(!urls.length){ showToast('上傳失敗'); return; }
   var m=MEMS.find(function(x){return x.id===memId;});
   var newPhotos=(m&&m.photos?m.photos:[]).concat(urls);
