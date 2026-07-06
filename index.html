@@ -6688,7 +6688,7 @@ function doExportMemoryReport(){
         '<div class="mem-title">' + (m.title||'未命名回憶') + '</div>' +
         '<div class="mem-meta">' + dateStr + (loc?' · '+loc:'') + '</div>' +
         (m.note ? '<div class="mem-note">' + m.note.replace(/</g,'&lt;') + '</div>' : '') +
-        (m.photos && m.photos.length ? '<div class="mem-photos">' + m.photos.map(function(p){return '<img src="'+p+'">';}).join('') + '</div>' : '') +
+        (m.photos && m.photos.length ? '<div class="mem-photos">' + m.photos.map(function(p){return '<img src="'+p+'?_=1" crossorigin="anonymous">';}).join('') + '</div>' : '') +
         '</div>';
     });
   } else {
