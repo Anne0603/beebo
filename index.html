@@ -4818,9 +4818,11 @@ function renderLinkRests(){
   if(!list)return;
   if(!RESTS.length){list.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div>';return;}
   list.innerHTML=RESTS.map(function(r){
+    var avg=r.ratings?_calcAvgStar(r.ratings):(r.star||0);
+    var stars=avg>0?(' · '+avg.toFixed(1)+'★'):'';
     return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;">'+
       '<input type="checkbox" value="'+r.id+'" style="accent-color:var(--accent);">'+
-      r.name+'・'+(r.city||'')+'・'+Array(r.star+1).join('★')+'</label>';
+      r.name+(r.city?'・'+r.city:'')+stars+'</label>';
   }).join('');
 }
 
