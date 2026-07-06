@@ -1619,12 +1619,17 @@ window.reauthenticateForPinReset = async function() {
 <!-- MODALS -->
 
 <div class="toast" id="toast"></div>
+<div id="uploadOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+  <div style="width:48px;height:48px;border:4px solid rgba(255,255,255,0.3);border-top:4px solid #fff;border-radius:50%;animation:spin 1s linear infinite;"></div>
+  <div style="color:#fff;font-size:15px;font-weight:700;font-family:'Noto Sans TC',sans-serif;">上傳中...</div>
+  <div style="color:rgba(255,255,255,0.7);font-size:12px;font-family:'Noto Sans TC',sans-serif;">請勿關閉畫面</div>
+</div>
 <!-- 離線提示橫幅 -->
 <div id="offlineBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#616161;color:#fff;text-align:center;padding:8px;font-size:12px;font-family:'Noto Sans TC',sans-serif;">
   📵 目前離線中，顯示的是上次的資料
 </div>
 
-<div class="mo" id="linkRestMo" style="z-index:90;"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="confirmLinkRest()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
+<div class="mo" id="linkRestMo"><div class="mbox"><div class="mh"><span class="mtit">選擇關聯餐廳</span><button class="mcl" onclick="closeMo('linkRestMo')">×</button></div><div style="margin-bottom:8px;"><input oninput="filterLinkRests(this.value)" class="fi" placeholder="搜尋餐廳..." style="font-size:12px;padding:7px 10px;"></div><div style="display:flex;flex-direction:column;gap:6px;max-height:50vh;overflow-y:auto;" id="linkRestList"><div style="text-align:center;color:var(--sub);font-size:12px;padding:20px;">尚無餐廳記錄</div></div><button onclick="confirmLinkRest()" class="btn2 bpri" style="width:100%;margin-top:10px;">確認</button></div></div></div>
 <div class="mo" id="editChalMo"><div class="mbox"><div class="mh"><span class="mtit">編輯挑戰</span><button class="mcl" onclick="closeMo('editChalMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">挑戰名稱</label><input class="fi" id="editChalNameInput" placeholder="挑戰名稱"></div><div class="fg"><label class="fl">分類</label><select class="fi" id="editChalCatInput" style="padding:8px 10px;"><option>探索類</option><option>飲食類</option><option>運動類</option><option>創作類</option><option>感情類</option><option>娛樂類</option><option>學習類</option><option>其他</option></select></div><div class="fg"><label class="fl">截止日期</label><input class="fi" type="date" id="editChalDeadline"></div><div style="display:flex;gap:8px;"><button onclick="saveChalEdit()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="if(_editChalId)abandonChal(_editChalId)" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">放棄挑戰</button></div></div></div></div>
 <div class="mo" id="calDayMo"><div class="mbox"><div class="mh"><span class="mtit" id="calDayTitle">約會詳情</span><button class="mcl" onclick="closeMo('calDayMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:8px;">
@@ -3849,6 +3854,15 @@ var STAR_I='<svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d=
   });
 })();
 
+function showUploadOverlay(){
+  var o=document.getElementById('uploadOverlay');
+  if(o) o.style.display='flex';
+}
+function hideUploadOverlay(){
+  var o=document.getElementById('uploadOverlay');
+  if(o) o.style.display='none';
+}
+
 var _SUPER_ADMIN_EMAIL = 'pbf105019@gmail.com';
 function _isSuperAdmin(){
   var email = window.currentUser && window.currentUser.email;
@@ -5740,15 +5754,39 @@ function openMemDetail(id){
 
   // 按鈕
   var btnsHtml='<div style="display:flex;gap:8px;padding-bottom:8px;">'
-    +'<button class="btn2 bpri" onclick="openEditMemMo(\''+m.id+'\')" style="flex:2;font-size:13px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="vertical-align:middle;margin-right:4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>編輯</button>'
+    +'<button class="btn2 bpri" onclick="openEditMemMo(\''+m.id+'\')" style="flex:2;font-size:13px;">編輯</button>'
     +'<button class="btn2 bsec" onclick="triggerMemDetailPhoto(\''+m.id+'\')" style="flex:2;font-size:13px;">新增照片</button>'
+    +'<button onclick="triggerMemCoverPhoto(\''+m.id+'\')" style="all:unset;flex:1;text-align:center;font-size:11px;color:var(--accent);cursor:pointer;padding:10px;border-radius:12px;background:var(--lt);font-family:\'Noto Sans TC\',sans-serif;">封面</button>'
     +'<button onclick="goBack();setTimeout(function(){deleteMemConfirm(\''+m.id+'\');},300);" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:\'Noto Sans TC\',sans-serif;">刪除</button>'
+    +'<input type="file" id="memCoverPhotoInput" accept="image/*" style="display:none;" onchange="uploadMemCover(this,\''+m.id+'\')">';
     +'</div>';
 
   body.innerHTML=metaHtml+photosHtml+noteHtml+restHtml+linkedHtml+btnsHtml;
   goPageX('memdetail');
 }
 var _memDetailPhotoMemId = null;
+function triggerMemCoverPhoto(memId){
+  _memDetailPhotoMemId = memId;
+  var inp = document.getElementById('memCoverPhotoInput');
+  if(inp){ inp.value=''; inp.click(); }
+}
+async function uploadMemCover(input, memId){
+  var file = input.files[0];
+  if(!file||!window._uploadToCloudinary) return;
+  showUploadOverlay();
+  try{
+    var url = await window._uploadToCloudinary(file);
+    var {doc,updateDoc} = window._fsOps;
+    await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{coverPhoto:url});
+    hideUploadOverlay();
+    showToast('封面已更新 ✓');
+    setTimeout(function(){ openMemDetail(memId); },300);
+  }catch(e){
+    hideUploadOverlay();
+    showToast('封面上傳失敗');
+  }
+}
+
 function triggerMemDetailPhoto(memId){
   _memDetailPhotoMemId = memId;
   var inp = document.getElementById('memDetailPhotoInput');
@@ -5886,14 +5924,15 @@ async function saveEditMem(){
   var existPhotos=(m&&m.photos)||[];
   if(_memPhotoFiles&&_memPhotoFiles.length){
     if(!window._uploadToCloudinary){showToast('上傳功能載入中，請稍後再試');return;}
-    showToast('上傳照片中...');
+    showUploadOverlay();
     var newUrls=[];
     for(var i=0;i<_memPhotoFiles.length;i++){
       try{
         var url=await window._uploadToCloudinary(_memPhotoFiles[i]);
         newUrls.push(url);
-      }catch(e){ console.error('Cloudinary upload error',e); showToast('照片上傳失敗'); }
+      }catch(e){ console.error('Cloudinary upload error',e); }
     }
+    hideUploadOverlay();
     existPhotos=existPhotos.concat(newUrls);
     _memPhotoFiles=[];
   }
