@@ -5556,14 +5556,14 @@ function openLinkRestForMem(){
     return;
   }
   renderLinkRests();
-  // 恢復已勾選
   setTimeout(function(){
     var boxes=document.querySelectorAll('#linkRestList input[type=checkbox]');
     boxes.forEach(function(cb){
       cb.checked=_memLinkedRests.includes(cb.value);
     });
   },50);
-  openMo('linkRestMo');
+  // 讓 linkRestMo 在最後被加入 body，確保在最上層
+  setTimeout(function(){ openMo('linkRestMo'); }, 50);
 }
 function confirmLinkRest(){
   _memLinkedRests=[];
