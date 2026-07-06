@@ -4702,7 +4702,7 @@ async function addMem(){
     createdAt:serverTimestamp()
   });
   // 清空表單
-  ['newMemTitle','newMemNote','newMemFCity'].forEach(function(id){
+  ['newMemTitle','newMemNote','newMemFCity','newMemDate1','newMemDate2'].forEach(function(id){
     var el=document.getElementById(id);if(el)el.value='';
   });
   var mc=document.getElementById('newMemCity');if(mc)mc.value='';
