@@ -2039,6 +2039,7 @@ window.reauthenticateForPinReset = async function() {
 
 <div class="mo" id="transferMo"><div class="mbox"><div class="mh"><span class="mtit">備用管理員帳號</span><button class="mcl" onclick="closeMo('transferMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);line-height:1.7;">綁定備用 Google 帳號後，該帳號登入也能使用管理員功能。用來防止主帳號遺失。</div><div id="backupAdminList" style="background:var(--card2);border-radius:10px;padding:10px;font-size:12px;min-height:40px;">載入中...</div><div class="fg"><label class="fl">備用帳號 Email</label><input class="fi" id="backupEmail" placeholder="backup@gmail.com" type="email"></div><button class="btn2 bpri" onclick="addBackupAdmin()">綁定備用帳號</button><button class="btn2 bsec" onclick="closeMo('transferMo')">關閉</button></div></div></div>
 <div class="mo" id="inspireMo"><div class="msh"><div class="mh"><span class="mtit">靈感</span><button class="mcl" onclick="closeMo('inspireMo')">×</button></div><div style="display:flex;flex-direction:column;gap:8px;" id="inspireList"></div></div></div>
+<div class="mo" id="coverPickMo"><div class="msh"><div class="mh"><span class="mtit">選擇封面</span><button class="mcl" onclick="closeMo('coverPickMo')">×</button></div><div id="coverPickBody"></div></div></div>
 
 <div class="mo" id="clearNotifyMo"><div class="mbox"><div class="mh"><span class="mtit">清除通知</span><button class="mcl" onclick="closeMo('clearNotifyMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
@@ -4648,8 +4649,9 @@ function renderMemory(){
     var card=document.createElement('div');
     card.className='mc';
     var hasPhoto = m.photos && m.photos.length;
-    if(hasPhoto){
-      card.style.backgroundImage="url('" + m.photos[0] + "')";
+    var thumbUrl = m.coverPhoto || (hasPhoto ? m.photos[0] : '');
+    if(hasPhoto || m.coverPhoto){
+      card.style.backgroundImage="url('" + thumbUrl + "')";
       card.style.backgroundSize='cover';
       card.style.backgroundPosition='center';
       // 照片卡：底部漸層遮罩 + 標題+日期+地點
@@ -5793,34 +5795,43 @@ function openMemDetail(id){
   var btnsHtml='<div style="display:flex;gap:8px;padding-bottom:8px;">'
     +'<button class="btn2 bpri" onclick="openEditMemMo(\''+m.id+'\')" style="flex:2;font-size:13px;">編輯</button>'
     +'<button class="btn2 bsec" onclick="triggerMemDetailPhoto(\''+m.id+'\')" style="flex:2;font-size:13px;">新增照片</button>'
-    +'<button onclick="triggerMemCoverPhoto(\''+m.id+'\')" style="all:unset;flex:1;text-align:center;font-size:11px;color:var(--accent);cursor:pointer;padding:10px;border-radius:12px;background:var(--lt);font-family:\'Noto Sans TC\',sans-serif;">封面</button>'
+    +'<button onclick="openCoverPickMo(\''+m.id+'\')" style="all:unset;flex:1;text-align:center;font-size:11px;color:var(--accent);cursor:pointer;padding:10px;border-radius:12px;background:var(--lt);font-family:\'Noto Sans TC\',sans-serif;">封面</button>'
     +'<button onclick="goBack();setTimeout(function(){deleteMemConfirm(\''+m.id+'\');},300);" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:\'Noto Sans TC\',sans-serif;">刪除</button>'
-    +'<input type="file" id="memCoverPhotoInput" accept="image/*" style="display:none;" onchange="uploadMemCover(this,\''+m.id+'\')">';
     +'</div>';
 
   body.innerHTML=metaHtml+photosHtml+noteHtml+restHtml+linkedHtml+btnsHtml;
   goPageX('memdetail');
 }
 var _memDetailPhotoMemId = null;
-function triggerMemCoverPhoto(memId){
-  _memDetailPhotoMemId = memId;
-  var inp = document.getElementById('memCoverPhotoInput');
-  if(inp){ inp.value=''; inp.click(); }
+function openCoverPickMo(memId){
+  var m = MEMS.find(function(x){ return x.id===memId; });
+  if(!m){ showToast('找不到這篇回憶錄'); return; }
+  if(!m.photos || !m.photos.length){ showToast('請先新增照片，才能設定封面'); return; }
+  var body = document.getElementById('coverPickBody');
+  if(body){
+    body.innerHTML = '<div style="font-size:11px;color:var(--sub);padding:0 2px 6px;">點選一張照片設為封面</div>'
+      + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">'
+      + m.photos.map(function(p){
+          var isCover = (m.coverPhoto===p);
+          return '<div onclick="setMemCover(\''+memId+'\',\''+p+'\')" style="aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;position:relative;'
+            + (isCover?'box-shadow:0 0 0 3px var(--accent);':'border:1px solid var(--bdr);') + '">'
+            + '<img src="'+p+'" style="width:100%;height:100%;object-fit:cover;">'
+            + (isCover?'<div style="position:absolute;bottom:2px;right:2px;background:var(--accent);color:#fff;font-size:9px;padding:1px 5px;border-radius:6px;">封面</div>':'')
+            + '</div>';
+        }).join('')
+      + '</div>';
+  }
+  openMo('coverPickMo');
 }
-async function uploadMemCover(input, memId){
-  var file = input.files[0];
-  if(!file||!window._uploadToCloudinary) return;
-  showUploadOverlay();
+async function setMemCover(memId, photoUrl){
   try{
-    var url = await window._uploadToCloudinary(file);
     var {doc,updateDoc} = window._fsOps;
-    await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{coverPhoto:url});
-    hideUploadOverlay();
+    await updateDoc(doc(window._db,'couples',window._coupleId,'memories',memId),{coverPhoto:photoUrl});
+    closeMo('coverPickMo');
     showToast('封面已更新 ✓');
     setTimeout(function(){ openMemDetail(memId); },300);
   }catch(e){
-    hideUploadOverlay();
-    showToast('封面上傳失敗');
+    showToast('封面設定失敗');
   }
 }
 
