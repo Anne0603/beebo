@@ -3863,6 +3863,16 @@ function hideUploadOverlay(){
   if(o) o.style.display='none';
 }
 
+// ── 靈感題庫：自動清除特定項目（跨裝置同步移除）──
+(function(){
+  var banned = ['吃燒肉'];
+  var data = _getInspireData();
+  if(data){
+    var filtered = data.filter(function(i){ return !banned.includes(i.n); });
+    if(filtered.length !== data.length) _saveInspireData(filtered);
+  }
+})();
+
 var _SUPER_ADMIN_EMAIL = 'pbf105019@gmail.com';
 function _isSuperAdmin(){
   var email = window.currentUser && window.currentUser.email;
