@@ -387,6 +387,8 @@ input[type=file]{display:none;}
 
     setTimeout(function(){ if(typeof window.checkUpcomingReminders==='function') window.checkUpcomingReminders(); }, 1000);
     setTimeout(function(){ if(typeof window.checkQuarterlyRecaps==='function') window.checkQuarterlyRecaps(); }, 2500);
+    setTimeout(function(){ if(typeof window.checkYearlyRecaps==='function') window.checkYearlyRecaps(); }, 4000);
+    setTimeout(function(){ if(typeof window.checkOnThisDay==='function') window.checkOnThisDay(); }, 3000);
 
     // ── PIN 重置請求監聽（用 time 時間戳記去重複，避免舊狀態被重複觸發）──
     if(!window._pinResetUnsub) {
@@ -3607,7 +3609,10 @@ function renderNotifPage(){
     var isReminder = n.type === 'reminder';
     var bg = isReminder ? 'background:#FFF8E1;border:1px solid #FFE082;' : 'background:var(--card);';
     var isRecap = n.type === 'recap' && n.data && n.data.quarterId;
-    var clickAttr = isRecap ? ' onclick="goPageX(\'recap\');setTimeout(function(){openRecapDetail(\''+n.data.quarterId+'\');},60);" style="cursor:pointer;"' : '';
+    var isMemLink = n.type === 'mem' && n.data && n.data.memId;
+    var clickAttr = '';
+    if(isRecap) clickAttr = ' onclick="goPageX(\'recap\');setTimeout(function(){openRecapDetail(\''+n.data.quarterId+'\');},60);" style="cursor:pointer;"';
+    else if(isMemLink) clickAttr = ' onclick="openMemDetail(\''+n.data.memId+'\')" style="cursor:pointer;"';
     return '<div'+clickAttr+' style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;'+bg+'border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
       +'<div style="font-size:20px;flex-shrink:0;">'+(icons[n.type]||'🔔')+'</div>'
       +'<div style="flex:1;min-width:0;">'
@@ -3859,6 +3864,15 @@ function _quarterRange(quarterId){
   var end = new Date(y, startMonth+3, 0, 23,59,59,999);
   return {start:start, end:end};
 }
+function _yearRange(yearId){
+  var y = parseInt(yearId,10);
+  var start = new Date(y, 0, 1, 0,0,0,0);
+  var end = new Date(y, 11, 31, 23,59,59,999);
+  return {start:start, end:end};
+}
+function _recapIsYear(id){ return !/-Q/.test(id); }
+function _recapListLabel(id){ return _recapIsYear(id) ? (id+' 年度') : _quarterLabel(id); }
+function _recapDetailTitle(id){ return _recapIsYear(id) ? (id+' 年度回顧') : (_quarterLabel(id)+' 回顧'); }
 function _nextQuarterId(quarterId){
   var parts = quarterId.split('-Q');
   var y=parseInt(parts[0],10), q=parseInt(parts[1],10);
@@ -3914,7 +3928,7 @@ function _milestonesFromSeries(sortedArr, baseThresholds, step, labelFn, start, 
   });
   return out;
 }
-function _computeQuarterMilestones(start, end){
+function _computeMilestones(start, end){
   var out = [];
   var doneList = LIST.filter(function(it){return it.done && it.doneAt;})
     .slice().sort(function(a,b){ return _toJSDate(a.doneAt) - _toJSDate(b.doneAt); });
@@ -3931,11 +3945,8 @@ function _computeQuarterMilestones(start, end){
   return out;
 }
 
-function _computeQuarterRecap(quarterId){
-  var range = _quarterRange(quarterId);
-  var start = range.start, end = range.end;
-
-  // 清單：這一季完成的項目，依分類分組
+function _computeRecapForRange(id, start, end){
+  // 清單：完成的項目，依分類分組
   var listDoneItems = (LIST||[]).filter(function(it){ return it.done && _inQRange(it.doneAt, start, end); });
   var listGroups = {};
   listDoneItems.forEach(function(it){
@@ -3944,7 +3955,7 @@ function _computeQuarterRecap(quarterId){
     listGroups[key].push({ id: it.id, name: it.n, doneAt: it.doneAt });
   });
 
-  // 挑戰：完成/失敗日期落在這一季，或截止日在這一季但仍進行中
+  // 挑戰：完成/失敗日期落在範圍內，或截止日在範圍內但仍進行中
   var chalItems = (CHALS||[]).filter(function(c){
     if(c.status==='done') return _inQRange(c.doneAt, start, end);
     if(c.status==='failed') return _inQRange(c.deadline, start, end);
@@ -3957,7 +3968,7 @@ function _computeQuarterRecap(quarterId){
   var chalFailedCount = chalItems.filter(function(c){return c.status==='failed';}).length;
   var chalActiveCount = chalItems.filter(function(c){return c.status==='active';}).length;
 
-  // 餐廳：這一季「造訪」的（依實際造訪日期 date，而非新增時間，避免事後補登被歸錯季）
+  // 餐廳：範圍內「造訪」的（依實際造訪日期 date，而非新增時間，避免事後補登被歸錯期間）
   var newRests = (RESTS||[]).filter(function(r){ return _inQRange(r.date, start, end); });
   var topRests = [];
   var withAvg = newRests.map(function(r){ return {r:r, avg:_calcAvgStar(r.ratings)}; }).filter(function(x){return x.avg>0;});
@@ -3976,7 +3987,7 @@ function _computeQuarterRecap(quarterId){
     });
   }
 
-  // 回憶錄：這一季新增的，依旅程日期排序（舊到新，說故事的順序）
+  // 回憶錄：範圍內新增的，依旅程日期排序（舊到新，說故事的順序）
   var newMems = (MEMS||[]).filter(function(m){ return _inQRange(m.dateStart, start, end); })
     .slice().sort(function(a,b){ return new Date(a.dateStart) - new Date(b.dateStart); });
   var memHighlights = newMems.map(function(m){
@@ -3986,10 +3997,10 @@ function _computeQuarterRecap(quarterId){
     };
   });
 
-  var milestones = _computeQuarterMilestones(start, end);
+  var milestones = _computeMilestones(start, end);
 
   return {
-    quarterId: quarterId,
+    id: id,
     dateStart: _localDateStr(start),
     dateEnd: _localDateStr(end),
     generatedAt: Date.now(),
@@ -4008,19 +4019,57 @@ function _computeQuarterRecap(quarterId){
     milestones: milestones
   };
 }
+function _computeQuarterRecap(quarterId){
+  var range = _quarterRange(quarterId);
+  return _computeRecapForRange(quarterId, range.start, range.end);
+}
+function _qHighlightLine(qStats){
+  if(!qStats) return '這一季的資料還沒生成';
+  var parts=[];
+  if(qStats.chalDone) parts.push(qStats.chalDone+' 個挑戰');
+  if(qStats.listDone) parts.push(qStats.listDone+' 件清單');
+  if(qStats.memCount) parts.push(qStats.memCount+' 篇回憶');
+  if(qStats.restCount) parts.push(qStats.restCount+' 間餐廳');
+  return parts.length ? parts.join('・') : '這一季比較平靜';
+}
+async function _computeYearRecap(yearId){
+  var range = _yearRange(yearId);
+  var base = _computeRecapForRange(yearId, range.start, range.end);
+  var quarterHighlights = [];
+  for(var q=1;q<=4;q++){
+    var qid = yearId+'-Q'+q;
+    var qStats = null;
+    try{
+      if(window._db && window._coupleId && window._fsOps){
+        var {doc, getDoc} = window._fsOps;
+        var snap = await getDoc(doc(window._db,'couples',window._coupleId,'recaps',qid));
+        if(snap.exists()) qStats = snap.data().stats;
+      }
+    }catch(e){}
+    if(!qStats){
+      try{ qStats = _computeQuarterRecap(qid).stats; }catch(e){ qStats=null; }
+    }
+    quarterHighlights.push({ quarterId: qid, label:'Q'+q, summary:_qHighlightLine(qStats) });
+  }
+  base.quarterHighlights = quarterHighlights;
+  return base;
+}
 
-async function _generateQuarterRecap(quarterId, opts){
+async function _generateRecap(id, opts){
   opts = opts || {};
   if(!window._db || !window._coupleId || !window._fsOps) return null;
   var {doc, getDoc, setDoc} = window._fsOps;
-  var ref = doc(window._db, 'couples', window._coupleId, 'recaps', quarterId);
+  var ref = doc(window._db, 'couples', window._coupleId, 'recaps', id);
   if(!opts.force){
     try{
       var snap = await getDoc(ref);
       if(snap.exists()) return snap.data();
     }catch(e){ console.error('[recap] 檢查是否已存在失敗', e); return null; }
   }
-  var data = _computeQuarterRecap(quarterId);
+  var data;
+  try{
+    data = _recapIsYear(id) ? await _computeYearRecap(id) : _computeQuarterRecap(id);
+  }catch(e){ console.error('[recap] 計算失敗', e); return null; }
   try{
     await setDoc(ref, data);
   }catch(e){ console.error('[recap] 寫入失敗', e); return null; }
@@ -4050,7 +4099,7 @@ async function checkQuarterlyRecaps(){
     if(!missing.length) return;
     for(var i=0;i<missing.length;i++){
       var q = missing[i];
-      var data = await _generateQuarterRecap(q, {force:false});
+      var data = await _generateRecap(q, {force:false});
       if(data){
         addNotif('『'+_quarterLabel(q)+' 回顧』已經生成囉，快去看看這段時間你們的足跡 ✨', 'recap', false, {quarterId:q});
       }
@@ -4059,49 +4108,131 @@ async function checkQuarterlyRecaps(){
 }
 window.checkQuarterlyRecaps = checkQuarterlyRecaps;
 
+function checkOnThisDay(){
+  try{
+    var todayStr = _localDateStr(new Date());
+    if(window.localStorage && localStorage.getItem('beebo_last_onthisday_check')===todayStr) return;
+    if(!MEMS || !MEMS.length){
+      if(window.localStorage) localStorage.setItem('beebo_last_onthisday_check', todayStr);
+      return;
+    }
+    var today = new Date(); today.setHours(0,0,0,0);
+    var notifiedRaw = (window.localStorage && localStorage.getItem('beebo_onthisday_notified')) || '[]';
+    var notified; try{ notified = JSON.parse(notifiedRaw); }catch(e){ notified=[]; }
+    var newlyNotified = [];
+    MEMS.forEach(function(m){
+      if(!m.dateStart) return;
+      var orig = new Date(m.dateStart);
+      if(isNaN(orig.getTime())) return;
+      var origYear = orig.getFullYear();
+      for(var yearsAgo=1; yearsAgo<=15; yearsAgo++){
+        var thisYear = today.getFullYear() - yearsAgo;
+        if(thisYear <= origYear) break;
+        var anniv = new Date(thisYear, orig.getMonth(), orig.getDate());
+        anniv.setHours(0,0,0,0);
+        var diffDays = Math.round((anniv - today)/86400000);
+        if(diffDays>=0 && diffDays<=5){
+          var key = m.id+'-'+thisYear;
+          if(notified.indexOf(key)===-1){
+            var msg = diffDays===0
+              ? '🎉 '+yearsAgo+' 年前的今天，你們一起「'+(m.title||'')+'」，要不要回去看看？'
+              : '💭 還有 '+diffDays+' 天，就是 '+yearsAgo+' 年前你們「'+(m.title||'')+'」的日子';
+            addNotif(msg, 'mem', false, {memId:m.id});
+            newlyNotified.push(key);
+          }
+        }
+      }
+    });
+    if(window.localStorage){
+      if(newlyNotified.length) localStorage.setItem('beebo_onthisday_notified', JSON.stringify(notified.concat(newlyNotified)));
+      localStorage.setItem('beebo_last_onthisday_check', todayStr);
+    }
+  }catch(e){ console.error('[checkOnThisDay]', e); }
+}
+window.checkOnThisDay = checkOnThisDay;
+
+async function checkYearlyRecaps(){
+  try{
+    if(!window._coupleData || !window._coupleData.startDate) return;
+    if(!window._db || !window._coupleId || !window._fsOps) return;
+    var {collection, getDocs} = window._fsOps;
+    var startYear = new Date(window._coupleData.startDate).getFullYear();
+    var lastCompleteYear = new Date().getFullYear() - 1;
+    if(isNaN(startYear) || lastCompleteYear < startYear) return;
+    var allYears = [];
+    for(var y=startYear; y<=lastCompleteYear; y++) allYears.push(String(y));
+    if(!allYears.length) return;
+    var snap = await getDocs(collection(window._db,'couples',window._coupleId,'recaps'));
+    var existing = {};
+    snap.forEach(function(d){ existing[d.id]=true; });
+    var missing = allYears.filter(function(y){ return !existing[y]; });
+    if(!missing.length) return;
+    for(var i=0;i<missing.length;i++){
+      var y = missing[i];
+      var data = await _generateRecap(y, {force:false});
+      if(data){
+        addNotif('『'+y+' 年度回顧』已經生成囉，一起回顧這整年的足跡 🎉', 'recap', false, {quarterId:y});
+      }
+    }
+  }catch(e){ console.error('[checkYearlyRecaps]', e); }
+}
+window.checkYearlyRecaps = checkYearlyRecaps;
+
+var _recapListMode = 'quarter';
+function setRecapListMode(m){ _recapListMode = m; renderRecapList(); }
+window.setRecapListMode = setRecapListMode;
 function renderRecapList(){
   var el = document.getElementById('recapListBody');
   if(!el) return;
   if(!window._db || !window._coupleId || !window._fsOps){ el.innerHTML=''; return; }
-  el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px 0;font-size:12px;">載入中…</div>';
+  el.innerHTML = '<div class="tabs" style="padding:0 0 4px;flex-shrink:0;">'
+    +'<div class="tab'+(_recapListMode==='quarter'?' on':'')+'" onclick="setRecapListMode(\'quarter\')">季度</div>'
+    +'<div class="tab'+(_recapListMode==='year'?' on':'')+'" onclick="setRecapListMode(\'year\')">年度</div>'
+    +'</div><div id="recapListItems" style="display:flex;flex-direction:column;gap:10px;"><div style="text-align:center;color:var(--sub);padding:20px 0;font-size:12px;">載入中…</div></div>';
   var {collection, getDocs} = window._fsOps;
   getDocs(collection(window._db,'couples',window._coupleId,'recaps')).then(function(snap){
     var list = [];
     snap.forEach(function(d){ list.push(Object.assign({id:d.id}, d.data())); });
-    list.sort(function(a,b){ return b.id.localeCompare(a.id); });
-    if(!list.length){
-      el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 20px;font-size:13px;">還沒有季度回顧唷<br>每一季結束後會自動生成 ✨</div>';
+    var filtered = list.filter(function(r){ return _recapIsYear(r.id) === (_recapListMode==='year'); });
+    filtered.sort(function(a,b){ return b.id.localeCompare(a.id); });
+    var itemsEl = document.getElementById('recapListItems');
+    if(!itemsEl) return;
+    if(!filtered.length){
+      itemsEl.innerHTML = _recapListMode==='year'
+        ? '<div style="text-align:center;color:var(--sub);padding:40px 20px;font-size:13px;">還沒有年度回顧唷<br>跨完一整年後會自動生成 🎉</div>'
+        : '<div style="text-align:center;color:var(--sub);padding:40px 20px;font-size:13px;">還沒有季度回顧唷<br>每一季結束後會自動生成 ✨</div>';
       return;
     }
-    var latestId = list[0].id;
-    el.innerHTML = '<div class="slbl">歷代回顧</div>' + list.map(function(r){
+    var latestId = filtered[0].id;
+    itemsEl.innerHTML = '<div class="slbl">歷代回顧</div>' + filtered.map(function(r){
       var isNew = r.id===latestId;
       return '<div class="qri" onclick="openRecapDetail(\''+r.id+'\')">'
         +'<div class="qri-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div>'
-        +'<div class="qri-body"><div class="qri-title">'+_quarterLabel(r.id)+(isNew?'<span class="new-badge">新</span>':'')+'</div>'
+        +'<div class="qri-body"><div class="qri-title">'+_recapListLabel(r.id)+(isNew?'<span class="new-badge">新</span>':'')+'</div>'
         +'<div class="qri-sub">'+(r.dateStart||'')+' ~ '+(r.dateEnd||'')+'</div></div>'
         +'<div class="qri-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
         +'</div>';
     }).join('');
   }).catch(function(e){
     console.error('[renderRecapList]', e);
-    el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">載入失敗，請稍後再試</div>';
+    var itemsEl2 = document.getElementById('recapListItems');
+    if(itemsEl2) itemsEl2.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">載入失敗，請稍後再試</div>';
   });
 }
 window.renderRecapList = renderRecapList;
 
 var _recapCurrentQuarterId = null;
-async function openRecapDetail(quarterId){
-  _recapCurrentQuarterId = quarterId;
+async function openRecapDetail(id){
+  _recapCurrentQuarterId = id;
   var titleEl = document.getElementById('recapDetailTitle');
-  if(titleEl) titleEl.textContent = _quarterLabel(quarterId)+' 回顧';
+  if(titleEl) titleEl.textContent = _recapDetailTitle(id);
   var el = document.getElementById('recapDetailBody');
   if(el) el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px 0;font-size:12px;">載入中…</div>';
   goPageX('recapdetail');
   if(!window._db || !window._coupleId || !window._fsOps) return;
   var {doc, getDoc} = window._fsOps;
   try{
-    var ref = doc(window._db,'couples',window._coupleId,'recaps',quarterId);
+    var ref = doc(window._db,'couples',window._coupleId,'recaps',id);
     var snap = await getDoc(ref);
     if(snap.exists()){
       _renderRecapDetail(snap.data());
@@ -4118,8 +4249,8 @@ window.openRecapDetail = openRecapDetail;
 async function refreshCurrentRecap(){
   if(!_recapCurrentQuarterId) return;
   showToast('重新整理中…');
-  var data = await _generateQuarterRecap(_recapCurrentQuarterId, {force:true});
-  if(data){ _renderRecapDetail(data); showToast('已更新這一季的回顧 ✓'); }
+  var data = await _generateRecap(_recapCurrentQuarterId, {force:true});
+  if(data){ _renderRecapDetail(data); showToast('已更新這份回顧 ✓'); }
   else showToast('更新失敗，請稍後再試');
 }
 window.refreshCurrentRecap = refreshCurrentRecap;
@@ -4139,6 +4270,16 @@ function _renderRecapDetail(r){
     +'</div>'
     +(s.restCount ? '<div class="recap-hero-tail">還多認識了 '+s.restCount+' 間好吃的店 🍽</div>' : '<div class="recap-hero-tail">靜靜地陪著彼此，也是一種幸福</div>')
     +'</div>';
+
+  var qhHtml = '';
+  if(r.quarterHighlights && r.quarterHighlights.length){
+    qhHtml = '<div class="slbl">四季亮點</div><div class="chal-list">' + r.quarterHighlights.map(function(qh){
+      return '<div class="chal-row" onclick="openRecapDetail(\''+qh.quarterId+'\')" style="cursor:pointer;">'
+        +'<div class="chal-dot" style="background:var(--accent);"></div>'
+        +'<div class="chal-name">'+qh.summary+'</div>'
+        +'<div class="chal-date">'+qh.label+'</div></div>';
+    }).join('') + '</div>';
+  }
 
   var memHtml = '';
   var mems = r.memHighlights || [];
@@ -4235,7 +4376,7 @@ function _renderRecapDetail(r){
     }).join('') + '</div>';
   }
 
-  el.innerHTML = heroHtml + memHtml + chalHtml + listHtml + restHtml + msHtml
+  el.innerHTML = heroHtml + qhHtml + memHtml + chalHtml + listHtml + restHtml + msHtml
     + '<div style="text-align:center;font-size:9px;color:var(--sub);padding:8px 0 4px;">生成於 '+_fmtQDateTime(r.generatedAt)+'</div>';
 }
 
