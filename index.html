@@ -120,6 +120,9 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .stl{font-size:10px;color:var(--sub);margin-top:2px;}
 
 /* ── 季度回顧 ── */
+.seg-toggle{display:flex;background:var(--card2);border-radius:14px;padding:4px;gap:4px;}
+.seg-btn{flex:1;text-align:center;padding:9px 0;border-radius:10px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;transition:background .15s,color .15s;}
+.seg-btn.on{background:var(--card);color:var(--accent);box-shadow:0 2px 6px var(--shd);}
 .qri{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--card);border-radius:14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
 .qri-icon{width:38px;height:38px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .qri-body{flex:1;min-width:0;}
@@ -4185,9 +4188,9 @@ function renderRecapList(){
   var el = document.getElementById('recapListBody');
   if(!el) return;
   if(!window._db || !window._coupleId || !window._fsOps){ el.innerHTML=''; return; }
-  el.innerHTML = '<div class="tabs" style="padding:0 0 4px;flex-shrink:0;">'
-    +'<div class="tab'+(_recapListMode==='quarter'?' on':'')+'" onclick="setRecapListMode(\'quarter\')">季度</div>'
-    +'<div class="tab'+(_recapListMode==='year'?' on':'')+'" onclick="setRecapListMode(\'year\')">年度</div>'
+  el.innerHTML = '<div class="seg-toggle" style="flex-shrink:0;">'
+    +'<div class="seg-btn'+(_recapListMode==='quarter'?' on':'')+'" onclick="setRecapListMode(\'quarter\')">季度</div>'
+    +'<div class="seg-btn'+(_recapListMode==='year'?' on':'')+'" onclick="setRecapListMode(\'year\')">年度</div>'
     +'</div><div id="recapListItems" style="display:flex;flex-direction:column;gap:10px;"><div style="text-align:center;color:var(--sub);padding:20px 0;font-size:12px;">載入中…</div></div>';
   var {collection, getDocs} = window._fsOps;
   getDocs(collection(window._db,'couples',window._coupleId,'recaps')).then(function(snap){
