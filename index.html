@@ -118,6 +118,56 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .stc{background:var(--card);border-radius:14px;padding:12px 13px;border:1px solid var(--bdr);box-shadow:0 2px 8px var(--shd);}
 .stn{font-size:28px;font-weight:700;color:var(--txt);word-break:break-all;}
 .stl{font-size:10px;color:var(--sub);margin-top:2px;}
+
+/* ── 季度回顧 ── */
+.qri{display:flex;align-items:center;gap:10px;padding:13px 14px;background:var(--card);border-radius:14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
+.qri-icon{width:38px;height:38px;border-radius:10px;background:var(--card2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.qri-body{flex:1;min-width:0;}
+.qri-title{font-size:14px;font-weight:700;color:var(--txt);}
+.qri-sub{font-size:11px;color:var(--sub);margin-top:2px;}
+.qri-chev{color:var(--sub);flex-shrink:0;}
+.new-badge{font-size:9px;background:#D4A870;color:#3C2810;padding:2px 7px;border-radius:8px;font-weight:700;margin-left:6px;}
+.recap-hero{background:linear-gradient(160deg,#3d6549 0%,#2a4a34 100%);border-radius:18px;padding:22px 18px 18px;color:#fff;position:relative;overflow:hidden;}
+.recap-hero::before{content:'';position:absolute;top:-40px;right:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,112,.28) 0%,transparent 70%);}
+.recap-hero::after{content:'';position:absolute;bottom:-50px;left:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10) 0%,transparent 70%);}
+.recap-hero-label{font-size:11px;opacity:.75;font-weight:600;letter-spacing:1px;position:relative;}
+.recap-hero-lead{font-size:14px;opacity:.85;margin-top:6px;position:relative;}
+.recap-hero-nums{display:flex;gap:10px;margin-top:14px;position:relative;}
+.rh-num-item{flex:1;text-align:center;}
+.rh-num{font-size:30px;font-weight:700;color:#F0C878;line-height:1;}
+.rh-num-label{font-size:10px;opacity:.8;margin-top:5px;}
+.rh-divider{width:1px;background:rgba(255,255,255,.18);}
+.recap-hero-tail{font-size:12px;opacity:.75;margin-top:14px;position:relative;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);}
+.mem-hero{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:4/3;background:var(--card2);box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
+.mem-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.7) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
+.mem-hero-title{font-size:16px;font-weight:700;color:#fff;}
+.mem-hero-meta{font-size:11px;color:rgba(255,255,255,.8);margin-top:3px;}
+.mem-strip{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;}
+.mem-thumb{flex-shrink:0;width:84px;aspect-ratio:1;border-radius:12px;background:var(--card2);position:relative;overflow:hidden;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
+.mem-thumb-label{position:absolute;bottom:0;left:0;right:0;background:rgba(26,46,32,.65);padding:3px 6px;font-size:9px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cprog2{display:flex;height:14px;border-radius:8px;overflow:hidden;margin-top:8px;}
+.legend{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;}
+.lg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub);}
+.lg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chal-list{background:var(--card);border-radius:14px;padding:4px 14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);}
+.chal-row{display:flex;align-items:center;gap:9px;padding:10px 0;border-bottom:1px solid var(--card2);}
+.chal-row:last-child{border-bottom:none;}
+.chal-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.chal-name{font-size:12.5px;color:var(--txt);flex:1;}
+.chal-date{font-size:10px;color:var(--sub);flex-shrink:0;}
+.list-group{display:flex;flex-direction:column;gap:4px;margin-bottom:6px;}
+.lg-head{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);font-weight:700;padding:2px 2px;}
+.lg-tag{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.rest-card{background:var(--card);border-radius:14px;padding:13px 14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);margin-bottom:8px;}
+.rest-name{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;}
+.rest-ratings{display:flex;gap:16px;margin-bottom:6px;}
+.rr-item{display:flex;flex-direction:column;gap:2px;}
+.rr-who{font-size:10px;color:var(--sub);font-weight:600;}
+.rr-stars{display:flex;gap:1px;}
+.rest-dish{font-size:11px;color:var(--txt);background:var(--card2);padding:5px 9px;border-radius:8px;margin-top:4px;display:inline-block;}
+.rest-note{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5;font-style:italic;}
+.rest-meta{font-size:10px;color:var(--sub);margin-top:6px;}
+.empty-hint{font-size:12px;color:var(--sub);text-align:center;padding:16px;background:var(--card2);border-radius:14px;border:1px dashed var(--bdr);}
 .cdow{font-size:10px;color:var(--sub);text-align:center;padding:4px 0;font-weight:600;}
 .cday{font-size:12px;color:var(--txt);text-align:center;padding:6px 2px;cursor:pointer;border-radius:50%;}
 .cday.has{background:var(--lt);color:var(--accent);font-weight:700;}
@@ -339,6 +389,7 @@ input[type=file]{display:none;}
     })();
 
     setTimeout(function(){ if(typeof window.checkUpcomingReminders==='function') window.checkUpcomingReminders(); }, 1000);
+    setTimeout(function(){ if(typeof window.checkQuarterlyRecaps==='function') window.checkQuarterlyRecaps(); }, 2500);
 
     // ── PIN 重置請求監聽（用 time 時間戳記去重複，避免舊狀態被重複觸發）──
     if(!window._pinResetUnsub) {
@@ -1459,8 +1510,28 @@ window.reauthenticateForPinReset = async function() {
   <div class="pt" style="position:relative;justify-content:center;">
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="9" rx="1" fill="#4A7A58" opacity=".7"/><rect x="10" y="6" width="4" height="15" rx="1" fill="#4A7A58"/><rect x="17" y="9" width="4" height="12" rx="1" fill="#4A7A58" opacity=".7"/></svg>我們的回顧
+    <button onclick="goPageX('recap')" style="position:absolute;right:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:0 4px;" title="季度回顧"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
   </div>
   <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select id="reviewYearSel" onchange="setRY(this.value)" style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="openVisitedCitiesMo()" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">約會天數</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div id="reviewChart" style="display:flex;justify-content:space-around;align-items:flex-end;height:80px;padding:14px 4px 0;gap:2px;"></div></div></div>
+</div>
+
+<!-- 季度回顧：列表 -->
+<div class="page" id="page-recap">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.6" stroke-linejoin="round"/></svg>季度回顧
+  </div>
+  <div class="sc" id="recapListBody" style="padding-top:8px;"></div>
+</div>
+
+<!-- 季度回顧：詳情 -->
+<div class="page" id="page-recapdetail">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <span id="recapDetailTitle">季度回顧</span>
+    <button onclick="refreshCurrentRecap()" style="position:absolute;right:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:0 4px;" title="重新整理"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 12a9 9 0 1 1-2.64-6.36" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round"/><path d="M21 4v5h-5" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  </div>
+  <div class="sc" id="recapDetailBody" style="padding-top:8px;"></div>
 </div>
 
 <!-- CALENDAR -->
@@ -2250,6 +2321,7 @@ function goPage(p){
     if(p==='changelog' && typeof renderChangelog==='function') renderChangelog();
     if(p==='faq') {} // 靜態頁面，不需要額外初始化
     if(p==='restaurants' && typeof fillRestCityFilter==='function') fillRestCityFilter();
+    if(p==='recap' && typeof renderRecapList==='function') renderRecapList();
     curPage=p;
     buildNavs();
   }
@@ -3449,17 +3521,19 @@ function _myNotifs() {
   });
 }
 
-function addNotif(msg, type, skipDiscord) {
+function addNotif(msg, type, skipDiscord, extra) {
   try {
     if (window._coupleId && window._fsOps) {
       var {collection, addDoc} = window._fsOps;
-      addDoc(collection(window._db, 'couples', window._coupleId, 'notifications'), {
+      var payload = {
         msg: msg,
         type: type || 'info',
         time: Date.now(),
         seenBy: [],    // 已讀（影響 badge）
         clearedBy: [] // 已清除（影響顯示）
-      }).then(function(docRef) {
+      };
+      if (extra && typeof extra === 'object') payload.data = extra;
+      addDoc(collection(window._db, 'couples', window._coupleId, 'notifications'), payload).then(function(docRef) {
         console.log('[addNotif] 寫入成功', docRef ? docRef.id : '');
       }).catch(function(e) {
         console.error('[addNotif] 寫入失敗:', e.code, e.message);
@@ -3529,13 +3603,15 @@ function renderNotifPage(){
     el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div>';
     return;
   }
-  var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅', reminder:'🔔'};
+  var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅', reminder:'🔔', recap:'✨'};
   el.innerHTML = visible.map(function(n) {
     var d = new Date(n.time);
     var ts = (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
     var isReminder = n.type === 'reminder';
     var bg = isReminder ? 'background:#FFF8E1;border:1px solid #FFE082;' : 'background:var(--card);';
-    return '<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;'+bg+'border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
+    var isRecap = n.type === 'recap' && n.data && n.data.quarterId;
+    var clickAttr = isRecap ? ' onclick="goPageX(\'recap\');setTimeout(function(){openRecapDetail(\''+n.data.quarterId+'\');},60);" style="cursor:pointer;"' : '';
+    return '<div'+clickAttr+' style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;'+bg+'border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
       +'<div style="font-size:20px;flex-shrink:0;">'+(icons[n.type]||'🔔')+'</div>'
       +'<div style="flex:1;min-width:0;">'
       +'<div style="font-size:13px;color:var(--txt);line-height:1.4;">'+n.msg+'</div>'
@@ -3768,6 +3844,393 @@ function _applyCatNames(coupleData) {
     _refreshCatUI();
   }
 }
+
+// ══════════════════════════════════════════
+// 季度回顧
+// ══════════════════════════════════════════
+function _quarterIdOf(dateVal){
+  var d = (dateVal instanceof Date) ? dateVal : new Date(dateVal);
+  var y = d.getFullYear();
+  var q = Math.floor(d.getMonth()/3)+1;
+  return y+'-Q'+q;
+}
+function _quarterRange(quarterId){
+  var parts = quarterId.split('-Q');
+  var y = parseInt(parts[0],10), q = parseInt(parts[1],10);
+  var startMonth = (q-1)*3;
+  var start = new Date(y, startMonth, 1, 0,0,0,0);
+  var end = new Date(y, startMonth+3, 0, 23,59,59,999);
+  return {start:start, end:end};
+}
+function _nextQuarterId(quarterId){
+  var parts = quarterId.split('-Q');
+  var y=parseInt(parts[0],10), q=parseInt(parts[1],10);
+  q+=1; if(q>4){q=1;y+=1;}
+  return y+'-Q'+q;
+}
+function _quarterLabel(quarterId){
+  var parts = quarterId.split('-Q');
+  return parts[0]+' 年 Q'+parts[1];
+}
+function _inQRange(dateVal, start, end){
+  if(!dateVal) return false;
+  var d = new Date(dateVal);
+  if(isNaN(d.getTime())) return false;
+  return d>=start && d<=end;
+}
+function _fmtQDate(d){
+  if(!d) return '';
+  var dt = new Date(d);
+  if(isNaN(dt.getTime())) return '';
+  return (dt.getMonth()+1)+'/'+dt.getDate();
+}
+function _fmtQDateTime(ts){
+  if(!ts) return '';
+  var d = new Date(ts);
+  if(isNaN(d.getTime())) return '';
+  return (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+}
+
+function _milestonesFromSeries(sortedArr, baseThresholds, step, labelFn, start, end, dateField){
+  var thresholds = baseThresholds.slice();
+  var maxNeeded = Math.max(sortedArr.length, thresholds[thresholds.length-1]);
+  var next = thresholds[thresholds.length-1] + step;
+  while(next <= maxNeeded){ thresholds.push(next); next += step; }
+  var out = [];
+  thresholds.forEach(function(T){
+    if(sortedArr.length >= T){
+      var item = sortedArr[T-1];
+      var d = item[dateField];
+      if(_inQRange(d, start, end)) out.push({label:labelFn(T), date:d});
+    }
+  });
+  return out;
+}
+function _computeQuarterMilestones(start, end){
+  var out = [];
+  var doneList = LIST.filter(function(it){return it.done && it.doneAt;})
+    .slice().sort(function(a,b){ return new Date(a.doneAt)-new Date(b.doneAt); });
+  out = out.concat(_milestonesFromSeries(doneList, [20,50,100], 50, function(n){ return '清單滿 '+n+' 項'; }, start, end, 'doneAt'));
+
+  var doneChal = CHALS.filter(function(c){return c.status==='done' && c.doneAt;})
+    .slice().sort(function(a,b){ return new Date(a.doneAt)-new Date(b.doneAt); });
+  out = out.concat(_milestonesFromSeries(doneChal, [10,20,50], 50, function(n){ return '完成第 '+n+' 個挑戰'; }, start, end, 'doneAt'));
+
+  var addedRest = RESTS.filter(function(r){return r.createdAt;})
+    .slice().sort(function(a,b){ return new Date(a.createdAt)-new Date(b.createdAt); });
+  out = out.concat(_milestonesFromSeries(addedRest, [10,30,50], 50, function(n){ return '記錄第 '+n+' 間餐廳'; }, start, end, 'createdAt'));
+
+  return out;
+}
+
+function _computeQuarterRecap(quarterId){
+  var range = _quarterRange(quarterId);
+  var start = range.start, end = range.end;
+
+  // 清單：這一季完成的項目，依分類分組
+  var listDoneItems = (LIST||[]).filter(function(it){ return it.done && _inQRange(it.doneAt, start, end); });
+  var listGroups = {};
+  listDoneItems.forEach(function(it){
+    var key = it.c || '未分類';
+    if(!listGroups[key]) listGroups[key] = [];
+    listGroups[key].push({ id: it.id, name: it.n, doneAt: it.doneAt });
+  });
+
+  // 挑戰：完成/失敗日期落在這一季，或截止日在這一季但仍進行中
+  var chalItems = (CHALS||[]).filter(function(c){
+    if(c.status==='done') return _inQRange(c.doneAt, start, end);
+    if(c.status==='failed') return _inQRange(c.deadline, start, end);
+    if(c.status==='active') return _inQRange(c.deadline, start, end);
+    return false;
+  }).map(function(c){
+    return { id:c.id, name:c.name, status:c.status, date: c.status==='done'?c.doneAt:c.deadline };
+  });
+  var chalDoneCount = chalItems.filter(function(c){return c.status==='done';}).length;
+  var chalFailedCount = chalItems.filter(function(c){return c.status==='failed';}).length;
+  var chalActiveCount = chalItems.filter(function(c){return c.status==='active';}).length;
+
+  // 餐廳：這一季新增的
+  var newRests = (RESTS||[]).filter(function(r){ return _inQRange(r.createdAt, start, end); });
+  var topRests = [];
+  var withAvg = newRests.map(function(r){ return {r:r, avg:_calcAvgStar(r.ratings)}; }).filter(function(x){return x.avg>0;});
+  if(withAvg.length){
+    var maxAvg = Math.max.apply(null, withAvg.map(function(x){return x.avg;}));
+    var myUid = window.currentUser&&window.currentUser.uid;
+    var pUid = window.partnerData&&window.partnerData.uid;
+    topRests = withAvg.filter(function(x){return x.avg===maxAvg;}).map(function(x){
+      var r=x.r;
+      return {
+        id:r.id, name:r.name, avg:x.avg,
+        myStar: (myUid&&r.ratings&&typeof r.ratings[myUid]==='number')?r.ratings[myUid]:null,
+        partnerStar: (pUid&&r.ratings&&typeof r.ratings[pUid]==='number')?r.ratings[pUid]:null,
+        dish:r.dish||'', note:r.note||'', date:r.date||'', city:r.city||r.foreignCity||''
+      };
+    });
+  }
+
+  // 回憶錄：這一季新增的，依旅程日期排序（舊到新，說故事的順序）
+  var newMems = (MEMS||[]).filter(function(m){ return _inQRange(m.dateStart, start, end); })
+    .slice().sort(function(a,b){ return new Date(a.dateStart) - new Date(b.dateStart); });
+  var memHighlights = newMems.map(function(m){
+    return {
+      id:m.id, title:m.title||'', dateStart:m.dateStart||'', dateEnd:m.dateEnd||'', city:m.city||'',
+      cover: m.coverPhoto || (m.photos&&m.photos[0]) || ''
+    };
+  });
+
+  var milestones = _computeQuarterMilestones(start, end);
+
+  return {
+    quarterId: quarterId,
+    dateStart: start.toISOString().split('T')[0],
+    dateEnd: end.toISOString().split('T')[0],
+    generatedAt: Date.now(),
+    stats: {
+      listDone: listDoneItems.length,
+      chalDone: chalDoneCount,
+      chalFailed: chalFailedCount,
+      chalActive: chalActiveCount,
+      restCount: newRests.length,
+      memCount: newMems.length
+    },
+    listGroups: listGroups,
+    challenges: chalItems,
+    topRests: topRests,
+    memHighlights: memHighlights,
+    milestones: milestones
+  };
+}
+
+async function _generateQuarterRecap(quarterId, opts){
+  opts = opts || {};
+  if(!window._db || !window._coupleId || !window._fsOps) return null;
+  var {doc, getDoc, setDoc} = window._fsOps;
+  var ref = doc(window._db, 'couples', window._coupleId, 'recaps', quarterId);
+  if(!opts.force){
+    try{
+      var snap = await getDoc(ref);
+      if(snap.exists()) return snap.data();
+    }catch(e){ console.error('[recap] 檢查是否已存在失敗', e); return null; }
+  }
+  var data = _computeQuarterRecap(quarterId);
+  try{
+    await setDoc(ref, data);
+  }catch(e){ console.error('[recap] 寫入失敗', e); return null; }
+  return data;
+}
+
+async function checkQuarterlyRecaps(){
+  try{
+    if(!window._coupleData || !window._coupleData.startDate) return;
+    if(!window._db || !window._coupleId || !window._fsOps) return;
+    var {collection, getDocs} = window._fsOps;
+    var startQ = _quarterIdOf(window._coupleData.startDate);
+    var nowQ = _quarterIdOf(new Date());
+    var allQuarters = [];
+    var cursor = startQ;
+    var guard = 0;
+    while(cursor !== nowQ && guard < 200){
+      allQuarters.push(cursor);
+      cursor = _nextQuarterId(cursor);
+      guard++;
+    }
+    if(!allQuarters.length) return;
+    var snap = await getDocs(collection(window._db,'couples',window._coupleId,'recaps'));
+    var existing = {};
+    snap.forEach(function(d){ existing[d.id]=true; });
+    var missing = allQuarters.filter(function(q){ return !existing[q]; });
+    if(!missing.length) return;
+    for(var i=0;i<missing.length;i++){
+      var q = missing[i];
+      var data = await _generateQuarterRecap(q, {force:false});
+      if(data){
+        addNotif('『'+_quarterLabel(q)+' 回顧』已經生成囉，快去看看這段時間你們的足跡 ✨', 'recap', false, {quarterId:q});
+      }
+    }
+  }catch(e){ console.error('[checkQuarterlyRecaps]', e); }
+}
+window.checkQuarterlyRecaps = checkQuarterlyRecaps;
+
+function renderRecapList(){
+  var el = document.getElementById('recapListBody');
+  if(!el) return;
+  if(!window._db || !window._coupleId || !window._fsOps){ el.innerHTML=''; return; }
+  el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px 0;font-size:12px;">載入中…</div>';
+  var {collection, getDocs} = window._fsOps;
+  getDocs(collection(window._db,'couples',window._coupleId,'recaps')).then(function(snap){
+    var list = [];
+    snap.forEach(function(d){ list.push(Object.assign({id:d.id}, d.data())); });
+    list.sort(function(a,b){ return b.id.localeCompare(a.id); });
+    if(!list.length){
+      el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 20px;font-size:13px;">還沒有季度回顧唷<br>每一季結束後會自動生成 ✨</div>';
+      return;
+    }
+    var latestId = list[0].id;
+    el.innerHTML = '<div class="slbl">歷代回顧</div>' + list.map(function(r){
+      var isNew = r.id===latestId;
+      return '<div class="qri" onclick="openRecapDetail(\''+r.id+'\')">'
+        +'<div class="qri-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.5" stroke-linejoin="round"/></svg></div>'
+        +'<div class="qri-body"><div class="qri-title">'+_quarterLabel(r.id)+(isNew?'<span class="new-badge">新</span>':'')+'</div>'
+        +'<div class="qri-sub">'+(r.dateStart||'')+' ~ '+(r.dateEnd||'')+'</div></div>'
+        +'<div class="qri-chev"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
+        +'</div>';
+    }).join('');
+  }).catch(function(e){
+    console.error('[renderRecapList]', e);
+    el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">載入失敗，請稍後再試</div>';
+  });
+}
+window.renderRecapList = renderRecapList;
+
+var _recapCurrentQuarterId = null;
+async function openRecapDetail(quarterId){
+  _recapCurrentQuarterId = quarterId;
+  var titleEl = document.getElementById('recapDetailTitle');
+  if(titleEl) titleEl.textContent = _quarterLabel(quarterId)+' 回顧';
+  var el = document.getElementById('recapDetailBody');
+  if(el) el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px 0;font-size:12px;">載入中…</div>';
+  goPageX('recapdetail');
+  if(!window._db || !window._coupleId || !window._fsOps) return;
+  var {doc, getDoc} = window._fsOps;
+  try{
+    var ref = doc(window._db,'couples',window._coupleId,'recaps',quarterId);
+    var snap = await getDoc(ref);
+    if(snap.exists()){
+      _renderRecapDetail(snap.data());
+    } else if(el){
+      el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 20px;font-size:13px;">找不到這份回顧</div>';
+    }
+  }catch(e){
+    console.error('[openRecapDetail]', e);
+    if(el) el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:20px;font-size:12px;">載入失敗，請稍後再試</div>';
+  }
+}
+window.openRecapDetail = openRecapDetail;
+
+async function refreshCurrentRecap(){
+  if(!_recapCurrentQuarterId) return;
+  showToast('重新整理中…');
+  var data = await _generateQuarterRecap(_recapCurrentQuarterId, {force:true});
+  if(data){ _renderRecapDetail(data); showToast('已更新這一季的回顧 ✓'); }
+  else showToast('更新失敗，請稍後再試');
+}
+window.refreshCurrentRecap = refreshCurrentRecap;
+
+function _renderRecapDetail(r){
+  var el = document.getElementById('recapDetailBody');
+  if(!el) return;
+  var s = r.stats || {};
+
+  var heroHtml = '<div class="recap-hero">'
+    +'<div class="recap-hero-label">'+(r.dateStart||'')+' ~ '+(r.dateEnd||'')+'</div>'
+    +'<div class="recap-hero-lead">這一季，你們一起——</div>'
+    +'<div class="recap-hero-nums">'
+      +'<div class="rh-num-item"><div class="rh-num">'+(s.chalDone||0)+'</div><div class="rh-num-label">個挑戰完成</div></div>'
+      +'<div class="rh-divider"></div>'
+      +'<div class="rh-num-item"><div class="rh-num">'+(s.listDone||0)+'</div><div class="rh-num-label">件清單劃掉</div></div>'
+      +'<div class="rh-divider"></div>'
+      +'<div class="rh-num-item"><div class="rh-num">'+(s.memCount||0)+'</div><div class="rh-num-label">段新回憶</div></div>'
+    +'</div>'
+    +(s.restCount ? '<div class="recap-hero-tail">還多認識了 '+s.restCount+' 間好吃的店 🍽</div>' : '<div class="recap-hero-tail">靜靜地陪著彼此，也是一種幸福</div>')
+    +'</div>';
+
+  var memHtml = '';
+  var mems = r.memHighlights || [];
+  if(mems.length){
+    var hero = mems[mems.length-1];
+    var rest = mems.slice(0, mems.length-1);
+    memHtml = '<div class="slbl">這一季的畫面</div>';
+    if(hero.cover){
+      memHtml += '<div class="mem-hero" style="background-image:url(\''+hero.cover+'\');background-size:cover;background-position:center;" onclick="openMemDetail(\''+hero.id+'\')">'
+        +'<div class="mem-hero-overlay"><div class="mem-hero-title">'+(hero.title||'')+'</div>'
+        +'<div class="mem-hero-meta">'+(hero.dateStart||'')+(hero.city?'・'+hero.city:'')+'</div></div></div>';
+    }
+    if(rest.length){
+      memHtml += '<div class="mem-strip">' + rest.map(function(m){
+        return '<div class="mem-thumb" style="background-image:url(\''+(m.cover||'')+'\');background-size:cover;background-position:center;" onclick="openMemDetail(\''+m.id+'\')">'
+          +'<div class="mem-thumb-label">'+(m.title||'')+'</div></div>';
+      }).join('') + '</div>';
+    }
+  } else {
+    memHtml = '<div class="slbl">這一季的畫面</div><div class="empty-hint">這一季還沒新增回憶錄，快把最近的點滴記錄下來吧 📷</div>';
+  }
+
+  var chalList = r.challenges || [];
+  var chalHtml = '<div class="slbl">挑戰完成狀況</div>';
+  if(chalList.length){
+    var total = chalList.length;
+    var doneN=s.chalDone||0, failN=s.chalFailed||0, actN=s.chalActive||0;
+    var doneW=(doneN/total*100), failW=(failN/total*100), actW=(actN/total*100);
+    chalHtml += '<div class="card"><div class="cl2">共 '+total+' 個挑戰</div>'
+      +'<div class="cprog2">'
+        +(doneW?'<div style="width:'+doneW+'%;background:var(--accent);"></div>':'')
+        +(failW?'<div style="width:'+failW+'%;background:#c62828;"></div>':'')
+        +(actW?'<div style="width:'+actW+'%;background:var(--bdr);"></div>':'')
+      +'</div>'
+      +'<div class="legend">'
+        +'<div class="lg-item"><div class="lg-dot" style="background:var(--accent);"></div>已完成 '+doneN+'</div>'
+        +'<div class="lg-item"><div class="lg-dot" style="background:#c62828;"></div>已失敗 '+failN+'</div>'
+        +'<div class="lg-item"><div class="lg-dot" style="background:var(--bdr);"></div>進行中 '+actN+'</div>'
+      +'</div></div>'
+      +'<div class="chal-list" style="margin-top:8px;">' + chalList.map(function(c){
+        var color = c.status==='done'?'var(--accent)':c.status==='failed'?'#c62828':'var(--bdr)';
+        var dateTxt = c.status==='done' ? _fmtQDate(c.date)+' 完成' : c.status==='failed' ? _fmtQDate(c.date)+' 截止未完成' : '進行中';
+        return '<div class="chal-row"><div class="chal-dot" style="background:'+color+';"></div><div class="chal-name">'+(c.name||'')+'</div><div class="chal-date">'+dateTxt+'</div></div>';
+      }).join('') + '</div>';
+  } else {
+    chalHtml += '<div class="empty-hint">這一季沒有相關的挑戰</div>';
+  }
+
+  var listHtml = '<div class="slbl">這一季完成的清單</div>';
+  var groups = r.listGroups || {};
+  var groupKeys = Object.keys(groups);
+  if(groupKeys.length){
+    var palette = ['#D4A870','#7BA88C','#8C9ED1','#C98A9E'];
+    listHtml += groupKeys.map(function(key,i){
+      var items = groups[key];
+      return '<div class="list-group"><div class="lg-head"><div class="lg-tag" style="background:'+palette[i%palette.length]+';"></div>'+getCatName(key)+'</div>'
+        +'<div class="chal-list">' + items.map(function(it){
+          return '<div class="chal-row"><div class="chal-name">'+(it.name||'')+'</div><div class="chal-date">'+_fmtQDate(it.doneAt)+'</div></div>';
+        }).join('') + '</div></div>';
+    }).join('');
+  } else {
+    listHtml += '<div class="empty-hint">這一季還沒有劃掉的清單項目</div>';
+  }
+
+  var restHtml = '<div class="slbl">這一季的美味回憶</div>';
+  var topRests = r.topRests || [];
+  if(topRests.length){
+    var myName = (window.userData&&window.userData.name)||'你';
+    var pName = (window.partnerData&&window.partnerData.name)||'對方';
+    restHtml += topRests.map(function(rr){
+      return '<div class="rest-card">'
+        +'<div class="rest-name">'+(rr.name||'')+'</div>'
+        +'<div class="rest-ratings">'
+          +'<div class="rr-item"><div class="rr-who">'+myName+'</div><div class="rr-stars">'+(typeof rr.myStar==='number'?_renderStars(rr.myStar,13):'<span style="font-size:10px;color:var(--sub);">未評分</span>')+'</div></div>'
+          +'<div class="rr-item"><div class="rr-who">'+pName+'</div><div class="rr-stars">'+(typeof rr.partnerStar==='number'?_renderStars(rr.partnerStar,13):'<span style="font-size:10px;color:var(--sub);">未評分</span>')+'</div></div>'
+        +'</div>'
+        +(rr.dish?'<div class="rest-dish">🍽 '+rr.dish+'</div>':'')
+        +(rr.note?'<div class="rest-note">「'+rr.note+'」</div>':'')
+        +'<div class="rest-meta">'+(rr.city||'')+(rr.date?'・'+_fmtQDate(rr.date)+' 造訪':'')+'</div>'
+        +'</div>';
+    }).join('');
+  } else {
+    restHtml += '<div class="empty-hint">這一季還沒有兩人都按讚的口袋名單，快去補評分吧 🍽</div>';
+  }
+
+  var msHtml = '';
+  var milestones = r.milestones || [];
+  if(milestones.length){
+    msHtml = '<div class="slbl">里程碑</div><div class="ag">' + milestones.map(function(ms){
+      return '<div class="ach"><div class="achi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#D4A870"/></svg></div>'
+        +'<div class="achn">'+ms.label+'</div><div class="achd">'+_fmtQDate(ms.date)+' 達成</div></div>';
+    }).join('') + '</div>';
+  }
+
+  el.innerHTML = heroHtml + memHtml + chalHtml + listHtml + restHtml + msHtml
+    + '<div style="text-align:center;font-size:9px;color:var(--sub);padding:8px 0 4px;">生成於 '+_fmtQDateTime(r.generatedAt)+'</div>';
+}
+
 function _refreshCatUI() {
   // 更新所有分類下拉選單的顯示名稱
   var selIds = ['newLC','editListCat','listCatSel'];
