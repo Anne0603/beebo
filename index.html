@@ -1470,7 +1470,7 @@ window.reauthenticateForPinReset = async function() {
 
     </div>
     </div>
-    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.2.0 · 版本記錄 ›</div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.3.0 · 版本記錄 ›</div>
   </div>
   <div class="bnav" id="bnav-settings"></div>
 </div>
@@ -4503,6 +4503,10 @@ function _checkIsAdmin(){
 
 // ── 版本記錄（純程式碼，由開發者更新，所有人都能看到）──
 var _CHANGELOG_DEFAULT = [
+  {ver:'1.3.0', date:'2026-07-09', title:'年度回顧＋那年今日 🎉', items:[
+    '📅 季度回顧新增「季度/年度」切換：跨完一整年會自動生成年度總結，含四季亮點摘要',
+    '💭 那年今日：過去的回憶錄週年將至（提前5天）會收到通知，點擊直接回顧當時的紀錄'
+  ]},
   {ver:'1.2.0', date:'2026-07-09', title:'季度回顧上線 ✨', items:[
     '📊 全新「季度回顧」：每季自動生成、可回顧歷代季度，含總覽數字、挑戰完成狀況、清單完成分類、美味回憶（雙人星等）、回憶錄精選、里程碑徽章',
     '🔄 支援手動重新整理單一季度（適合事後補登過去資料時使用）',
