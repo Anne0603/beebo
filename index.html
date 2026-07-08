@@ -4153,9 +4153,11 @@ function _renderRecapDetail(r){
         +'<div class="mem-hero-meta">'+(hero.dateStart||'')+(hero.city?'・'+hero.city:'')+'</div></div></div>';
     }
     if(rest.length){
-      memHtml += '<div class="mem-strip">' + rest.map(function(m){
-        return '<div class="mem-thumb" style="background-image:url(\''+(m.cover||'')+'\');background-size:cover;background-position:center;" onclick="openMemDetail(\''+m.id+'\')">'
-          +'<div class="mem-thumb-label">'+(m.title||'')+'</div></div>';
+      memHtml += '<div class="chal-list" style="margin-top:8px;">' + rest.map(function(m){
+        return '<div class="chal-row" onclick="openMemDetail(\''+m.id+'\')" style="cursor:pointer;">'
+          +'<div class="chal-dot" style="background:var(--accent);"></div>'
+          +'<div class="chal-name">'+(m.title||'')+(m.city?'・'+m.city:'')+'</div>'
+          +'<div class="chal-date">'+_fmtQDate(m.dateStart)+'</div></div>';
       }).join('') + '</div>';
     }
   } else {
