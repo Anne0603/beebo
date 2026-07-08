@@ -1468,7 +1468,7 @@ window.reauthenticateForPinReset = async function() {
 
     </div>
     </div>
-    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.1.0 · 版本記錄 ›</div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.2.0 · 版本記錄 ›</div>
   </div>
   <div class="bnav" id="bnav-settings"></div>
 </div>
@@ -4362,6 +4362,13 @@ function _checkIsAdmin(){
 
 // ── 版本記錄（純程式碼，由開發者更新，所有人都能看到）──
 var _CHANGELOG_DEFAULT = [
+  {ver:'1.2.0', date:'2026-07-09', title:'季度回顧上線 ✨', items:[
+    '📊 全新「季度回顧」：每季自動生成、可回顧歷代季度，含總覽數字、挑戰完成狀況、清單完成分類、美味回憶（雙人星等）、回憶錄精選、里程碑徽章',
+    '🔄 支援手動重新整理單一季度（適合事後補登過去資料時使用）',
+    '🔔 季度回顧生成會發送通知，點擊可直接跳轉到該季詳情',
+    '📷 修正回憶錄封面照功能：改為直接從已上傳照片中選擇設定，不用再重新上傳；同步修正列表縮圖未套用封面的問題',
+    '🐛 修正多項日期判讀問題（挑戰/餐廳的系統時間戳記解析、時區換算少一天）'
+  ]},
   {ver:'1.1.0', date:'2026-07-05', title:'正式上線 🚀', items:[
     '🍽️ 餐廳雙人評分（半顆星、待評標籤、評分橫幅、7天提醒）',
     '💡 靈感題庫重設計（清單/挑戰分類、匯入匯出、加入後自動移除）',
