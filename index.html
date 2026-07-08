@@ -127,17 +127,14 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .qri-sub{font-size:11px;color:var(--sub);margin-top:2px;}
 .qri-chev{color:var(--sub);flex-shrink:0;}
 .new-badge{font-size:9px;background:#D4A870;color:#3C2810;padding:2px 7px;border-radius:8px;font-weight:700;margin-left:6px;}
-.recap-hero{background:linear-gradient(160deg,#3d6549 0%,#2a4a34 100%);border-radius:18px;padding:22px 18px 18px;color:#fff;position:relative;overflow:hidden;}
-.recap-hero::before{content:'';position:absolute;top:-40px;right:-30px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(212,168,112,.28) 0%,transparent 70%);}
-.recap-hero::after{content:'';position:absolute;bottom:-50px;left:-20px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10) 0%,transparent 70%);}
-.recap-hero-label{font-size:11px;opacity:.75;font-weight:600;letter-spacing:1px;position:relative;}
-.recap-hero-lead{font-size:14px;opacity:.85;margin-top:6px;position:relative;}
-.recap-hero-nums{display:flex;gap:10px;margin-top:14px;position:relative;}
+.recap-hero{background:radial-gradient(circle at 88% 6%,rgba(212,168,112,.30) 0%,transparent 42%),radial-gradient(circle at -4% 104%,rgba(255,255,255,.12) 0%,transparent 38%),linear-gradient(160deg,#3d6549 0%,#2a4a34 100%);border-radius:18px;padding:22px 18px 18px;color:#fff;}
+.recap-hero-label{font-size:11px;opacity:.75;font-weight:600;letter-spacing:1px;}
+.recap-hero-lead{font-size:14px;opacity:.85;margin-top:6px;}
+.recap-hero-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px;}
 .rh-num-item{flex:1;text-align:center;}
 .rh-num{font-size:30px;font-weight:700;color:#F0C878;line-height:1;}
 .rh-num-label{font-size:10px;opacity:.8;margin-top:5px;}
-.rh-divider{width:1px;background:rgba(255,255,255,.18);}
-.recap-hero-tail{font-size:12px;opacity:.75;margin-top:14px;position:relative;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);}
+.recap-hero-tail{font-size:12px;opacity:.75;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);}
 .mem-hero{border-radius:16px;overflow:hidden;position:relative;width:100%;height:0;padding-bottom:100%;background:var(--card2);box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
 .mem-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.7) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
 .mem-hero-title{font-size:16px;font-weight:700;color:#fff;}
@@ -4133,9 +4130,7 @@ function _renderRecapDetail(r){
     +'<div class="recap-hero-lead">這一季，你們一起——</div>'
     +'<div class="recap-hero-nums">'
       +'<div class="rh-num-item"><div class="rh-num">'+(s.chalDone||0)+'</div><div class="rh-num-label">個挑戰完成</div></div>'
-      +'<div class="rh-divider"></div>'
       +'<div class="rh-num-item"><div class="rh-num">'+(s.listDone||0)+'</div><div class="rh-num-label">件清單劃掉</div></div>'
-      +'<div class="rh-divider"></div>'
       +'<div class="rh-num-item"><div class="rh-num">'+(s.memCount||0)+'</div><div class="rh-num-label">段新回憶</div></div>'
     +'</div>'
     +(s.restCount ? '<div class="recap-hero-tail">還多認識了 '+s.restCount+' 間好吃的店 🍽</div>' : '<div class="recap-hero-tail">靜靜地陪著彼此，也是一種幸福</div>')
