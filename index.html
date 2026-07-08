@@ -138,7 +138,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .rh-num-label{font-size:10px;opacity:.8;margin-top:5px;}
 .rh-divider{width:1px;background:rgba(255,255,255,.18);}
 .recap-hero-tail{font-size:12px;opacity:.75;margin-top:14px;position:relative;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);}
-.mem-hero{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:4/3;background:var(--card2);box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
+.mem-hero{border-radius:16px;overflow:hidden;position:relative;aspect-ratio:1;background:var(--card2);box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
 .mem-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.7) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
 .mem-hero-title{font-size:16px;font-weight:700;color:#fff;}
 .mem-hero-meta{font-size:11px;color:rgba(255,255,255,.8);margin-top:3px;}
@@ -4229,7 +4229,7 @@ function _renderRecapDetail(r){
   var milestones = r.milestones || [];
   if(milestones.length){
     msHtml = '<div class="slbl">里程碑</div><div class="ag">' + milestones.map(function(ms){
-      return '<div class="ach"><div class="achi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="#D4A870"/></svg></div>'
+      return '<div class="ach"><div class="achi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" stroke="#D4A870" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>'
         +'<div class="achn">'+ms.label+'</div><div class="achd">'+_fmtQDate(ms.date)+' 達成</div></div>';
     }).join('') + '</div>';
   }
