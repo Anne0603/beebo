@@ -127,7 +127,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .qri-sub{font-size:11px;color:var(--sub);margin-top:2px;}
 .qri-chev{color:var(--sub);flex-shrink:0;}
 .new-badge{font-size:9px;background:#D4A870;color:#3C2810;padding:2px 7px;border-radius:8px;font-weight:700;margin-left:6px;}
-.recap-hero{background:radial-gradient(circle at 88% 6%,rgba(212,168,112,.30) 0%,transparent 42%),radial-gradient(circle at -4% 104%,rgba(255,255,255,.12) 0%,transparent 38%),linear-gradient(160deg,#3d6549 0%,#2a4a34 100%);border-radius:18px;padding:22px 18px 18px;color:#fff;}
+.recap-hero{background:radial-gradient(circle at 88% 6%,rgba(212,168,112,.30) 0%,transparent 42%),radial-gradient(circle at -4% 104%,rgba(255,255,255,.12) 0%,transparent 38%),linear-gradient(160deg,#3d6549 0%,#2a4a34 100%);border-radius:18px;padding:22px 18px 18px;color:#fff;transform:translateZ(0);-webkit-transform:translateZ(0);isolation:isolate;}
 .recap-hero-label{font-size:11px;opacity:.75;font-weight:600;letter-spacing:1px;}
 .recap-hero-lead{font-size:14px;opacity:.85;margin-top:6px;}
 .recap-hero-nums{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px;}
@@ -135,7 +135,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .rh-num{font-size:30px;font-weight:700;color:#F0C878;line-height:1;}
 .rh-num-label{font-size:10px;opacity:.8;margin-top:5px;}
 .recap-hero-tail{font-size:12px;opacity:.75;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);}
-.mem-hero{border-radius:16px;overflow:hidden;position:relative;width:100%;height:0;padding-bottom:100%;background:var(--card2);box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);cursor:pointer;}
+.mem-hero{border-radius:16px;overflow:hidden;position:relative;width:100%;height:0;padding-bottom:100%;background:var(--card2);box-shadow:0 3px 12px var(--shd);border:1px solid var(--bdr);cursor:pointer;transform:translateZ(0);-webkit-transform:translateZ(0);isolation:isolate;}
 .mem-hero-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.7) 100%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
 .mem-hero-title{font-size:16px;font-weight:700;color:#fff;}
 .mem-hero-meta{font-size:11px;color:rgba(255,255,255,.8);margin-top:3px;}
@@ -3882,6 +3882,10 @@ function _toJSDate(val){
   var d = new Date(val);
   return isNaN(d.getTime()) ? null : d;
 }
+function _localDateStr(d){
+  var y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,'0'), day=String(d.getDate()).padStart(2,'0');
+  return y+'-'+m+'-'+day;
+}
 function _fmtQDate(d){
   if(!d) return '';
   var dt = _toJSDate(d);
@@ -3986,8 +3990,8 @@ function _computeQuarterRecap(quarterId){
 
   return {
     quarterId: quarterId,
-    dateStart: start.toISOString().split('T')[0],
-    dateEnd: end.toISOString().split('T')[0],
+    dateStart: _localDateStr(start),
+    dateEnd: _localDateStr(end),
     generatedAt: Date.now(),
     stats: {
       listDone: listDoneItems.length,
