@@ -1510,7 +1510,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="pt" style="position:relative;justify-content:center;">
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="12" width="4" height="9" rx="1" fill="#4A7A58" opacity=".7"/><rect x="10" y="6" width="4" height="15" rx="1" fill="#4A7A58"/><rect x="17" y="9" width="4" height="12" rx="1" fill="#4A7A58" opacity=".7"/></svg>我們的回顧
-    <button onclick="goPageX('recap')" style="position:absolute;right:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:0 4px;" title="季度回顧"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
+    <button onclick="goPageX('recap')" style="position:absolute;right:14px;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;padding:6px;" title="季度回顧"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" stroke="#4A7A58" stroke-width="1.6" stroke-linejoin="round"/></svg></button>
   </div>
   <div class="sc"><div style="padding:0 0 4px;flex-shrink:0;"><select id="reviewYearSel" onchange="setRY(this.value)" style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:13px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="全部">全部時間</option></select></div><div class="stg"><div class="stc"><div class="stn" id="stat-days">—</div><div class="stl">在一起天數</div></div><div class="stc"><div class="stn" id="stat-photos">0</div><div class="stl">上傳照片</div></div><div class="stc" onclick="goPage('list')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-listdone">0</div><div class="stl">完成清單</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('achievements')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-chaldone">0</div><div class="stl">完成挑戰</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="openVisitedCitiesMo()" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-cities">0</div><div class="stl">去過縣市</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc" onclick="goPageX('restaurants')" style="cursor:pointer;"><div class="stn" style="color:var(--accent);" id="stat-rests">0</div><div class="stl">記錄餐廳</div><div style="font-size:9px;color:var(--accent);margin-top:1px;">查看 ›</div></div><div class="stc"><div class="stn" id="stat-msgs">0</div><div class="stl">留言則數</div></div><div class="stc"><div class="stn" id="stat-streak">0</div><div class="stl">連續留言天</div></div><div class="stc"><div class="stn" id="stat-dates">0</div><div class="stl">約會天數</div></div></div><div class="card" style="margin-top:4px;"><div class="cl2" style="margin-bottom:6px;">每月約會次數</div><div id="reviewChart" style="display:flex;justify-content:space-around;align-items:flex-end;height:80px;padding:14px 4px 0;gap:2px;"></div></div></div>
 </div>
@@ -3874,14 +3874,21 @@ function _quarterLabel(quarterId){
 }
 function _inQRange(dateVal, start, end){
   if(!dateVal) return false;
-  var d = new Date(dateVal);
-  if(isNaN(d.getTime())) return false;
+  var d = _toJSDate(dateVal);
+  if(!d) return false;
   return d>=start && d<=end;
+}
+function _toJSDate(val){
+  if(!val) return null;
+  if(typeof val.toDate === 'function') return val.toDate(); // Firestore Timestamp
+  if(val instanceof Date) return val;
+  var d = new Date(val);
+  return isNaN(d.getTime()) ? null : d;
 }
 function _fmtQDate(d){
   if(!d) return '';
-  var dt = new Date(d);
-  if(isNaN(dt.getTime())) return '';
+  var dt = _toJSDate(d);
+  if(!dt) return '';
   return (dt.getMonth()+1)+'/'+dt.getDate();
 }
 function _fmtQDateTime(ts){
@@ -3909,15 +3916,15 @@ function _milestonesFromSeries(sortedArr, baseThresholds, step, labelFn, start, 
 function _computeQuarterMilestones(start, end){
   var out = [];
   var doneList = LIST.filter(function(it){return it.done && it.doneAt;})
-    .slice().sort(function(a,b){ return new Date(a.doneAt)-new Date(b.doneAt); });
+    .slice().sort(function(a,b){ return _toJSDate(a.doneAt) - _toJSDate(b.doneAt); });
   out = out.concat(_milestonesFromSeries(doneList, [20,50,100], 50, function(n){ return '清單滿 '+n+' 項'; }, start, end, 'doneAt'));
 
   var doneChal = CHALS.filter(function(c){return c.status==='done' && c.doneAt;})
-    .slice().sort(function(a,b){ return new Date(a.doneAt)-new Date(b.doneAt); });
+    .slice().sort(function(a,b){ return _toJSDate(a.doneAt) - _toJSDate(b.doneAt); });
   out = out.concat(_milestonesFromSeries(doneChal, [10,20,50], 50, function(n){ return '完成第 '+n+' 個挑戰'; }, start, end, 'doneAt'));
 
   var addedRest = RESTS.filter(function(r){return r.createdAt;})
-    .slice().sort(function(a,b){ return new Date(a.createdAt)-new Date(b.createdAt); });
+    .slice().sort(function(a,b){ return _toJSDate(a.createdAt) - _toJSDate(b.createdAt); });
   out = out.concat(_milestonesFromSeries(addedRest, [10,30,50], 50, function(n){ return '記錄第 '+n+' 間餐廳'; }, start, end, 'createdAt'));
 
   return out;
