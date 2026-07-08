@@ -3691,6 +3691,18 @@ function _achCard(name, date, locked){
   var dateLabel = locked ? '未解鎖' : (date ? '✓ '+date : '已完成');
   return '<div class="ach'+(locked?' locked':'')+'"><div class="achi">'+svg+'</div><div class="achn">'+name+'</div><div class="achd">'+dateLabel+'</div></div>';
 }
+function _achMilestoneCards(sortedArr, thresholds, dateField, labelFn){
+  return thresholds.map(function(T){
+    var unlocked = sortedArr.length >= T;
+    var dateStr = '';
+    if(unlocked){
+      var item = sortedArr[T-1];
+      var d = _toJSDate(item[dateField]);
+      if(d) dateStr = d.getFullYear()+'.'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'.'+(d.getDate()<10?'0':'')+d.getDate();
+    }
+    return _achCard(labelFn(T), dateStr, !unlocked);
+  }).join('');
+}
 function _renderSysAch(){
   var el=document.getElementById('sysAchList');
   if(!el)return;
@@ -3702,13 +3714,21 @@ function _renderSysAch(){
   function fmtDate(d){return d.getFullYear()+'.'+(d.getMonth()+1<10?'0':'')+(d.getMonth()+1)+'.'+(d.getDate()<10?'0':'')+d.getDate();}
   var milestoneDays=[30,100,200,365,500,730,1000,1095,1460,1825,2000,3000,5000,10000];
   var milestoneLabels={30:'一個月',100:'百日',365:'一週年',730:'兩週年',1000:'千日',1095:'三週年',1460:'四週年',1825:'五週年',10000:'一萬天 💍'};
-  var html='';
+  var html='<div style="grid-column:1/-1;" class="slbl">在一起天數</div>';
   milestoneDays.forEach(function(m){
     var unlocked=days>=m;
     var dateStr=unlocked?fmtDate(new Date(start.getTime()+(m-1)*86400000)):'';
     var label='在一起 '+m+' 天'+(milestoneLabels[m]?' · '+milestoneLabels[m]:'');
     html+=_achCard(label,dateStr,!unlocked);
   });
+  var chalDoneArr = (CHALS||[]).filter(function(c){return c.status==='done' && c.doneAt;}).slice().sort(function(a,b){return _toJSDate(a.doneAt)-_toJSDate(b.doneAt);});
+  var listDoneArr = (LIST||[]).filter(function(it){return it.done && it.doneAt;}).slice().sort(function(a,b){return _toJSDate(a.doneAt)-_toJSDate(b.doneAt);});
+  var restArr = (RESTS||[]).filter(function(r){return r.date;}).slice().sort(function(a,b){return _toJSDate(a.date)-_toJSDate(b.date);});
+  var memArr = (MEMS||[]).filter(function(m){return m.dateStart;}).slice().sort(function(a,b){return _toJSDate(a.dateStart)-_toJSDate(b.dateStart);});
+  html += '<div style="grid-column:1/-1;" class="slbl">挑戰里程碑</div>' + _achMilestoneCards(chalDoneArr, [5,10,20,30,50,75,100], 'doneAt', function(n){return '完成 '+n+' 個挑戰';});
+  html += '<div style="grid-column:1/-1;" class="slbl">清單里程碑</div>' + _achMilestoneCards(listDoneArr, [20,50,100,150,200,300,500], 'doneAt', function(n){return '完成 '+n+' 件清單';});
+  html += '<div style="grid-column:1/-1;" class="slbl">餐廳里程碑</div>' + _achMilestoneCards(restArr, [10,20,30,50,75,100], 'date', function(n){return '記錄 '+n+' 間餐廳';});
+  html += '<div style="grid-column:1/-1;" class="slbl">回憶錄里程碑</div>' + _achMilestoneCards(memArr, [5,10,20,30,50,75,100], 'dateStart', function(n){return '寫下 '+n+' 篇回憶錄';});
   el.innerHTML=html;
   // 挑戰成就
   var achList=document.getElementById('achList');
