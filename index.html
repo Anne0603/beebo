@@ -5291,7 +5291,18 @@ function renderMemory(){
   body.innerHTML='';
   var grid=document.createElement('div');
   grid.style.cssText='display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px;';
+  var _lastYearGroup = null;
   items.forEach(function(m){
+    if(!yr){
+      var mYear = m.year || (m.dateStart ? parseInt(m.dateStart.slice(0,4)) : null);
+      if(mYear && mYear !== _lastYearGroup){
+        _lastYearGroup = mYear;
+        var divider=document.createElement('div');
+        divider.style.cssText='grid-column:1/-1;display:flex;align-items:center;gap:10px;padding:14px 2px 2px;';
+        divider.innerHTML='<span style="font-size:15px;font-weight:700;color:var(--txt);white-space:nowrap;">'+mYear+' 年</span><div style="flex:1;height:1px;background:var(--bdr);"></div>';
+        grid.appendChild(divider);
+      }
+    }
     var card=document.createElement('div');
     card.className='mc';
     var hasPhoto = m.photos && m.photos.length;
