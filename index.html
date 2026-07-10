@@ -407,6 +407,7 @@ input[type=file]{display:none;}
         window._coupleData.cloudinaryPreset = data.cloudinaryPreset || '';
         if(typeof window.DISCORD_WEBHOOK !== 'undefined') window.DISCORD_WEBHOOK = data.discordWebhook || '';
         if(data.listCatNames && typeof _applyCatNames === 'function') _applyCatNames(data);
+        if(data.chalCatNames && typeof _applyChalCatNames === 'function') _applyChalCatNames(data);
         if(data.appName && typeof _applyAppName === 'function') _applyAppName(data.appName);
         // 重新計算管理員狀態（backupAdmins/adminUids 變動時即時更新）
         (function(){
@@ -830,6 +831,7 @@ window.startPairingCountdown = function(expiry, el) {
     window._db = db;
     window._applyStartDate(window._coupleData.startDate || '');
     if (typeof _applyCatNames === 'function') _applyCatNames(window._coupleData);
+    if (typeof _applyChalCatNames === 'function') _applyChalCatNames(window._coupleData);
     if (typeof _applyAppName === 'function') _applyAppName(window._coupleData.appName || '');
 
     // ── 自我修復：舊配對兩邊都沒有 isAdmin=true，把目前這個使用者設為管理員 ──
@@ -2827,13 +2829,36 @@ function addRestTypeItem() {
   showToast('已新增類型 ✓');
 }
 
-// ── 挑戰分類管理 ──
+// ── 挑戰分類管理（Firestore 同步，兩人共用） ──
 var DEFAULT_CHAL_CATS = ['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
+var _chalCatsCache = null;
 function getChalCats() {
-  try { return JSON.parse(localStorage.getItem('beebo_chal_cats') || 'null') || DEFAULT_CHAL_CATS.slice(); }
-  catch(e) { return DEFAULT_CHAL_CATS.slice(); }
+  if(_chalCatsCache && _chalCatsCache.length) return _chalCatsCache.slice();
+  // 尚未從 Firestore 載入前的暫時後備值（含舊版 localStorage 遺留資料，避免閃爍成預設值）
+  try {
+    var legacy = JSON.parse(localStorage.getItem('beebo_chal_cats') || 'null');
+    if(legacy && legacy.length) return legacy.slice();
+  } catch(e) {}
+  return DEFAULT_CHAL_CATS.slice();
 }
-function saveChalCats(cats) { localStorage.setItem('beebo_chal_cats', JSON.stringify(cats)); }
+async function saveChalCats(cats) {
+  _chalCatsCache = cats.slice();
+  if(window._db && window._coupleId && window._fsOps){
+    try{
+      var {doc, setDoc} = window._fsOps;
+      await setDoc(doc(window._db,'couples',window._coupleId), {chalCatNames: cats}, {merge:true});
+    }catch(e){ console.error('[saveChalCats]', e); }
+  }
+}
+function _applyChalCatNames(coupleData){
+  if(coupleData && Array.isArray(coupleData.chalCatNames) && coupleData.chalCatNames.length){
+    _chalCatsCache = coupleData.chalCatNames;
+    if(typeof renderChalCatSelects==='function') renderChalCatSelects();
+    if(typeof renderChalCatMg==='function') renderChalCatMg();
+    if(typeof renderChal==='function') renderChal();
+    if(typeof renderInspire==='function') renderInspire();
+  }
+}
 function openChalCatMo() { renderChalCatMg(); openMo('chalCatMo'); }
 // ── APP 名稱自訂 ──
 function _applyAppName(name){
@@ -5110,17 +5135,7 @@ function spawnHearts(){
 }
 
 
-// ── 挑戰分類管理 ──
-var DEFAULT_CHAL_CATS = ['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
-function getChalCats() {
-  try {
-    var stored = localStorage.getItem('beebo_chal_cats');
-    return stored ? JSON.parse(stored) : DEFAULT_CHAL_CATS.slice();
-  } catch(e) { return DEFAULT_CHAL_CATS.slice(); }
-}
-function saveChalCats(cats) {
-  localStorage.setItem('beebo_chal_cats', JSON.stringify(cats));
-}
+// ── 挑戰分類下拉選單 ──
 function renderChalCatSelects() {
   var cats = getChalCats();
   var opts = cats.map(function(c){ return '<option>'+c+'</option>'; }).join('');
