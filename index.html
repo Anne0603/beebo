@@ -2965,6 +2965,8 @@ async function saveCatNames(){
   if(window._coupleData) window._coupleData.listCatNames = names;
   _catCustomNames = names;
   _refreshCatUI();
+  if(typeof renderList==='function') renderList();
+  if(typeof renderInspire==='function') renderInspire();
   closeMo('catRenameMo');
   showToast('分類名稱已更新 ✓（兩人即時生效）');
 }
@@ -3867,6 +3869,8 @@ function _applyCatNames(coupleData) {
   if (coupleData && coupleData.listCatNames) {
     _catCustomNames = coupleData.listCatNames;
     _refreshCatUI();
+    if(typeof renderList==='function') renderList();
+    if(typeof renderInspire==='function') renderInspire();
   }
 }
 
@@ -4780,7 +4784,7 @@ function renderInspire(){
       ? '<button onclick="addChalFromInspire(\''+i.n.replace(/'/g,'\\\'')+'\',' + '\''+i.c.replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;">加入挑戰</button>'
       : '<button onclick="addFromInspire(\''+i.n.replace(/'/g,'\\\'')+'\',' + '\''+i.c.replace(/'/g,'\\\'')+'\')" style="padding:5px 12px;border-radius:10px;background:var(--accent);border:none;color:#fff;font-size:12px;font-weight:600;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;">加入清單</button>';
     return '<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:var(--card2);border-radius:12px;border:1px solid var(--bdr);">'
-      +'<div><div style="font-size:13px;font-weight:600;color:var(--txt);">'+i.n+'</div><div style="font-size:10px;color:var(--sub);">'+i.c+'</div></div>'
+      +'<div><div style="font-size:13px;font-weight:600;color:var(--txt);">'+i.n+'</div><div style="font-size:10px;color:var(--sub);">'+getCatName(i.c)+'</div></div>'
       +btn+'</div>';
   }).join('');
 }
