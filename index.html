@@ -5404,8 +5404,12 @@ async function addMem(){
   if(_memPhotoFiles.length){
     var uploadBtn = document.querySelector('#addMemMo .btn2.bpri');
     if(uploadBtn){ uploadBtn.textContent='上傳中...'; uploadBtn.disabled=true; }
-    showToast('上傳照片中，請稍候...');
-    photos=await _uploadMemPhotos(_memPhotoFiles);
+    showUploadOverlay();
+    try{
+      photos=await _uploadMemPhotos(_memPhotoFiles);
+    }finally{
+      hideUploadOverlay();
+    }
   }
   var {collection,addDoc,serverTimestamp}=window._fsOps;
   var docRef=await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
