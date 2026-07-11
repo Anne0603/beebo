@@ -3009,7 +3009,13 @@ function _renderFixListCatBody(){
     el.innerHTML = '<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">目前沒有分類異常的項目 👍</div>';
     return;
   }
-  el.innerHTML = '<div style="font-size:12px;color:var(--accent);font-weight:600;">共 '+orphans.length+' 筆異常項目</div>' + orphans.map(function(it){
+  var bulkOpts = _CAT_KEYS.map(function(k){ return '<option value="'+k+'">'+getCatName(k)+'</option>'; }).join('');
+  var bulkHtml = '<div style="display:flex;align-items:center;gap:8px;padding:10px;background:var(--lt);border-radius:10px;">'
+    +'<div style="font-size:12px;color:var(--txt);font-weight:600;flex-shrink:0;">全部改成</div>'
+    +'<select id="fixCatBulkSel" style="flex:1;font-size:12px;padding:5px 6px;border-radius:8px;border:1px solid var(--bdr);background:var(--card);">'+bulkOpts+'</select>'
+    +'<button onclick="fixAllOrphanListCat()" style="all:unset;font-size:11px;color:#fff;background:var(--accent);padding:7px 12px;border-radius:8px;cursor:pointer;flex-shrink:0;">一鍵套用全部</button>'
+    +'</div>';
+  el.innerHTML = bulkHtml + '<div style="font-size:12px;color:var(--accent);font-weight:600;">共 '+orphans.length+' 筆異常項目（也可以逐筆個別調整）</div>' + orphans.map(function(it){
     var opts = _CAT_KEYS.map(function(k){ return '<option value="'+k+'">'+getCatName(k)+'</option>'; }).join('');
     return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;">'
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--txt);">'+(it.n||'')+'</div><div style="font-size:10px;color:var(--sub);">目前：'+(it.c||'（空白）')+'</div></div>'
@@ -3017,6 +3023,22 @@ function _renderFixListCatBody(){
       +'<button onclick="fixOrphanListCat(\''+it.id+'\')" style="all:unset;font-size:11px;color:#fff;background:var(--accent);padding:6px 10px;border-radius:8px;cursor:pointer;flex-shrink:0;">修復</button>'
       +'</div>';
   }).join('');
+}
+async function fixAllOrphanListCat(){
+  var sel = document.getElementById('fixCatBulkSel');
+  var newCat = sel ? sel.value : _CAT_KEYS[0];
+  if(!window._db || !window._coupleId || !window._fsOps){ showToast('請先配對'); return; }
+  var orphans = (LIST||[]).filter(function(it){ return !_CAT_KEYS.includes(it.c); });
+  if(!orphans.length){ showToast('沒有需要修復的項目'); return; }
+  showToast('修復中…');
+  try{
+    var {doc, updateDoc} = window._fsOps;
+    for(var i=0;i<orphans.length;i++){
+      await updateDoc(doc(window._db,'couples',window._coupleId,'list',orphans[i].id), {c: newCat});
+    }
+    showToast('已修復 '+orphans.length+' 筆 ✓');
+    _renderFixListCatBody();
+  }catch(e){ console.error('[fixAllOrphanListCat]', e); showToast('修復失敗，請稍後再試'); }
 }
 async function fixOrphanListCat(itemId){
   var sel = document.getElementById('fixCat-'+itemId);
@@ -3031,6 +3053,7 @@ async function fixOrphanListCat(itemId){
 }
 window.openFixListCatMo = openFixListCatMo;
 window.fixOrphanListCat = fixOrphanListCat;
+window.fixAllOrphanListCat = fixAllOrphanListCat;
 function _isChalCatInUse(cat){
   return (CHALS||[]).some(function(ch){ return ch.cat === cat; });
 }
