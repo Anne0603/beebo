@@ -1314,7 +1314,7 @@ window.reauthenticateForPinReset = async function() {
   </div>
   <div class="sc" id="memBody"></div>
   <div class="sc" id="quoteBody" style="display:none;"></div>
-  <button class="fab" onclick="memTab==='photo'?openMo('addMemMo'):openMo('addQuoteMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+  <button class="fab" onclick="memTab==='photo'?openAddMemMo():openMo('addQuoteMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
   <div class="bnav" id="bnav-memory"></div>
 </div>
 
@@ -5380,7 +5380,19 @@ function renderMemory(){
   // 新增按鈕已移到右下角 FAB，不在格子裡
   body.appendChild(grid);
 }
-var _addMemSubmitting = false;
+function openAddMemMo(){
+  _memPhotoFiles=[]; _memLinkedRests=[]; _memLinkedItems=[];
+  ['newMemTitle','newMemNote','newMemFCity','newMemDate1','newMemDate2'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.value='';
+  });
+  var mc=document.getElementById('newMemCity'); if(mc) mc.value='';
+  var mff=document.getElementById('memForeignFields'); if(mff) mff.style.display='none';
+  var lr=document.getElementById('linkedRests'); if(lr) lr.textContent='';
+  var li=document.getElementById('linkedItems'); if(li) li.textContent='';
+  var photoPreview=document.getElementById('memPhotoPreview'); if(photoPreview) photoPreview.innerHTML='';
+  openMo('addMemMo');
+}
+window.openAddMemMo = openAddMemMo;
 async function addMem(){
   if(_addMemSubmitting){showToast('建立中，請稍候...');return;}
   var title=(document.getElementById('newMemTitle')||{}).value||'';
