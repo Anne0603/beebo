@@ -1467,6 +1467,7 @@ window.reauthenticateForPinReset = async function() {
       </div>
       <div class="sr" onclick="openAppNameMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">APP 名稱設定</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openCatRenameMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/></svg></div><div class="slb">清單分類改名</div></div><div class="sv">›</div></div>
+      <div class="sr" onclick="openFixListCatMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" stroke="#A87848" stroke-width="1.5" stroke-linecap="round"/><path d="M9 11l3 3L22 4" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="slb">修復清單分類異常項目</div></div><div class="sv">›</div></div>
       <div class="sr" onclick="openChalCatMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.5" fill="#A87848"/></svg></div><div class="slb">管理挑戰分類</div></div></div>
 
 <div class="sr" onclick="openLocationMgMo()"><div class="sl"><div class="si"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" stroke="#A87848" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="10" r="3" stroke="#A87848" stroke-width="1.5"/></svg></div><div class="slb">管理常用地點</div></div><div class="sv" id="locationMgSv">›</div></div>
@@ -2079,6 +2080,7 @@ window.reauthenticateForPinReset = async function() {
 <div class="mo" id="appNameMo"><div class="mbox"><div class="mh"><span class="mtit">APP 名稱設定</span><button class="mcl" onclick="closeMo('appNameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div style="font-size:12px;color:var(--sub);">修改後兩人的 APP 名稱都會即時更新。</div><div style="font-size:11px;background:#FFF8E1;border:1px solid #FFE082;border-radius:10px;padding:8px 10px;color:#856404;">⚠️ 主畫面捷徑的名稱不會自動更新，如需更改請刪除後重新加入主畫面。</div><div class="fg"><label class="fl">APP 名稱</label><input class="fi" id="appNameInput" placeholder="嗶啵" maxlength="10"></div><button class="btn2 bpri" onclick="saveAppName()">儲存</button></div></div></div>
 
 <div class="mo" id="catRenameMo"><div class="mbox"><div class="mh"><span class="mtit">清單分類改名</span><button class="mcl" onclick="closeMo('catRenameMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:11px;color:var(--sub);">修改後兩人都會看到新名稱。舊資料不受影響。</div><div class="fg"><label class="fl">分類 1（原：想去哪）</label><input class="fi" id="catRename1" placeholder="想去哪"></div><div class="fg"><label class="fl">分類 2（原：想吃什麼）</label><input class="fi" id="catRename2" placeholder="想吃什麼"></div><div class="fg"><label class="fl">分類 3（原：想做什麼）</label><input class="fi" id="catRename3" placeholder="想做什麼"></div><div class="fg"><label class="fl">分類 4（原：想看什麼）</label><input class="fi" id="catRename4" placeholder="想看什麼"></div><button class="btn2 bpri" onclick="saveCatNames()">儲存</button></div></div></div>
+<div class="mo" id="fixListCatMo"><div class="mbox"><div class="mh"><span class="mtit">修復清單分類異常項目</span><button class="mcl" onclick="closeMo('fixListCatMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div style="font-size:11px;color:var(--sub);">早期版本有個 bug：改分類名稱時，新增中的項目可能存到舊的顯示文字而不是固定代號，導致這些項目「分類對不上」。這裡列出所有異常項目，選一個目標分類，一次全部修好。</div><div id="fixListCatBody" style="display:flex;flex-direction:column;gap:8px;"></div></div></div></div>
 
 <div class="mo" id="chalCatMo"><div class="mbox"><div class="mh"><span class="mtit">管理挑戰分類</span><button class="mcl" onclick="closeMo('chalCatMo')">×</button></div>
 <div id="chalCatList" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
@@ -2134,7 +2136,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="fg"><label class="fl">日期</label><input class="fi" type="date" id="quoteDate"></div>
   <button class="btn2 bpri" onclick="saveQuote()">儲存語錄</button>
 </div></div></div>
-<div class="mo" id="addListMo"><div class="mbox"><div class="mh"><span class="mtit">新增清單項目</span><button class="mcl" onclick="closeMo('addListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱</label><input class="fi" id="newLN" placeholder="想去哪裡？想吃什麼？"></div><div class="fg"><label class="fl">分類</label><select class="fsel" id="newLC"><option>想去哪</option><option>想吃什麼</option><option>想做什麼</option><option>想看什麼</option></select></div><button class="btn2 bpri" onclick="addListItem()">新增</button></div></div></div>
+<div class="mo" id="addListMo"><div class="mbox"><div class="mh"><span class="mtit">新增清單項目</span><button class="mcl" onclick="closeMo('addListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱</label><input class="fi" id="newLN" placeholder="想去哪裡？想吃什麼？"></div><div class="fg"><label class="fl">分類</label><select class="fsel" id="newLC"><option value="想去哪">想去哪</option><option value="想吃什麼">想吃什麼</option><option value="想做什麼">想做什麼</option><option value="想看什麼">想看什麼</option></select></div><button class="btn2 bpri" onclick="addListItem()">新增</button></div></div></div>
 <div class="mo" id="editListMo"><div class="mbox"><div class="mh"><span class="mtit">編輯清單項目</span><button class="mcl" onclick="closeMo('editListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱（必填）</label><input class="fi" id="editListName" placeholder="項目名稱"></div><div class="fg"><label class="fl">分類</label><select class="fi" id="editListCat" style="padding:8px 10px;"><option value="想去哪">想去哪</option><option value="想吃什麼">想吃什麼</option><option value="想做什麼">想做什麼</option><option value="想看什麼">想看什麼</option></select></div><button class="btn2 bpri" onclick="saveEditListItem()">儲存</button></div></div></div>
 
 <div class="mo" id="completeListMo"><div class="mbox"><div class="mh"><span class="mtit" id="compTitle">完成！</span><button class="mcl" onclick="closeMo('completeListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">完成日期</label><input type="date" class="fi" id="compDoneDate" style="padding:8px 10px;"></div><div class="fg"><label class="fl">心得（選填）</label><textarea class="fi" rows="2" placeholder="寫下感想..." style="resize:none;"></textarea></div><label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt);cursor:pointer;"><input type="checkbox" style="accent-color:var(--accent);width:16px;height:16px;">想再去／做一次（自動新增一筆）</label><button class="btn2 bpri" id="compDoneBtn">完成</button></div></div></div>
@@ -2995,6 +2997,40 @@ async function saveCatNames(){
   closeMo('catRenameMo');
   showToast('分類名稱已更新 ✓（兩人即時生效）');
 }
+function openFixListCatMo(){
+  _renderFixListCatBody();
+  openMo('fixListCatMo');
+}
+function _renderFixListCatBody(){
+  var el = document.getElementById('fixListCatBody');
+  if(!el) return;
+  var orphans = (LIST||[]).filter(function(it){ return !_CAT_KEYS.includes(it.c); });
+  if(!orphans.length){
+    el.innerHTML = '<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">目前沒有分類異常的項目 👍</div>';
+    return;
+  }
+  el.innerHTML = '<div style="font-size:12px;color:var(--accent);font-weight:600;">共 '+orphans.length+' 筆異常項目</div>' + orphans.map(function(it){
+    var opts = _CAT_KEYS.map(function(k){ return '<option value="'+k+'">'+getCatName(k)+'</option>'; }).join('');
+    return '<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;">'
+      +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:var(--txt);">'+(it.n||'')+'</div><div style="font-size:10px;color:var(--sub);">目前：'+(it.c||'（空白）')+'</div></div>'
+      +'<select id="fixCat-'+it.id+'" style="font-size:12px;padding:4px 6px;border-radius:8px;border:1px solid var(--bdr);background:var(--card);">'+opts+'</select>'
+      +'<button onclick="fixOrphanListCat(\''+it.id+'\')" style="all:unset;font-size:11px;color:#fff;background:var(--accent);padding:6px 10px;border-radius:8px;cursor:pointer;flex-shrink:0;">修復</button>'
+      +'</div>';
+  }).join('');
+}
+async function fixOrphanListCat(itemId){
+  var sel = document.getElementById('fixCat-'+itemId);
+  var newCat = sel ? sel.value : _CAT_KEYS[0];
+  if(!window._db || !window._coupleId || !window._fsOps){ showToast('請先配對'); return; }
+  try{
+    var {doc, updateDoc} = window._fsOps;
+    await updateDoc(doc(window._db,'couples',window._coupleId,'list',itemId), {c: newCat});
+    showToast('已修復 ✓');
+    _renderFixListCatBody();
+  }catch(e){ console.error('[fixOrphanListCat]', e); showToast('修復失敗'); }
+}
+window.openFixListCatMo = openFixListCatMo;
+window.fixOrphanListCat = fixOrphanListCat;
 function _isChalCatInUse(cat){
   return (CHALS||[]).some(function(ch){ return ch.cat === cat; });
 }
