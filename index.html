@@ -6600,6 +6600,8 @@ function openEditMemMo(id){
   _memLinkedRests = (m.linkedRests||[]).slice();
   _memLinkedItems = (m.linkedItems||[]).slice();
   _memPhotoFiles = [];
+  var pendingPrev = document.getElementById('editMemPhotoPreview');
+  if(pendingPrev) pendingPrev.innerHTML = '';
 
   // 填入現有值
   var t=document.getElementById('editMemTitle'); if(t) t.value=m.title||'';
