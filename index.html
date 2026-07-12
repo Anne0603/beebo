@@ -3777,6 +3777,22 @@ function _renderSysAch(){
     var qcEl=document.querySelector('#page-home .qn');
   }
 }
+function _computeSysAchUnlockedCount(){
+  var count = 0;
+  if(window._coupleData && window._coupleData.startDate){
+    var start2=new Date(window._coupleData.startDate); start2.setHours(0,0,0,0);
+    var today2=new Date(); today2.setHours(0,0,0,0);
+    var days2=Math.floor((today2-start2)/86400000)+1;
+    var milestoneDays=[30,100,200,365,500,730,1000,1095,1460,1825,2000,3000,5000,10000];
+    count += milestoneDays.filter(function(m){return days2>=m;}).length;
+  }
+  function crossed(len, thresholds){ return thresholds.filter(function(T){return len>=T;}).length; }
+  count += crossed((CHALS||[]).filter(function(c){return c.status==='done' && c.doneAt;}).length, [5,10,20,30,50,75,100]);
+  count += crossed((LIST||[]).filter(function(it){return it.done && it.doneAt;}).length, [20,50,100,150,200,300,500]);
+  count += crossed((RESTS||[]).filter(function(r){return r.date;}).length, [10,20,30,50,75,100]);
+  count += crossed((MEMS||[]).filter(function(m){return m.dateStart;}).length, [5,10,20,30,50,75,100]);
+  return count;
+}
 function _updateStats() {
   _renderSysAch();
   // 留言總數
@@ -3788,15 +3804,8 @@ function _updateStats() {
   var chalCountEl = document.getElementById('chalCount');
   if (chalCountEl) chalCountEl.textContent = '共 ' + CHALS.filter(function(c){return c.status==='active';}).length + ' 個';
   var doneCnt = CHALS.filter(function(c){return c.status==='done';}).length;
-  // 系統成就：計算已解鎖的天數里程碑數量
-  var sysCnt = 0;
-  if(window._coupleData && window._coupleData.startDate){
-    var start2=new Date(window._coupleData.startDate); start2.setHours(0,0,0,0);
-    var today2=new Date(); today2.setHours(0,0,0,0);
-    var days2=Math.floor((today2-start2)/86400000)+1;
-    var milestoneDays=[30,100,200,365,500,730,1000,1095,1460,1825,2000,3000,5000,10000];
-    sysCnt = milestoneDays.filter(function(m){return days2>=m;}).length;
-  }
+  // 系統成就：所有里程碑類別（天數/挑戰/清單/餐廳/回憶錄）已解鎖總數
+  var sysCnt = _computeSysAchUnlockedCount();
   var achCountEl = document.getElementById('achCount');
   if (achCountEl) achCountEl.textContent = (doneCnt + sysCnt) + ' 個';
 
