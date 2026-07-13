@@ -2099,6 +2099,8 @@ window.reauthenticateForPinReset = async function() {
   <button onclick="openImportInspireMo()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📥 匯入靈感</button>
   <button onclick="exportInspireJSON()" style="flex:1;all:unset;text-align:center;padding:8px;border-radius:10px;background:var(--card2);border:1px solid var(--bdr);font-size:11px;color:var(--txt);cursor:pointer;font-family:'Noto Sans TC',sans-serif;">📤 匯出</button>
 </div>
+<div id="inspireListMg" style="display:flex;flex-direction:column;max-height:220px;overflow-y:auto;margin-bottom:10px;"></div>
+<div id="inspireChalMg" style="display:none;flex-direction:column;max-height:220px;overflow-y:auto;margin-bottom:10px;"></div>
 <div style="display:flex;flex-direction:column;gap:8px;">
   <div style="font-size:12px;font-weight:700;color:var(--txt);">快速新增靈感</div>
   <input class="fi" id="newInspireName" placeholder="靈感名稱..." style="font-size:13px;">
@@ -2229,14 +2231,6 @@ function showConfirmMo(msg, onConfirm) {
   window._confirmCallback = onConfirm;
   openMo('confirmMo');
 }
-function doConfirm() {
-  closeMo('confirmMo');
-  if (typeof window._confirmCallback === 'function') window._confirmCallback();
-  window._confirmCallback = null;
-}
-
-
-
 function clearAllInspire(){
   confirmAction('清空所有靈感？下次開啟將恢復預設 50 筆。', function(){
     localStorage.removeItem('beebo_inspire');
@@ -2269,6 +2263,11 @@ function switchInspireTab(tab,el){
       catSel.innerHTML=chalCats.map(function(c){return '<option value="'+c+'">'+c+'</option>';}).join('');
     }
   }
+  var mgListEl=document.getElementById('inspireListMg');
+  var mgChalEl=document.getElementById('inspireChalMg');
+  if(mgListEl) mgListEl.style.display = tab==='list' ? 'flex' : 'none';
+  if(mgChalEl) mgChalEl.style.display = tab==='chal' ? 'flex' : 'none';
+  if(typeof renderInspireMg==='function') renderInspireMg(tab);
   if(typeof renderInspire==='function') renderInspire();
 }
 
@@ -3117,14 +3116,6 @@ function _getDefaultInspire(){
     {n:'一起去看一場運動賽事',c:'娛樂類'},{n:'拍一組情侶寫真照片',c:'感情類'},
   ];
 }
-function _getInspireData(){ try{ var d=localStorage.getItem('beebo_inspire'); return d?JSON.parse(d):null; }catch(e){return null;} }
-function _saveInspireData(d){ localStorage.setItem('beebo_inspire',JSON.stringify(d)); }
-function openInspireMgMo(){
-  var data=_getInspireData()||_getDefaultInspire();
-  if(!_getInspireData()) _saveInspireData(data);
-  openMo('inspireMgMo');
-  setTimeout(function(){ switchInspireTab('list',document.getElementById('itab-list')); renderInspireMg('list'); },50);
-}
 function renderInspireMg(tab){
   var data=_getInspireData()||_getDefaultInspire();
   // 清單靈感
@@ -3143,11 +3134,12 @@ function renderInspireMg(tab){
             +'</div>';
         }).join('')+'</div>';
     }).join('');
+    if(!listEl.innerHTML.trim()) listEl.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">目前沒有清單靈感</div>';
   }
   // 挑戰靈感
   var chalEl=document.getElementById('inspireChalMg');
   if(chalEl){
-    var chalCats=['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
+    var chalCats=typeof getChalCats==='function'?getChalCats():['探索類','飲食類','運動類','創作類','感情類','娛樂類','學習類','其他'];
     chalEl.innerHTML=chalCats.map(function(cat){
       var items=data.filter(function(i){return i.c===cat;});
       if(!items.length) return '';
@@ -3159,25 +3151,14 @@ function renderInspireMg(tab){
             +'</div>';
         }).join('')+'</div>';
     }).join('');
+    if(!chalEl.innerHTML.trim()) chalEl.innerHTML='<div style="text-align:center;color:var(--sub);font-size:12px;padding:16px;">目前沒有挑戰靈感</div>';
   }
 }
 function delInspireItem(name){
   var data=_getInspireData()||_getDefaultInspire();
   _saveInspireData(data.filter(function(i){return i.n!==name;}));
-  renderInspireMg('list');
-}
-function addInspireItem() {
-  var nEl=document.getElementById('newInspireName');
-  var cEl=document.getElementById('newInspireCat');
-  var n=(nEl&&nEl.value.trim())||'';
-  var cat=(cEl&&cEl.value)||'想去哪';
-  if(!n){showToast('請輸入名稱');return;}
-  var data=_getInspireData()||_getDefaultInspire();
-  data.push({n:n,c:cat});
-  _saveInspireData(data);
-  if(nEl) nEl.value='';
-  renderInspireMg('list');
-  showToast('已新增 ✓');
+  var isChalTab = document.getElementById('itab-chal') && document.getElementById('itab-chal').classList.contains('itab-on');
+  renderInspireMg(isChalTab ? 'chal' : 'list');
 }
 
 // ── Discord 測試 ──
@@ -6245,8 +6226,11 @@ function _saveInspireData(data){
 function openInspireMgMo(){
   var data=_getInspireData()||_getDefaultInspire();
   if(!_getInspireData())_saveInspireData(data);
-  renderInspireMg('list');
   openMo('inspireMgMo');
+  setTimeout(function(){
+    switchInspireTab('list', document.getElementById('itab-list'));
+    renderInspireMg('list');
+  }, 50);
 }
 
 
