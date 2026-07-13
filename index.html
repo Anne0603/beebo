@@ -1481,7 +1481,7 @@ window.reauthenticateForPinReset = async function() {
 
     </div>
     </div>
-    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.3.0 · 版本記錄 ›</div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.4.0 · 版本記錄 ›</div>
   </div>
   <div class="bnav" id="bnav-settings"></div>
 </div>
@@ -4535,6 +4535,16 @@ function _checkIsAdmin(){
 
 // ── 版本記錄（純程式碼，由開發者更新，所有人都能看到）──
 var _CHANGELOG_DEFAULT = [
+  {ver:'1.4.0', date:'2026-07-10', title:'成就擴充＋一輪修 bug 大掃除 🧹', items:[
+    '🏆 系統成就新增四大類里程碑：完成挑戰／完成清單／記錄餐廳／寫下回憶錄，各有多階段門檻',
+    '📅 回憶錄列表新增年份分組標題，捲動瀏覽更清楚',
+    '🔧 修正清單分類改名不會即時生效、靈感題庫沒套用自訂名稱的問題，並修正根本原因（新增清單分類下拉選單漏寫固定代號）',
+    '🔧 挑戰分類清單改存 Firestore，兩人真正共用同一份，不再各自手機一份',
+    '💡 補完「靈感題庫管理」缺失的現有清單顯示區塊：原本只能新增看不到也刪不掉舊項目，這次補齊查看／刪除／分頁切換功能',
+    '📷 修正新增回憶錄漏掉上傳遮罩、新增回憶錄殘留上次編輯過的關聯餐廳／清單、編輯回憶錄照片預覽殘留舊縮圖等問題',
+    '🎯 修正首頁成就數字卡漏算新增的里程碑類別，統一計算邏輯',
+    '🔒 移除暴露 Discord webhook 網址的未使用函數；移除 Cloudinary 帳號預設 fallback，避免陌生使用者默默共用同一帳號額度，並在設定頁加上安全性提醒'
+  ]},
   {ver:'1.3.0', date:'2026-07-09', title:'年度回顧＋那年今日 🎉', items:[
     '📅 季度回顧新增「季度/年度」切換：跨完一整年會自動生成年度總結，含四季亮點摘要',
     '💭 那年今日：過去的回憶錄週年將至（提前5天）會收到通知，點擊直接回顧當時的紀錄'
