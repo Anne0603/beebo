@@ -3161,33 +3161,6 @@ function delInspireItem(name){
   renderInspireMg(isChalTab ? 'chal' : 'list');
 }
 
-// ── Discord 測試 ──
-window.testDiscord = async function() {
-  var WEBHOOK = "https://discord.com/api/webhooks/1521135615003984025/6WjvkmiuDy_-UEFNWjHEdN0xRFU_By7L_UuK6-93cF3j1_SYOoRQPPZxxEPu17J9VsSV";
-  console.log('[Discord] 開始測試...');
-  try {
-    var res = await fetch(WEBHOOK, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        username: '嗶啵 APP',
-        content: '🔔 嗶啵測試通知成功！'
-      })
-    });
-    console.log('[Discord] 狀態碼:', res.status, res.statusText);
-    if(res.ok) {
-      showToast('Discord 通知發送成功！✓');
-    } else {
-      var text = await res.text();
-      console.error('[Discord] 失敗:', text);
-      showToast('失敗: ' + res.status + ' ' + text.slice(0,50));
-    }
-  } catch(e) {
-    console.error('[Discord] 錯誤:', e);
-    showToast('錯誤: ' + e.message);
-  }
-};
-
 // ── Discord Webhook 設定管理 ──
 function openCloudinarySettingsMo(){
   var cd = window._coupleData || {};
