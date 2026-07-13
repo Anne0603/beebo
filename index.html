@@ -998,11 +998,16 @@ window.startPairingCountdown = function(expiry, el) {
     }
   };
 
-  // ── Cloudinary 上傳（cloud name 和 preset 可在設定頁自訂）──
+  // ── Cloudinary 上傳（每對情侶都需要自己在設定頁填 cloud name 和 preset，不提供預設帳號）──
   window._uploadToCloudinary = async function(file) {
     var coupleData = window._coupleData || {};
-    var cloudName = coupleData.cloudinaryCloud || 'dehesnrjp';
-    var preset = coupleData.cloudinaryPreset || 'beebo_upload';
+    var cloudName = coupleData.cloudinaryCloud || '';
+    var preset = coupleData.cloudinaryPreset || '';
+    if (!cloudName || !preset) {
+      var err = new Error('尚未設定 Cloudinary，請先到設定頁填寫 Cloud Name 與 Upload Preset');
+      err.code = 'CLOUDINARY_NOT_CONFIGURED';
+      throw err;
+    }
     var fd = new FormData();
     fd.append('file', file);
     fd.append('upload_preset', preset);
@@ -2462,7 +2467,8 @@ function handlePhoto(e){
     }
   }).catch(function(err){
     console.error(err);
-    showToast('上傳失敗，請再試');
+    if(err && err.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); }
+    else showToast('上傳失敗，請再試');
   });
 }
 
@@ -5382,6 +5388,11 @@ async function addMem(){
     showUploadOverlay();
     try{
       photos=await _uploadMemPhotos(_memPhotoFiles);
+    }catch(e){
+      if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
+      if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); }
+      else showToast('上傳失敗，請再試');
+      return;
     }finally{
       hideUploadOverlay();
     }
@@ -6507,12 +6518,13 @@ async function handleMemDetailPhotoChange(e){
   var memId = _memDetailPhotoMemId;
   showUploadOverlay();
   var urls=[];
+  var notConfigured=false;
   for(var i=0;i<files.length;i++){
     try{ urls.push(await window._uploadToCloudinary(files[i])); }
-    catch(err){ console.error(err); }
+    catch(err){ console.error(err); if(err && err.code==='CLOUDINARY_NOT_CONFIGURED') notConfigured=true; }
   }
   hideUploadOverlay();
-  if(!urls.length){ showToast('上傳失敗'); return; }
+  if(!urls.length){ showToast(notConfigured?'請先到設定頁填寫 Cloudinary 設定才能上傳照片':'上傳失敗'); return; }
   var m=MEMS.find(function(x){return x.id===memId;});
   var newPhotos=(m&&m.photos?m.photos:[]).concat(urls);
   var {doc,updateDoc}=window._fsOps;
@@ -6638,13 +6650,15 @@ async function saveEditMem(){
     if(!window._uploadToCloudinary){showToast('上傳功能載入中，請稍後再試');return;}
     showUploadOverlay();
     var newUrls=[];
+    var notConfigured2=false;
     for(var i=0;i<_memPhotoFiles.length;i++){
       try{
         var url=await window._uploadToCloudinary(_memPhotoFiles[i]);
         newUrls.push(url);
-      }catch(e){ console.error('Cloudinary upload error',e); }
+      }catch(e){ console.error('Cloudinary upload error',e); if(e && e.code==='CLOUDINARY_NOT_CONFIGURED') notConfigured2=true; }
     }
     hideUploadOverlay();
+    if(notConfigured2 && !newUrls.length){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); return; }
     existPhotos=existPhotos.concat(newUrls);
     _memPhotoFiles=[];
   }
@@ -6686,6 +6700,12 @@ async function execDeleteMem(){
 
 // addMem 上傳照片
 async function _uploadMemPhotos(files){
+  var cd = window._coupleData || {};
+  if(!cd.cloudinaryCloud || !cd.cloudinaryPreset){
+    var err = new Error('尚未設定 Cloudinary');
+    err.code = 'CLOUDINARY_NOT_CONFIGURED';
+    throw err;
+  }
   var urls=[];
   for(var i=0;i<files.length;i++){
     try{
