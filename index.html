@@ -2225,7 +2225,7 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="openLinkListForMem()" class="btn2 bsec" style="width:100%;font-size:12px;">選擇清單或挑戰</button>
     <div id="linkedItems" style="font-size:11px;color:var(--sub);margin-top:4px;"></div>
   </div>
-  <button class="btn2 bpri" onclick="alert('原生測試：有收到點擊');addMem();">建立回憶錄</button>
+  <button class="btn2 bpri" onclick="addMem()">建立回憶錄</button>
 </div></div></div>
 
 <div class="mo" id="addRestMo"><div class="mbox"><div class="mh"><span class="mtit">新增餐廳記錄</span><button class="mcl" onclick="closeMo('addRestMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">餐廳名稱（必填）</label><input class="fi" id="newRN" placeholder="餐廳名稱"></div><div class="fg"><label class="fl">評分（必填）</label><div style="display:flex;gap:6px;" id="restStars"><div class="strbtn" onclick="setRS(1)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setRS(2)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setRS(3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setRS(4)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div><div class="strbtn" onclick="setRS(5)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linejoin="round"/></svg></div></div></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="newRC2" style="padding:8px 10px;" onchange="renderRestLocationSel(this)"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">去的日期</label><input class="fi" type="date" id="newRD"></div><div class="fg"><label class="fl">推薦餐點（選填）</label><textarea class="fi" id="newDish" rows="2" placeholder="這家店的招牌是..." style="resize:none;"></textarea></div><button onclick="addRest()" class="btn2 bpri" style="width:100%;margin-top:4px;">新增記錄</button></div></div></div>
@@ -5468,76 +5468,65 @@ function openAddMemMo(){
 }
 window.openAddMemMo = openAddMemMo;
 async function addMem(){
-  if(_addMemSubmitting){showToast('建立中，請稍候...');return;}
-  var title=(document.getElementById('newMemTitle')||{}).value||'';
-  if(!title.trim()){showToast('請填寫回憶名稱');return;}
+  var title=(document.getElementById('newMemTitle')||{}).value;
+  if(title) title=title.trim(); else title='';
+  if(!title){showToast('請填寫回憶名稱');return;}
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
-  _addMemSubmitting = true;
-  try{
-    var d1=(document.getElementById('newMemDate1')||{}).value||'';
-    var d2=(document.getElementById('newMemDate2')||{}).value||'';
-    var city=(document.getElementById('newMemCity')||{}).value||'';
-    var country=''; var foreignCity='';
-    // 新格式：地點統一在 city 欄位（例如「台北市」或「日本・東京」）
-    if(city.includes('・')) {
-      var parts=city.split('・');
-      country=parts[0]; foreignCity=parts[1];
-    }
-    var note=(document.getElementById('newMemNote')||{}).value||'';
-    var year=d1?parseInt(d1.split('-')[0]):new Date().getFullYear();
-    var month=d1?parseInt(d1.split('-')[1]):new Date().getMonth()+1;
-    // 上傳照片
-    var photos=[];
-    var pFiles = _memPhotoFiles || [];
-    if(pFiles.length){
-      var uploadBtn = document.querySelector('#addMemMo .btn2.bpri');
-      if(uploadBtn){ uploadBtn.textContent='上傳中...'; uploadBtn.disabled=true; }
-      showUploadOverlay();
+  var d1=(document.getElementById('newMemDate1')||{}).value||'';
+  var d2=(document.getElementById('newMemDate2')||{}).value||'';
+  var city=(document.getElementById('newMemCity')||{}).value||'';
+  var country=''; var foreignCity='';
+  if(city.indexOf('・')>-1){
+    var parts=city.split('・');
+    country=parts[0]; foreignCity=parts[1];
+  }
+  var note=(document.getElementById('newMemNote')||{}).value||'';
+  var year=d1?parseInt(d1.split('-')[0]):new Date().getFullYear();
+  var month=d1?parseInt(d1.split('-')[1]):new Date().getMonth()+1;
+
+  var photos=[];
+  var pFiles = _memPhotoFiles || [];
+  if(pFiles.length){
+    showUploadOverlay();
+    for(var i=0;i<pFiles.length;i++){
       try{
-        photos=await _uploadMemPhotos(pFiles);
+        var url = await window._uploadToCloudinary(pFiles[i]);
+        photos.push(url);
       }catch(e){
-        if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
-        if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); }
-        else showToast('上傳失敗，請再試');
-        return;
-      }finally{
-        hideUploadOverlay();
+        console.error('[addMem] 照片上傳失敗', e);
       }
     }
-    var {collection,addDoc,serverTimestamp}=window._fsOps;
-    var docRef=await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
-      title:title.trim(), dateStart:d1, dateEnd:d2,
-      city:city, country:country, foreignCity:foreignCity,
-      note:note, photos:photos,
-      linkedRests:_memLinkedRests||[], linkedItems:_memLinkedItems||[],
-      year:year, month:month,
-      createdBy:window.currentUser?window.currentUser.uid:'',
-      createdAt:serverTimestamp()
-    });
-    // 清空表單
-    ['newMemTitle','newMemNote','newMemFCity','newMemDate1','newMemDate2'].forEach(function(id){
-      var el=document.getElementById(id);if(el)el.value='';
-    });
-    var mc=document.getElementById('newMemCity');if(mc)mc.value='';
-    var mff=document.getElementById('memForeignFields');if(mff)mff.style.display='none';
-    var pp=document.getElementById('memPhotoPreview');if(pp)pp.innerHTML='';
-    var lr=document.getElementById('linkedRests');if(lr)lr.textContent='';
-    var li=document.getElementById('linkedItems');if(li)li.textContent='';
-    _memPhotoFiles=[];_memLinkedRests=[];_memLinkedItems=[];
-    var uploadBtn2 = document.querySelector('#addMemMo .btn2.bpri');
-    if(uploadBtn2){ uploadBtn2.textContent='建立回憶錄'; uploadBtn2.disabled=false; }
-    closeMo('addMemMo');
-    showToast('回憶錄已建立 ✓');
-    var myNmM=(window.userData&&window.userData.name)||'我';
-    addNotif(myNmM+' 新增了回憶錄：「'+title.trim()+'」','mem');
-  }catch(e){
-    console.error('[addMem] 未預期的錯誤', e);
-    var uploadBtnFinal = document.querySelector('#addMemMo .btn2.bpri');
-    if(uploadBtnFinal){ uploadBtnFinal.textContent='建立回憶錄'; uploadBtnFinal.disabled=false; }
-    showToast('建立失敗：'+(e&&e.message?e.message:'發生未知錯誤，請截圖給開發者'));
-  }finally{
-    _addMemSubmitting = false;
+    hideUploadOverlay();
+    if(!photos.length){
+      showToast('照片上傳失敗（可能是 Cloudinary 未設定），回憶錄仍會建立，之後可補傳照片');
+    }
   }
+
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
+    title:title, dateStart:d1, dateEnd:d2,
+    city:city, country:country, foreignCity:foreignCity,
+    note:note, photos:photos,
+    linkedRests:_memLinkedRests||[], linkedItems:_memLinkedItems||[],
+    year:year, month:month,
+    createdBy:window.currentUser?window.currentUser.uid:'',
+    createdAt:serverTimestamp()
+  });
+
+  var elT=document.getElementById('newMemTitle');if(elT)elT.value='';
+  var elN=document.getElementById('newMemNote');if(elN)elN.value='';
+  var elD1=document.getElementById('newMemDate1');if(elD1)elD1.value='';
+  var elD2=document.getElementById('newMemDate2');if(elD2)elD2.value='';
+  var mc=document.getElementById('newMemCity');if(mc)mc.value='';
+  var mff=document.getElementById('memForeignFields');if(mff)mff.style.display='none';
+  var pp=document.getElementById('memPhotoPreview');if(pp)pp.innerHTML='';
+  var lr=document.getElementById('linkedRests');if(lr)lr.textContent='';
+  var li=document.getElementById('linkedItems');if(li)li.textContent='';
+  _memPhotoFiles=[];_memLinkedRests=[];_memLinkedItems=[];
+  closeMo('addMemMo');
+  var myNmM=(window.userData&&window.userData.name)||'我';
+  addNotif(myNmM+' 新增了回憶錄：「'+title+'」','mem');
+  showToast('回憶錄已建立 ✓');
 }
 
 
@@ -6812,23 +6801,6 @@ async function execDeleteMem(){
   addNotif(myNmDM+' 刪除了回憶錄：「'+delMemTitle+'」','mem',true);
 }
 
-// addMem 上傳照片
-async function _uploadMemPhotos(files){
-  var cd = window._coupleData || {};
-  if(!cd.cloudinaryCloud || !cd.cloudinaryPreset){
-    var err = new Error('尚未設定 Cloudinary');
-    err.code = 'CLOUDINARY_NOT_CONFIGURED';
-    throw err;
-  }
-  var urls=[];
-  for(var i=0;i<files.length;i++){
-    try{
-      var url=await window._uploadToCloudinary(files[i]);
-      urls.push(url);
-    }catch(err){console.error(err);}
-  }
-  return urls;
-}
 
 // ── 行事曆 Firestore ──
 var EVENTS = [];
