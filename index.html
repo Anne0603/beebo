@@ -5493,6 +5493,7 @@ async function addMem(){
     try{
       photos=await _uploadMemPhotos(_memPhotoFiles);
     }catch(e){
+      _addMemSubmitting = false;
       if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
       if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); }
       else showToast('上傳失敗，請再試');
