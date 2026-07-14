@@ -5503,15 +5503,25 @@ async function addMem(){
     }
   }
   var {collection,addDoc,serverTimestamp}=window._fsOps;
-  var docRef=await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
-    title:title.trim(), dateStart:d1, dateEnd:d2,
-    city:city, country:country, foreignCity:foreignCity,
-    note:note, photos:photos,
-    linkedRests:_memLinkedRests, linkedItems:_memLinkedItems,
-    year:year, month:month,
-    createdBy:window.currentUser?window.currentUser.uid:'',
-    createdAt:serverTimestamp()
-  });
+  var docRef;
+  try{
+    docRef=await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
+      title:title.trim(), dateStart:d1, dateEnd:d2,
+      city:city, country:country, foreignCity:foreignCity,
+      note:note, photos:photos,
+      linkedRests:_memLinkedRests, linkedItems:_memLinkedItems,
+      year:year, month:month,
+      createdBy:window.currentUser?window.currentUser.uid:'',
+      createdAt:serverTimestamp()
+    });
+  }catch(e){
+    console.error('[addMem] Firestore寫入失敗', e);
+    _addMemSubmitting = false;
+    var uploadBtnErr = document.querySelector('#addMemMo .btn2.bpri');
+    if(uploadBtnErr){ uploadBtnErr.textContent='建立回憶錄'; uploadBtnErr.disabled=false; }
+    showToast('建立失敗：'+(e&&e.message?e.message:'請再試一次'));
+    return;
+  }
   // 清空表單
   ['newMemTitle','newMemNote','newMemFCity','newMemDate1','newMemDate2'].forEach(function(id){
     var el=document.getElementById(id);if(el)el.value='';
