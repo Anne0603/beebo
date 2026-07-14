@@ -1941,7 +1941,7 @@ window.reauthenticateForPinReset = async function() {
     </div>
     <div style="font-size:12px;color:var(--sub);">Unsigned Upload Preset 是公開的，任何人拿到 Cloud Name + Preset 名稱都能直接上傳檔案到你的帳號，跟這個 APP 無關。建議去 Cloudinary 後台限制允許的檔案格式：<b style="color:var(--txt);">左側齒輪 Settings → Upload → 點這組 preset 進入編輯 → 左側分頁 Optimize and Deliver → Allowed formats</b> 欄位貼上下面這串並儲存，降低被濫用的風險：</div>
     <div onclick="copyAllowedFormats()" style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);border:1px solid #FFE082;border-radius:8px;padding:7px 10px;margin-top:6px;cursor:pointer;">
-      <code style="font-size:12px;color:var(--txt);font-family:monospace;">jpg,png,heic,webp</code>
+      <code style="font-size:12px;color:var(--txt);font-family:monospace;">jpg,jpeg,png,heic,heif,webp,gif</code>
       <span style="font-size:10px;color:#A87848;font-weight:700;flex-shrink:0;">點我複製</span>
     </div>
     <div style="font-size:11px;color:var(--sub);margin-top:6px;">這個設定要在 Cloudinary 官網做，APP 本身沒辦法幫你設定。</div>
@@ -3391,7 +3391,7 @@ function copyInspireTemplate(){
   }
 }
 function copyAllowedFormats(){
-  var text = 'jpg,png,heic,webp';
+  var text = 'jpg,jpeg,png,heic,heif,webp,gif';
   if(navigator.clipboard){
     navigator.clipboard.writeText(text).then(function(){
       showToast('已複製，貼到 Cloudinary 的 Allowed formats 欄位即可');
