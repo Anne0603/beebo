@@ -5472,73 +5472,71 @@ async function addMem(){
   if(!title.trim()){showToast('請填寫回憶名稱');return;}
   if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
   _addMemSubmitting = true;
-  var d1=(document.getElementById('newMemDate1')||{}).value||'';
-  var d2=(document.getElementById('newMemDate2')||{}).value||'';
-  var city=(document.getElementById('newMemCity')||{}).value||'';
-  var country=''; var foreignCity='';
-  // 新格式：地點統一在 city 欄位（例如「台北市」或「日本・東京」）
-  if(city.includes('・')) {
-    var parts=city.split('・');
-    country=parts[0]; foreignCity=parts[1];
-  }
-  var note=(document.getElementById('newMemNote')||{}).value||'';
-  var year=d1?parseInt(d1.split('-')[0]):new Date().getFullYear();
-  var month=d1?parseInt(d1.split('-')[1]):new Date().getMonth()+1;
-  // 上傳照片
-  var photos=[];
-  if(_memPhotoFiles.length){
-    var uploadBtn = document.querySelector('#addMemMo .btn2.bpri');
-    if(uploadBtn){ uploadBtn.textContent='上傳中...'; uploadBtn.disabled=true; }
-    showUploadOverlay();
-    try{
-      photos=await _uploadMemPhotos(_memPhotoFiles);
-    }catch(e){
-      _addMemSubmitting = false;
-      if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
-      if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); }
-      else showToast('上傳失敗，請再試');
-      return;
-    }finally{
-      hideUploadOverlay();
-    }
-  }
-  var {collection,addDoc,serverTimestamp}=window._fsOps;
-  var docRef;
   try{
-    docRef=await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
+    var d1=(document.getElementById('newMemDate1')||{}).value||'';
+    var d2=(document.getElementById('newMemDate2')||{}).value||'';
+    var city=(document.getElementById('newMemCity')||{}).value||'';
+    var country=''; var foreignCity='';
+    // 新格式：地點統一在 city 欄位（例如「台北市」或「日本・東京」）
+    if(city.includes('・')) {
+      var parts=city.split('・');
+      country=parts[0]; foreignCity=parts[1];
+    }
+    var note=(document.getElementById('newMemNote')||{}).value||'';
+    var year=d1?parseInt(d1.split('-')[0]):new Date().getFullYear();
+    var month=d1?parseInt(d1.split('-')[1]):new Date().getMonth()+1;
+    // 上傳照片
+    var photos=[];
+    var pFiles = _memPhotoFiles || [];
+    if(pFiles.length){
+      var uploadBtn = document.querySelector('#addMemMo .btn2.bpri');
+      if(uploadBtn){ uploadBtn.textContent='上傳中...'; uploadBtn.disabled=true; }
+      showUploadOverlay();
+      try{
+        photos=await _uploadMemPhotos(pFiles);
+      }catch(e){
+        if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
+        if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); }
+        else showToast('上傳失敗，請再試');
+        return;
+      }finally{
+        hideUploadOverlay();
+      }
+    }
+    var {collection,addDoc,serverTimestamp}=window._fsOps;
+    var docRef=await addDoc(collection(window._db,'couples',window._coupleId,'memories'),{
       title:title.trim(), dateStart:d1, dateEnd:d2,
       city:city, country:country, foreignCity:foreignCity,
       note:note, photos:photos,
-      linkedRests:_memLinkedRests, linkedItems:_memLinkedItems,
+      linkedRests:_memLinkedRests||[], linkedItems:_memLinkedItems||[],
       year:year, month:month,
       createdBy:window.currentUser?window.currentUser.uid:'',
       createdAt:serverTimestamp()
     });
+    // 清空表單
+    ['newMemTitle','newMemNote','newMemFCity','newMemDate1','newMemDate2'].forEach(function(id){
+      var el=document.getElementById(id);if(el)el.value='';
+    });
+    var mc=document.getElementById('newMemCity');if(mc)mc.value='';
+    var mff=document.getElementById('memForeignFields');if(mff)mff.style.display='none';
+    var pp=document.getElementById('memPhotoPreview');if(pp)pp.innerHTML='';
+    var lr=document.getElementById('linkedRests');if(lr)lr.textContent='';
+    var li=document.getElementById('linkedItems');if(li)li.textContent='';
+    _memPhotoFiles=[];_memLinkedRests=[];_memLinkedItems=[];
+    var uploadBtn2 = document.querySelector('#addMemMo .btn2.bpri');
+    if(uploadBtn2){ uploadBtn2.textContent='建立回憶錄'; uploadBtn2.disabled=false; }
+    closeMo('addMemMo');
+    showToast('回憶錄已建立 ✓');
+    var myNmM=(window.userData&&window.userData.name)||'我';
+    addNotif(myNmM+' 新增了回憶錄：「'+title.trim()+'」','mem');
   }catch(e){
-    console.error('[addMem] Firestore寫入失敗', e);
+    console.error('[addMem] 未預期的錯誤', e);
+    var uploadBtnFinal = document.querySelector('#addMemMo .btn2.bpri');
+    if(uploadBtnFinal){ uploadBtnFinal.textContent='建立回憶錄'; uploadBtnFinal.disabled=false; }
+    showToast('建立失敗：'+(e&&e.message?e.message:'發生未知錯誤，請截圖給開發者'));
+  }finally{
     _addMemSubmitting = false;
-    var uploadBtnErr = document.querySelector('#addMemMo .btn2.bpri');
-    if(uploadBtnErr){ uploadBtnErr.textContent='建立回憶錄'; uploadBtnErr.disabled=false; }
-    showToast('建立失敗：'+(e&&e.message?e.message:'請再試一次'));
-    return;
   }
-  // 清空表單
-  ['newMemTitle','newMemNote','newMemFCity','newMemDate1','newMemDate2'].forEach(function(id){
-    var el=document.getElementById(id);if(el)el.value='';
-  });
-  var mc=document.getElementById('newMemCity');if(mc)mc.value='';
-  var mff=document.getElementById('memForeignFields');if(mff)mff.style.display='none';
-  var pp=document.getElementById('memPhotoPreview');if(pp)pp.innerHTML='';
-  var lr=document.getElementById('linkedRests');if(lr)lr.textContent='';
-  var li=document.getElementById('linkedItems');if(li)li.textContent='';
-  _memPhotoFiles=[];_memLinkedRests=[];_memLinkedItems=[];
-  _addMemSubmitting = false;
-  var uploadBtn = document.querySelector('#addMemMo .btn2.bpri');
-  if(uploadBtn){ uploadBtn.textContent='建立回憶錄'; uploadBtn.disabled=false; }
-  closeMo('addMemMo');
-  showToast('回憶錄已建立 ✓');
-  var myNmM=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmM+' 新增了回憶錄：「'+title.trim()+'」','mem');
 }
 
 
