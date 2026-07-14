@@ -392,6 +392,7 @@ input[type=file]{display:none;}
     setTimeout(function(){ if(typeof window.checkQuarterlyRecaps==='function') window.checkQuarterlyRecaps(); }, 2500);
     setTimeout(function(){ if(typeof window.checkYearlyRecaps==='function') window.checkYearlyRecaps(); }, 4000);
     setTimeout(function(){ if(typeof window.checkOnThisDay==='function') window.checkOnThisDay(); }, 3000);
+    setTimeout(function(){ if(typeof window.checkYearlyCloudinaryReminder==='function') window.checkYearlyCloudinaryReminder(); }, 3500);
 
     // ── PIN 重置請求監聽（用 time 時間戳記去重複，避免舊狀態被重複觸發）──
     if(!window._pinResetUnsub) {
@@ -1890,6 +1891,20 @@ window.reauthenticateForPinReset = async function() {
 <div class="mo" id="cloudinarySettingsMo"><div class="mbox" style="max-height:90vh;overflow-y:auto;">
   <div class="mh"><span class="mtit">Cloudinary 照片設定</span><button class="mcl" onclick="closeMo('cloudinarySettingsMo')">×</button></div>
 
+  <!-- 年度提醒卡（預設隱藏，到期才顯示） -->
+  <div id="yearlyCheckCard" style="display:none;background:#FFE0DC;border:1px solid #FFAB9A;border-radius:14px;padding:14px;margin-bottom:16px;">
+    <div style="display:flex;align-items:center;gap:6px;font-weight:700;color:#B23A2E;font-size:13px;margin-bottom:8px;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#B23A2E" stroke-width="1.8"/><path d="M12 7v5l3 3" stroke="#B23A2E" stroke-width="1.8" stroke-linecap="round"/></svg>
+      年度提醒：該檢查用量與備份了
+    </div>
+    <div style="font-size:12px;color:var(--txt);line-height:1.8;margin-bottom:10px;">
+      每年這個時候提醒一次，確認以下兩件事：<br>
+      <b>1️⃣ 查用量</b>：登入 Cloudinary → 首頁點 <b>Go to Usage Reports</b> → 看 <b>Storage</b> 欄位的 MB 數字，確認離 25GB 上限還夠遠<br>
+      <b>2️⃣ 備份資料</b>：回設定 → 管理員專區 → 點「匯出資料」下載一份 JSON 備份
+    </div>
+    <button onclick="confirmYearlyCloudinaryCheck()" class="btn2 bpri" style="width:100%;">✅ 我已確認完成</button>
+  </div>
+
   <!-- 說明區 -->
   <div style="background:var(--lt);border-radius:14px;padding:14px;margin-bottom:16px;line-height:1.7;">
     <div style="display:flex;align-items:center;gap:8px;font-weight:700;color:var(--accent);font-size:13px;margin-bottom:8px;">
@@ -3180,6 +3195,46 @@ function delInspireItem(name){
   renderInspireMg(isChalTab ? 'chal' : 'list');
 }
 
+// ── 年度用量/備份提醒 ──
+function _yearlyCheckDueYear(today){
+  var y = today.getFullYear();
+  var dec31 = new Date(y, 11, 31);
+  return today >= dec31 ? y : y - 1;
+}
+function _renderYearlyCheckCard(){
+  var card = document.getElementById('yearlyCheckCard');
+  if(!card) return;
+  var cd = window._coupleData || {};
+  var confirmedYear = cd.yearlyCheckConfirmedYear || 0;
+  var dueYear = _yearlyCheckDueYear(new Date());
+  card.style.display = (confirmedYear < dueYear) ? 'block' : 'none';
+}
+async function confirmYearlyCloudinaryCheck(){
+  if(!window._coupleId || !window._fsOps){ showToast('請先配對'); return; }
+  var dueYear = _yearlyCheckDueYear(new Date());
+  try{
+    var {doc, setDoc} = window._fsOps;
+    await setDoc(doc(window._db,'couples',window._coupleId), {yearlyCheckConfirmedYear: dueYear}, {merge:true});
+    if(window._coupleData) window._coupleData.yearlyCheckConfirmedYear = dueYear;
+    _renderYearlyCheckCard();
+    showToast('已確認，明年這個時候再提醒你們 ✓');
+  }catch(e){ console.error('[confirmYearlyCloudinaryCheck]', e); showToast('儲存失敗，請再試'); }
+}
+window.confirmYearlyCloudinaryCheck = confirmYearlyCloudinaryCheck;
+function checkYearlyCloudinaryReminder(){
+  try{
+    var cd = window._coupleData || {};
+    var confirmedYear = cd.yearlyCheckConfirmedYear || 0;
+    var dueYear = _yearlyCheckDueYear(new Date());
+    if(confirmedYear >= dueYear) return; // 已確認過，不用提醒
+    var todayStr = _localDateStr ? _localDateStr(new Date()) : new Date().toDateString();
+    if(window.localStorage && localStorage.getItem('beebo_last_yearlycheck_notif')===todayStr) return;
+    addNotif('⏰ 年度提醒：該去 Cloudinary 檢查用量、順便備份資料囉！點我看詳細步驟', 'cloudinary_yearly', false, {openCloudinarySettings:true});
+    if(window.localStorage) localStorage.setItem('beebo_last_yearlycheck_notif', todayStr);
+  }catch(e){ console.error('[checkYearlyCloudinaryReminder]', e); }
+}
+window.checkYearlyCloudinaryReminder = checkYearlyCloudinaryReminder;
+
 // ── Discord Webhook 設定管理 ──
 function openCloudinarySettingsMo(){
   var cd = window._coupleData || {};
@@ -3187,6 +3242,7 @@ function openCloudinarySettingsMo(){
   var presetEl = document.getElementById('cloudinaryPresetInput');
   if(cloudEl) cloudEl.value = cd.cloudinaryCloud || '';
   if(presetEl) presetEl.value = cd.cloudinaryPreset || '';
+  _renderYearlyCheckCard();
   openMo('cloudinarySettingsMo');
 }
 async function saveCloudinarySettings(){
@@ -3618,17 +3674,19 @@ function renderNotifPage(){
     el.innerHTML = '<div style="text-align:center;color:var(--sub);padding:40px 0;font-size:13px;">目前沒有通知</div>';
     return;
   }
-  var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅', reminder:'🔔', recap:'✨'};
+  var icons = {info:'💬', chal:'⭐', list:'✅', mem:'📷', rest:'🍽️', cal:'📅', reminder:'🔔', recap:'✨', cloudinary_yearly:'⏰'};
   el.innerHTML = visible.map(function(n) {
     var d = new Date(n.time);
     var ts = (d.getMonth()+1)+'/'+d.getDate()+' '+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
-    var isReminder = n.type === 'reminder';
+    var isReminder = n.type === 'reminder' || n.type === 'cloudinary_yearly';
     var bg = isReminder ? 'background:#FFF8E1;border:1px solid #FFE082;' : 'background:var(--card);';
     var isRecap = n.type === 'recap' && n.data && n.data.quarterId;
     var isMemLink = n.type === 'mem' && n.data && n.data.memId;
+    var isYearlyCheck = n.type === 'cloudinary_yearly' && n.data && n.data.openCloudinarySettings;
     var clickAttr = '';
     if(isRecap) clickAttr = ' onclick="goPageX(\'recap\');setTimeout(function(){openRecapDetail(\''+n.data.quarterId+'\');},60);" style="cursor:pointer;"';
     else if(isMemLink) clickAttr = ' onclick="openMemDetail(\''+n.data.memId+'\')" style="cursor:pointer;"';
+    else if(isYearlyCheck) clickAttr = ' onclick="goPage(\'settings\');setTimeout(function(){openCloudinarySettingsMo();},60);" style="cursor:pointer;"';
     return '<div'+clickAttr+' style="display:flex;align-items:flex-start;gap:10px;padding:10px 12px;'+bg+'border-radius:12px;box-shadow:0 2px 6px var(--shd);">'
       +'<div style="font-size:20px;flex-shrink:0;">'+(icons[n.type]||'🔔')+'</div>'
       +'<div style="flex:1;min-width:0;">'
