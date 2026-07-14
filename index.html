@@ -1483,7 +1483,7 @@ window.reauthenticateForPinReset = async function() {
 
     </div>
     </div>
-    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.4.0 · 版本記錄 ›</div>
+    <div style="text-align:center;padding:18px 0 6px;font-size:11px;color:var(--bdr);cursor:pointer;" onclick="goPageX('changelog')"><span class="app-name">嗶啵</span> v1.5.0 · 版本記錄 ›</div>
   </div>
   <div class="bnav" id="bnav-settings"></div>
 </div>
@@ -4629,6 +4629,16 @@ function _checkIsAdmin(){
 
 // ── 版本記錄（純程式碼，由開發者更新，所有人都能看到）──
 var _CHANGELOG_DEFAULT = [
+  {ver:'1.5.0', date:'2026-07-14', title:'一輪深度除錯與安全加固 🔧', items:[
+    '📸 修正新增回憶錄按鈕完全無反應的問題(重寫整個新增流程)，並修正上傳遮罩缺失、殘留舊資料等問題',
+    '🗺️ 修正七夕日期在月曆/提醒通知/彈出提示三處各自寫死錯誤日期的問題，統一改用正確的年份對照表',
+    '📊 修正「每月約會次數」圖表未去重、與「約會天數」數字對不上的問題',
+    '🧭 修正季度回顧統計「完成清單」點入後無法正確返回原頁面的問題，並補上清單頁缺失的返回按鈕',
+    '💡 修復靈感題庫管理功能：補上原本缺失的「查看/刪除現有靈感」區塊，修正分頁切換不刷新的問題',
+    '🔒 資安加固：移除暴露 Discord webhook 網址的閒置函數、移除 Cloudinary 帳號預設 fallback，設定頁新增安全性提醒',
+    '⏰ 新增年度 Cloudinary 用量檢查與備份提醒，任一管理員確認前會持續提醒',
+    '🧹 清除多組重複定義的函數(doConfirm、_getInspireData 等)，統一挑戰分類清單改存 Firestore 兩人共用'
+  ]},
   {ver:'1.4.0', date:'2026-07-10', title:'成就擴充＋一輪修 bug 大掃除 🧹', items:[
     '🏆 系統成就新增四大類里程碑：完成挑戰／完成清單／記錄餐廳／寫下回憶錄，各有多階段門檻',
     '📅 回憶錄列表新增年份分組標題，捲動瀏覽更清楚',
