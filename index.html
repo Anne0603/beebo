@@ -1939,7 +1939,12 @@ window.reauthenticateForPinReset = async function() {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#A87848" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       安全性提醒
     </div>
-    <div style="font-size:12px;color:var(--sub);">Unsigned Upload Preset 是公開的，任何人拿到 Cloud Name + Preset 名稱都能直接上傳檔案到你的帳號，跟這個 APP 無關。建議去 Cloudinary 後台限制允許的檔案格式：<b style="color:var(--txt);">左側齒輪 Settings → Upload → 點這組 preset 進入編輯 → 左側分頁 Optimize and Deliver → Allowed formats</b> 欄位填入 <b style="color:var(--txt);">jpg,png,heic,webp</b> 並儲存，降低被濫用的風險。這個設定要在 Cloudinary 官網做，APP 本身沒辦法幫你設定。</div>
+    <div style="font-size:12px;color:var(--sub);">Unsigned Upload Preset 是公開的，任何人拿到 Cloud Name + Preset 名稱都能直接上傳檔案到你的帳號，跟這個 APP 無關。建議去 Cloudinary 後台限制允許的檔案格式：<b style="color:var(--txt);">左側齒輪 Settings → Upload → 點這組 preset 進入編輯 → 左側分頁 Optimize and Deliver → Allowed formats</b> 欄位貼上下面這串並儲存，降低被濫用的風險：</div>
+    <div onclick="copyAllowedFormats()" style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:var(--card);border:1px solid #FFE082;border-radius:8px;padding:7px 10px;margin-top:6px;cursor:pointer;">
+      <code style="font-size:12px;color:var(--txt);font-family:monospace;">jpg,png,heic,webp</code>
+      <span style="font-size:10px;color:#A87848;font-weight:700;flex-shrink:0;">點我複製</span>
+    </div>
+    <div style="font-size:11px;color:var(--sub);margin-top:6px;">這個設定要在 Cloudinary 官網做，APP 本身沒辦法幫你設定。</div>
   </div>
 
   <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
@@ -3383,6 +3388,16 @@ function copyInspireTemplate(){
   } else {
     var ta = document.getElementById('importInspireText');
     if(ta){ ta.value = template; showToast('範本已填入，修改後按匯入'); }
+  }
+}
+function copyAllowedFormats(){
+  var text = 'jpg,png,heic,webp';
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){
+      showToast('已複製，貼到 Cloudinary 的 Allowed formats 欄位即可');
+    });
+  } else {
+    showToast('請手動複製：'+text);
   }
 }
 
