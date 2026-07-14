@@ -6223,22 +6223,28 @@ function _updateReviewStats(yr){
     streakEl.textContent = streak;
   }
 
-  // 每月約會圖表
+  // 每月約會圖表（跟「約會天數」用同一套去重日期邏輯，確保加總一致）
   var chart = document.getElementById('reviewChart');
   if(chart){
-    var months = Array(12).fill(0);
+    var chartDateDays = new Set();
     (RESTS||[]).forEach(function(r){
       if(!r.date) return;
       var y = parseInt(r.date.slice(0,4));
-      if(filterYear && y !== filterYear) return;
-      var mo = parseInt(r.date.slice(5,7)) - 1;
-      if(mo >= 0 && mo < 12) months[mo]++;
+      if(!filterYear || y === filterYear) chartDateDays.add(r.date.slice(0,10));
     });
     (MEMS||[]).forEach(function(m){
       if(!m.dateStart) return;
-      var y = parseInt(m.dateStart.slice(0,4));
-      if(filterYear && y !== filterYear) return;
-      var mo = parseInt(m.dateStart.slice(5,7)) - 1;
+      var start = new Date(m.dateStart);
+      var end = m.dateEnd ? new Date(m.dateEnd) : start;
+      for(var d = new Date(start); d <= end; d.setDate(d.getDate()+1)){
+        if(!filterYear || d.getFullYear() === filterYear){
+          chartDateDays.add(d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));
+        }
+      }
+    });
+    var months = Array(12).fill(0);
+    chartDateDays.forEach(function(dateStr){
+      var mo = parseInt(dateStr.slice(5,7)) - 1;
       if(mo >= 0 && mo < 12) months[mo]++;
     });
     var max = Math.max.apply(null, months) || 1;
