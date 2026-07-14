@@ -3205,8 +3205,8 @@ function _renderYearlyCheckCard(){
   var card = document.getElementById('yearlyCheckCard');
   if(!card) return;
   var cd = window._coupleData || {};
-  var confirmedYear = cd.yearlyCheckConfirmedYear || 0;
   var dueYear = _yearlyCheckDueYear(new Date());
+  var confirmedYear = (typeof cd.yearlyCheckConfirmedYear === 'number') ? cd.yearlyCheckConfirmedYear : dueYear;
   card.style.display = (confirmedYear < dueYear) ? 'block' : 'none';
 }
 async function confirmYearlyCloudinaryCheck(){
@@ -3221,11 +3221,24 @@ async function confirmYearlyCloudinaryCheck(){
   }catch(e){ console.error('[confirmYearlyCloudinaryCheck]', e); showToast('儲存失敗，請再試'); }
 }
 window.confirmYearlyCloudinaryCheck = confirmYearlyCloudinaryCheck;
+async function _seedYearlyCheckBaseline(dueYear){
+  if(!window._coupleId || !window._fsOps) return;
+  try{
+    var {doc, setDoc} = window._fsOps;
+    await setDoc(doc(window._db,'couples',window._coupleId), {yearlyCheckConfirmedYear: dueYear}, {merge:true});
+    if(window._coupleData) window._coupleData.yearlyCheckConfirmedYear = dueYear;
+  }catch(e){ console.error('[_seedYearlyCheckBaseline]', e); }
+}
 function checkYearlyCloudinaryReminder(){
   try{
     var cd = window._coupleData || {};
-    var confirmedYear = cd.yearlyCheckConfirmedYear || 0;
     var dueYear = _yearlyCheckDueYear(new Date());
+    if(typeof cd.yearlyCheckConfirmedYear !== 'number'){
+      // 第一次啟用這個功能：先靜默記錄基準點，避免把「功能上線前」的時間也算成逾期
+      _seedYearlyCheckBaseline(dueYear);
+      return;
+    }
+    var confirmedYear = cd.yearlyCheckConfirmedYear;
     if(confirmedYear >= dueYear) return; // 已確認過，不用提醒
     var todayStr = _localDateStr ? _localDateStr(new Date()) : new Date().toDateString();
     if(window.localStorage && localStorage.getItem('beebo_last_yearlycheck_notif')===todayStr) return;
