@@ -1939,7 +1939,7 @@ window.reauthenticateForPinReset = async function() {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="#A87848" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       安全性提醒
     </div>
-    <div style="font-size:12px;color:var(--sub);">Unsigned Upload Preset 是公開的，任何人拿到 Cloud Name + Preset 名稱都能直接上傳檔案到你的帳號，跟這個 APP 無關。建議去 Cloudinary 後台 → <b style="color:var(--txt);">Settings → Upload</b> → 編輯這組 preset，加上「檔案大小上限」「只允許圖片格式」的限制，降低被濫用的風險。這個設定要在 Cloudinary 官網做，APP 本身沒辦法幫你設定。</div>
+    <div style="font-size:12px;color:var(--sub);">Unsigned Upload Preset 是公開的，任何人拿到 Cloud Name + Preset 名稱都能直接上傳檔案到你的帳號，跟這個 APP 無關。建議去 Cloudinary 後台限制允許的檔案格式：<b style="color:var(--txt);">左側齒輪 Settings → Upload → 點這組 preset 進入編輯 → 左側分頁 Optimize and Deliver → Allowed formats</b> 欄位填入 <b style="color:var(--txt);">jpg,png,heic,webp</b> 並儲存，降低被濫用的風險。這個設定要在 Cloudinary 官網做，APP 本身沒辦法幫你設定。</div>
   </div>
 
   <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:16px;">
