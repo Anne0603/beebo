@@ -168,6 +168,29 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .rest-note{font-size:11px;color:var(--sub);margin-top:6px;line-height:1.5;font-style:italic;}
 .rest-meta{font-size:10px;color:var(--sub);margin-top:6px;}
 .empty-hint{font-size:12px;color:var(--sub);text-align:center;padding:16px;background:var(--card2);border-radius:14px;border:1px dashed var(--bdr);}
+.map-card{background:var(--card);border-radius:16px;padding:16px 20px;box-shadow:0 3px 10px var(--shd);border:1px solid var(--bdr);position:relative;}
+.map-wrap{position:relative;width:100%;max-width:210px;margin:0 auto;}
+.map-svg{width:100%;display:block;}
+.map-svg .zone{stroke:#fff;stroke-width:2.5;}
+.foot-marker{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;}
+.foot-icon{font-size:15px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3));}
+.foot-count{font-size:8px;font-weight:800;color:#2a4a34;background:#fff;border-radius:6px;padding:0 3px;margin-top:1px;box-shadow:0 1px 2px rgba(0,0,0,.2);}
+.origin-tag{font-size:7px;font-weight:800;color:#fff;background:var(--accent);border-radius:5px;padding:1px 4px;margin-top:2px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2);}
+.insets{display:flex;gap:8px;justify-content:center;margin-top:10px;}
+.inset-box{background:var(--card2);border-radius:12px;border:1px solid var(--bdr);padding:8px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+.inset-svg{width:100%;height:90px;}
+.inset-svg .zone{stroke-width:2;}
+.inset-label{font-size:10px;color:var(--sub);font-weight:700;}
+.map-legend{display:flex;justify-content:center;align-items:center;gap:5px;margin-top:10px;font-size:9px;color:var(--sub);flex-wrap:wrap;}
+.map-legend-swatch{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
+.rank-card{background:var(--card);border-radius:14px;padding:12px 14px;box-shadow:0 2px 8px var(--shd);border:1px solid var(--bdr);display:flex;align-items:center;gap:10px;}
+.rank-icon{font-size:20px;flex-shrink:0;}
+.rank-text{font-size:12.5px;color:var(--txt);}
+.rank-text b{color:var(--accent);}
+.complete-card{background:linear-gradient(160deg,#D4A870 0%,#A87848 100%);border-radius:16px;padding:16px 18px;text-align:center;position:relative;overflow:hidden;}
+.complete-badge{border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;}
+.complete-title{font-weight:900;color:#fff;position:relative;}
+.complete-sub{color:rgba(255,255,255,.9);margin-top:4px;position:relative;line-height:1.5;}
 .cdow{font-size:10px;color:var(--sub);text-align:center;padding:4px 0;font-weight:600;}
 .cday{font-size:12px;color:var(--txt);text-align:center;padding:6px 2px;cursor:pointer;border-radius:50%;}
 .cday.has{background:var(--lt);color:var(--accent);font-weight:700;}
@@ -4075,6 +4098,110 @@ function _computeMilestones(start, end){
   return out;
 }
 
+// 台灣縣市地圖資料（來源：@svg-maps/taiwan，MIT License）
+var _TW_COUNTY_DATA = {"changhua-county": {"zh": "彰化縣", "x": 24.6, "y": 39.2}, "chiayi-city": {"zh": "嘉義市", "x": 23.4, "y": 54.0}, "chiayi-county": {"zh": "嘉義縣", "x": 25.6, "y": 55.4}, "hualien-county": {"zh": "花蓮縣", "x": 68.8, "y": 46.4}, "hsinchu-city": {"zh": "新竹市", "x": 48.4, "y": 16.1}, "hsinchu-county": {"zh": "新竹縣", "x": 58.3, "y": 18.7}, "kaohsiung-city": {"zh": "高雄市", "x": 31.5, "y": 68.5}, "keelung-city": {"zh": "基隆市", "x": 84.4, "y": 6.4}, "kinmen-county": {"zh": "金門縣"}, "lienchiang-county": {"zh": "連江縣"}, "miaoli-county": {"zh": "苗栗縣", "x": 47.6, "y": 23.8}, "nantou-county": {"zh": "南投縣", "x": 49.8, "y": 43.6}, "new-taipei-city": {"zh": "新北市", "x": 81.6, "y": 10.2}, "penghu-county": {"zh": "澎湖縣"}, "pingtung-county": {"zh": "屏東縣", "x": 32.4, "y": 85.3}, "taichung-city": {"zh": "台中市", "x": 48.8, "y": 32.1}, "tainan-city": {"zh": "台南市", "x": 18.6, "y": 63.4}, "taipei-city": {"zh": "台北市", "x": 77.4, "y": 7.1}, "taitung-county": {"zh": "台東縣", "x": 58.6, "y": 75.8}, "taoyuan-city": {"zh": "桃園市", "x": 61.4, "y": 13.8}, "yilan-county": {"zh": "宜蘭縣", "x": 81.5, "y": 19.6}, "yunlin-county": {"zh": "雲林縣", "x": 23.0, "y": 48.4}};
+var _TW_PATH_DATA = {"changhua-county": "M647.2 689.6l0.1 3.6-4.3 1.6-1.2 2.9 0.5 4-2 4.6-1.6 5.4-0.1 5.7-1.2 6.6-0.9 13.4 2.1 6.3 3.6 3.3 3.9 1.4 5.6 2.9-1 3.5-3.8 1.5-2.5 2.3-2.4 1.6-1 0.7-12-2.4-5.8 0.1-12.2-6-19.7-2.3-11.6-4.4-6.6-1.8-7.6-0.4-22 2.6-7.6-4.4 0.8-1.4 1.6-7.1 1.2-3 7.1-6.8 2-2.8 2.7-7.8 4.2-7.7 5.7-16.1 2.7-4.7 3-3 2.5-1.7 2.2-1.1 1.6-1.4 0.6-3 1.2-2.8 5.1-4 1.2-3 0.6-10.1 0.9-2.8 2.7-2.6 11.3-13.2 5.8 1.9 4 3.5 2.7 6.3 1 7.6 4.5 5.4 11.9 3.5 4.3 3.6 3.2 5 2 4 0.1 4 1.2 3.3 4.3 0.8 5.4 3.5 0 1.4z", "chiayi-city": "M573.8 836.5l9.3-1.6 7.8-0.7 5.6 2.1 4.1 2.2 2.5 4 2.5 6.8-3 2.2-4.5 0.6-6.8 2.7-7.3-1.7-7-4.5-6.1-2.4-0.9-5.6 3.8-4.1z", "chiayi-county": "M499.6 893.2l-1.8 1.4-0.4-1.1 2.4-3.1 0.9-2.4 1.1-1.5 0.6 0.5 0.1 1.1-1.4 2-1.5 3.1z m2.2-12.6l-0.7-0.7 2-3.8 0.9-0.4-0.5 1.9-1.7 3z m4.9-9l-0.1-4.4 0.5 0.4 0.1 2.9-0.5 1.1z m1.4-9.7l-0.8 1.6-0.5-2 1.3 0.4z m-1.3-6.1l-0.5 1.3-1.3-2.1 1.8 0.8z m-29.8 1l-3.2 1.6 3.8-5.4 13.9-14.1 10.6-13.5 2.5-0.8-9 14.7-4.5 4.5-2.9 3.5-3.8 3.8-3 2.1-4.4 3.6z m189.5-51.1l6.1 0.7 6.8 2.6 4.1 1.2 5.1 2.8-0.3 5.3-3 5.1 1.2 4.8 2.7 6.5 0.4 5.9 1.1 3.8 7.6 1.4 25.6 0.2 0.9 0.2-18.5 9.4-8.5 6.8-3.6 6.8-4.2 5-7.7 4.3-7.9 6.1-4.5 5.4-12.3 7.3-5.8 0.6-6.9-0.7-3.6 3.5-0.1 5 1.4 4.5 1 6.7-8.4-1-3.7-1.1-5 0.6-5.3 2.4-3.8 0-4.5-3.5-1.6-4.6 1.8-14.2-1-7.5-9.9-10.1-1.7-5.1-2.1-4.2-4-2.4-7.2-2.4-8.5 0.5-15.2 2.8-7.8 3.5-6.1 4.6-4.7 4.8-6.6 5.1-5.8 3.6-2.5 4.9-6.2 2.8-7.2-1.8-8.9-1.3-5.2-2 3.8-0.3 3.3-1.4 1.4 0.5-0.9-3.2-2.2 1.6-1.8-0.5-2.5-0.1 0-3.3 2.4-5.6 3.7-0.3 5.4 0.1-3.7-10.5-4.1-8 1.9-3.7 0-1.9-3.1-1.5 0.4-1.8 1.8-2 0.9-2.6 4-5.2-8.5 0.5-0.2-8.7 11.6-1.4 8.3 4.7 6.1 0.1 3.9-3.2 1.7-4.9 2.1-3 5.3-0.8 7-5.7 4.4-2.4 3.8-3.8 16.3-9.4 7.2-2 12.6-2.3 6.9-0.4 5.3 4.6 5 5.9 12.6 4.6 3.7-0.5 8.3-2.4 4.7 3.4 2.4 3.9 6.3-0.6 11.7-2.4 4-1.3 0-3.4 0.3-5 0.5 0z m-92.7 30.8l-3.8 4.1 0.9 5.6 6.1 2.4 7 4.5 7.3 1.7 6.8-2.7 4.5-0.6 3-2.2-2.5-6.8-2.5-4-4.1-2.2-5.6-2.1-7.8 0.7-9.3 1.6z", "hualien-county": "M935.4 601.5l0.6 0.8 1.6 2.9 0.2 1.1-1.4 2.4-5.8 5.7-6.2 8.6-4.7 3.7-1.4 2 0.7 2.1-0.9 1.5-6.6 5.1-2.5 2.4-2.8 6-2.9 12.2-7.4 10.9-1.5 4.4 0.2 4.7 1.8 5.2 1.5 2.3 1.3 1 0.8 1.4 0.1 3.2-1.1 3.6-3.7 5.8-0.7 3.5-0.4 6.4-3.2 16.3-6.4 17-8 40.1-4.8 9.8-11 64.1-3.5-1-10.8 5.2-3.9 5.4 1.7 6.9 0.6 6.9-3.6 6.9-3.4 5.2-2.7 6.6-2.4 8.4-3.7 7.7-4.8 13.2-3.1 6.1 0.1 6.7-0.9 6.2-6.5 3.7-8.2-1.1-11.7-9.7-9.2-16-5.7-1.5-6.3-0.9-5-4.8-6.1-2.9-7.8-2.8-5-8.1-1.2-7.4-0.3-2.5-2.8-7.6-6.3-5.2-5.6-3.6-1-4 1.4-3.2 5.6-2.4 3-5-1.9-5.8 6-3.5 3.1-2.8-1.7-6.2 1.5-2.7 1.5-4 5.2-3.9 7.4-1.6 7.4-0.3 5.3-4.7 1.3-8.5 4-5.2 7.6-2.8 4.5-3.1 1.6-5.1 3.2-12.6 1.2-8.4-0.9-7.2-1.2-5.4-3.2-4.1-2.1-4 5.7-9.4 0.2-3.7 2.5-7 3.9-8.5 3-8.8 1.6-9.9 0.6-7.6-1.8-4.5-2-3.3 2.3-7.6 5.1-10.7 8-10.4 0.3-3.9-1.5-4.5-5.2-3.4-2.9-3.1-0.2-9.9 3.7-2.9 6.6-2.2 5.2-2.4-0.2-3.7-1.4-6.2 2.8-2 1.2-2.1 3.4-1.7 3.1-3.8 1.3-5.1 3-5 7.5-4.7 2.4-6.2 0.4-4.2 4.7-4.9 2.5 2.1 6.5 3.1 15 3.8 8.3 3.2 6.5 0 4.9-4.5 2.4-6 3.8-0.9 18.5 11.1 11.1 1.7 1.1 0z", "hsinchu-city": "M724.3 489l-0.2 0.2-4.6 1.1-4.4-1.7-2.7-3.8-4.3-2.6-6.9-2.7 1.2-4.1 5.5-11.4 2.2-3 0.7-1.5 0-1.7-0.7-1.9-1.1-2.2 1.5-3 1.8-1.8 8.3 3.6 15.1 4.8 5.4 2.8 3.8 3.9 1.9 3.7-1 3.6-2.4 1.4-5.1 0.9-5.9 2.4-3.4 4.3-2.3 5.6-2.4 3.1z", "hsinchu-county": "M843.1 523.6l-2.3 6.5-1.4 4.7 0.6 4.4-3.8 5.8-14 14.2-4.3 10.5-2.8-0.8-10.6 1-0.8 0.6-0.6-4.9-4.6-7.8-3.3-3.3-1.3-4.4-5-4-12.5 3.2-4.8-0.5-6.8 0.5-7.7 2.1-4.1-1 0.9-5.1 1.3-4.6-1-4-1-2.9 1-3.1 0.8-3.5 0.3-3.9-0.7-5.2-3.9-3.4-12.1-5.7-6-4.5-3.9-4.4-4.4-11.1 2.4-3.1 2.3-5.6 3.4-4.3 5.9-2.4 5.1-0.9 2.4-1.4 1-3.6-1.9-3.7-3.8-3.9-5.4-2.8-15.1-4.8-8.3-3.6 1.5-2.3 0.6-3.9 0.9-2.9 2-2.9 2.7-2.1 2.5-0.9-0.2-1.2 0.7-2.9 2.2-6.1 2.1-3.3 3.1 1.1 13.7-1 4.6 3.1 4 8.7 5 2 4.3 1.2 4.1 2 6.8 2.2 3.6\n\t\t\t4.2-1.1 5.8 3.5 3.7 6.5 2.1 4.2 3.1 3.1 3.1 3.8 0.7 3.9-0.3 3.4 3.5 2.6 4.5 4.3 2.2 3.4 2.6 0.4 5 1.6 7.3-1.9 7.8-4.6 6.5 0.5 4.3 5.2 3.9 6.2 3.8 5.5 0.9 4 2.9 7.3 4.1 4.8 2.2z", "kaohsiung-city": "M739.8 857.3l1.9 5.8-3 5-5.6 2.4-1.4 3.2 1 4 5.6 3.6 6.3 5.2 2.8 7.6 0.3 2.5-15.6 3.8-6.4 4.1-4 3.9-7.8 5.1-0.9 5.7 2.3 6-2.7 4.9-7.4 4-0.8 6.9 2.1 9.9-3 13.2-0.1 11.2-4.3 5.9-8.5 7.2-2.3 9.8 1.3 8.1 3 4.6 6.2 6.4 1.2 4.9-3.9 0.5-5.2-0.9-4.3 0.2-8.5 6.7-5.9-5.5-7.6-8.9-7.2 1.8-6.6 5.9-13.1-6.6-9.4 4.5-6.4 7.1-8 2.8-17.8-1.1-1.7 4.9-1.3 7.2-2.6 7.9 0.5 7-0.1 9.5-5.7 21.2-0.1 7.1 2.7 7.5 0.4 8.2-8.1 20.5-2.6-1.1-1.6 0.1-1.8 0.7-2.2 0-13-10.2-12.1-17.1 12.7 15.4-1.5-7.4-3.8-7.2-5.3-6-9-8.4-3.5-4.2-1.6-4.8 2.2-4.6 1.1-4.1-1.5-5.8-2.7-5.6-4.9-7.7-4.6-10.2-1-4.5 0.1-3 1.5-3.6 0.3-2.4-0.5-1.2-2.7-2.3-0.5-2.3-2.9-4.9-0.7-2-2.1-13.6 6.1-3.7 0.2 0.5 3.9 8.6 4.8 2.5 15.7 2.2 8.2-0.9 8.4 1 4.2-1.5 3.5-2.6 6.5-2.6 6.3-4.4 2.4-5.5 3-5.2 5.3-7.1 6.1-6.4 6.5-5.4 7.4-7.2 6.5-8.4 10-17 10.4-15.1 2.3-6.6-1-6.7-1.4-4.5 0.1-5 3.6-3.5 6.9 0.7 5.8-0.6 12.3-7.3 4.5-5.4 7.9-6.1 7.7-4.3 4.2-5 3.6-6.8 8.5-6.8 18.5-9.4 4.3 1 5.8 2.2 4.2 5.9 0.7 2z", "keelung-city": "M934.8 365l-0.3 11.9 0.2 3 3.7 3.9-0.4 2.5-2.5 1.8-4 1.5-5.1-0.6-10.6-4.4-3-2.2-3.7-3.4-2.8-3.5-1.7-3.5-2.9-3.7-0.6-2.9 3.2-2.2 7.2-3.1 4.4-2.9 1.4 0.9 2.4 2.7 3.9 1.4 11.2 2.8z", "kinmen-county": "M9.2 576.4l-5.2 1.5-3-1.2 5-9.9 1.3-1.4 2.1-0.5 2.1-0.1 2 1.4 1.6 1.8 0 3.1-1.4 2.1-1.6 0.1-1.1 1.2-0.6 1.2-1.2 0.7z m55-26.8l4.7 12.6-1 8.8-3.9 4.6-6.8-4.3-5-1.6-8.1 0.8-7.1 4.5-3.9 6.1-3.4 1.7-3.9-1.9-2.7-0.1-2.4-1.1-1.2-2.1 0.5-0.7 2.1-2.8 0.7-1.2 0.2-2.1-0.1-2.5-0.7-4.3-1.8-4.2-0.2-2.1 1.5-0.9 7.6-3.7 10 6.6 7-0.9 1.1-8.7 2.3-5.5 7.5-1.5 7 6.5z m269.3-137.7l-2.9 1.5-1.3-1.2 0.7-3.2 2.4-1.4 1.7 0.3 0.2 1.9-0.8 2.1z", "lienchiang-county": "M469.2 123.9l-0.2 2.3-1.9 2.1-4.1 2 2.5-5.6 2.5 0.5 0.1-0.9 1.1-0.4z m-11.8-0.8l-2 2.1-2.4-3.4 3.6-1.3 2.7 1.5-1.9 1.1z m-3.2-54.9l1 0.5 4.4-2.6 2.8 0 0 1.8-2.8 3.2-5.5 2.9-1.7 0.3-2.5-1.7-0.8-2.4 0.5-2.8 1.1-2 1-0.2 0.3 2.2 2.2 0.8z m21.3-17.8l-0.6 2.2 0.6 1.2-1.4-0.2-1.5-2.2-1.1-0.7-2.3 1.3-1-0.4-1.3 0.3-1.5 1.7-1.2 5-1.1-0.7-0.5-1.5 0.5-4.3 0.5-1.6 1.1-0.7 2.7-0.9 0.7-0.9 2.2-1.3 2.5 0.4 1.3 1.9 1.4 1.4z m129.8-45.6l-1.2 0.4-1.1-0.4-1.4 1.3-1.1 2.1-0.3-0.5-1.2-0.2-1.8-1 1.1-1.7-0.5-1.4 0.9-0.6 2.2-1.8 2.6 1.5 0.6 1.3 1.2 1z", "miaoli-county": "M724.3 489l4.4 11.1 3.9 4.4 6 4.5 12.1 5.7 3.9 3.4 0.7 5.2-0.3 3.9-0.8 3.5-1 3.1 1 2.9 1 4-1.3 4.6-0.9 5.1 4.1 1 7.7-2.1 6.8-0.5 4.8 0.5 12.5-3.2 5 4 1.3 4.4 3.3 3.3 4.6 7.8 0.6 4.9-3.7 2.6-1.8 5.6-4.9 2-5.3-0.1-4.2 3-4.6 4.4-5.9 3.2-11.6 9.2-6.8 2.9-8.9 4.7-5.4-2.1-5-5.6-6-2.4-9.9-0.8-5.5 3.3-0.9 7.4-5.2 2.8-12.1 0.7-11.6-6.7-6.6-1.2-7.3-3.6-15.1-11.1-6.3-5.5-4.7-5-9.2-14.3 7.2-8.1 1.9-4 0.9-6.6 2.2-5.6 5.9-10.4 1.6-6.3 1.5-2.7 6.8-2 1.9-2.1 1.1-2.6 1.4-2.5 4.2-4.3 4.6-3.4 5.6-1.5 7.1 1.3-0.9-5.4 2.7-3.7 3.7-3.8 1.9-5.7 0.8-1.9 3.6-1.8 0.3-1.3 6.9 2.7 4.3 2.6 2.7 3.8 4.4 1.7 4.6-1.1 0.2-0.2z", "nantou-county": "M825 627.6l1.4 6.2 0.2 3.7-5.2 2.4-6.6 2.2-3.7 2.9 0.2 9.9 2.9 3.1 5.2 3.4 1.5 4.5-0.3 3.9-8 10.4-5.1 10.7-2.3 7.6 2 3.3 1.8 4.5-0.6 7.6-1.6 9.9-3 8.8-3.9 8.5-2.5 7-0.2 3.7-5.7 9.4 2.1 4 3.2 4.1 1.2 5.4 0.9 7.2-1.2 8.4-3.2 12.6-1.6 5.1-4.5 3.1-7.6 2.8-4 5.2-1.3 8.5-5.3 4.7-7.4 0.3-7.4 1.6-5.2 3.9-1.5 4-1.5 2.7 1.7 6.2-3.1 2.8-6 3.5-0.7-2-4.2-5.9-5.8-2.2-4.3-1-0.9-0.2-25.6-0.2-7.6-1.4-1.1-3.8-0.4-5.9-2.7-6.5-1.2-4.8 3-5.1 0.3-5.3-5.1-2.8-4.1-1.2-6.8-2.6-6.1-0.7-2.6-3.5-8.2 0.9-6.8 2-5.8-2.5-4-4.7 0.9-5.7 1.9-5.2-1-7.7 1-7.2 2-4.7-1.9-7.2 2.4-1.6 2.5-2.3 3.8-1.5 1-3.5-5.6-2.9-3.9-1.4-3.6-3.3-2.1-6.3 0.9-13.4 1.2-6.6 0.1-5.7 1.6-5.4 2-4.6-0.5-4 1.2-2.9 4.3-1.6-0.1-3.6 4.3 0.2 17.9 2.5 4.2-0.6 5-4.8 7.6-14.4 3.7-8.5 6.4-3 10.1 1.4 6-0.2 5.8-7.7 3-1.9 8.9 6.7 3.5-0.9 2.6-5.5 4.7-3.9 6.6 0.1 5-1.9 7.9-7.6 5.1-2.9 4.4-0.8 8.8-4.7 6.2-0.2 6.3-1 11.1-4.4 4.6-0.3 4.7 1 13.4 1.3z", "new-taipei-city": "M915.9 357.2l-4.4 2.9-7.2 3.1-3.2 2.2 0.6 2.9 2.9 3.7 1.7 3.5 2.8 3.5 3.7 3.4 3 2.2 10.6 4.4 5.1 0.6 4-1.5 2.5-1.8 0.4-2.5-3.7-3.9-0.2-3 0.3-11.9 34.6 8.4 3.2 2-1.6 3.7-0.4 2.9 0.7 5.2 2.4 8.7 2.6 4.1 2.2 0.9 7-1 3.6 0.4 4.2 1.1 3.7 1.9 2 2.5-8.7 4.3-0.8-1.1-3.3-1.9-5.9 1.3-8.4 4.4-3.7 2.5-11.2 2.3-1.4 2.9 2.5 3.6-1.6 3.8-4.6 2.9-3.5 1.2-3.7 2-3.3 4.1-3.1 5-5 3.6-6.2 1.9-13.5 8.1-13 5.3-3.8 2.3-4.7 4-2 4.9 0.2 4.2 1 3.2 0.4 2-3.9 2.8-6.6 3.2-5 3.5-3.8 3.3-4.9 1.8-5.7 1.6-2.5-5.4-8.9-8.5-1.4-5.6-0.8-5.2 3.1-3.7 1.5-5.3-8.5-12.3-5-2-7.4 0.4-5.1-2.9 1.3-6.7-1-5.1-5.4-5.1-1-5.1 1-5.8-0.2-6.2 3.7-4 13.1-3.9 3.3-3.4 1-4.2-0.5-4.1-5.1-7.5-4.2-2.2-4.1-1-3.2-2.8-4.7-3.1-6.3-3-4.2-4.6 11.2-2.1 4.8-1.8 6.1-5.2 1.9-0.9 2.2-0.4 3.1 0 3.5 1.1 1.9 2.7 1.2 2.7 1.5 1.6 3.5-1.4-3.6-5.7-5.8-5.9-3.1-1.9 0.9-2.7 1.8-1.5 1.9-0.9 0.8-1 2.1-5.1 3.2-5.9 6.6-5.9 9.6-4.9 11-2.5 10.8 1.2 4.5 3.4 10 14.2 3.6 7.4 1.2-0.5 2.7-0.7 3-0.4 2.2 0.6-0.1 0.9-1.1 1.3-1 1.8 0.1 2.2 1.1 1.2 2.3 1.7z m-18.5 56l7.6-9.6 2-4.3-3.8-3.2-4.6-2.6-0.1-5.1 1.6-6.6-1.6-4.4-3.9-3.5-2.5-10-3.2-6.8-0.4-3.5 0.5-3.6-2.1-2.2-3.8-1.2-4 2-2.9 2.5-10.9 6.4-3.6 4-2.1 4.6-1.8 2.4-1.6 3 3.8 4.2 5.7 5.5 1.2 6.3-1.5 7.4 3.9 6.7 5.8 4.6 3.8 4.3 3.7 3.3 4.8 1 5.8 0.1 4.2-1.7z", "penghu-county": "M320.7 926.5l-1.8 0.9-1.3-1.5-1.5-4.7 1-1.2 3.8-1.3 2.7 0.7 0.1 2.1-0.2 1.6-1.2 1.2-1.6 2.2z m-1.2-12l-1.7 3.1-2.2-0.6-2-2.5-0.3-2.5 1.2-1.1 3.2 0.5 1.8 3.1z m48.8-3.2l-0.4 0.1-1.2-1.5 0.3-0.6 2.5-0.2 0.8 2-2 0.2z m14-4.6l0.3 0.2 2.3 0 0 1.3-1.1 1.5-0.7 1.8-1.1-2.8 0.3-2z m-33.5-29.6l-1.7 0.1-3 1.8-0.4-0.4 0.4-1.3 1.1-1.5 0.7-0.6 1.6-0.3 1.5 0.9-0.2 1.3z m-8.4-6.7l0.1 2.3 0.5 1.6 1.4 1.2-0.6 1.6-1.2 1.2 0.6 1.9-1.5 0.6-3.1-0.3-1.6-0.7 1.4-3.1-0.2-4.2-0.9 0.6-2 0.6-0.6-2.3 2.1-5.1 1.6-0.3 2.7 3.6 1.3 0.8z m-49.5-5.7l2.4 0.6 0 1.6-0.6 0.9-2.1 0.6-1.1-1.1 1.4-2.6z m58.5-24.8l-3.2 2.1-2.1 0.6-2.2 1.1-1.3-0.5-0.3-1.8 0.7-0.6 1.8 0.5 4-2 2.6 0.6z m19.5-28l-0.6 1.3 4-1.3 3.1 0.4 2.3-0.2 1.6-2.7 4.7 8.7 1.2 4-0.5 3-2-2-2.5-1.7-2.8-0.5-4 2.2-2.8 0.3-1.4 0.8-0.7 1.5-1.1 4.1-0.7 1.2-4.7 2.7-4.8 0.7-4.8-1.9-4.9-4.9 1.3-2.5 2.7 3.2 4 0.9 4.3-1.2 3.5-2.9-2.4-0.9-2-1.2-1.5-1.6-1.4-2.2-0.8 1.4-1 0.6-0.3-4 0.3-4 1.8 0 2.1 0.5 7.4-4.6 4.6-1.6-1.2 4.4z m-39.9 9.3l-3.8 0 0.7-2.1 1.2-1.3 1.9-0.5 2.5-0.2 2.2-0.9 0.6-2 0.1-4.8 3.2-10.4 3.1-3 4.2 3.6-2.5 1.5-1.7 3.6-2.8 8.5-0.1 2.2 0.7 2-0.3 1.3-3 0.5-2.2 0.1-1.5 0.3-1.3 0.6-1.2 1z m33.8-17.9l-2.2 0.7-1.1-1.5-0.9-3.5-2-2.9-4.3-4.3 5.5-4.1 3.3 1.7 3.2 2.8 1.4 2.9-2.5 2.4 1 3.5-1.4 2.3z m2.6-30.4l-0.3 0.9-1.3-3-0.2-1.4 1.8-1.5 1.6-3 0.5 1.1 2.5 1.4-0.4 1.8-2.2 1.3-2 2.4z", "pingtung-county": "M569.4 1166l2 2.9-0.3 1-2.7 1.8-5 4.3-0.9-3.3 1.4-2.7 2.8-3.6 2 0 0.7-0.4z m126.7-143.3l3.5 6.6 0.7 4.9 5.4 1.3 5.5 3.6-2.8 13.8-0.1 5.2-2 5-9.8 4.1-4.8 2.7-7.6 1.6-5.4 4.5-2.4 6.6-3.7 6.6-3 7.5-0.8 14.7 1.2 6.5 2 6.1 1.1 7.1 0 5.4 2.6 5 4.6 5.6-2.5 3.8-5.3 3.2-2.1 3.9-0.5 4.5 2.7 3.9 3.4 1.7 3.1 4.4-0.1 5.7 0.6 6.1 3.2 5.9 4.6 4.9 10.2 4.7 4.5-0.3 0.9 51.6-1.6 7.3-2.5 6-3.4 2.5-4 3.7 0.1 8.3 1.5 9.2-0.4 5.9-4.5-6.8-6.8-5.2-7.8-3.5-8-1.9-0.3 6.6-2.3 2.3-3.4-0.8-3.7-3.1-0.2-2.4 1.3-7-5.5-9.2-0.5-2.4 0.1-2.1 0.4-3.2 0-10.8 0.5-3.1 2.5-3.6 0.5-3-19.9-51.6-1.6-2.9-5.5-6.8-4.4-9.9-2-2.8-8.2-6.5-5.4-3-0.9-3.7-0.7-1.3-4.4-2.9-10-4.8-4.5-3.1-4.8-4.2-2.6-1.6 8.1-20.5-0.4-8.2-2.7-7.5 0.1-7.1 5.7-21.2 0.1-9.5-0.5-7 2.6-7.9 1.3-7.2 1.7-4.9 17.8 1.1 8-2.8 6.4-7.1 9.4-4.5 13.1 6.6 6.6-5.9 7.2-1.8 7.6 8.9 5.9 5.5 8.5-6.7 4.3-0.2 5.2 0.9z", "taichung-city": "M803.7 570.5l0.8-0.6 10.6-1 2.8 0.8 3.6 1-0.6 5.5 1.4 3.8 4.9 1 4.4 2.6 3.7 2.5 4-0.6 4.7-2.3 4.9 0 5.9 4.7-4.7 4.9-0.4 4.2-2.4 6.2-7.5 4.7-3 5-1.3 5.1-3.1 3.8-3.4 1.7-1.2 2.1-2.8 2-13.4-1.3-4.7-1-4.6 0.3-11.1 4.4-6.3 1-6.2 0.2-8.8 4.7-4.4 0.8-5.1 2.9-7.9 7.6-5 1.9-6.6-0.1-4.7 3.9-2.6 5.5-3.5 0.9-8.9-6.7-3 1.9-5.8 7.7-6 0.2-10.1-1.4-6.4 3-3.7 8.5-7.6 14.4-5 4.8-4.2 0.6-17.9-2.5-4.3-0.2 0-1.4-5.4-3.5-4.3-0.8-1.2-3.3-0.1-4-2-4-3.2-5-4.3-3.6-11.9-3.5-4.5-5.4-1-7.6-2.7-6.3-4-3.5-5.8-1.9 0.6-0.8 0.8-3.3 3.3-2.7 2.2-6.5 2.7-12.3 9.3-16.1 2.8-9.9 3.4-5.5 13.3-14.8 9.2 14.3 4.7 5 6.3 5.5 15.1 11.1 7.3 3.6 6.6 1.2 11.6 6.7 12.1-0.7 5.2-2.8 0.9-7.4 5.5-3.3 9.9 0.8 6 2.4 5 5.6 5.4 2.1 8.9-4.7 6.8-2.9 11.6-9.2 5.9-3.2 4.6-4.4 4.2-3 5.3 0.1 4.9-2 1.8-5.6 3.7-2.6z", "tainan-city": "M483.8 968.3l-0.6 1.2-2.3-2-1.7-4.2 0.3-1.3 0.7 0 0.9 1.2 0.7 1.9 2.1 2.2-0.1 1z m0.5-27.6l-2.9 6.8 3.9-13.3 0.6 0.1-1.6 6.4z m3.5-12.8l3.5-9.9 0.5-0.1 0.2 1.9-4.2 8.1z m6.3-22.5l-0.4 2.4 0.6-10.6 0.5 0.2-0.7 8z m149.5 11.5l-2.3 6.6-10.4 15.1-10 17-6.5 8.4-7.4 7.2-6.5 5.4-6.1 6.4-5.3 7.1-3 5.2-2.4 5.5-6.3 4.4-6.5 2.6-3.5 2.6-4.2 1.5-8.4-1-8.2 0.9-15.7-2.2-4.8-2.5-3.9-8.6-0.2-0.5-6.1 3.7-1-6.3-1.8-3.6-3.9-3.9 4.7-3.4 2.7-6.1-1.1-5.2-6.3-0.9-1.2 1.8-1.1 3.4-1.8 2.7-3.3-0.1-1.3-2.3 0.5-7-0.8-2.4-4.1-1.8-2.3 2.1-1.8 2.9-2.8 0.7-2.9-2.5-0.7-3.5 0.7-3.4 1.1-2.3 3-1.6 3.7-0.5 3.1-1 1-3-1.4-1.5-9.4-2.4 0-1.9 7.9-0.1-0.8-2.6-4.3-3.7-2.8-3.2 0.7-4 2.5-1.5 2.7-0.9 1.4-2.5-0.8-3.9-1.4-3.2 0.9-3 1.4-3.7 2.3-2.6-0.5-2.3 0.5-2.3 3.3-9 1.6-1.7 2.6-0.6-3.7-2.5 1.6-4.1 5.2 2 8.9 1.3 7.2 1.8 6.2-2.8 2.5-4.9 5.8-3.6 6.6-5.1 4.7-4.8 6.1-4.6 7.8-3.5 15.2-2.8 8.5-0.5 7.2 2.4 4 2.4 2.1 4.2 1.7 5.1 9.9 10.1 1 7.5-1.8 14.2 1.6 4.6 4.5 3.5 3.8 0 5.3-2.4 5-0.6 3.7 1.1 8.4 1z", "taipei-city": "M897.4 413.2l-4.2 1.7-5.8-0.1-4.8-1-3.7-3.3-3.8-4.3-5.8-4.6-3.9-6.7 1.5-7.4-1.2-6.3-5.7-5.5-3.8-4.2 1.6-3 1.8-2.4 2.1-4.6 3.6-4 10.9-6.4 2.9-2.5 4-2 3.8 1.2 2.1 2.2-0.5 3.6 0.4 3.5 3.2 6.8 2.5 10 3.9 3.5 1.6 4.4-1.6 6.6 0.1 5.1 4.6 2.6 3.8 3.2-2 4.3-7.6 9.6z", "taitung-county": "M889.2 1263l-5.5 1.7-7.3-2.9-6.8-4.8-3.9-3.7 1.2-2.7-0.1-2.5-1-2.4-1.7-2.1 19.5 0 0 1.8-1.3 3.5-0.4 2.9 0.9 2.5 4.7 3.5 2 2.5-0.3 2.7z m-24-177.6l-0.1 1.1-3.4-0.4-0.4-0.6-2.7-1-2.8-4.9-1.4-4.3 0.6-0.6 10-0.7 1.1 0.6 0.8 2-0.8 3.9-0.9 1.6-0.4 1.7 0.4 1.6z m-163.1 114.1l-4.5 0.3-10.2-4.7-4.6-4.9-3.2-5.9-0.6-6.1 0.1-5.7-3.1-4.4-3.4-1.7-2.7-3.9 0.5-4.5 2.1-3.9 5.3-3.2 2.5-3.8-4.6-5.6-2.6-5 0-5.4-1.1-7.1-2-6.1-1.2-6.5 0.8-14.7 3-7.5 3.7-6.6 2.4-6.6 5.4-4.5 7.6-1.6 4.8-2.7 9.8-4.1 2-5 0.1-5.2 2.8-13.8-5.5-3.6-5.4-1.3-0.7-4.9-3.5-6.6 3.9-0.5-1.2-4.9-6.2-6.4-3-4.6-1.3-8.1 2.3-9.8 8.5-7.2 4.3-5.9 0.1-11.2 3-13.2-2.1-9.9 0.8-6.9 7.4-4 2.7-4.9-2.3-6 0.9-5.7 7.8-5.1 4-3.9 6.4-4.1 15.6-3.8 1.2 7.4 5 8.1 7.8 2.8 6.1 2.9 5 4.8 6.3 0.9 5.7 1.5 9.2 16 11.7 9.7 8.2 1.1 6.5-3.7 0.9-6.2-0.1-6.7 3.1-6.1 4.8-13.2 3.7-7.7 2.4-8.4 2.7-6.6 3.4-5.2 3.6-6.9-0.6-6.9-1.7-6.9 3.9-5.4 10.8-5.2 3.5 1-4.6 26.4-2.2 4.9-7.1 9.4-2.6 4.9-2.1 6.1-1.5 11.4 0.2 10.2-1 9.7-4.9 9.9-2.1 2.1-4.7 3.5-2.2 2.2-1 2.3-1.7 5.8-4.8 8.4-2.9 13.1-2.1 5.9-10.3 14.8-1.3 2.7-13.9 11.8-3.3 3.8-0.4 2.7 0.6 6.2-0.2 2.8-1.2 3.2-2.2 3.5-4.7 6.1-4.7 4.5-16.1 10.7-10.8 11.9-2.7 1.4-2.1 2.7-5.2 13.5-2.6 5-8 10-3.3 6-1.9 12.3-4.8 16.8-9.5 16.7-1.4 5.7-1.7 16.1 0.3 14.7z", "taoyuan-city": "M861.8 498.8l-3.1 0.9-5.4 3.9 3.1 12.4-2.2 3.8-3.4 1.3-3.3-0.6-3.9 1.6-0.5 1.5-4.8-2.2-7.3-4.1-4-2.9-5.5-0.9-6.2-3.8-5.2-3.9-0.5-4.3 4.6-6.5 1.9-7.8-1.6-7.3-0.4-5-3.4-2.6-4.3-2.2-2.6-4.5-3.4-3.5-3.9 0.3-3.8-0.7-3.1-3.1-4.2-3.1-6.5-2.1-3.5-3.7 1.1-5.8-3.6-4.2-6.8-2.2-4.1-2-4.3-1.2-5-2-4-8.7-4.6-3.1-13.7 1-3.1-1.1 8.9-14.2 6.9-8.3 7.2-6.1 18.4-6.1 4.3-2.7 3.7-3.2 4.5-2.5 9-3.2 20.1-3.6 4.2 4.6 6.3 3 4.7 3.1 3.2 2.8 4.1 1 4.2 2.2 5.1 7.5 0.5 4.1-1 4.2-3.3 3.4-13.1 3.9-3.7 4 0.2 6.2-1 5.8 1 5.1 5.4 5.1 1 5.1-1.3 6.7 5.1 2.9 7.4-0.4 5 2 8.5 12.3-1.5 5.3-3.1 3.7 0.8 5.2 1.4 5.6 8.9 8.5 2.5 5.4z", "yilan-county": "M982.4 448.9l2.1 0.5 1.6 2.2-0.7 2.3-3.8-0.1-1.4-0.8-1.7-2.7 0.9 0.3 3-1.7z m-47 152.6l-1.1 0-11.1-1.7-18.5-11.1-3.8 0.9-2.4 6-4.9 4.5-6.5 0-8.3-3.2-15-3.8-6.5-3.1-2.5-2.1-5.9-4.7-4.9 0-4.7 2.3-4 0.6-3.7-2.5-4.4-2.6-4.9-1-1.4-3.8 0.6-5.5-3.6-1 4.3-10.5 14-14.2 3.8-5.8-0.6-4.4 1.4-4.7 2.3-6.5 0.5-1.5 3.9-1.6 3.3 0.6 3.4-1.3 2.2-3.8-3.1-12.4 5.4-3.9 3.1-0.9 5.7-1.6 4.9-1.8 3.8-3.3 5-3.5 6.6-3.2 3.9-2.8-0.4-2-1-3.2-0.2-4.2 2-4.9 4.7-4 3.8-2.3 13-5.3 13.5-8.1 6.2-1.9 5-3.6 3.1-5 3.3-4.1 3.7-2 3.5-1.2 4.6-2.9 1.6-3.8-2.5-3.6 1.4-2.9 11.2-2.3 3.7-2.5 8.4-4.4 5.9-1.3 3.3 1.9 0.8 1.1-12 6-5.5 4.7-18.7 22.8-2.9 4.8-2.3 6.8-1.6 7.7-0.5 7.6 0.3 7.4 3.3 15.5-0.2 4-1.5 3.9 0.2 8.1 3.5 6.3 6.5 4 7.6 1.4 0 1.8-3.2-0.3-3.1 0.3-2.6 0.8-1.9 1.4 2.7 5 1.3 6.5-0.8 5.6-6 3.4-0.4 2.5 0.7 3 1.7 2.7 0.6 2.8-2.5 2.4-6.2 3.6-7 8-0.3 3.2 0.5 7-1.2 2.6-1.3 2.3-0.8 3.2-0.5 6.4-0.6 1.6-1 1.3-0.5 1.4 1.3 1.9z", "yunlin-county": "M642 760.2l1.9 7.2-2 4.7-1 7.2 1 7.7-1.9 5.2-0.9 5.7 4 4.7 5.8 2.5 6.8-2 8.2-0.9 2.6 3.5-0.5 0-0.3 5 0 3.4-4 1.3-11.7 2.4-6.3 0.6-2.4-3.9-4.7-3.4-8.3 2.4-3.7 0.5-12.6-4.6-5-5.9-5.3-4.6-6.9 0.4-12.6 2.3-7.2 2-16.3 9.4-3.8 3.8-4.4 2.4-7 5.7-5.3 0.8-2.1 3-1.7 4.9-3.9 3.2-6.1-0.1-8.3-4.7-11.6 1.4 4.6-5.2-0.2-16.4 0.7-12.3 2.8-9.8 4.3-7.7 1.3-10 2.3-8.8 1.3-3 6.1-8.1 1.1-2.8 0.7-1.5 5.6-4.3 0.8-1.6 7.6 4.4 22-2.6 7.6 0.4 6.6 1.8 11.6 4.4 19.7 2.3 12.2 6 5.8-0.1 12 2.4 1-0.7z"};
+var _TW_OUTLYING_VIEWBOX = {"kinmen-county":"-39 368 413 255","lienchiang-county":"430 -18 194 167","penghu-county":"270 745 135 202"};
+
+function _matchCountyId(cityStr){
+  if(!cityStr) return null;
+  cityStr = String(cityStr).trim().replace(/^臺/,'台');
+  for(var cid in _TW_COUNTY_DATA){
+    if(_TW_COUNTY_DATA[cid].zh === cityStr) return cid;
+  }
+  for(var cid2 in _TW_COUNTY_DATA){
+    var zh = _TW_COUNTY_DATA[cid2].zh;
+    if(cityStr.indexOf(zh) === 0 || zh.indexOf(cityStr) === 0) return cid2;
+  }
+  return null;
+}
+function _collectCountyVisits(start, end){
+  var dayToCounties = {};
+  function addDay(dateStr, countyId){
+    if(!dateStr || !countyId) return;
+    if(!dayToCounties[dateStr]) dayToCounties[dateStr] = {};
+    dayToCounties[dateStr][countyId] = true;
+  }
+  (RESTS||[]).forEach(function(r){
+    if(!r.date) return;
+    var d = _toJSDate(r.date);
+    if(!d || !_inQRange(r.date, start, end)) return;
+    var cid = _matchCountyId(r.city || r.foreignCity);
+    if(cid) addDay(_localDateStr(d), cid);
+  });
+  (MEMS||[]).forEach(function(m){
+    if(!m.dateStart) return;
+    var cid = _matchCountyId(m.city);
+    if(!cid) return;
+    var s = new Date(m.dateStart), e = m.dateEnd ? new Date(m.dateEnd) : s;
+    for(var d=new Date(s); d<=e; d.setDate(d.getDate()+1)){
+      var ds = _localDateStr(d);
+      if(_inQRange(ds, start, end)) addDay(ds, cid);
+    }
+  });
+  var counts = {};
+  Object.keys(dayToCounties).forEach(function(dateStr){
+    Object.keys(dayToCounties[dateStr]).forEach(function(cid){
+      counts[cid] = (counts[cid]||0) + 1;
+    });
+  });
+  return counts;
+}
+function _countiesVisitedBy(cutoffDate){
+  var set = {};
+  (RESTS||[]).forEach(function(r){
+    if(!r.date) return;
+    var d = _toJSDate(r.date);
+    if(!d || d > cutoffDate) return;
+    var cid = _matchCountyId(r.city || r.foreignCity);
+    if(cid) set[cid] = true;
+  });
+  (MEMS||[]).forEach(function(m){
+    if(!m.dateStart) return;
+    var d = _toJSDate(m.dateStart);
+    if(!d || d > cutoffDate) return;
+    var cid = _matchCountyId(m.city);
+    if(cid) set[cid] = true;
+  });
+  return set;
+}
+function _computeOriginCounty(){
+  var earliest = null, earliestCid = null;
+  function check(d, cid){
+    if(d && cid && (!earliest || d < earliest)){ earliest = d; earliestCid = cid; }
+  }
+  (RESTS||[]).forEach(function(r){
+    if(!r.date) return;
+    check(_toJSDate(r.date), _matchCountyId(r.city || r.foreignCity));
+  });
+  (MEMS||[]).forEach(function(m){
+    if(!m.dateStart) return;
+    check(_toJSDate(m.dateStart), _matchCountyId(m.city));
+  });
+  return earliestCid;
+}
+function _computeCountyMapData(start, end){
+  var visitsThisPeriod = _collectCountyVisits(start, end);
+  var beforeStart = new Date(start.getTime()-1);
+  var visitedBeforeStart = _countiesVisitedBy(beforeStart);
+  var visitedByEnd = _countiesVisitedBy(end);
+  var newlyUnlocked = Object.keys(visitedByEnd).filter(function(cid){ return !visitedBeforeStart[cid]; });
+  var totalFootprints = 0;
+  Object.keys(visitsThisPeriod).forEach(function(cid){ totalFootprints += visitsThisPeriod[cid]; });
+  var totalUnlockedCount = Object.keys(visitedByEnd).length;
+  var wasCompleteBeforeStart = Object.keys(visitedBeforeStart).length >= 22;
+  var justCompleted = !wasCompleteBeforeStart && totalUnlockedCount >= 22;
+  return {
+    visits: visitsThisPeriod,
+    newlyUnlocked: newlyUnlocked,
+    allTimeVisited: Object.keys(visitedByEnd),
+    origin: _computeOriginCounty(),
+    totalFootprints: totalFootprints,
+    totalUnlockedCount: totalUnlockedCount,
+    justCompleted: justCompleted
+  };
+}
+
 function _computeRecapForRange(id, start, end){
   // 清單：完成的項目，依分類分組
   var listDoneItems = (LIST||[]).filter(function(it){ return it.done && _inQRange(it.doneAt, start, end); });
@@ -4128,6 +4255,7 @@ function _computeRecapForRange(id, start, end){
   });
 
   var milestones = _computeMilestones(start, end);
+  var countyMap = _computeCountyMapData(start, end);
 
   return {
     id: id,
@@ -4146,7 +4274,8 @@ function _computeRecapForRange(id, start, end){
     challenges: chalItems,
     topRests: topRests,
     memHighlights: memHighlights,
-    milestones: milestones
+    milestones: milestones,
+    countyMap: countyMap
   };
 }
 function _computeQuarterRecap(quarterId){
@@ -4161,6 +4290,81 @@ function _qHighlightLine(qStats){
   if(qStats.memCount) parts.push(qStats.memCount+' 篇回憶');
   if(qStats.restCount) parts.push(qStats.restCount+' 間餐廳');
   return parts.length ? parts.join('・') : '這一季比較平靜';
+}
+function _renderCountyMapHtml(cm){
+  if(!cm) return '';
+  var zones = [];
+  var footMarkers = [];
+  Object.keys(_TW_PATH_DATA).forEach(function(cid){
+    if(_TW_OUTLYING_VIEWBOX[cid]) return;
+    var visited = cm.allTimeVisited.indexOf(cid) > -1;
+    var isNew = cm.newlyUnlocked.indexOf(cid) > -1;
+    var fill = visited ? '#7BA88C' : '#DCDCD4';
+    var strokeExtra = isNew ? 'stroke:#D4A870;stroke-width:5;' : '';
+    zones.push('<path class="zone" style="fill:'+fill+';'+strokeExtra+'" d="'+_TW_PATH_DATA[cid]+'"/>');
+    var count = cm.visits[cid];
+    var info = _TW_COUNTY_DATA[cid];
+    if(!info) return;
+    if(visited && count){
+      var originTag = (cm.origin===cid) ? '<div class="origin-tag">起點</div>' : '';
+      footMarkers.push('<div class="foot-marker" style="left:'+info.x+'%;top:'+info.y+'%;">'
+        +'<div class="foot-icon">🐾</div>'
+        +(count>1?'<div class="foot-count">×'+count+'</div>':'')
+        +originTag
+        +'</div>');
+    } else if(cm.origin===cid){
+      footMarkers.push('<div class="foot-marker" style="left:'+info.x+'%;top:'+info.y+'%;"><div class="origin-tag">起點</div></div>');
+    }
+  });
+
+  var outlyingHtml = ['kinmen-county','lienchiang-county','penghu-county'].map(function(cid){
+    var visited = cm.allTimeVisited.indexOf(cid) > -1;
+    var fill = visited ? '#7BA88C' : '#DCDCD4';
+    var isNew = cm.newlyUnlocked.indexOf(cid) > -1;
+    var strokeExtra = isNew ? 'stroke:#D4A870;stroke-width:4;' : '';
+    return '<div class="inset-box"><svg class="inset-svg" viewBox="'+_TW_OUTLYING_VIEWBOX[cid]+'" xmlns="http://www.w3.org/2000/svg">'
+      +'<path class="zone" style="fill:'+fill+';'+strokeExtra+'" d="'+_TW_PATH_DATA[cid]+'"/></svg>'
+      +'<div class="inset-label">'+_TW_COUNTY_DATA[cid].zh.replace(/[縣市]$/,'')+'</div></div>';
+  }).join('');
+
+  var completeHtml = cm.justCompleted ? (
+    '<div class="complete-card" style="margin-bottom:10px;">'
+    +'<div class="complete-badge" style="width:48px;height:48px;font-size:22px;margin:0 auto 6px;">🏆</div>'
+    +'<div class="complete-title" style="font-size:15px;">台灣 22 縣市全部集滿！</div>'
+    +'<div class="complete-sub" style="font-size:11px;">你們一起踏遍了整個台灣 🎉</div>'
+    +'</div>'
+  ) : '';
+
+  var html = '<div class="slbl">這段時間的足跡地圖</div>'
+    + completeHtml
+    + '<div class="map-card"><div class="map-wrap">'
+    + '<svg class="map-svg" viewBox="460 310 545 990" xmlns="http://www.w3.org/2000/svg">' + zones.join('') + '</svg>'
+    + footMarkers.join('')
+    + '</div>'
+    + '<div class="insets">' + outlyingHtml + '</div>'
+    + '</div>'
+    + '<div class="map-legend">'
+    + '<div class="map-legend-swatch" style="background:#DCDCD4;"></div>還沒去過'
+    + '<div class="map-legend-swatch" style="background:#7BA88C;margin-left:4px;"></div>去過 🐾'
+    + '<div class="map-legend-swatch" style="background:#7BA88C;border:2px solid #D4A870;margin-left:4px;"></div>新解鎖'
+    + '</div>';
+
+  var rankCards = '';
+  if(cm.totalFootprints > 0){
+    rankCards += '<div class="rank-card"><div class="rank-icon">🐾</div><div class="rank-text">這段時間總共踏出了 <b>'+cm.totalFootprints+'</b> 個腳印</div></div>';
+  }
+  if(cm.newlyUnlocked.length){
+    var newNames = cm.newlyUnlocked.map(function(cid){ return _TW_COUNTY_DATA[cid].zh; }).join('、');
+    rankCards += '<div class="rank-card"><div class="rank-icon">🆕</div><div class="rank-text">這段時間首次踏上 <b>'+newNames+'</b></div></div>';
+  }
+  var remaining = 22 - cm.totalUnlockedCount;
+  if(remaining > 0){
+    rankCards += '<div class="rank-card"><div class="rank-icon">🗺️</div><div class="rank-text">距離集滿全台灣 22 縣市，還差 <b>'+remaining+'</b> 個</div></div>';
+  }
+  if(rankCards){
+    html += '<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">' + rankCards + '</div>';
+  }
+  return html;
 }
 async function _computeYearRecap(yearId){
   var range = _yearRange(yearId);
@@ -4434,6 +4638,8 @@ function _renderRecapDetail(r){
     memHtml = '<div class="slbl">這一季的畫面</div><div class="empty-hint">這一季還沒新增回憶錄，快把最近的點滴記錄下來吧 📷</div>';
   }
 
+  var mapHtml = r.countyMap ? _renderCountyMapHtml(r.countyMap) : '';
+
   var chalList = r.challenges || [];
   var chalHtml = '<div class="slbl">挑戰完成狀況</div>';
   if(chalList.length){
@@ -4506,7 +4712,7 @@ function _renderRecapDetail(r){
     }).join('') + '</div>';
   }
 
-  el.innerHTML = heroHtml + qhHtml + memHtml + chalHtml + listHtml + restHtml + msHtml
+  el.innerHTML = heroHtml + qhHtml + memHtml + mapHtml + chalHtml + listHtml + restHtml + msHtml
     + '<div style="text-align:center;font-size:9px;color:var(--sub);padding:8px 0 4px;">生成於 '+_fmtQDateTime(r.generatedAt)+'</div>';
 }
 
