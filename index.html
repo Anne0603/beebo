@@ -4116,17 +4116,19 @@ function _matchCountyId(cityStr){
 }
 function _collectCountyVisits(start, end){
   var dayToCounties = {};
-  function addDay(dateStr, countyId){
+  var debugLog = [];
+  function addDay(dateStr, countyId, src){
     if(!dateStr || !countyId) return;
     if(!dayToCounties[dateStr]) dayToCounties[dateStr] = {};
     dayToCounties[dateStr][countyId] = true;
+    debugLog.push(src+':'+dateStr+':'+countyId);
   }
   (RESTS||[]).forEach(function(r){
     if(!r.date) return;
     var d = _toJSDate(r.date);
     if(!d || !_inQRange(r.date, start, end)) return;
     var cid = _matchCountyId(r.city || r.foreignCity);
-    if(cid) addDay(_localDateStr(d), cid);
+    if(cid) addDay(_localDateStr(d), cid, 'R('+r.date+','+(r.city||r.foreignCity)+')');
   });
   (MEMS||[]).forEach(function(m){
     if(!m.dateStart) return;
@@ -4135,7 +4137,7 @@ function _collectCountyVisits(start, end){
     var s = new Date(m.dateStart), e = m.dateEnd ? new Date(m.dateEnd) : s;
     for(var d=new Date(s); d<=e; d.setDate(d.getDate()+1)){
       var ds = _localDateStr(d);
-      if(_inQRange(ds, start, end)) addDay(ds, cid);
+      if(_inQRange(ds, start, end)) addDay(ds, cid, 'M('+m.dateStart+','+m.city+')');
     }
   });
   var counts = {};
@@ -4144,6 +4146,7 @@ function _collectCountyVisits(start, end){
       counts[cid] = (counts[cid]||0) + 1;
     });
   });
+  window._lastCountyVisitDebug = debugLog;
   return counts;
 }
 function _countiesVisitedBy(cutoffDate){
@@ -4618,6 +4621,9 @@ function _renderRecapDetail(r){
   }
 
   var mapHtml = r.countyMap ? _renderCountyMapHtml(r.countyMap) : '';
+  if(window._lastCountyVisitDebug && window._lastCountyVisitDebug.length){
+    mapHtml += '<div style="font-size:9px;color:#999;background:#f5f5f5;padding:8px;border-radius:8px;margin-top:6px;word-break:break-all;">[除錯用，稍後會移除]<br>'+window._lastCountyVisitDebug.join('<br>')+'</div>';
+  }
 
   var chalList = r.challenges || [];
   var chalHtml = '<div class="slbl">挑戰完成狀況</div>';
