@@ -175,7 +175,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .foot-marker{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;}
 .foot-icon{font-size:15px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3));}
 .foot-count{font-size:8px;font-weight:800;color:#2a4a34;background:#fff;border-radius:6px;padding:0 3px;margin-top:1px;box-shadow:0 1px 2px rgba(0,0,0,.2);}
-.origin-tag{font-size:7px;font-weight:800;color:#fff;background:var(--accent);border-radius:5px;padding:1px 4px;margin-top:2px;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.2);}
 .insets{display:flex;gap:8px;justify-content:center;margin-top:10px;}
 .inset-box{background:var(--card2);border-radius:12px;border:1px solid var(--bdr);padding:8px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
 .inset-svg{width:100%;height:90px;}
@@ -4165,21 +4164,6 @@ function _countiesVisitedBy(cutoffDate){
   });
   return set;
 }
-function _computeOriginCounty(){
-  var earliest = null, earliestCid = null;
-  function check(d, cid){
-    if(d && cid && (!earliest || d < earliest)){ earliest = d; earliestCid = cid; }
-  }
-  (RESTS||[]).forEach(function(r){
-    if(!r.date) return;
-    check(_toJSDate(r.date), _matchCountyId(r.city || r.foreignCity));
-  });
-  (MEMS||[]).forEach(function(m){
-    if(!m.dateStart) return;
-    check(_toJSDate(m.dateStart), _matchCountyId(m.city));
-  });
-  return earliestCid;
-}
 function _computeCountyMapData(start, end){
   var visitsThisPeriod = _collectCountyVisits(start, end);
   var beforeStart = new Date(start.getTime()-1);
@@ -4195,7 +4179,6 @@ function _computeCountyMapData(start, end){
     visits: visitsThisPeriod,
     newlyUnlocked: newlyUnlocked,
     allTimeVisited: Object.keys(visitedByEnd),
-    origin: _computeOriginCounty(),
     totalFootprints: totalFootprints,
     totalUnlockedCount: totalUnlockedCount,
     justCompleted: justCompleted
@@ -4306,14 +4289,10 @@ function _renderCountyMapHtml(cm){
     var info = _TW_COUNTY_DATA[cid];
     if(!info) return;
     if(visited && count){
-      var originTag = (cm.origin===cid) ? '<div class="origin-tag">起點</div>' : '';
       footMarkers.push('<div class="foot-marker" style="left:'+info.x+'%;top:'+info.y+'%;">'
         +'<div class="foot-icon">🐾</div>'
         +(count>1?'<div class="foot-count">×'+count+'</div>':'')
-        +originTag
         +'</div>');
-    } else if(cm.origin===cid){
-      footMarkers.push('<div class="foot-marker" style="left:'+info.x+'%;top:'+info.y+'%;"><div class="origin-tag">起點</div></div>');
     }
   });
 
