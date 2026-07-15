@@ -4115,6 +4115,30 @@ function _matchCountyId(cityStr){
   return null;
 }
 function _collectCountyVisits(start, end){
+  // 第一步：收集每篇回憶錄在各縣市的「涵蓋區間」
+  var memRangesByCounty = {};
+  (MEMS||[]).forEach(function(m){
+    if(!m.dateStart) return;
+    if(!_inQRange(m.dateStart, start, end)) return;
+    var cid = _matchCountyId(m.city);
+    if(!cid) return;
+    var s = _toJSDate(m.dateStart);
+    if(!s) return;
+    var e = m.dateEnd ? (_toJSDate(m.dateEnd) || s) : s;
+    if(!memRangesByCounty[cid]) memRangesByCounty[cid] = [];
+    memRangesByCounty[cid].push({start:s, end:e});
+  });
+  function isCoveredByMem(dateVal, cid){
+    var ranges = memRangesByCounty[cid];
+    if(!ranges) return false;
+    var d = _toJSDate(dateVal);
+    if(!d) return false;
+    for(var i=0;i<ranges.length;i++){
+      if(d >= ranges[i].start && d <= ranges[i].end) return true;
+    }
+    return false;
+  }
+
   var dayToCounties = {};
   function addDay(dateStr, countyId){
     if(!dateStr || !countyId) return;
@@ -4123,17 +4147,20 @@ function _collectCountyVisits(start, end){
   }
   (RESTS||[]).forEach(function(r){
     if(!r.date) return;
-    var d = _toJSDate(r.date);
-    if(!d || !_inQRange(r.date, start, end)) return;
+    if(!_inQRange(r.date, start, end)) return;
     var cid = _matchCountyId(r.city || r.foreignCity);
-    if(cid) addDay(_localDateStr(d), cid);
-  });
-  (MEMS||[]).forEach(function(m){
-    if(!m.dateStart) return;
-    var cid = _matchCountyId(m.city);
     if(!cid) return;
-    if(_inQRange(m.dateStart, start, end)) addDay(m.dateStart, cid);
+    if(isCoveredByMem(r.date, cid)) return; // 落在某篇回憶錄的日期區間內，不重複算
+    var d = _toJSDate(r.date);
+    if(d) addDay(_localDateStr(d), cid);
   });
+  // 每篇回憶錄本身算 1 個腳印（用開始日當代表日）
+  Object.keys(memRangesByCounty).forEach(function(cid){
+    memRangesByCounty[cid].forEach(function(range){
+      addDay(_localDateStr(range.start), cid);
+    });
+  });
+
   var counts = {};
   Object.keys(dayToCounties).forEach(function(dateStr){
     Object.keys(dayToCounties[dateStr]).forEach(function(cid){
