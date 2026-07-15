@@ -1295,7 +1295,7 @@ window.reauthenticateForPinReset = async function() {
 
 <!-- MEMORY -->
 <div class="page" id="page-memory">
-  <div class="pt">
+  <div class="pt" style="justify-content:center;">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="6" width="20" height="15" rx="2" stroke="#4A7A58" stroke-width="1.5"/><circle cx="12" cy="13" r="4" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 6l1.5-2.5h5L16 6" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>回憶錄
   </div>
   <div style="display:flex;gap:0;flex-shrink:0;border-bottom:1px solid var(--bdr);background:var(--card);margin:0;">
@@ -1337,10 +1337,10 @@ window.reauthenticateForPinReset = async function() {
 
 <!-- LIST -->
 <div class="page" id="page-list">
-  <div class="pt" style="position:relative;">
-    <button onclick="goBack()" style="position:absolute;left:16px;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;z-index:1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button id="listBackBtn" onclick="goBack()" style="display:none;position:absolute;left:16px;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;z-index:1;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="4" y="3" width="16" height="18" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M8 8h8M8 12h8M8 16h5" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>我們的清單
-    <div style="margin-left:auto;"><button onclick="openListInspireMo()" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button></div>
+    <div style="position:absolute;right:16px;"><button onclick="openListInspireMo()" style="font-size:11px;border:1px solid var(--bdr);border-radius:10px;padding:4px 10px;background:var(--card);color:var(--accent);font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:4px;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2a7 7 0 015.292 11.611C16.202 15.029 16 16 16 17H8c0-1-.202-1.971-1.292-3.389A7 7 0 0112 2z" stroke="#4A7A58" stroke-width="1.5"/><path d="M9 17v1a3 3 0 006 0v-1" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>靈感</button></div>
   </div>
   <div style="flex-shrink:0;">
     <!-- Tab 在最上面 -->
@@ -2358,6 +2358,10 @@ function goPage(p){
     if(p==='settings' && typeof window.initSettingsPage==='function') window.initSettingsPage();
     if(p==='notify') { renderNotifPage(); markAllNotifsRead(); }
     if(p==='list' && typeof _refreshCatUI==='function') _refreshCatUI();
+    if(p==='list'){
+      var lbb = document.getElementById('listBackBtn');
+      if(lbb) lbb.style.display = (pageHist.length && pageHist[pageHist.length-1]==='review') ? 'flex' : 'none';
+    }
     if(p==='changelog' && typeof renderChangelog==='function') renderChangelog();
     if(p==='faq') {} // 靜態頁面，不需要額外初始化
     if(p==='restaurants' && typeof fillRestCityFilter==='function') fillRestCityFilter();
@@ -4635,7 +4639,7 @@ var _CHANGELOG_DEFAULT = [
     '📊 修正「每月約會次數」圖表未去重、與「約會天數」數字對不上的問題',
     '🧭 修正季度回顧統計「完成清單」點入後無法正確返回原頁面的問題，並補上清單頁缺失的返回按鈕',
     '💡 修復靈感題庫管理功能：補上原本缺失的「查看/刪除現有靈感」區塊，修正分頁切換不刷新的問題',
-    '🔒 資安加固：移除暴露 Discord webhook 網址的閒置函數、移除 Cloudinary 帳號預設 fallback，設定頁新增安全性提醒',
+    '🔒 資安修正',
     '⏰ 新增年度 Cloudinary 用量檢查與備份提醒，任一管理員確認前會持續提醒',
     '🧹 清除多組重複定義的函數(doConfirm、_getInspireData 等)，統一挑戰分類清單改存 Firestore 兩人共用'
   ]},
