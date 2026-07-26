@@ -3901,7 +3901,7 @@ function _updateStats() {
   if(yearSel) {
     var years = new Set();
     (RESTS||[]).forEach(function(r){ if(r.date) years.add(parseInt(r.date.slice(0,4))); });
-    (MEMS||[]).forEach(function(m){ if(m.dateStart) years.add(parseInt(m.dateStart.slice(0,4))); if(m.year) years.add(m.year); });
+    (MEMS||[]).forEach(function(m){ if(m.dateStart) years.add(parseInt(m.dateStart.slice(0,4))); });
     var cur = yearSel.value;
     var sortedYears = Array.from(years).filter(Boolean).sort(function(a,b){return b-a;});
     yearSel.innerHTML = '<option value="全部">全部時間</option>' +
@@ -5583,11 +5583,11 @@ function renderMemory(){
   var sq=((document.getElementById('memSearch')||{value:''}).value||'').trim().toLowerCase();
   var items=MEMS.filter(function(m){
     if(yr){
-      var myear = m.year || (m.dateStart ? parseInt(m.dateStart.slice(0,4)) : 0);
+      var myear = m.dateStart ? parseInt(m.dateStart.slice(0,4)) : 0;
       if(myear && myear!==yr) return false;
     }
     if(mo){
-      var mmonth = m.month || (m.dateStart ? parseInt(m.dateStart.slice(5,7)) : 0);
+      var mmonth = m.dateStart ? parseInt(m.dateStart.slice(5,7)) : 0;
       if(mmonth && mmonth!==mo) return false;
     }
     if(sq){
@@ -5619,7 +5619,7 @@ function renderMemory(){
   });
   // 年份選單（從 dateStart 讀取）
   var years=[...new Set(MEMS.map(function(m){
-    return m.year || (m.dateStart ? parseInt(m.dateStart.slice(0,4)) : null);
+    return m.dateStart ? parseInt(m.dateStart.slice(0,4)) : null;
   }).filter(Boolean))].sort(function(a,b){return b-a;});
   var yrEl=document.getElementById('memYear');
   if(yrEl){
@@ -5634,7 +5634,7 @@ function renderMemory(){
   var _lastYearGroup = null;
   items.forEach(function(m){
     if(!yr){
-      var mYear = m.year || (m.dateStart ? parseInt(m.dateStart.slice(0,4)) : null);
+      var mYear = m.dateStart ? parseInt(m.dateStart.slice(0,4)) : null;
       if(mYear && mYear !== _lastYearGroup){
         _lastYearGroup = mYear;
         var divider=document.createElement('div');
@@ -7016,9 +7016,12 @@ async function saveEditMem(){
     _memPhotoFiles=[];
   }
 
+  var year = d1 ? parseInt(d1.split('-')[0]) : null;
+  var month = d1 ? parseInt(d1.split('-')[1]) : null;
   await updateDoc(doc(window._db,'couples',window._coupleId,'memories',_editMemId),{
     title:title.trim(), dateStart:d1, dateEnd:d2, note:note, city:city,
-    photos:existPhotos, linkedRests:_memLinkedRests, linkedItems:_memLinkedItems
+    photos:existPhotos, linkedRests:_memLinkedRests, linkedItems:_memLinkedItems,
+    year:year, month:month
   });
   var savedId = _editMemId;
   _editMemId=null;
