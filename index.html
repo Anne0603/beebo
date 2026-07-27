@@ -6705,36 +6705,14 @@ function openLinkListForMem(){
   if(!dsVal&&editMem) dsVal=editMem.dateStart||'';
   if(!deVal&&editMem) deVal=editMem.dateEnd||'';
   window._linkListMemDate = dsVal || new Date().toISOString().slice(0,10);
-  if(dsVal){
-    rangeStart=new Date(dsVal); rangeStart.setDate(rangeStart.getDate()-5); rangeStart.setHours(0,0,0,0);
-    rangeEnd=new Date(deVal||dsVal); rangeEnd.setDate(rangeEnd.getDate()+5); rangeEnd.setHours(23,59,59,999);
-  }
-  function inRange(dateVal){
-    if(!rangeStart||!rangeEnd||!dateVal) return true; // 沒有日期範圍就全部顯示
-    var d=new Date(dateVal); return d>=rangeStart&&d<=rangeEnd;
-  }
-  function doneAtDate(item){
-    if(item.doneAt&&item.doneAt.seconds) return new Date(item.doneAt.seconds*1000).toISOString().slice(0,10);
-    return item.at||'';
-  }
-  function chalDoneDate(ch){
-    if(ch.doneAt&&ch.doneAt.seconds) return new Date(ch.doneAt.seconds*1000).toISOString().slice(0,10);
-    return '';
-  }
 
-  // 渲染清單（已完成 + 尚未完成）+ 挑戰（已完成 + 尚未完成）
+  // 渲染清單：尚未完成（優先顯示）+ 已完成（預設收合）
   var content=document.getElementById('linkListContent');
   if(content){
     var doneLists=LIST.filter(function(i){return i.done;});
     var doneChals=CHALS.filter(function(c){return c.status==='done';});
     var pendingLists=LIST.filter(function(i){return !i.done;});
     var pendingChals=CHALS.filter(function(c){return c.status==='active';});
-    // 依日期範圍分組（僅套用在已完成項目，尚未完成的不受日期範圍限制）
-    var inLists=doneLists.filter(function(i){return inRange(doneAtDate(i));});
-    var outLists=doneLists.filter(function(i){return !inRange(doneAtDate(i));});
-    var inChals=doneChals.filter(function(c){return inRange(chalDoneDate(c));});
-    var outChals=doneChals.filter(function(c){return !inRange(chalDoneDate(c));});
-    var hasOut=outLists.length||outChals.length;
     var html='';
     function makeItem(val, label, color){
       var chk=_memLinkedItems.includes(val)?'checked':'';
@@ -6748,33 +6726,23 @@ function openLinkListForMem(){
         +'<span style="font-size:10px;color:var(--sub);margin-left:auto;">選了會自動標記完成</span>'
         +'</label>'+noteInput+'</div>';
     }
-    if(inLists.length){
-      html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;">✅ 已完成清單</div>';
-      html+=inLists.map(function(i){return makeItem('list:'+i.id,i.n,'');}).join('');
-    }
-    if(inChals.length){
-      html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;margin-top:6px;">⭐ 已完成挑戰</div>';
-      html+=inChals.map(function(c){return makeItem('chal:'+c.id,c.name,'var(--accent)');}).join('');
-    }
-    if(!inLists.length&&!inChals.length&&!hasOut){
-      html='<div style="text-align:center;color:var(--sub);padding:12px;font-size:12px;">附近時間還沒有已完成的項目</div>';
-    }
-    if(!inLists.length&&!inChals.length&&hasOut){
-      html='<div style="text-align:center;color:var(--sub);padding:12px;font-size:12px;">這段時間附近沒有完成的項目</div>';
-    }
-    // 超出範圍的摺疊區
-    if(hasOut){
-      html+='<details style="margin-top:8px;"><summary style="font-size:11px;color:var(--sub);cursor:pointer;padding:4px 0;list-style:none;">▸ 顯示其他已完成（'+( outLists.length+outChals.length)+'）</summary>'
-        +'<div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">';
-      if(outLists.length) html+=outLists.map(function(i){return makeItem('list:'+i.id,i.n,'');}).join('');
-      if(outChals.length) html+=outChals.map(function(c){return makeItem('chal:'+c.id,c.name,'var(--accent)');}).join('');
-      html+='</div></details>';
-    }
-    // 尚未完成的項目：選了會在確認時自動標記完成
+    // 尚未完成的項目：優先顯示，選了會在確認時自動標記完成
     if(pendingLists.length||pendingChals.length){
-      html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:8px 0 4px;border-top:1px dashed var(--bdr);margin-top:10px;">⬜ 尚未完成（選了會自動打勾）</div>';
+      html+='<div style="font-size:11px;font-weight:700;color:var(--sub);padding:4px 0;">⬜ 尚未完成（選了會自動打勾）</div>';
       if(pendingLists.length) html+='<div style="display:flex;flex-direction:column;gap:6px;">'+pendingLists.map(function(i){return makePendingItem('pending-list:'+i.id,i.n,i.id,false);}).join('')+'</div>';
       if(pendingChals.length) html+='<div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">'+pendingChals.map(function(c){return makePendingItem('pending-chal:'+c.id,c.name,c.id,true);}).join('')+'</div>';
+    }
+    // 已完成項目：預設收合，點開才展開
+    var doneCount = doneLists.length + doneChals.length;
+    if(doneCount){
+      html+='<details style="margin-top:10px;'+(pendingLists.length||pendingChals.length?'border-top:1px dashed var(--bdr);padding-top:8px;':'')+'"><summary style="font-size:11px;font-weight:700;color:var(--sub);cursor:pointer;padding:4px 0;list-style:none;">▸ ✅ 已完成（'+doneCount+'）</summary>'
+        +'<div style="display:flex;flex-direction:column;gap:4px;margin-top:6px;">';
+      if(doneLists.length) html+=doneLists.map(function(i){return makeItem('list:'+i.id,i.n,'');}).join('');
+      if(doneChals.length) html+=doneChals.map(function(c){return makeItem('chal:'+c.id,c.name,'var(--accent)');}).join('');
+      html+='</div></details>';
+    }
+    if(!pendingLists.length&&!pendingChals.length&&!doneCount){
+      html='<div style="text-align:center;color:var(--sub);padding:12px;font-size:12px;">還沒有任何清單或挑戰</div>';
     }
     content.innerHTML=html;
   }
