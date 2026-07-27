@@ -2186,12 +2186,22 @@ window.reauthenticateForPinReset = async function() {
 <div class="mo" id="editQuoteMo"><div class="mbox">
   <div class="mh"><span class="mtit">編輯語錄</span><button class="mcl" onclick="closeMo('editQuoteMo')">×</button></div>
   <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" id="editQuoteText" rows="3" placeholder="記下這句話..."></textarea></div>
+  <div class="fg"><label class="fl">照片（選填）</label>
+    <div id="editQuotePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
+    <button type="button" onclick="document.getElementById('editQuotePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 更換照片</button>
+    <input type="file" id="editQuotePhotoInput" accept="image/*" style="display:none;" onchange="_previewEditQuotePhoto(this)">
+  </div>
   <button onclick="saveEditQuote()" class="btn2 bpri" style="width:100%;margin-top:8px;">儲存</button>
 </div></div>
 <div class="mo" id="addQuoteMo"><div class="mbox"><div class="mh"><span class="mtit">新增語錄</span><button class="mcl" onclick="closeMo('addQuoteMo')">×</button></div>
 <div style="display:flex;flex-direction:column;gap:10px;">
   <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" id="quoteText" rows="4" placeholder="記下這句話..." style="resize:none;line-height:1.6;"></textarea></div>
   <div class="fg"><label class="fl">日期</label><input class="fi" type="date" id="quoteDate"></div>
+  <div class="fg"><label class="fl">附一張照片（選填）</label>
+    <div id="quotePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
+    <button type="button" onclick="document.getElementById('quotePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 選擇照片</button>
+    <input type="file" id="quotePhotoInput" accept="image/*" style="display:none;" onchange="_previewQuotePhoto(this)">
+  </div>
   <button class="btn2 bpri" onclick="saveQuote()">儲存語錄</button>
 </div></div></div>
 <div class="mo" id="addListMo"><div class="mbox"><div class="mh"><span class="mtit">新增清單項目</span><button class="mcl" onclick="closeMo('addListMo')">×</button></div><div style="display:flex;flex-direction:column;gap:12px;"><div class="fg"><label class="fl">名稱</label><input class="fi" id="newLN" placeholder="想去哪裡？想吃什麼？"></div><div class="fg"><label class="fl">分類</label><select class="fsel" id="newLC"><option value="想去哪">想去哪</option><option value="想吃什麼">想吃什麼</option><option value="想做什麼">想做什麼</option><option value="想看什麼">想看什麼</option></select></div><button class="btn2 bpri" onclick="addListItem()">新增</button></div></div></div>
@@ -2631,6 +2641,7 @@ function renderQuotes(){
     var by = q.senderUid===(window.currentUser&&window.currentUser.uid) ? myName : partnerName;
     var dateStr = q.dateLabel || (q.createdAt&&q.createdAt.toDate ? q.createdAt.toDate().toLocaleDateString('zh-TW',{year:'numeric',month:'numeric',day:'numeric'}) : '');
     return '<div class="card" style="border-radius:14px;width:100%;box-sizing:border-box;">'+
+      (q.photo ? '<div style="width:100%;border-radius:10px;overflow:hidden;margin-bottom:8px;position:relative;height:0;padding-bottom:100%;background:var(--card2);"><img src="'+q.photo+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" loading="lazy" onclick="window.open(\''+q.photo+'\',\'_blank\')"></div>' : '')+
       '<div style="font-size:14px;color:var(--txt);line-height:1.7;margin-bottom:8px;">「'+(q.text||'')+'」</div>'+
       '<div style="display:flex;align-items:center;justify-content:space-between;">'+
       '<div style="font-size:11px;color:var(--sub);">'+by+'・'+dateStr+'</div>'+
@@ -6317,6 +6328,17 @@ function genInvite(){
   if(timer) timer.textContent='2:00:00';
   showToast('已產生新邀請碼，2小時內有效');
 }
+var _quotePhotoFile = null;
+function _previewQuotePhoto(input){
+  var f = input.files && input.files[0];
+  if(!f) return;
+  _quotePhotoFile = f;
+  var prev = document.getElementById('quotePhotoPreview');
+  if(prev){
+    var url = URL.createObjectURL(f);
+    prev.innerHTML = '<div style="width:60px;height:60px;border-radius:10px;overflow:hidden;"><img src="'+url+'" style="width:100%;height:100%;object-fit:cover;"></div>';
+  }
+}
 async function saveQuote(){
   var txt=document.getElementById('quoteText');
   var dateEl=document.getElementById('quoteDate');
@@ -6325,18 +6347,29 @@ async function saveQuote(){
   var {collection,addDoc,serverTimestamp}=window._fsOps;
   var dateLabel=dateEl&&dateEl.value ? dateEl.value.replace(/-/g,'/') : new Date().toLocaleDateString('zh-TW',{month:'numeric',day:'numeric'});
   var quoteTextVal = txt.value.trim();
+  var photoUrl = '';
+  if(_quotePhotoFile){
+    try{
+      photoUrl = await window._uploadToCloudinary(_quotePhotoFile);
+    }catch(e){
+      console.error('[saveQuote] 照片上傳失敗', e);
+      if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); return; }
+      showToast('照片上傳失敗，語錄仍會儲存');
+    }
+  }
   await addDoc(collection(window._db,'couples',window._coupleId,'quotes'),{
     text: quoteTextVal,
     senderUid: window.currentUser ? window.currentUser.uid : '',
     dateLabel: dateLabel,
+    photo: photoUrl,
     createdAt: serverTimestamp()
   });
   txt.value='';
   if(dateEl) dateEl.value='';
+  _quotePhotoFile = null;
+  var qpp = document.getElementById('quotePhotoPreview'); if(qpp) qpp.innerHTML='';
   closeMo('addQuoteMo');
   showToast('語錄已儲存 ✓');
-  var myNmQ=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmQ+' 新增了語錄：「'+quoteTextVal+'」','mem');
 }
 function deleteQuote(id){
   var q = QUOTES.find(function(x){return x.id===id;});
@@ -6941,12 +6974,26 @@ async function addMemPhoto(memId){
 }
 
 var _editQuoteId = null;
+var _editQuotePhotoFile = null;
+function _previewEditQuotePhoto(input){
+  var f = input.files && input.files[0];
+  if(!f) return;
+  _editQuotePhotoFile = f;
+  var prev = document.getElementById('editQuotePhotoPreview');
+  if(prev){
+    var url = URL.createObjectURL(f);
+    prev.innerHTML = '<div style="width:60px;height:60px;border-radius:10px;overflow:hidden;"><img src="'+url+'" style="width:100%;height:100%;object-fit:cover;"></div>';
+  }
+}
 function editQuote(id) {
   _editQuoteId = id;
+  _editQuotePhotoFile = null;
   var q = QUOTES.find(function(x){return x.id===id;});
   if(!q) return;
   var el = document.getElementById('editQuoteText');
   if(el) el.value = q.text || '';
+  var prev = document.getElementById('editQuotePhotoPreview');
+  if(prev) prev.innerHTML = q.photo ? '<div style="width:60px;height:60px;border-radius:10px;overflow:hidden;"><img src="'+q.photo+'" style="width:100%;height:100%;object-fit:cover;"></div>' : '';
   openMo('editQuoteMo');
 }
 async function saveEditQuote() {
@@ -6955,12 +7002,21 @@ async function saveEditQuote() {
   var text = (el && el.value.trim()) || '';
   if(!text) { showToast('請輸入內容'); return; }
   var {doc, updateDoc} = window._fsOps;
-  await updateDoc(doc(window._db,'couples',window._coupleId,'quotes',_editQuoteId), {text: text});
+  var updateData = {text: text};
+  if(_editQuotePhotoFile){
+    try{
+      updateData.photo = await window._uploadToCloudinary(_editQuotePhotoFile);
+    }catch(e){
+      console.error('[saveEditQuote] 照片上傳失敗', e);
+      if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); return; }
+      showToast('照片上傳失敗，其他內容仍會儲存');
+    }
+  }
+  await updateDoc(doc(window._db,'couples',window._coupleId,'quotes',_editQuoteId), updateData);
   closeMo('editQuoteMo');
   showToast('語錄已更新 ✓');
-  var myNmEQ=(window.userData&&window.userData.name)||'我';
-  addNotif(myNmEQ+' 編輯了語錄：「'+text+'」','mem',true);
   _editQuoteId = null;
+  _editQuotePhotoFile = null;
 }
 
 var _deleteMemId = null;
