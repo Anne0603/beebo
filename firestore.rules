@@ -48,6 +48,9 @@ service cloud.firestore {
       match /recaps/{quarterId} {
         allow read, write: if isCoupleOf(coupleId);
       }
+      match /recipes/{recipeId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
     }
   }
 }

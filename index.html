@@ -393,6 +393,7 @@ input[type=file]{display:none;}
     if (typeof window._initQuotes === 'function') window._initQuotes(db, coupleId);
     if (typeof window._initMems === 'function') window._initMems(db, coupleId);
     if (typeof window._initEvents === 'function') window._initEvents(db, coupleId);
+    if (typeof window._initRecipes === 'function') window._initRecipes(db, coupleId);
     if (typeof window._initNotifications === 'function') window._initNotifications(db, coupleId);
     window._initMessages(db, coupleId, uid);
 
@@ -1574,7 +1575,11 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" stroke="#4A7A58" stroke-width="1.5"/><path d="M16 2v4M8 2v4M3 10h18" stroke="#4A7A58" stroke-width="1.5" stroke-linecap="round"/></svg>行事曆
   </div>
-  <div class="sc" id="calBody" style="padding-top:8px;">
+  <div class="seg-toggle" style="margin:0 16px 8px;flex-shrink:0;">
+    <div class="seg-btn on" id="calTabBtn-month" onclick="switchCalTab('month')">月曆</div>
+    <div class="seg-btn" id="calTabBtn-recipe" onclick="switchCalTab('recipe')">食譜</div>
+  </div>
+  <div class="sc" id="calBody" style="padding-top:0;">
     <div class="card" style="flex-shrink:0;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><button onclick="calPrevMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">‹</button><div style="font-size:16px;font-weight:700;color:var(--txt);cursor:pointer;display:flex;align-items:center;gap:4px;" id="calMonthTitle" onclick="openCalYearPicker()" title="點擊選擇年月">約會計畫 <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"/></svg></div><button onclick="calNextMonth()" style="background:none;border:none;color:var(--accent);font-size:18px;cursor:pointer;padding:4px 10px;">›</button></div>
       <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;">
@@ -1583,7 +1588,18 @@ window.reauthenticateForPinReset = async function() {
       <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;"></div>
     </div>
   </div>
-  <button class="fab" onclick="openMo('addEventMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
+  <div class="sc" id="recipeBody" style="padding-top:0;display:none;">
+    <button class="decbtn" onclick="openRecipeDecideMo()" style="flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;border-radius:9px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="4" fill="rgba(255,255,255,.22)" stroke="rgba(255,255,255,.7)" stroke-width="1.5"/><circle cx="7.5" cy="7.5" r="1.6" fill="#fff"/><circle cx="16.5" cy="7.5" r="1.6" fill="#fff"/><circle cx="12" cy="12" r="1.6" fill="#fff"/><circle cx="7.5" cy="16.5" r="1.6" fill="#fff"/><circle cx="16.5" cy="16.5" r="1.6" fill="#fff"/></svg></div>
+        <div><div style="font-size:14px;font-weight:700;color:#fff;">幫我決定</div><div style="font-size:9px;color:rgba(255,255,255,.8);margin-top:1px;">從食譜隨機抽一道</div></div>
+      </div>
+      <div style="color:rgba(255,255,255,.6);font-size:20px;line-height:1;">›</div>
+    </button>
+    <input id="recipeSearch" oninput="renderRecipes()" placeholder="搜尋食譜..." style="flex-shrink:0;padding:11px 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+    <div id="recipeList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
+  </div>
+  <button class="fab" id="calFab" onclick="_calTabMode==='recipe'?openAddRecipeMo():openMo('addEventMo')"><svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg></button>
 </div>
 
 <!-- RESTAURANTS -->
@@ -1772,6 +1788,30 @@ window.reauthenticateForPinReset = async function() {
 <select class="fi" id="evPlace" style="padding:8px 10px;">
   <option value="">選擇地點...</option>
 </select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="evNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
+<div class="mo" id="addRecipeMo"><div class="mbox"><div class="mh"><span class="mtit">新增食譜</span><button class="mcl" onclick="closeMo('addRecipeMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="recipeName" placeholder="這道菜叫什麼？"></div>
+  <div class="fg"><label class="fl">食材（選填）</label><textarea class="fi" id="recipeIngredients" rows="3" style="resize:none;" placeholder="豆腐一盒、蔥兩根、醬油少許..."></textarea></div>
+  <div class="fg"><label class="fl">做法（選填，一行一個步驟）</label><textarea class="fi" id="recipeSteps" rows="5" style="resize:none;" placeholder="熱鍋下油&#10;蔥薑爆香&#10;下豆腐拌炒..."></textarea></div>
+  <div class="fg"><label class="fl">照片（選填）</label>
+    <div id="recipePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
+    <button type="button" onclick="document.getElementById('recipePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 選擇照片</button>
+    <input type="file" id="recipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'recipePhotoPreview')">
+  </div>
+  <button class="btn2 bpri" onclick="saveRecipe()">儲存食譜</button>
+</div></div></div>
+<div class="mo" id="editRecipeMo"><div class="mbox"><div class="mh"><span class="mtit">編輯食譜</span><button class="mcl" onclick="closeMo('editRecipeMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;">
+  <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="editRecipeName"></div>
+  <div class="fg"><label class="fl">食材（選填）</label><textarea class="fi" id="editRecipeIngredients" rows="3" style="resize:none;"></textarea></div>
+  <div class="fg"><label class="fl">做法（選填，一行一個步驟）</label><textarea class="fi" id="editRecipeSteps" rows="5" style="resize:none;"></textarea></div>
+  <div class="fg"><label class="fl">照片（選填）</label>
+    <div id="editRecipePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
+    <button type="button" onclick="document.getElementById('editRecipePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 更換照片</button>
+    <input type="file" id="editRecipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'editRecipePhotoPreview')">
+  </div>
+  <button class="btn2 bpri" onclick="saveEditRecipe()">儲存</button>
+</div></div></div>
+<div class="mo" id="recipeDetailMo"><div class="mbox" style="max-height:88vh;overflow-y:auto;"><div class="mh"><span class="mtit">食譜詳情</span><button class="mcl" onclick="closeMo('recipeDetailMo')">×</button></div><div id="recipeDetailBody"></div></div></div>
+<div class="mo" id="recipeDecideMo" style="align-items:flex-end;"><div style="background:var(--card);border-radius:20px 20px 0 0;padding:18px;width:100%;max-height:80vh;overflow-y:auto;"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('recipeDecideMo')">×</button></div><div class="rcard"><div class="rname" id="recipeDecideName">點下方開始</div><div class="rcat2" id="recipeDecideSub">從食譜隨機抽一個</div></div><div class="rbtns"><button class="btn2 bsec" onclick="recipeReroll()">再抽一次</button><button class="btn2 bpri" onclick="pickThisRecipe()">就這個！</button></div></div></div>
 <div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div><div style="font-size:11px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="editEvTime1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" id="editEvTime2" style="flex:1;"></div></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="editEvPlace" style="padding:8px 10px;"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="editEvNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="confirmAction('確定刪除這個行程？',function(){deleteEvent();closeMo('editEventMo');})" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
 <div class="mo" id="dayEventsModal"><div class="mbox">
   <div class="mh"><span class="mtit" id="dayEventsTitle">當天行程</span><button class="mcl" onclick="closeMo('dayEventsModal')">×</button></div>
@@ -7142,6 +7182,221 @@ function _initEvents(db, coupleId) {
     renderCalendar();
   });
 };
+
+// ══════════════════════════════════════════
+// 食譜
+// ══════════════════════════════════════════
+var RECIPES = [];
+function _initRecipes(db, coupleId) {
+  var {collection, query, orderBy, onSnapshot} = window._fsOps;
+  var rRef = collection(db, 'couples', coupleId, 'recipes');
+  var q = query(rRef, orderBy('name', 'asc'));
+  onSnapshot(q, function(snap) {
+    RECIPES = [];
+    snap.forEach(function(d){ RECIPES.push(Object.assign({id: d.id}, d.data())); });
+    if(_calTabMode==='recipe') renderRecipes();
+  });
+};
+window._initRecipes = _initRecipes;
+
+var _calTabMode = 'month';
+function switchCalTab(tab){
+  _calTabMode = tab;
+  var mb = document.getElementById('calTabBtn-month');
+  var rb = document.getElementById('calTabBtn-recipe');
+  if(mb) mb.classList.toggle('on', tab==='month');
+  if(rb) rb.classList.toggle('on', tab==='recipe');
+  var calBody = document.getElementById('calBody');
+  var recipeBody = document.getElementById('recipeBody');
+  if(calBody) calBody.style.display = tab==='month' ? 'flex' : 'none';
+  if(recipeBody) recipeBody.style.display = tab==='recipe' ? 'flex' : 'none';
+  if(tab==='recipe') renderRecipes();
+}
+window.switchCalTab = switchCalTab;
+
+function renderRecipes(){
+  var el = document.getElementById('recipeList');
+  if(!el) return;
+  var sq = ((document.getElementById('recipeSearch')||{}).value||'').trim().toLowerCase();
+  var items = RECIPES.filter(function(r){ return !sq || (r.name||'').toLowerCase().indexOf(sq)>-1; });
+  if(!items.length){
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--sub);padding:30px 10px;font-size:12px;">'+(sq?'找不到符合的食譜':'還沒有食譜，點右下角 + 新增第一道吧 🍳')+'</div>';
+    return;
+  }
+  el.innerHTML = items.map(function(r){
+    var photoStyle = r.photo ? 'background-image:url(\''+r.photo+'\');background-size:cover;background-position:center;' : 'background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:24px;';
+    return '<div class="card" style="padding:0;overflow:hidden;cursor:pointer;" onclick="openRecipeDetail(\''+r.id+'\')">'
+      +'<div style="width:100%;height:0;padding-bottom:75%;position:relative;'+photoStyle+'">'+(r.photo?'':'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">🍳</span>')+'</div>'
+      +'<div style="padding:10px;">'
+      +'<div style="font-size:13px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.name||'')+'</div>'
+      +'<div style="font-size:10px;color:var(--sub);margin-top:3px;">'+(r.cookCount?'煮過 '+r.cookCount+' 次':'還沒煮過')+(r.lastCookedDate?'・'+r.lastCookedDate:'')+'</div>'
+      +'</div></div>';
+  }).join('');
+}
+window.renderRecipes = renderRecipes;
+
+var _recipePhotoFile = null;
+function _previewRecipePhoto(input, previewId){
+  var f = input.files && input.files[0];
+  if(!f) return;
+  if(previewId==='editRecipePhotoPreview') _editRecipePhotoFile = f; else _recipePhotoFile = f;
+  var prev = document.getElementById(previewId);
+  if(prev){
+    var url = URL.createObjectURL(f);
+    prev.innerHTML = '<div style="width:60px;height:60px;border-radius:10px;overflow:hidden;"><img src="'+url+'" style="width:100%;height:100%;object-fit:cover;"></div>';
+  }
+}
+function openAddRecipeMo(){
+  _recipePhotoFile = null;
+  var n=document.getElementById('recipeName'); if(n) n.value='';
+  var i=document.getElementById('recipeIngredients'); if(i) i.value='';
+  var s=document.getElementById('recipeSteps'); if(s) s.value='';
+  var pp=document.getElementById('recipePhotoPreview'); if(pp) pp.innerHTML='';
+  openMo('addRecipeMo');
+}
+window.openAddRecipeMo = openAddRecipeMo;
+async function saveRecipe(){
+  var nameEl=document.getElementById('recipeName');
+  var name=(nameEl&&nameEl.value.trim())||'';
+  if(!name){showToast('請填寫食譜名稱');return;}
+  if(!window._coupleId||!window._fsOps){showToast('請先配對');return;}
+  var ingredients=(document.getElementById('recipeIngredients')||{}).value||'';
+  var stepsRaw=(document.getElementById('recipeSteps')||{}).value||'';
+  var steps=stepsRaw.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  var photoUrl='';
+  if(_recipePhotoFile){
+    try{ photoUrl = await window._uploadToCloudinary(_recipePhotoFile); }
+    catch(e){
+      console.error('[saveRecipe] 照片上傳失敗', e);
+      if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); return; }
+      showToast('照片上傳失敗，食譜仍會儲存');
+    }
+  }
+  var {collection,addDoc,serverTimestamp}=window._fsOps;
+  await addDoc(collection(window._db,'couples',window._coupleId,'recipes'),{
+    name:name, ingredients:ingredients, steps:steps, photo:photoUrl,
+    lastCookedDate:'', cookCount:0, createdAt:serverTimestamp()
+  });
+  closeMo('addRecipeMo');
+  showToast('食譜已新增 ✓');
+}
+window.saveRecipe = saveRecipe;
+
+var _editRecipeId = null;
+var _editRecipePhotoFile = null;
+function openEditRecipeMo(id){
+  var r = RECIPES.find(function(x){return x.id===id;});
+  if(!r) return;
+  _editRecipeId = id;
+  _editRecipePhotoFile = null;
+  var n=document.getElementById('editRecipeName'); if(n) n.value=r.name||'';
+  var i=document.getElementById('editRecipeIngredients'); if(i) i.value=r.ingredients||'';
+  var s=document.getElementById('editRecipeSteps'); if(s) s.value=(r.steps||[]).join('\n');
+  var pp=document.getElementById('editRecipePhotoPreview');
+  if(pp) pp.innerHTML = r.photo ? '<div style="width:60px;height:60px;border-radius:10px;overflow:hidden;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;"></div>' : '';
+  closeMo('recipeDetailMo');
+  openMo('editRecipeMo');
+}
+window.openEditRecipeMo = openEditRecipeMo;
+async function saveEditRecipe(){
+  if(!_editRecipeId||!window._fsOps) return;
+  var nameEl=document.getElementById('editRecipeName');
+  var name=(nameEl&&nameEl.value.trim())||'';
+  if(!name){showToast('請填寫食譜名稱');return;}
+  var ingredients=(document.getElementById('editRecipeIngredients')||{}).value||'';
+  var stepsRaw=(document.getElementById('editRecipeSteps')||{}).value||'';
+  var steps=stepsRaw.split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  var updateData={name:name, ingredients:ingredients, steps:steps};
+  if(_editRecipePhotoFile){
+    try{ updateData.photo = await window._uploadToCloudinary(_editRecipePhotoFile); }
+    catch(e){
+      console.error('[saveEditRecipe] 照片上傳失敗', e);
+      if(e && e.code==='CLOUDINARY_NOT_CONFIGURED'){ showToast('請先到設定頁填寫 Cloudinary 設定才能上傳照片'); return; }
+      showToast('照片上傳失敗，其他內容仍會儲存');
+    }
+  }
+  var {doc,updateDoc}=window._fsOps;
+  await updateDoc(doc(window._db,'couples',window._coupleId,'recipes',_editRecipeId), updateData);
+  closeMo('editRecipeMo');
+  showToast('食譜已更新 ✓');
+  _editRecipeId=null; _editRecipePhotoFile=null;
+}
+window.saveEditRecipe = saveEditRecipe;
+
+var _recipeDetailId = null;
+function openRecipeDetail(id){
+  var r = RECIPES.find(function(x){return x.id===id;});
+  if(!r) return;
+  _recipeDetailId = id;
+  var body = document.getElementById('recipeDetailBody');
+  if(!body) return;
+  var stepsHtml = (r.steps&&r.steps.length) ? '<ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;margin-top:4px;">'+r.steps.map(function(s){return '<li style="font-size:13px;color:var(--txt);line-height:1.6;">'+s+'</li>';}).join('')+'</ol>' : '<div style="font-size:12px;color:var(--sub);">尚未填寫步驟</div>';
+  body.innerHTML =
+    (r.photo?'<div style="width:100%;height:0;padding-bottom:60%;position:relative;border-radius:14px;overflow:hidden;margin-bottom:12px;"><img src="'+r.photo+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></div>':'')
+    +'<div style="font-size:18px;font-weight:700;color:var(--txt);margin-bottom:4px;">'+(r.name||'')+'</div>'
+    +'<div style="font-size:11px;color:var(--sub);margin-bottom:14px;">'+(r.cookCount?'已經煮過 '+r.cookCount+' 次':'還沒煮過')+(r.lastCookedDate?'・上次 '+r.lastCookedDate:'')+'</div>'
+    +(r.ingredients?'<div class="slbl">食材</div><div style="font-size:13px;color:var(--txt);line-height:1.7;white-space:pre-wrap;margin-bottom:14px;">'+r.ingredients+'</div>':'')
+    +'<div class="slbl">做法</div>'+stepsHtml
+    +'<div style="display:flex;gap:8px;margin-top:18px;">'
+    +'<button class="btn2 bpri" style="flex:2;" onclick="markRecipeCooked(\''+r.id+'\')">🍳 今天煮了</button>'
+    +'<button class="btn2 bsec" style="flex:1;" onclick="openEditRecipeMo(\''+r.id+'\')">編輯</button>'
+    +'</div>'
+    +'<button onclick="deleteRecipeConfirm(\''+r.id+'\')" style="all:unset;display:block;text-align:center;width:100%;margin-top:10px;font-size:12px;color:#c62828;cursor:pointer;padding:8px;">刪除食譜</button>';
+  openMo('recipeDetailMo');
+}
+window.openRecipeDetail = openRecipeDetail;
+async function markRecipeCooked(id){
+  if(!window._fsOps) return;
+  try{
+    var {doc,updateDoc}=window._fsOps;
+    var r = RECIPES.find(function(x){return x.id===id;});
+    var todayStr = _localDateStr ? _localDateStr(new Date()) : new Date().toISOString().slice(0,10);
+    await updateDoc(doc(window._db,'couples',window._coupleId,'recipes',id),{
+      cookCount: (r&&r.cookCount||0)+1,
+      lastCookedDate: todayStr
+    });
+    showToast('記錄下來了，今天又煮了這道 🍳');
+    closeMo('recipeDetailMo');
+  }catch(e){ console.error('[markRecipeCooked]', e); showToast('記錄失敗，請再試'); }
+}
+window.markRecipeCooked = markRecipeCooked;
+function deleteRecipeConfirm(id){
+  var r = RECIPES.find(function(x){return x.id===id;});
+  if(!r) return;
+  confirmAction('確定要刪除「'+r.name+'」這道食譜嗎？', async function(){
+    try{
+      var {doc,deleteDoc}=window._fsOps;
+      await deleteDoc(doc(window._db,'couples',window._coupleId,'recipes',id));
+      closeMo('recipeDetailMo');
+      showToast('已刪除');
+    }catch(e){ console.error('[deleteRecipeConfirm]', e); showToast('刪除失敗，請再試'); }
+  });
+}
+window.deleteRecipeConfirm = deleteRecipeConfirm;
+
+var _recipeDecideCurrent = null;
+function openRecipeDecideMo(){
+  if(!RECIPES.length){ showToast('還沒有食譜可以抽，先新增幾道吧'); return; }
+  openMo('recipeDecideMo');
+  recipeReroll();
+}
+window.openRecipeDecideMo = openRecipeDecideMo;
+function recipeReroll(){
+  if(!RECIPES.length) return;
+  var r = RECIPES[Math.floor(Math.random()*RECIPES.length)];
+  _recipeDecideCurrent = r.id;
+  var nameEl = document.getElementById('recipeDecideName');
+  var subEl = document.getElementById('recipeDecideSub');
+  if(nameEl) nameEl.textContent = r.name||'';
+  if(subEl) subEl.textContent = r.cookCount ? '煮過 '+r.cookCount+' 次' : '還沒煮過，來試試？';
+}
+window.recipeReroll = recipeReroll;
+function pickThisRecipe(){
+  if(!_recipeDecideCurrent) return;
+  closeMo('recipeDecideMo');
+  openRecipeDetail(_recipeDecideCurrent);
+}
+window.pickThisRecipe = pickThisRecipe;
 
 function renderCalendar() {
   var body = document.getElementById('calBody');
