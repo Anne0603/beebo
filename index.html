@@ -1794,7 +1794,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="fg"><label class="fl">做法（選填，一行一個步驟）</label><textarea class="fi" id="recipeSteps" rows="5" style="resize:none;" placeholder="熱鍋下油&#10;蔥薑爆香&#10;下豆腐拌炒..."></textarea></div>
   <div class="fg"><label class="fl">照片（選填）</label>
     <div id="recipePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
-    <button type="button" onclick="document.getElementById('recipePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 選擇照片</button>
+    <button type="button" onclick="document.getElementById('recipePhotoInput').click()" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>選擇照片</button>
     <input type="file" id="recipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'recipePhotoPreview')">
   </div>
   <button class="btn2 bpri" onclick="saveRecipe()">儲存食譜</button>
@@ -1805,7 +1805,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="fg"><label class="fl">做法（選填，一行一個步驟）</label><textarea class="fi" id="editRecipeSteps" rows="5" style="resize:none;"></textarea></div>
   <div class="fg"><label class="fl">照片（選填）</label>
     <div id="editRecipePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
-    <button type="button" onclick="document.getElementById('editRecipePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 更換照片</button>
+    <button type="button" onclick="document.getElementById('editRecipePhotoInput').click()" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>更換照片</button>
     <input type="file" id="editRecipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'editRecipePhotoPreview')">
   </div>
   <button class="btn2 bpri" onclick="saveEditRecipe()">儲存</button>
@@ -2228,7 +2228,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="fg"><label class="fl">語錄內容</label><textarea class="fi" id="editQuoteText" rows="3" placeholder="記下這句話..."></textarea></div>
   <div class="fg"><label class="fl">照片（選填）</label>
     <div id="editQuotePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
-    <button type="button" onclick="document.getElementById('editQuotePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 更換照片</button>
+    <button type="button" onclick="document.getElementById('editQuotePhotoInput').click()" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>更換照片</button>
     <input type="file" id="editQuotePhotoInput" accept="image/*" style="display:none;" onchange="_previewEditQuotePhoto(this)">
   </div>
   <button onclick="saveEditQuote()" class="btn2 bpri" style="width:100%;margin-top:8px;">儲存</button>
@@ -2239,7 +2239,7 @@ window.reauthenticateForPinReset = async function() {
   <div class="fg"><label class="fl">日期</label><input class="fi" type="date" id="quoteDate"></div>
   <div class="fg"><label class="fl">附一張照片（選填）</label>
     <div id="quotePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
-    <button type="button" onclick="document.getElementById('quotePhotoInput').click()" class="btn2 bsec" style="width:100%;">📷 選擇照片</button>
+    <button type="button" onclick="document.getElementById('quotePhotoInput').click()" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>選擇照片</button>
     <input type="file" id="quotePhotoInput" accept="image/*" style="display:none;" onchange="_previewQuotePhoto(this)">
   </div>
   <button class="btn2 bpri" onclick="saveQuote()">儲存語錄</button>
@@ -7220,13 +7220,13 @@ function renderRecipes(){
   var sq = ((document.getElementById('recipeSearch')||{}).value||'').trim().toLowerCase();
   var items = RECIPES.filter(function(r){ return !sq || (r.name||'').toLowerCase().indexOf(sq)>-1; });
   if(!items.length){
-    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--sub);padding:30px 10px;font-size:12px;">'+(sq?'找不到符合的食譜':'還沒有食譜，點右下角 + 新增第一道吧 🍳')+'</div>';
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--sub);padding:30px 10px;font-size:12px;">'+(sq?'找不到符合的食譜':'還沒有食譜，點右下角 + 新增第一道吧')+'</div>';
     return;
   }
   el.innerHTML = items.map(function(r){
     var photoStyle = r.photo ? 'background-image:url(\''+r.photo+'\');background-size:cover;background-position:center;' : 'background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:24px;';
     return '<div class="card" style="padding:0;overflow:hidden;cursor:pointer;" onclick="openRecipeDetail(\''+r.id+'\')">'
-      +'<div style="width:100%;height:0;padding-bottom:75%;position:relative;'+photoStyle+'">'+(r.photo?'':'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">🍳</span>')+'</div>'
+      +'<div style="width:100%;height:0;padding-bottom:75%;position:relative;'+photoStyle+'">'+(r.photo?'':'<span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 10h18v2a7 7 0 01-7 7h-4a7 7 0 01-7-7v-2z" stroke="var(--bdr)" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10V7a2 2 0 012-2h8a2 2 0 012 2v3" stroke="var(--bdr)" stroke-width="1.6"/><path d="M9 5V3M15 5V3" stroke="var(--bdr)" stroke-width="1.6" stroke-linecap="round"/></svg></span>')+'</div>'
       +'<div style="padding:10px;">'
       +'<div style="font-size:13px;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.name||'')+'</div>'
       +'<div style="font-size:10px;color:var(--sub);margin-top:3px;">'+(r.cookCount?'煮過 '+r.cookCount+' 次':'還沒煮過')+(r.lastCookedDate?'・'+r.lastCookedDate:'')+'</div>'
@@ -7338,7 +7338,7 @@ function openRecipeDetail(id){
     +(r.ingredients?'<div class="slbl">食材</div><div style="font-size:13px;color:var(--txt);line-height:1.7;white-space:pre-wrap;margin-bottom:14px;">'+r.ingredients+'</div>':'')
     +'<div class="slbl">做法</div>'+stepsHtml
     +'<div style="display:flex;gap:8px;margin-top:18px;">'
-    +'<button class="btn2 bpri" style="flex:2;" onclick="markRecipeCooked(\''+r.id+'\')">🍳 今天煮了</button>'
+    +'<button class="btn2 bpri" style="flex:2;display:flex;align-items:center;justify-content:center;gap:5px;" onclick="markRecipeCooked(\''+r.id+'\')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 10h18v2a7 7 0 01-7 7h-4a7 7 0 01-7-7v-2z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><path d="M6 10V7a2 2 0 012-2h8a2 2 0 012 2v3" stroke="#fff" stroke-width="1.6"/></svg>今天煮了</button>'
     +'<button class="btn2 bsec" style="flex:1;" onclick="openEditRecipeMo(\''+r.id+'\')">編輯</button>'
     +'</div>'
     +'<button onclick="deleteRecipeConfirm(\''+r.id+'\')" style="all:unset;display:block;text-align:center;width:100%;margin-top:10px;font-size:12px;color:#c62828;cursor:pointer;padding:8px;">刪除食譜</button>';
@@ -7355,7 +7355,7 @@ async function markRecipeCooked(id){
       cookCount: (r&&r.cookCount||0)+1,
       lastCookedDate: todayStr
     });
-    showToast('記錄下來了，今天又煮了這道 🍳');
+    showToast('記錄下來了，今天又煮了這道 ✓');
     closeMo('recipeDetailMo');
   }catch(e){ console.error('[markRecipeCooked]', e); showToast('記錄失敗，請再試'); }
 }
