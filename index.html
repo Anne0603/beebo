@@ -1876,8 +1876,8 @@ window.reauthenticateForPinReset = async function() {
 <div class="mo" id="recipeDetailMo"><div class="mbox" style="max-height:88vh;overflow-y:auto;"><div class="mh"><span class="mtit">食譜詳情</span><button class="mcl" onclick="closeMo('recipeDetailMo')">×</button></div><div id="recipeDetailBody"></div></div></div>
 <div class="mo" id="recipeDecideMo" style="align-items:flex-end;"><div style="background:var(--card);border-radius:20px 20px 0 0;padding:18px;width:100%;max-height:80vh;overflow-y:auto;"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('recipeDecideMo')">×</button></div>
   <div style="display:flex;gap:8px;margin-bottom:10px;">
-    <select id="recipeFilterStyle" style="flex:1;padding:8px 6px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部風格</option></select>
-    <select id="recipeFilterTime" style="flex:1;padding:8px 6px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+    <select id="recipeFilterStyle" style="flex:1;min-width:0;padding:8px 4px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部風格</option></select>
+    <select id="recipeFilterTime" style="flex:1;min-width:0;padding:8px 4px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
       <option value="">全部時間</option>
       <option value="15">15分鐘以內</option>
       <option value="15-30">15-30分鐘</option>
@@ -7572,9 +7572,9 @@ function _renderIngredientRows(containerId, arr){
   el.innerHTML = arr.map(function(ing, i){
     var unitOpts = RECIPE_UNITS.map(function(u){return '<option value="'+u+'"'+(ing.unit===u?' selected':'')+'>'+u+'</option>';}).join('');
     return '<div style="display:flex;gap:5px;margin-bottom:6px;align-items:center;">'
-      +'<input value="'+(ing.name||'').replace(/"/g,'&quot;')+'" oninput="'+containerId+'_arr()['+i+'].name=this.value" placeholder="食材名稱" style="flex:2;padding:8px 9px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;font-family:\'Noto Sans TC\',sans-serif;">'
-      +'<input value="'+(ing.amount||'').replace(/"/g,'&quot;')+'" oninput="'+containerId+'_arr()['+i+'].amount=this.value" placeholder="數量" style="flex:1;padding:8px 9px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;font-family:\'Noto Sans TC\',sans-serif;">'
-      +'<select onchange="'+containerId+'_arr()['+i+'].unit=this.value" style="flex:1;padding:8px 4px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;font-family:\'Noto Sans TC\',sans-serif;">'+unitOpts+'</select>'
+      +'<input value="'+(ing.name||'').replace(/"/g,'&quot;')+'" oninput="'+containerId+'_arr()['+i+'].name=this.value" placeholder="食材名稱" style="flex:2;min-width:0;padding:8px 9px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;font-family:\'Noto Sans TC\',sans-serif;">'
+      +'<input value="'+(ing.amount||'').replace(/"/g,'&quot;')+'" oninput="'+containerId+'_arr()['+i+'].amount=this.value" placeholder="數量" style="flex:1;min-width:0;padding:8px 9px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;font-family:\'Noto Sans TC\',sans-serif;">'
+      +'<select onchange="'+containerId+'_arr()['+i+'].unit=this.value" style="flex:1;min-width:0;padding:8px 2px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;font-family:\'Noto Sans TC\',sans-serif;">'+unitOpts+'</select>'
       +'<button onclick="_removeIngredientRow(\''+containerId+'\','+i+')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;padding:4px;flex-shrink:0;">×</button>'
       +'</div>';
   }).join('');
@@ -7603,7 +7603,7 @@ function _renderStepRows(containerId, arr){
   el.innerHTML = arr.map(function(s, i){
     return '<div style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start;">'
       +'<div style="width:20px;height:34px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--accent);flex-shrink:0;">'+(i+1)+'</div>'
-      +'<textarea rows="2" oninput="'+containerId+'_arr()['+i+']=this.value" placeholder="第 '+(i+1)+' 步做什麼？" style="flex:1;resize:none;padding:8px 10px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12.5px;font-family:\'Noto Sans TC\',sans-serif;">'+(s||'').replace(/</g,'&lt;')+'</textarea>'
+      +'<textarea rows="2" oninput="'+containerId+'_arr()['+i+']=this.value" placeholder="第 '+(i+1)+' 步做什麼？" style="flex:1;min-width:0;resize:none;padding:8px 10px;border-radius:10px;border:1px solid var(--bdr);background:var(--card2);font-size:12.5px;font-family:\'Noto Sans TC\',sans-serif;">'+(s||'').replace(/</g,'&lt;')+'</textarea>'
       +'<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">'
       +'<button onclick="_moveStepRow(\''+containerId+'\','+i+',-1)" style="all:unset;cursor:pointer;padding:2px;color:var(--sub);'+(i===0?'opacity:.3;pointer-events:none;':'')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M18 15l-6-6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
       +'<button onclick="_moveStepRow(\''+containerId+'\','+i+',1)" style="all:unset;cursor:pointer;padding:2px;color:var(--sub);'+(i===arr.length-1?'opacity:.3;pointer-events:none;':'')+'"><svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
