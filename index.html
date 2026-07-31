@@ -190,6 +190,10 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:"Noto Sans TC",sans
 .complete-badge{border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;}
 .complete-title{font-weight:900;color:#fff;position:relative;}
 .complete-sub{color:rgba(255,255,255,.9);margin-top:4px;position:relative;line-height:1.5;}
+.rcp-section{background:var(--card);border-radius:16px;padding:14px;box-shadow:0 2px 8px var(--shd);}
+.rcp-section-title{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#A8703C;letter-spacing:.5px;margin-bottom:10px;}
+.rcp-photo-drop{width:100%;aspect-ratio:16/9;border-radius:12px;border:1.5px dashed #D4B896;background:linear-gradient(150deg,#FBF3E9 0%,#F5E6D3 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;}
+.rcp-add-btn{all:unset;box-sizing:border-box;width:100%;text-align:center;padding:9px;border-radius:12px;border:1.5px dashed var(--bdr);color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;}
 .cdow{font-size:10px;color:var(--sub);text-align:center;padding:4px 0;font-weight:600;}
 .cday{font-size:12px;color:var(--txt);text-align:center;padding:6px 2px;cursor:pointer;border-radius:50%;}
 .cday.has{background:var(--lt);color:var(--accent);font-weight:700;}
@@ -1800,35 +1804,38 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     新增食譜
   </div>
-  <div class="sc" style="gap:10px;">
-    <div class="fg"><label class="fl">封面照片</label>
-      <div id="recipePhotoPreview" onclick="document.getElementById('recipePhotoInput').click()" style="width:100%;aspect-ratio:16/9;border-radius:14px;border:1.5px dashed var(--bdr);background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>
-        <span style="font-size:11px;color:var(--sub);">點擊上傳封面圖</span>
+  <div class="sc" style="gap:14px;">
+    <div class="rcp-section">
+      <div class="rcp-section-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#A8703C" stroke-width="1.8"/><circle cx="9" cy="9" r="1.5" fill="#A8703C"/><path d="M21 15l-5-5L5 21" stroke="#A8703C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>基本資訊</div>
+      <div id="recipePhotoPreview" onclick="document.getElementById('recipePhotoInput').click()" class="rcp-photo-drop">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="#B8895A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="#B8895A" stroke-width="1.5"/></svg>
+        <span style="font-size:11px;color:#A8703C;font-weight:600;">點擊上傳封面圖</span>
       </div>
       <input type="file" id="recipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'recipePhotoPreview')">
+      <div class="fg" style="margin-top:12px;"><label class="fl">食譜名稱（必填）</label><input class="fi" id="recipeName" placeholder="這道菜叫什麼？"></div>
+      <div class="fg"><label class="fl">風格分類（可複選）</label>
+        <button type="button" onclick="openRecipeStylePicker('recipeStylesBox')" class="fi" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--card2);">
+          <span id="recipeStylesDisplay" style="color:var(--sub);">請選擇風格分類</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div id="recipeStylesBox" data-selected="[]" style="display:none;"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="recipeServings" placeholder="例如 2"></div>
+        <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="recipeCookTime" placeholder="例如 30"></div>
+      </div>
     </div>
-    <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="recipeName" placeholder="這道菜叫什麼？"></div>
-    <div class="fg"><label class="fl">風格分類（可複選）</label>
-      <button type="button" onclick="openRecipeStylePicker('recipeStylesBox')" class="fi" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--card2);">
-        <span id="recipeStylesDisplay" style="color:var(--sub);">請選擇風格分類</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <div id="recipeStylesBox" data-selected="[]" style="display:none;"></div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="recipeServings" placeholder="例如 2"></div>
-      <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="recipeCookTime" placeholder="例如 30"></div>
-    </div>
-    <div class="fg"><label class="fl">食材</label>
+    <div class="rcp-section">
+      <div class="rcp-section-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2s-5 5.5-5 10a5 5 0 0010 0c0-4.5-5-10-5-10z" stroke="#A8703C" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 22v-4" stroke="#A8703C" stroke-width="1.8" stroke-linecap="round"/></svg>食材</div>
       <div id="recipeIngredients"></div>
-      <button type="button" onclick="_addIngredientRow('recipeIngredients')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一項食材</button>
+      <button type="button" onclick="_addIngredientRow('recipeIngredients')" class="rcp-add-btn">＋ 新增一項食材</button>
     </div>
-    <div class="fg"><label class="fl">做法</label>
+    <div class="rcp-section">
+      <div class="rcp-section-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="#A8703C" stroke-width="1.8" stroke-linecap="round"/><path d="M18 2l4 4-11 11H7v-4L18 2z" stroke="#A8703C" stroke-width="1.8" stroke-linejoin="round"/></svg>做法</div>
       <div id="recipeSteps"></div>
-      <button type="button" onclick="_addStepRow('recipeSteps')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一個步驟</button>
+      <button type="button" onclick="_addStepRow('recipeSteps')" class="rcp-add-btn">＋ 新增一個步驟</button>
     </div>
-    <button class="btn2 bpri" onclick="saveRecipe()" style="margin-top:6px;">儲存食譜</button>
+    <button class="btn2 bpri" onclick="saveRecipe()">儲存食譜</button>
   </div>
 </div>
 <div class="page" id="page-editrecipe">
@@ -1836,35 +1843,38 @@ window.reauthenticateForPinReset = async function() {
     <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
     編輯食譜
   </div>
-  <div class="sc" style="gap:10px;">
-    <div class="fg"><label class="fl">封面照片</label>
-      <div id="editRecipePhotoPreview" onclick="document.getElementById('editRecipePhotoInput').click()" style="width:100%;aspect-ratio:16/9;border-radius:14px;border:1.5px dashed var(--bdr);background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>
-        <span style="font-size:11px;color:var(--sub);">點擊更換封面圖</span>
+  <div class="sc" style="gap:14px;">
+    <div class="rcp-section">
+      <div class="rcp-section-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#A8703C" stroke-width="1.8"/><circle cx="9" cy="9" r="1.5" fill="#A8703C"/><path d="M21 15l-5-5L5 21" stroke="#A8703C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>基本資訊</div>
+      <div id="editRecipePhotoPreview" onclick="document.getElementById('editRecipePhotoInput').click()" class="rcp-photo-drop">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="#B8895A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="#B8895A" stroke-width="1.5"/></svg>
+        <span style="font-size:11px;color:#A8703C;font-weight:600;">點擊更換封面圖</span>
       </div>
       <input type="file" id="editRecipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'editRecipePhotoPreview')">
+      <div class="fg" style="margin-top:12px;"><label class="fl">食譜名稱（必填）</label><input class="fi" id="editRecipeName"></div>
+      <div class="fg"><label class="fl">風格分類（可複選）</label>
+        <button type="button" onclick="openRecipeStylePicker('editRecipeStylesBox')" class="fi" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--card2);">
+          <span id="editRecipeStylesDisplay" style="color:var(--sub);">請選擇風格分類</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div id="editRecipeStylesBox" data-selected="[]" style="display:none;"></div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="editRecipeServings"></div>
+        <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="editRecipeCookTime"></div>
+      </div>
     </div>
-    <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="editRecipeName"></div>
-    <div class="fg"><label class="fl">風格分類（可複選）</label>
-      <button type="button" onclick="openRecipeStylePicker('editRecipeStylesBox')" class="fi" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--card2);">
-        <span id="editRecipeStylesDisplay" style="color:var(--sub);">請選擇風格分類</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <div id="editRecipeStylesBox" data-selected="[]" style="display:none;"></div>
-    </div>
-    <div style="display:flex;gap:8px;">
-      <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="editRecipeServings"></div>
-      <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="editRecipeCookTime"></div>
-    </div>
-    <div class="fg"><label class="fl">食材</label>
+    <div class="rcp-section">
+      <div class="rcp-section-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M12 2s-5 5.5-5 10a5 5 0 0010 0c0-4.5-5-10-5-10z" stroke="#A8703C" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 22v-4" stroke="#A8703C" stroke-width="1.8" stroke-linecap="round"/></svg>食材</div>
       <div id="editRecipeIngredients"></div>
-      <button type="button" onclick="_addIngredientRow('editRecipeIngredients')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一項食材</button>
+      <button type="button" onclick="_addIngredientRow('editRecipeIngredients')" class="rcp-add-btn">＋ 新增一項食材</button>
     </div>
-    <div class="fg"><label class="fl">做法</label>
+    <div class="rcp-section">
+      <div class="rcp-section-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M9 5H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2v-3" stroke="#A8703C" stroke-width="1.8" stroke-linecap="round"/><path d="M18 2l4 4-11 11H7v-4L18 2z" stroke="#A8703C" stroke-width="1.8" stroke-linejoin="round"/></svg>做法</div>
       <div id="editRecipeSteps"></div>
-      <button type="button" onclick="_addStepRow('editRecipeSteps')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一個步驟</button>
+      <button type="button" onclick="_addStepRow('editRecipeSteps')" class="rcp-add-btn">＋ 新增一個步驟</button>
     </div>
-    <button class="btn2 bpri" onclick="saveEditRecipe()" style="margin-top:6px;">儲存</button>
+    <button class="btn2 bpri" onclick="saveEditRecipe()">儲存</button>
   </div>
 </div>
 <div class="mo" id="recipeStylePickerMo"><div class="mbox">
@@ -7648,8 +7658,8 @@ function _previewRecipePhoto(input, previewId){
 }
 window._previewRecipePhoto = _previewRecipePhoto;
 
-var _RECIPE_PHOTO_PLACEHOLDER_ADD = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg><span style="font-size:11px;color:var(--sub);">點擊上傳封面圖</span>';
-var _RECIPE_PHOTO_PLACEHOLDER_EDIT = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg><span style="font-size:11px;color:var(--sub);">點擊更換封面圖</span>';
+var _RECIPE_PHOTO_PLACEHOLDER_ADD = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="#B8895A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="#B8895A" stroke-width="1.5"/></svg><span style="font-size:11px;color:#A8703C;font-weight:600;">點擊上傳封面圖</span>';
+var _RECIPE_PHOTO_PLACEHOLDER_EDIT = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="#B8895A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="#B8895A" stroke-width="1.5"/></svg><span style="font-size:11px;color:#A8703C;font-weight:600;">點擊更換封面圖</span>';
 function openAddRecipeMo(){
   _recipePhotoFile = null;
   _recipeIngredients = [{name:'',amount:'',unit:'克'}];
