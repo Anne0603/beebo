@@ -7632,8 +7632,16 @@ function _addStepRow(containerId){
 window._addStepRow = _addStepRow;
 function _removeStepRow(containerId, idx){
   var arr = containerId==='recipeSteps' ? _recipeSteps : _editRecipeSteps;
-  arr.splice(idx,1);
-  _renderStepRows(containerId, arr);
+  var content = (arr[idx]||'').trim();
+  if(!content){
+    arr.splice(idx,1);
+    _renderStepRows(containerId, arr);
+    return;
+  }
+  confirmAction('確定要刪除這個步驟嗎？', function(){
+    arr.splice(idx,1);
+    _renderStepRows(containerId, arr);
+  });
 }
 window._removeStepRow = _removeStepRow;
 function _moveStepRow(containerId, idx, dir){
