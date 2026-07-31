@@ -1,59 +1,42 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isLoggedIn() {
-      return request.auth != null;
-    }
+    function isLoggedIn() { return request.auth != null; }
     function isCoupleOf(coupleId) {
       return isLoggedIn() && (
         coupleId.split('_')[0] == request.auth.uid ||
         coupleId.split('_')[1] == request.auth.uid
       );
     }
+    function isSuperAdmin() {
+      return request.auth.token.email == 'pbf105019@gmail.com';
+    }
+    match /config/{docId} {
+      allow read: if isLoggedIn();
+      allow write: if isSuperAdmin();
+    }
     match /users/{uid} {
       allow read: if isLoggedIn();
       allow create: if request.auth.uid == uid;
-      allow update: if request.auth.uid == uid;
+      allow update: if request.auth.uid == uid
+        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['partnerId'])
+            && request.resource.data.partnerId == request.auth.uid);
       allow delete: if false;
     }
-    match /invites/{code} {
-      allow read, write: if isLoggedIn();
-    }
+    match /invites/{code} { allow read, write: if isLoggedIn(); }
     match /couples/{coupleId} {
       allow read, write: if isCoupleOf(coupleId);
-      match /messages/{msgId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /list/{itemId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /rests/{restId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /challenges/{chalId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /quotes/{quoteId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /memories/{memId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /events/{eventId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /notifications/{notifId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /recaps/{quarterId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /recipes/{recipeId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
-      match /cookLogs/{logId} {
-        allow read, write: if isCoupleOf(coupleId);
-      }
+      match /messages/{msgId} { allow read, write: if isCoupleOf(coupleId); }
+      match /list/{itemId} { allow read, write: if isCoupleOf(coupleId); }
+      match /rests/{restId} { allow read, write: if isCoupleOf(coupleId); }
+      match /challenges/{chalId} { allow read, write: if isCoupleOf(coupleId); }
+      match /quotes/{quoteId} { allow read, write: if isCoupleOf(coupleId); }
+      match /memories/{memId} { allow read, write: if isCoupleOf(coupleId); }
+      match /events/{eventId} { allow read, write: if isCoupleOf(coupleId); }
+      match /notifications/{notifId} { allow read, write: if isCoupleOf(coupleId); }
+      match /recaps/{quarterId} { allow read, write: if isCoupleOf(coupleId); }
+      match /recipes/{recipeId} { allow read, write: if isCoupleOf(coupleId); }
+      match /cookLogs/{logId} { allow read, write: if isCoupleOf(coupleId); }
     }
   }
 }
