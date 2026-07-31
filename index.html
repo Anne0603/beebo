@@ -1602,7 +1602,7 @@ window.reauthenticateForPinReset = async function() {
     </button>
     <div style="display:flex;gap:8px;flex-shrink:0;">
       <input id="recipeSearch" oninput="renderRecipes()" placeholder="搜尋食譜..." style="flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
-      <button onclick="openCookLogMo()" style="flex-shrink:0;padding:0 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/></svg>紀錄</button>
+      <button onclick="openCookLogPage()" style="flex-shrink:0;padding:0 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/></svg>紀錄</button>
     </div>
     <div id="recipeList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
   </div>
@@ -1861,7 +1861,13 @@ window.reauthenticateForPinReset = async function() {
   <div class="rbtns"><button class="btn2 bsec" onclick="recipeReroll()">再抽一次</button><button class="btn2 bpri" onclick="pickThisRecipe()">看詳情</button></div>
   <button class="btn2 bpri" onclick="startRecipeLottery()" style="width:100%;margin-top:8px;">🎲 開始抽籤</button>
 </div></div>
-<div class="mo" id="cookLogMo"><div class="mbox" style="max-height:88vh;overflow-y:auto;"><div class="mh"><span class="mtit">煮的紀錄</span><button class="mcl" onclick="closeMo('cookLogMo')">×</button></div><div id="cookLogBody"></div></div></div>
+<div class="page" id="page-cooklog">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="#4A7A58" stroke-width="1.6" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="#4A7A58" stroke-width="1.6" stroke-linejoin="round"/></svg>煮的紀錄
+  </div>
+  <div class="sc" id="cookLogBody"></div>
+</div>
 <div class="mo" id="editEventMo"><div class="mbox"><div class="mh"><span class="mtit">編輯約會計畫</span><button class="mcl" onclick="closeMo('editEventMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;"><div class="fg"><label class="fl">活動名稱（必填）</label><input class="fi" id="editEvName" value=""></div><div class="fg"><label class="fl">日期</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="date" id="editEvDate1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="date" id="editEvDate2" style="flex:1;"></div><div style="font-size:11px;color:var(--sub);margin-top:2px;">單日只填左邊</div></div><div class="fg"><label class="fl">時間</label><div style="display:flex;gap:6px;align-items:center;"><input class="fi" type="time" id="editEvTime1" style="flex:1;"><span style="color:var(--sub);font-size:12px;flex-shrink:0;">至</span><input class="fi" type="time" id="editEvTime2" style="flex:1;"></div></div><div class="fg"><label class="fl">地點（選填）</label><select class="fi" id="editEvPlace" style="padding:8px 10px;"><option value="">選擇地點...</option></select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="editEvNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><div style="display:flex;gap:8px;"><button onclick="saveEvent()" class="btn2 bpri" style="flex:1;">儲存</button><button onclick="confirmAction('確定刪除這個行程？',function(){deleteEvent();closeMo('editEventMo');})" style="all:unset;flex:1;text-align:center;font-size:13px;color:#c62828;cursor:pointer;padding:10px;border-radius:12px;background:#fdecea;font-family:'Noto Sans TC',sans-serif;">刪除</button></div></div></div></div>
 <div class="mo" id="dayEventsModal"><div class="mbox">
   <div class="mh"><span class="mtit" id="dayEventsTitle">當天行程</span><button class="mcl" onclick="closeMo('dayEventsModal')">×</button></div>
@@ -2511,6 +2517,7 @@ function goPage(p){
     if(p==='faq') {} // 靜態頁面，不需要額外初始化
     if(p==='restaurants' && typeof fillRestCityFilter==='function') fillRestCityFilter();
     if(p==='recap' && typeof renderRecapList==='function') renderRecapList();
+    if(p==='cooklog' && typeof renderCookLogPage==='function') renderCookLogPage();
     curPage=p;
     buildNavs();
   }
@@ -7756,35 +7763,51 @@ function deleteRecipeConfirm(id){
 }
 window.deleteRecipeConfirm = deleteRecipeConfirm;
 
-// ── 煮的紀錄（依月份分組瀏覽）──
-function openCookLogMo(){
-  var body = document.getElementById('cookLogBody');
-  if(body){
-    if(!COOKLOGS.length){
-      body.innerHTML = '<div style="text-align:center;color:var(--sub);padding:30px 10px;font-size:12px;">還沒有煮過任何食譜的紀錄</div>';
-    } else {
-      var groups = {};
-      var order = [];
-      COOKLOGS.forEach(function(log){
-        var ym = (log.date||'').slice(0,7);
-        if(!groups[ym]){ groups[ym]=[]; order.push(ym); }
-        groups[ym].push(log);
-      });
-      body.innerHTML = order.map(function(ym){
-        var parts = ym.split('-');
-        var label = parts[0]+' 年 '+parseInt(parts[1])+' 月';
-        return '<div class="slbl">'+label+'</div><div class="chal-list" style="margin-bottom:10px;">'+groups[ym].map(function(log){
-          return '<div class="chal-row" onclick="closeMo(\'cookLogMo\');openRecipeDetail(\''+log.recipeId+'\')" style="cursor:pointer;">'
-            +'<div class="chal-dot" style="background:var(--accent);"></div>'
-            +'<div class="chal-name">'+(log.recipeName||'')+'</div>'
-            +'<div class="chal-date">'+(log.date||'').slice(5)+'</div></div>';
-        }).join('')+'</div>';
-      }).join('');
-    }
-  }
-  openMo('cookLogMo');
+// ── 煮的紀錄（依月份分組瀏覽，含統計句與縮圖）──
+function openCookLogPage(){
+  goPageX('cooklog');
 }
-window.openCookLogMo = openCookLogMo;
+window.openCookLogPage = openCookLogPage;
+function renderCookLogPage(){
+  var body = document.getElementById('cookLogBody');
+  if(!body) return;
+  if(!COOKLOGS.length){
+    body.innerHTML = '<div style="text-align:center;color:var(--sub);padding:30px 10px;font-size:12px;">還沒有煮過任何食譜的紀錄</div>';
+    return;
+  }
+  var groups = {};
+  var order = [];
+  COOKLOGS.forEach(function(log){
+    var ym = (log.date||'').slice(0,7);
+    if(!groups[ym]){ groups[ym]=[]; order.push(ym); }
+    groups[ym].push(log);
+  });
+  body.innerHTML = order.map(function(ym){
+    var parts = ym.split('-');
+    var label = parts[0]+' 年 '+parseInt(parts[1])+' 月';
+    var logs = groups[ym];
+    // 統計句：這個月煮了幾次、哪道菜出現最多次
+    var nameCounts = {};
+    logs.forEach(function(log){ nameCounts[log.recipeName] = (nameCounts[log.recipeName]||0)+1; });
+    var topName = null, topCount = 0;
+    Object.keys(nameCounts).forEach(function(n){ if(nameCounts[n]>topCount){ topCount=nameCounts[n]; topName=n; } });
+    var statLine = '這個月煮了 '+logs.length+' 次'+(topCount>1?'，其中「'+topName+'」煮了 '+topCount+' 次最常出現':'');
+    var rowsHtml = logs.map(function(log){
+      var recipe = RECIPES.find(function(r){return r.id===log.recipeId;});
+      var thumb = recipe&&recipe.photo
+        ? '<div style="width:34px;height:34px;border-radius:8px;overflow:hidden;flex-shrink:0;background-image:url(\''+recipe.photo+'\');background-size:cover;background-position:center;"></div>'
+        : '<div style="width:34px;height:34px;border-radius:8px;flex-shrink:0;background:var(--card2);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 10h18v2a7 7 0 01-7 7h-4a7 7 0 01-7-7v-2z" stroke="var(--bdr)" stroke-width="1.6" stroke-linejoin="round"/></svg></div>';
+      return '<div onclick="openRecipeDetail(\''+log.recipeId+'\')" style="display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;">'
+        +thumb
+        +'<div style="flex:1;font-size:13px;color:var(--txt);">'+(log.recipeName||'')+'</div>'
+        +'<div style="font-size:11px;color:var(--sub);">'+(log.date||'').slice(5)+'</div></div>';
+    }).join('');
+    return '<div class="slbl">'+label+'</div>'
+      +'<div style="font-size:11px;color:var(--sub);padding:0 2px 6px;">'+statLine+'</div>'
+      +'<div class="card" style="padding:4px 4px;margin-bottom:14px;">'+rowsHtml+'</div>';
+  }).join('');
+}
+window.renderCookLogPage = renderCookLogPage;
 
 // ── 幫我決定（篩選 + 抽籤不重複機制）──
 var _recipePickPool = [];
