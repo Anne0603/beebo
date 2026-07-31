@@ -51,6 +51,9 @@ service cloud.firestore {
       match /recipes/{recipeId} {
         allow read, write: if isCoupleOf(coupleId);
       }
+      match /cookLogs/{logId} {
+        allow read, write: if isCoupleOf(coupleId);
+      }
     }
   }
 }
