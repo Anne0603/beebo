@@ -1601,7 +1601,7 @@ window.reauthenticateForPinReset = async function() {
       <div style="color:rgba(255,255,255,.6);font-size:20px;line-height:1;">›</div>
     </button>
     <div style="display:flex;gap:8px;flex-shrink:0;">
-      <input id="recipeSearch" oninput="renderRecipes()" placeholder="搜尋食譜..." style="flex:1;padding:11px 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+      <input id="recipeSearch" oninput="renderRecipes()" placeholder="搜尋食譜..." style="flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
       <button onclick="openCookLogMo()" style="flex-shrink:0;padding:0 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/></svg>紀錄</button>
     </div>
     <div id="recipeList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
