@@ -1795,56 +1795,84 @@ window.reauthenticateForPinReset = async function() {
 <select class="fi" id="evPlace" style="padding:8px 10px;">
   <option value="">選擇地點...</option>
 </select></div><div class="fg"><label class="fl">備註（選填）</label><textarea class="fi" id="evNote" rows="2" style="resize:none;" placeholder="其他備注..."></textarea></div><button class="btn2 bpri" onclick="addEvent()">新增</button></div></div></div>
-<div class="mo" id="addRecipeMo"><div class="mbox" style="max-height:88vh;overflow-y:auto;"><div class="mh"><span class="mtit">新增食譜</span><button class="mcl" onclick="closeMo('addRecipeMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;">
-  <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="recipeName" placeholder="這道菜叫什麼？"></div>
-  <div class="fg"><label class="fl">風格分類</label>
-    <div id="recipeStylesBox" data-selected="[]" style="display:flex;flex-wrap:wrap;"></div>
-    <button type="button" onclick="closeMo('addRecipeMo');setTimeout(function(){openRecipeStyleMo();},250);" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">＋ 管理風格清單</button>
+<div class="page" id="page-addrecipe">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    新增食譜
   </div>
-  <div style="display:flex;gap:8px;">
-    <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="recipeServings" placeholder="例如 2"></div>
-    <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="recipeCookTime" placeholder="例如 30"></div>
+  <div class="sc" style="gap:10px;">
+    <div class="fg"><label class="fl">封面照片</label>
+      <div id="recipePhotoPreview" onclick="document.getElementById('recipePhotoInput').click()" style="width:100%;aspect-ratio:16/9;border-radius:14px;border:1.5px dashed var(--bdr);background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>
+        <span style="font-size:11px;color:var(--sub);">點擊上傳封面圖</span>
+      </div>
+      <input type="file" id="recipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'recipePhotoPreview')">
+    </div>
+    <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="recipeName" placeholder="這道菜叫什麼？"></div>
+    <div class="fg"><label class="fl">風格分類（可複選）</label>
+      <button type="button" onclick="openRecipeStylePicker('recipeStylesBox')" class="fi" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--card2);">
+        <span id="recipeStylesDisplay" style="color:var(--sub);">請選擇風格分類</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div id="recipeStylesBox" data-selected="[]" style="display:none;"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="recipeServings" placeholder="例如 2"></div>
+      <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="recipeCookTime" placeholder="例如 30"></div>
+    </div>
+    <div class="fg"><label class="fl">食材</label>
+      <div id="recipeIngredients"></div>
+      <button type="button" onclick="_addIngredientRow('recipeIngredients')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一項食材</button>
+    </div>
+    <div class="fg"><label class="fl">做法</label>
+      <div id="recipeSteps"></div>
+      <button type="button" onclick="_addStepRow('recipeSteps')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一個步驟</button>
+    </div>
+    <button class="btn2 bpri" onclick="saveRecipe()" style="margin-top:6px;">儲存食譜</button>
   </div>
-  <div class="fg"><label class="fl">食材</label>
-    <div id="recipeIngredients"></div>
-    <button type="button" onclick="_addIngredientRow('recipeIngredients')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一項食材</button>
+</div>
+<div class="page" id="page-editrecipe">
+  <div class="pt" style="position:relative;justify-content:center;">
+    <button onclick="goBack()" style="position:absolute;left:0;display:flex;align-items:center;gap:3px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif;padding:0 4px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 18l-6-6 6-6" stroke="var(--sub)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>返回</button>
+    編輯食譜
   </div>
-  <div class="fg"><label class="fl">做法</label>
-    <div id="recipeSteps"></div>
-    <button type="button" onclick="_addStepRow('recipeSteps')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一個步驟</button>
+  <div class="sc" style="gap:10px;">
+    <div class="fg"><label class="fl">封面照片</label>
+      <div id="editRecipePhotoPreview" onclick="document.getElementById('editRecipePhotoInput').click()" style="width:100%;aspect-ratio:16/9;border-radius:14px;border:1.5px dashed var(--bdr);background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;overflow:hidden;">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>
+        <span style="font-size:11px;color:var(--sub);">點擊更換封面圖</span>
+      </div>
+      <input type="file" id="editRecipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'editRecipePhotoPreview')">
+    </div>
+    <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="editRecipeName"></div>
+    <div class="fg"><label class="fl">風格分類（可複選）</label>
+      <button type="button" onclick="openRecipeStylePicker('editRecipeStylesBox')" class="fi" style="text-align:left;display:flex;justify-content:space-between;align-items:center;cursor:pointer;background:var(--card2);">
+        <span id="editRecipeStylesDisplay" style="color:var(--sub);">請選擇風格分類</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="var(--sub)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div id="editRecipeStylesBox" data-selected="[]" style="display:none;"></div>
+    </div>
+    <div style="display:flex;gap:8px;">
+      <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="editRecipeServings"></div>
+      <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="editRecipeCookTime"></div>
+    </div>
+    <div class="fg"><label class="fl">食材</label>
+      <div id="editRecipeIngredients"></div>
+      <button type="button" onclick="_addIngredientRow('editRecipeIngredients')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一項食材</button>
+    </div>
+    <div class="fg"><label class="fl">做法</label>
+      <div id="editRecipeSteps"></div>
+      <button type="button" onclick="_addStepRow('editRecipeSteps')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一個步驟</button>
+    </div>
+    <button class="btn2 bpri" onclick="saveEditRecipe()" style="margin-top:6px;">儲存</button>
   </div>
-  <div class="fg"><label class="fl">照片（選填）</label>
-    <div id="recipePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
-    <button type="button" onclick="document.getElementById('recipePhotoInput').click()" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>選擇照片</button>
-    <input type="file" id="recipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'recipePhotoPreview')">
-  </div>
-  <button class="btn2 bpri" onclick="saveRecipe()">儲存食譜</button>
-</div></div></div>
-<div class="mo" id="editRecipeMo"><div class="mbox" style="max-height:88vh;overflow-y:auto;"><div class="mh"><span class="mtit">編輯食譜</span><button class="mcl" onclick="closeMo('editRecipeMo')">×</button></div><div style="display:flex;flex-direction:column;gap:10px;">
-  <div class="fg"><label class="fl">食譜名稱（必填）</label><input class="fi" id="editRecipeName"></div>
-  <div class="fg"><label class="fl">風格分類</label>
-    <div id="editRecipeStylesBox" data-selected="[]" style="display:flex;flex-wrap:wrap;"></div>
-    <button type="button" onclick="closeMo('editRecipeMo');setTimeout(function(){openRecipeStyleMo();},250);" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;">＋ 管理風格清單</button>
-  </div>
-  <div style="display:flex;gap:8px;">
-    <div class="fg" style="flex:1;margin:0;"><label class="fl">份量（人份）</label><input class="fi" type="number" step="0.5" id="editRecipeServings"></div>
-    <div class="fg" style="flex:1;margin:0;"><label class="fl">料理時間（分鐘）</label><input class="fi" type="number" id="editRecipeCookTime"></div>
-  </div>
-  <div class="fg"><label class="fl">食材</label>
-    <div id="editRecipeIngredients"></div>
-    <button type="button" onclick="_addIngredientRow('editRecipeIngredients')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一項食材</button>
-  </div>
-  <div class="fg"><label class="fl">做法</label>
-    <div id="editRecipeSteps"></div>
-    <button type="button" onclick="_addStepRow('editRecipeSteps')" class="btn2 bsec" style="width:100%;font-size:12px;">＋ 新增一個步驟</button>
-  </div>
-  <div class="fg"><label class="fl">照片（選填）</label>
-    <div id="editRecipePhotoPreview" style="display:flex;gap:6px;margin-bottom:6px;"></div>
-    <button type="button" onclick="document.getElementById('editRecipePhotoInput').click()" class="btn2 bsec" style="width:100%;font-size:12px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="margin-right:4px;"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg>更換照片</button>
-    <input type="file" id="editRecipePhotoInput" accept="image/*" style="display:none;" onchange="_previewRecipePhoto(this,'editRecipePhotoPreview')">
-  </div>
-  <button class="btn2 bpri" onclick="saveEditRecipe()">儲存</button>
-</div></div></div>
+</div>
+<div class="mo" id="recipeStylePickerMo"><div class="mbox">
+  <div class="mh"><span class="mtit">選擇風格分類</span><button class="mcl" onclick="closeMo('recipeStylePickerMo')">×</button></div>
+  <div id="recipeStylePickerList" style="display:flex;flex-direction:column;gap:6px;max-height:40vh;overflow-y:auto;"></div>
+  <button onclick="closeMo('recipeStylePickerMo');setTimeout(function(){openRecipeStyleMo();},250);" style="all:unset;font-size:11px;color:var(--accent);cursor:pointer;display:block;margin-top:10px;">＋ 管理風格清單</button>
+  <button onclick="closeMo('recipeStylePickerMo')" class="btn2 bpri" style="width:100%;margin-top:10px;">完成</button>
+</div></div>
 <div class="mo" id="recipeDetailMo"><div class="mbox" style="max-height:88vh;overflow-y:auto;"><div class="mh"><span class="mtit">食譜詳情</span><button class="mcl" onclick="closeMo('recipeDetailMo')">×</button></div><div id="recipeDetailBody"></div></div></div>
 <div class="mo" id="recipeDecideMo" style="align-items:flex-end;"><div style="background:var(--card);border-radius:20px 20px 0 0;padding:18px;width:100%;max-height:80vh;overflow-y:auto;"><div class="mh"><span class="mtit">幫我決定</span><button class="mcl" onclick="closeMo('recipeDecideMo')">×</button></div>
   <div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -7464,10 +7492,12 @@ function renderRecipeStyleSelects(){
     var box = document.getElementById(boxId);
     if(!box) return;
     var current = box.dataset.selected ? JSON.parse(box.dataset.selected) : [];
-    box.innerHTML = styles.map(function(s){
-      var on = current.includes(s);
-      return '<label style="display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:20px;border:1px solid '+(on?'var(--accent)':'var(--bdr)')+';background:'+(on?'var(--lt)':'var(--card)')+';font-size:12px;cursor:pointer;margin:0 6px 6px 0;" onclick="_toggleRecipeStyleChip(this,\''+boxId+'\',\''+s+'\')">'+s+'</label>';
-    }).join('');
+    var displayId = boxId==='recipeStylesBox' ? 'recipeStylesDisplay' : 'editRecipeStylesDisplay';
+    var disp = document.getElementById(displayId);
+    if(disp){
+      disp.textContent = current.length ? current.join('、') : '請選擇風格分類';
+      disp.style.color = current.length ? 'var(--txt)' : 'var(--sub)';
+    }
   });
   var filterSel = document.getElementById('recipeFilterStyle');
   if(filterSel){
@@ -7477,15 +7507,37 @@ function renderRecipeStyleSelects(){
   }
 }
 window.renderRecipeStyleSelects = renderRecipeStyleSelects;
-function _toggleRecipeStyleChip(el, boxId, style){
+
+var _recipeStylePickerTarget = null;
+function openRecipeStylePicker(boxId){
+  _recipeStylePickerTarget = boxId;
+  var styles = getRecipeStyles();
   var box = document.getElementById(boxId);
+  var current = box&&box.dataset.selected ? JSON.parse(box.dataset.selected) : [];
+  var listEl = document.getElementById('recipeStylePickerList');
+  if(listEl){
+    if(!styles.length){
+      listEl.innerHTML = '<div style="text-align:center;color:var(--sub);padding:16px;font-size:12px;">還沒有任何風格分類</div>';
+    } else {
+      listEl.innerHTML = styles.map(function(s){
+        var on = current.includes(s);
+        return '<label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--card2);border-radius:10px;cursor:pointer;font-size:13px;"><input type="checkbox" '+(on?'checked':'')+' onchange="_toggleRecipeStylePick(\''+s+'\')" style="accent-color:var(--accent);">'+s+'</label>';
+      }).join('');
+    }
+  }
+  openMo('recipeStylePickerMo');
+}
+window.openRecipeStylePicker = openRecipeStylePicker;
+function _toggleRecipeStylePick(style){
+  var box = document.getElementById(_recipeStylePickerTarget);
+  if(!box) return;
   var current = box.dataset.selected ? JSON.parse(box.dataset.selected) : [];
   var idx = current.indexOf(style);
   if(idx>-1) current.splice(idx,1); else current.push(style);
   box.dataset.selected = JSON.stringify(current);
   renderRecipeStyleSelects();
 }
-window._toggleRecipeStyleChip = _toggleRecipeStyleChip;
+window._toggleRecipeStylePick = _toggleRecipeStylePick;
 
 function renderRecipes(){
   var el = document.getElementById('recipeList');
@@ -7591,11 +7643,13 @@ function _previewRecipePhoto(input, previewId){
   var prev = document.getElementById(previewId);
   if(prev){
     var url = URL.createObjectURL(f);
-    prev.innerHTML = '<div style="width:60px;height:60px;border-radius:10px;overflow:hidden;"><img src="'+url+'" style="width:100%;height:100%;object-fit:cover;"></div>';
+    prev.innerHTML = '<img src="'+url+'" style="width:100%;height:100%;object-fit:cover;">';
   }
 }
 window._previewRecipePhoto = _previewRecipePhoto;
 
+var _RECIPE_PHOTO_PLACEHOLDER_ADD = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg><span style="font-size:11px;color:var(--sub);">點擊上傳封面圖</span>';
+var _RECIPE_PHOTO_PLACEHOLDER_EDIT = '<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 14l4-4 4 4 4-5 4 5" stroke="var(--sub)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="3" width="18" height="18" rx="2" stroke="var(--sub)" stroke-width="1.5"/></svg><span style="font-size:11px;color:var(--sub);">點擊更換封面圖</span>';
 function openAddRecipeMo(){
   _recipePhotoFile = null;
   _recipeIngredients = [{name:'',amount:'',unit:'克'}];
@@ -7603,12 +7657,12 @@ function openAddRecipeMo(){
   var n=document.getElementById('recipeName'); if(n) n.value='';
   var sv=document.getElementById('recipeServings'); if(sv) sv.value='';
   var ct=document.getElementById('recipeCookTime'); if(ct) ct.value='';
-  var pp=document.getElementById('recipePhotoPreview'); if(pp) pp.innerHTML='';
+  var pp=document.getElementById('recipePhotoPreview'); if(pp) pp.innerHTML=_RECIPE_PHOTO_PLACEHOLDER_ADD;
   var box=document.getElementById('recipeStylesBox'); if(box) box.dataset.selected='[]';
   renderRecipeStyleSelects();
   _renderIngredientRows('recipeIngredients', _recipeIngredients);
   _renderStepRows('recipeSteps', _recipeSteps);
-  openMo('addRecipeMo');
+  goPageX('addrecipe');
 }
 window.openAddRecipeMo = openAddRecipeMo;
 
@@ -7642,7 +7696,7 @@ async function saveRecipe(){
     ingredients:ingredients, steps:steps, photo:photoUrl,
     lastCookedDate:'', cookCount:0, createdAt:serverTimestamp()
   });
-  closeMo('addRecipeMo');
+  goBack();
   showToast('食譜已新增 ✓');
 }
 window.saveRecipe = saveRecipe;
@@ -7660,13 +7714,13 @@ function openEditRecipeMo(id){
   var sv=document.getElementById('editRecipeServings'); if(sv) sv.value=r.servings||'';
   var ct=document.getElementById('editRecipeCookTime'); if(ct) ct.value=r.cookTimeMinutes||'';
   var pp=document.getElementById('editRecipePhotoPreview');
-  if(pp) pp.innerHTML = r.photo ? '<div style="width:60px;height:60px;border-radius:10px;overflow:hidden;"><img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;"></div>' : '';
+  if(pp) pp.innerHTML = r.photo ? '<img src="'+r.photo+'" style="width:100%;height:100%;object-fit:cover;">' : _RECIPE_PHOTO_PLACEHOLDER_EDIT;
   var box=document.getElementById('editRecipeStylesBox'); if(box) box.dataset.selected=JSON.stringify(r.styles||[]);
   renderRecipeStyleSelects();
   _renderIngredientRows('editRecipeIngredients', _editRecipeIngredients);
   _renderStepRows('editRecipeSteps', _editRecipeSteps);
   closeMo('recipeDetailMo');
-  openMo('editRecipeMo');
+  goPageX('editrecipe');
 }
 window.openEditRecipeMo = openEditRecipeMo;
 async function saveEditRecipe(){
@@ -7695,7 +7749,7 @@ async function saveEditRecipe(){
   }
   var {doc,updateDoc}=window._fsOps;
   await updateDoc(doc(window._db,'couples',window._coupleId,'recipes',_editRecipeId), updateData);
-  closeMo('editRecipeMo');
+  goBack();
   showToast('食譜已更新 ✓');
   _editRecipeId=null; _editRecipePhotoFile=null;
 }
