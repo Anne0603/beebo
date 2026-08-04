@@ -7599,8 +7599,17 @@ function _addIngredientRow(containerId){
 window._addIngredientRow = _addIngredientRow;
 function _removeIngredientRow(containerId, idx){
   var arr = containerId==='recipeIngredients' ? _recipeIngredients : _editRecipeIngredients;
-  arr.splice(idx,1);
-  _renderIngredientRows(containerId, arr);
+  var ing = arr[idx] || {};
+  var hasContent = (ing.name&&ing.name.trim()) || (ing.amount&&ing.amount.trim());
+  if(!hasContent){
+    arr.splice(idx,1);
+    _renderIngredientRows(containerId, arr);
+    return;
+  }
+  confirmAction('確定要刪除這項食材嗎？', function(){
+    arr.splice(idx,1);
+    _renderIngredientRows(containerId, arr);
+  });
 }
 window._removeIngredientRow = _removeIngredientRow;
 
