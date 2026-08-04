@@ -1605,8 +1605,17 @@ window.reauthenticateForPinReset = async function() {
       <div style="color:rgba(255,255,255,.6);font-size:20px;line-height:1;">›</div>
     </button>
     <div style="display:flex;gap:8px;flex-shrink:0;">
-      <input id="recipeSearch" oninput="renderRecipes()" placeholder="搜尋食譜..." style="flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+      <input id="recipeSearch" oninput="renderRecipes()" placeholder="搜尋食譜或食材..." style="flex:1;min-width:0;width:100%;padding:11px 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);font-size:14px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
       <button onclick="openCookLogPage()" style="flex-shrink:0;padding:0 14px;border-radius:14px;border:1px solid var(--bdr);background:var(--card2);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:flex;align-items:center;gap:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 016.5 17H20" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="var(--accent)" stroke-width="1.6" stroke-linejoin="round"/></svg>紀錄</button>
+    </div>
+    <div style="display:flex;gap:8px;flex-shrink:0;">
+      <select id="recipeListStyleFilter" onchange="renderRecipes()" style="flex:1;min-width:0;padding:8px 4px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;"><option value="">全部風格</option></select>
+      <select id="recipeListSort" onchange="renderRecipes()" style="flex:1;min-width:0;padding:8px 4px;border-radius:12px;border:1px solid var(--bdr);background:var(--card2);font-size:12px;color:var(--txt);font-family:'Noto Sans TC',sans-serif;">
+        <option value="name">依名稱</option>
+        <option value="newest">最近新增</option>
+        <option value="recentcooked">最近煮過</option>
+        <option value="mostcooked">煮過最多次</option>
+      </select>
     </div>
     <div id="recipeList" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"></div>
   </div>
@@ -7515,6 +7524,12 @@ function renderRecipeStyleSelects(){
     filterSel.innerHTML = '<option value="">全部風格</option>' + styles.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
     if(styles.includes(cur)) filterSel.value = cur;
   }
+  var listFilterSel = document.getElementById('recipeListStyleFilter');
+  if(listFilterSel){
+    var cur2 = listFilterSel.value;
+    listFilterSel.innerHTML = '<option value="">全部風格</option>' + styles.map(function(s){return '<option value="'+s+'">'+s+'</option>';}).join('');
+    if(styles.includes(cur2)) listFilterSel.value = cur2;
+  }
 }
 window.renderRecipeStyleSelects = renderRecipeStyleSelects;
 
@@ -7553,9 +7568,27 @@ function renderRecipes(){
   var el = document.getElementById('recipeList');
   if(!el) return;
   var sq = ((document.getElementById('recipeSearch')||{}).value||'').trim().toLowerCase();
-  var items = RECIPES.filter(function(r){ return !sq || (r.name||'').toLowerCase().indexOf(sq)>-1; });
+  var styleFilter = (document.getElementById('recipeListStyleFilter')||{}).value || '';
+  var sortMode = (document.getElementById('recipeListSort')||{}).value || 'name';
+  var items = RECIPES.filter(function(r){
+    if(styleFilter && !(r.styles||[]).includes(styleFilter)) return false;
+    if(!sq) return true;
+    if((r.name||'').toLowerCase().indexOf(sq)>-1) return true;
+    return (r.ingredients||[]).some(function(i){ return (i.name||'').toLowerCase().indexOf(sq)>-1; });
+  });
+  if(sortMode==='newest'){
+    items = items.slice().sort(function(a,b){
+      var ta = a.createdAt&&a.createdAt.seconds ? a.createdAt.seconds : 0;
+      var tb = b.createdAt&&b.createdAt.seconds ? b.createdAt.seconds : 0;
+      return tb-ta;
+    });
+  } else if(sortMode==='recentcooked'){
+    items = items.slice().sort(function(a,b){ return (b.lastCookedDate||'').localeCompare(a.lastCookedDate||''); });
+  } else if(sortMode==='mostcooked'){
+    items = items.slice().sort(function(a,b){ return (b.cookCount||0)-(a.cookCount||0); });
+  }
   if(!items.length){
-    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--sub);padding:30px 10px;font-size:12px;">'+(sq?'找不到符合的食譜':'還沒有食譜，點右下角 + 新增第一道吧')+'</div>';
+    el.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:var(--sub);padding:30px 10px;font-size:12px;">'+((sq||styleFilter)?'找不到符合的食譜':'還沒有食譜，點右下角 + 新增第一道吧')+'</div>';
     return;
   }
   el.innerHTML = items.map(function(r){
@@ -7878,10 +7911,14 @@ function renderCookLogPage(){
       var thumb = recipe&&recipe.photo
         ? '<div style="width:34px;height:34px;border-radius:8px;overflow:hidden;flex-shrink:0;background-image:url(\''+recipe.photo+'\');background-size:cover;background-position:center;"></div>'
         : '<div style="width:34px;height:34px;border-radius:8px;flex-shrink:0;background:var(--card2);display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M3 10h18v2a7 7 0 01-7 7h-4a7 7 0 01-7-7v-2z" stroke="var(--bdr)" stroke-width="1.6" stroke-linejoin="round"/></svg></div>';
-      return '<div onclick="openRecipeDetail(\''+log.recipeId+'\')" style="display:flex;align-items:center;gap:10px;padding:8px 10px;cursor:pointer;">'
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;">'
+        +'<div onclick="openRecipeDetail(\''+log.recipeId+'\')" style="display:flex;align-items:center;gap:10px;flex:1;cursor:pointer;min-width:0;">'
         +thumb
-        +'<div style="flex:1;font-size:13px;color:var(--txt);">'+(log.recipeName||'')+'</div>'
-        +'<div style="font-size:11px;color:var(--sub);">'+(log.date||'').slice(5)+'</div></div>';
+        +'<div style="flex:1;font-size:13px;color:var(--txt);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(log.recipeName||'')+'</div>'
+        +'<div style="font-size:11px;color:var(--sub);flex-shrink:0;">'+(log.date||'').slice(5)+'</div>'
+        +'</div>'
+        +'<button onclick="event.stopPropagation();deleteCookLog(\''+log.id+'\',\''+log.recipeId+'\')" style="all:unset;color:#c62828;cursor:pointer;font-size:16px;padding:2px 4px;flex-shrink:0;">×</button>'
+        +'</div>';
     }).join('');
     return '<div class="slbl">'+label+'</div>'
       +'<div style="font-size:11px;color:var(--sub);padding:0 2px 6px;">'+statLine+'</div>'
@@ -7889,6 +7926,24 @@ function renderCookLogPage(){
   }).join('');
 }
 window.renderCookLogPage = renderCookLogPage;
+function deleteCookLog(logId, recipeId){
+  confirmAction('確定要刪除這筆紀錄嗎？', async function(){
+    try{
+      var {doc, deleteDoc, collection, getDocs, updateDoc} = window._fsOps;
+      await deleteDoc(doc(window._db,'couples',window._coupleId,'cookLogs',logId));
+      // 重新計算這道食譜的煮過次數與上次日期（用剩下的紀錄重算，比較保險）
+      var remaining = COOKLOGS.filter(function(l){ return l.recipeId===recipeId && l.id!==logId; });
+      var newCount = remaining.length;
+      var newLastDate = '';
+      remaining.forEach(function(l){ if(!newLastDate || l.date>newLastDate) newLastDate = l.date; });
+      await updateDoc(doc(window._db,'couples',window._coupleId,'recipes',recipeId),{
+        cookCount: newCount, lastCookedDate: newLastDate
+      });
+      showToast('已刪除');
+    }catch(e){ console.error('[deleteCookLog]', e); showToast('刪除失敗，請再試'); }
+  });
+}
+window.deleteCookLog = deleteCookLog;
 
 // ── 幫我決定（篩選 + 抽籤不重複機制）──
 var _recipePickPool = [];
